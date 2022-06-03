@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
+import {LibDiamondStorage} from "../libraries/LibDiamondStorage.sol";
 
 // The LibDiamond library as part of the diamond pattern
 // EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535
@@ -22,22 +23,6 @@ library LibDiamond {
     struct FacetAddressAndSelectorPosition {
         address facetAddress;
         uint16 selectorPosition;
-    }
-
-    // DiamondStrorage keeps track of the global app storage, including
-    // functions added to the diamonds and which facets they belong to.
-    struct DiamondStorage {
-        // An array of function selectors
-        bytes4[] selectors;
-        // A mapping of the function selector to the face address and selector
-        // position
-        mapping(bytes4 => FacetAddressAndSelectorPosition) facetAddressAndSelectorPosition;
-        mapping(bytes4 => bool) supportedInterfaces;
-        // The owner of the contract
-        address contractOwner;
-        // Some random values for testing
-        uint256 testValueA;
-        uint256 testValueB;
     }
 
     /// @notice An event that emits when the ownership of the contract changes
@@ -67,7 +52,7 @@ library LibDiamond {
     function diamondStorage()
         internal
         pure
-        returns (DiamondStorage storage ds)
+        returns (LibDiamondStorage.DiamondStorage storage ds)
     {
         // By default, solidity will store data in subsequent slots as defined
         // by the state variables. In the diamond pattern, the slot for diamond
@@ -88,7 +73,7 @@ library LibDiamond {
     /// @param _newOwner The address of the new owner
     function setContractOwner(address _newOwner) internal {
         // Load diamond storage
-        DiamondStorage storage ds = diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = diamondStorage();
 
         // Get the previous owner
         address previousOwner = ds.contractOwner;
@@ -182,7 +167,7 @@ library LibDiamond {
         enforceHasContractCode(_facetAddress, "Facet has no code");
 
         // Load diamond storage
-        DiamondStorage storage ds = diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = diamondStorage();
 
         // For each function, add it to the facet
         uint16 selectorCount = uint16(ds.selectors.length);
@@ -238,7 +223,7 @@ library LibDiamond {
         enforceHasContractCode(_facetAddress, "Facet has no code");
 
         // Load diamond storage
-        DiamondStorage storage ds = diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = diamondStorage();
 
         // For each function, replace the existing function
         for (
@@ -295,7 +280,7 @@ library LibDiamond {
         );
 
         // Load diamond storage
-        DiamondStorage storage ds = diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = diamondStorage();
 
         // For each function remove it from the facet
         uint256 selectorCount = ds.selectors.length;

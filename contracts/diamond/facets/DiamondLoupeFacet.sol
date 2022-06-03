@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import {LibDiamond} from "../libraries/LibDiamond.sol";
+import {LibDiamondStorage} from "../libraries/LibDiamondStorage.sol";
 import {IDiamondLoupe} from "../interfaces/IDiamondLoupe.sol";
 import {IERC165} from "../interfaces/IERC165.sol";
 
@@ -12,7 +13,8 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
     /// @notice Gets all facets and their selectors.
     /// @return facets_ Facet
     function facets() external view override returns (Facet[] memory facets_) {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
+            .diamondStorage();
         uint256 selectorCount = ds.selectors.length;
         // create an array set to the maximum size possible
         facets_ = new Facet[](selectorCount);
@@ -79,7 +81,8 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
         override
         returns (bytes4[] memory _facetFunctionSelectors)
     {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
+            .diamondStorage();
         uint256 selectorCount = ds.selectors.length;
         uint256 numSelectors;
         _facetFunctionSelectors = new bytes4[](selectorCount);
@@ -112,7 +115,8 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
         override
         returns (address[] memory facetAddresses_)
     {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
+            .diamondStorage();
         uint256 selectorCount = ds.selectors.length;
         // create an array set to the maximum size possible
         facetAddresses_ = new address[](selectorCount);
@@ -160,7 +164,8 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
         override
         returns (address facetAddress_)
     {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
+            .diamondStorage();
         facetAddress_ = ds
             .facetAddressAndSelectorPosition[_functionSelector]
             .facetAddress;
@@ -178,7 +183,8 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
         override
         returns (bool)
     {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
+            .diamondStorage();
         return ds.supportedInterfaces[_interfaceId];
     }
 }

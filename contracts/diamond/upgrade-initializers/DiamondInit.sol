@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import {LibDiamond} from "../libraries/LibDiamond.sol";
+import {LibDiamondStorage} from "../libraries/LibDiamondStorage.sol";
 import {IDiamondLoupe} from "../interfaces/IDiamondLoupe.sol";
 import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 import {IERC173} from "../interfaces/IERC173.sol";
@@ -15,11 +16,18 @@ contract DiamondInit {
     /// @dev You can add parameters to this function in order to pass in data to
     /// set your own state variables
     function init() external {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
+            .diamondStorage();
+        // =====================================================================
+        // Diamond Pattern State
+        // =====================================================================
         ds.supportedInterfaces[type(IERC165).interfaceId] = true;
         ds.supportedInterfaces[type(IDiamondCut).interfaceId] = true;
         ds.supportedInterfaces[type(IDiamondLoupe).interfaceId] = true;
         ds.supportedInterfaces[type(IERC173).interfaceId] = true;
+        // =====================================================================
+        // Sarcophagus State
+        // =====================================================================
         ds.testValueA = 100;
         ds.testValueB = 200;
     }

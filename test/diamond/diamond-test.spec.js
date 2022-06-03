@@ -109,6 +109,15 @@ describe("DiamondTest", async function () {
     assert.sameMembers(result, selectors);
   });
 
+  it("should add sarcophaguses functions", async () => {
+    const SarcophagusesFacet = await ethers.getContractFactory(
+      "SarcophagusesFacet"
+    );
+    const sarcophagusesFacet = await SarcophagusesFacet.deploy();
+    await sarcophagusesFacet.deployed();
+    addresses.push(sarcophagusesFacet.address);
+  });
+
   it("should test function call", async () => {
     const test1Facet = await ethers.getContractAt("Test1Facet", diamondAddress);
     await test1Facet.test1Func10();

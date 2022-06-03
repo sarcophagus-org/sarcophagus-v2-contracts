@@ -7,6 +7,7 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-solhint";
+import "hardhat-contract-sizer";
 
 dotenv.config();
 
