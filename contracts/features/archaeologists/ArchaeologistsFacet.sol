@@ -6,13 +6,15 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibEvents.sol";
 import "../../libraries/LibTypes.sol";
-import {LibDiamondStorage} from "../../diamond/libraries/LibDiamondStorage.sol";
 import {LibDiamond} from "../../diamond/libraries/LibDiamond.sol";
 import {LibArchaeologists} from "./LibArchaeologists.sol";
+import {AppStorage} from "../../storage/LibAppStorage.sol";
 
 /// @title The archaeologsts facet
 /// @dev This facet/contract contains the external functions for the archaeologists feature
 contract ArchaeologistsFacet {
+    AppStorage internal s;
+
     /**
      * @notice Registers a new archaeologist in the system
      * @param currentPublicKey the public key to be used in the first
@@ -45,9 +47,6 @@ contract ArchaeologistsFacet {
         uint256 freeBond,
         IERC20 sarcoToken
     ) external returns (uint256) {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
         // verify that the archaeologist does not already exist
         LibArchaeologists.archaeologistExists(msg.sender, false);
 
@@ -76,8 +75,8 @@ contract ArchaeologistsFacet {
         });
 
         // save the new archaeologist into relevant data structures
-        ds.archaeologists[msg.sender] = newArch;
-        ds.archaeologistAddresses.push(msg.sender);
+        s.archaeologists[msg.sender] = newArch;
+        s.archaeologistAddresses.push(msg.sender);
 
         // emit an event
         emit LibEvents.RegisterArchaeologist(
@@ -93,7 +92,7 @@ contract ArchaeologistsFacet {
         );
 
         // return index of the new archaeologist
-        return ds.archaeologistAddresses.length - 1;
+        return s.archaeologistAddresses.length - 1;
     }
 
     /**
@@ -128,15 +127,12 @@ contract ArchaeologistsFacet {
         uint256 freeBond,
         IERC20 sarcoToken
     ) external returns (bool) {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
         // verify that the archaeologist exists, and is the sender of this
         // transaction
         LibArchaeologists.archaeologistExists(msg.sender, true);
 
         // load up the archaeologist
-        LibTypes.Archaeologist storage arch = ds.archaeologists[msg.sender];
+        LibTypes.Archaeologist storage arch = s.archaeologists[msg.sender];
 
         // if archaeologist is updating their active public key, emit an event
         if (keccak256(arch.currentPublicKey) != keccak256(newPublicKey)) {

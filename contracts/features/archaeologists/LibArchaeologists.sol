@@ -2,8 +2,8 @@
 pragma solidity ^0.8.9;
 
 import "../../libraries/LibTypes.sol";
-import {LibDiamondStorage} from "../../diamond/libraries/LibDiamondStorage.sol";
 import {LibDiamond} from "../../diamond/libraries/LibDiamond.sol";
+import "../../storage/LibAppStorage.sol";
 
 /// @title The archaeologists library
 /// @dev This library contains the internal and shared functions for archaeologists feature
@@ -16,15 +16,13 @@ library LibArchaeologists {
      * exists or not
      */
     function archaeologistExists(address account, bool exists) internal view {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
+        AppStorage storage s = LibAppStorage.diamondStorage();
         // set the error message
         string memory err = "archaeologist has not been registered yet";
         if (!exists) err = "archaeologist has already been registered";
 
         // revert if necessary
-        require(ds.archaeologists[account].exists == exists, err);
+        require(s.archaeologists[account].exists == exists, err);
     }
 
     /**
@@ -34,11 +32,9 @@ library LibArchaeologists {
      * @param amount the amount to increase free bond by
      */
     function increaseFreeBond(address archAddress, uint256 amount) internal {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
+        AppStorage storage s = LibAppStorage.diamondStorage();
         // load up the archaeologist
-        LibTypes.Archaeologist storage arch = ds.archaeologists[archAddress];
+        LibTypes.Archaeologist storage arch = s.archaeologists[archAddress];
 
         // increase the freeBond variable by amount
         arch.freeBond = arch.freeBond + amount;
@@ -51,11 +47,10 @@ library LibArchaeologists {
      * @param amount the amount to decrease free bond by
      */
     function decreaseFreeBond(address archAddress, uint256 amount) internal {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
+        AppStorage storage s = LibAppStorage.diamondStorage();
 
         // load up the archaeologist
-        LibTypes.Archaeologist storage arch = ds.archaeologists[archAddress];
+        LibTypes.Archaeologist storage arch = s.archaeologists[archAddress];
 
         // decrease the free bond variable by amount, reverting if necessary
         require(
@@ -72,11 +67,10 @@ library LibArchaeologists {
      * @param amount the amount to increase cursed bond by
      */
     function increaseCursedBond(address archAddress, uint256 amount) internal {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
+        AppStorage storage s = LibAppStorage.diamondStorage();
 
         // load up the archaeologist
-        LibTypes.Archaeologist storage arch = ds.archaeologists[archAddress];
+        LibTypes.Archaeologist storage arch = s.archaeologists[archAddress];
 
         // increase the freeBond variable by amount
         arch.cursedBond = arch.cursedBond + amount;
@@ -89,11 +83,10 @@ library LibArchaeologists {
      * @param amount the amount to decrease cursed bond by
      */
     function decreaseCursedBond(address archAddress, uint256 amount) internal {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
+        AppStorage storage s = LibAppStorage.diamondStorage();
 
         // load up the archaeologist
-        LibTypes.Archaeologist storage arch = ds.archaeologists[archAddress];
+        LibTypes.Archaeologist storage arch = s.archaeologists[archAddress];
 
         // decrease the free bond variable by amount
         arch.cursedBond = arch.cursedBond - amount;

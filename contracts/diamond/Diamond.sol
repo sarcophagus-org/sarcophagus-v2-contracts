@@ -2,7 +2,6 @@
 pragma solidity ^0.8.9;
 
 import {LibDiamond} from "./libraries/LibDiamond.sol";
-import {LibDiamondStorage} from "./libraries/LibDiamondStorage.sol";
 import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
 
 contract Diamond {
@@ -35,7 +34,7 @@ contract Diamond {
     // most other cases we should avoid complex fallback functions.
     // solhint-disable-next-line no-complex-fallback
     fallback() external payable {
-        LibDiamondStorage.DiamondStorage storage ds;
+        LibDiamond.DiamondStorage storage ds;
         bytes32 position = LibDiamond.DIAMOND_STORAGE_POSITION;
 
         // Get the diamond storage

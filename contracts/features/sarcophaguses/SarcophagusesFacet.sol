@@ -6,14 +6,17 @@ import "../../libraries/LibTypes.sol";
 import "../../libraries/LibPrivateKeys.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibEvents.sol";
-import {LibDiamondStorage} from "../../diamond/libraries/LibDiamondStorage.sol";
+import "hardhat/console.sol";
 import {LibDiamond} from "../../diamond/libraries/LibDiamond.sol";
 import {LibArchaeologists} from "../archaeologists/LibArchaeologists.sol";
 import {LibSarcophaguses} from "./LibSarcophaguses.sol";
+import {AppStorage} from "../../storage/LibAppStorage.sol";
 
 /// @title The sarcophaguses facet
 /// @dev This facet/contract contains the external functions for the sarcophaguses feature
 contract SarcophagusesFacet {
+    AppStorage internal s;
+
     /**
      * @notice Embalmer creates the skeleton for a new sarcopahgus.
      * @dev This is the external version of createSarcophaguses. The main
@@ -73,7 +76,7 @@ contract SarcophagusesFacet {
      * @param assetId the identifier of the encrypted asset on Arweave
      * @param v signature element
      * @param r signature element
-     * @param s signature element
+     * @param sSigElement signature element
      * @param sarcoToken the SARCO token used for payment handling
      * @return bool indicating that the update was successful
      */
@@ -83,14 +86,11 @@ contract SarcophagusesFacet {
         string memory assetId,
         uint8 v,
         bytes32 r,
-        bytes32 s,
+        bytes32 sSigElement,
         IERC20 sarcoToken
     ) external returns (bool) {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
         // load the sarcophagus, and make sure it exists
-        LibTypes.Sarcophagus storage sarc = ds.sarcophaguses[identifier];
+        LibTypes.Sarcophagus storage sarc = s.sarcophaguses[identifier];
         LibSarcophaguses.sarcophagusState(
             sarc.state,
             LibTypes.SarcophagusStates.Exists
@@ -109,25 +109,25 @@ contract SarcophagusesFacet {
             abi.encodePacked(newPublicKey, assetId),
             v,
             r,
-            s,
+            sSigElement,
             sarc.archaeologist
         );
 
         // revert if the new public key coming from the archaeologist has
         // already been used
         require(
-            !ds.archaeologistUsedKeys[sarc.archaeologistPublicKey],
+            !s.archaeologistUsedKeys[sarc.archaeologistPublicKey],
             "public key already used"
         );
 
         // make sure that the new public key can't be used again in the future
-        ds.archaeologistUsedKeys[sarc.archaeologistPublicKey] = true;
+        s.archaeologistUsedKeys[sarc.archaeologistPublicKey] = true;
 
         // set the assetId on the sarcophagus
         sarc.assetId = assetId;
 
         // load up the archaeologist
-        LibTypes.Archaeologist storage arch = ds.archaeologists[
+        LibTypes.Archaeologist storage arch = s.archaeologists[
             sarc.archaeologist
         ];
 
@@ -160,11 +160,8 @@ contract SarcophagusesFacet {
         public
         returns (bool)
     {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
         // load the sarcophagus, and make sure it exists
-        LibTypes.Sarcophagus storage sarc = ds.sarcophaguses[identifier];
+        LibTypes.Sarcophagus storage sarc = s.sarcophaguses[identifier];
         LibSarcophaguses.sarcophagusState(
             sarc.state,
             LibTypes.SarcophagusStates.Exists
@@ -180,7 +177,7 @@ contract SarcophagusesFacet {
         sarcoToken.transfer(sarc.embalmer, sarc.bounty + sarc.storageFee);
 
         // load the archaeologist
-        LibTypes.Archaeologist memory arch = ds.archaeologists[
+        LibTypes.Archaeologist memory arch = s.archaeologists[
             sarc.archaeologist
         ];
 
@@ -194,12 +191,13 @@ contract SarcophagusesFacet {
             sarc.currentCursedBond
         );
 
+        // TODO: Fix state change after transfer (possible re-entrancy vulnerability)
         // set the sarcophagus state to Done
         sarc.state = LibTypes.SarcophagusStates.Done;
 
         // save the fact that this sarcophagus has been cancelled, against the
         // archaeologist
-        ds.archaeologistCancels[sarc.archaeologist].push(identifier);
+        s.archaeologistCancels[sarc.archaeologist].push(identifier);
 
         // emit an event
         emit LibEvents.CancelSarcophagus(identifier);
@@ -226,11 +224,8 @@ contract SarcophagusesFacet {
         uint256 bounty,
         IERC20 sarcoToken
     ) public returns (bool) {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
         // load the sarcophagus, and make sure it exists
-        LibTypes.Sarcophagus storage sarc = ds.sarcophaguses[identifier];
+        LibTypes.Sarcophagus storage sarc = s.sarcophaguses[identifier];
         LibSarcophaguses.sarcophagusState(
             sarc.state,
             LibTypes.SarcophagusStates.Exists
@@ -245,7 +240,7 @@ contract SarcophagusesFacet {
         LibUtils.resurrectionInFuture(resurrectionTime);
 
         // load the archaeologist
-        LibTypes.Archaeologist storage arch = ds.archaeologists[
+        LibTypes.Archaeologist storage arch = s.archaeologists[
             sarc.archaeologist
         ];
 
@@ -287,6 +282,7 @@ contract SarcophagusesFacet {
         uint256 gracePeriod = LibUtils.getGracePeriod(resurrectionTime);
 
         // set variarbles on the sarcopahgus
+        // TODO: Fix state change after transfer (possible re-entrancy vulnerability)
         sarc.resurrectionTime = resurrectionTime;
         sarc.diggingFee = diggingFee;
         sarc.bounty = bounty;
@@ -322,11 +318,8 @@ contract SarcophagusesFacet {
         bytes32 privateKey,
         IERC20 sarcoToken
     ) public returns (bool) {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
         // load the sarcophagus, and make sure it exists
-        LibTypes.Sarcophagus storage sarc = ds.sarcophaguses[identifier];
+        LibTypes.Sarcophagus storage sarc = s.sarcophaguses[identifier];
         LibSarcophaguses.sarcophagusState(
             sarc.state,
             LibTypes.SarcophagusStates.Exists
@@ -349,7 +342,7 @@ contract SarcophagusesFacet {
         sarc.privateKey = privateKey;
 
         // load up the archaeologist
-        LibTypes.Archaeologist memory arch = ds.archaeologists[
+        LibTypes.Archaeologist memory arch = s.archaeologists[
             sarc.archaeologist
         ];
 
@@ -367,7 +360,7 @@ contract SarcophagusesFacet {
         sarc.state = LibTypes.SarcophagusStates.Done;
 
         // save this successful sarcophagus against the archaeologist
-        ds.archaeologistSuccesses[sarc.archaeologist].push(identifier);
+        s.archaeologistSuccesses[sarc.archaeologist].push(identifier);
 
         // emit an event
         emit LibEvents.UnwrapSarcophagus(sarc.assetId, identifier, privateKey);
@@ -392,11 +385,8 @@ contract SarcophagusesFacet {
         address paymentAddress,
         IERC20 sarcoToken
     ) public returns (bool) {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
         // load the sarcophagus, and make sure it exists
-        LibTypes.Sarcophagus storage sarc = ds.sarcophaguses[identifier];
+        LibTypes.Sarcophagus storage sarc = s.sarcophaguses[identifier];
         LibSarcophaguses.sarcophagusState(
             sarc.state,
             LibTypes.SarcophagusStates.Exists
@@ -416,7 +406,7 @@ contract SarcophagusesFacet {
             .splitSend(paymentAddress, sarc, sarcoToken);
 
         // save the accusal against the archaeologist
-        ds.archaeologistAccusals[sarc.archaeologist].push(identifier);
+        s.archaeologistAccusals[sarc.archaeologist].push(identifier);
 
         // update sarcophagus state to Done
         sarc.state = LibTypes.SarcophagusStates.Done;
@@ -445,11 +435,8 @@ contract SarcophagusesFacet {
         public
         returns (bool)
     {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
-
         // load the sarcophagus, and make sure it exists
-        LibTypes.Sarcophagus storage sarc = ds.sarcophaguses[identifier];
+        LibTypes.Sarcophagus storage sarc = s.sarcophaguses[identifier];
         LibSarcophaguses.sarcophagusState(
             sarc.state,
             LibTypes.SarcophagusStates.Exists
@@ -462,7 +449,7 @@ contract SarcophagusesFacet {
         LibUtils.resurrectionInFuture(sarc.resurrectionTime);
 
         // load the archaeologist
-        LibTypes.Archaeologist storage arch = ds.archaeologists[
+        LibTypes.Archaeologist storage arch = s.archaeologists[
             sarc.archaeologist
         ];
 
@@ -475,6 +462,7 @@ contract SarcophagusesFacet {
         // transfer the digging fee to the archae
         sarcoToken.transfer(arch.paymentAddress, sarc.diggingFee);
 
+        // TODO: Fix state change after transfer (possible re-entrancy vulnerability)
         // set the resurrection time of this sarcopahgus at maxint
         sarc.resurrectionTime = 2**256 - 1;
 
@@ -502,10 +490,8 @@ contract SarcophagusesFacet {
         address paymentAddress,
         IERC20 sarcoToken
     ) public returns (bool) {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
         // load the sarcophagus, and make sure it exists
-        LibTypes.Sarcophagus storage sarc = ds.sarcophaguses[identifier];
+        LibTypes.Sarcophagus storage sarc = s.sarcophaguses[identifier];
         LibSarcophaguses.sarcophagusState(
             sarc.state,
             LibTypes.SarcophagusStates.Exists
@@ -524,7 +510,7 @@ contract SarcophagusesFacet {
             .splitSend(paymentAddress, sarc, sarcoToken);
 
         // save the cleanup against the archaeologist
-        ds.archaeologistCleanups[sarc.archaeologist].push(identifier);
+        s.archaeologistCleanups[sarc.archaeologist].push(identifier);
 
         // update sarcophagus state to Done
         sarc.state = LibTypes.SarcophagusStates.Done;

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.9;
 
-import {LibDiamondStorage} from "../diamond/libraries/LibDiamondStorage.sol";
 import {LibDiamond} from "../diamond/libraries/LibDiamond.sol";
 import "hardhat/console.sol";
 

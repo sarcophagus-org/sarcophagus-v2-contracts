@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../../libraries/LibTypes.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibEvents.sol";
-import {LibDiamondStorage} from "../../diamond/libraries/LibDiamondStorage.sol";
 import {LibDiamond} from "../../diamond/libraries/LibDiamond.sol";
 import {LibArchaeologists} from "../archaeologists/LibArchaeologists.sol";
+import {LibAppStorage, AppStorage} from "../../storage/LibAppStorage.sol";
 
 /// @title The sarcophaguses library
 /// @dev This library contains the internal and shared functions for sarcophaguses feature
@@ -100,8 +100,7 @@ library LibSarcophaguses {
         bytes memory recipientPublicKey,
         IERC20 sarcoToken
     ) internal returns (uint256) {
-        LibDiamondStorage.DiamondStorage storage ds = LibDiamond
-            .diamondStorage();
+        AppStorage storage s = LibAppStorage.diamondStorage();
 
         // confirm that the archaeologist exists
         LibArchaeologists.archaeologistExists(archaeologist, true);
@@ -111,7 +110,7 @@ library LibSarcophaguses {
 
         // confirm that this exact sarcophagus does not yet exist
         sarcophagusState(
-            ds.sarcophaguses[identifier].state,
+            s.sarcophaguses[identifier].state,
             LibTypes.SarcophagusStates.DoesNotExist
         );
 
@@ -119,7 +118,7 @@ library LibSarcophaguses {
         LibUtils.resurrectionInFuture(resurrectionTime);
 
         // load the archaeologist
-        LibTypes.Archaeologist memory arch = ds.archaeologists[archaeologist];
+        LibTypes.Archaeologist memory arch = s.archaeologists[archaeologist];
 
         // check that the new sarcophagus parameters fit within the selected
         // archaeologist's parameters
@@ -164,11 +163,11 @@ library LibSarcophaguses {
         );
 
         // save the sarcophagus into necessary data structures
-        ds.sarcophaguses[identifier] = sarc;
-        ds.sarcophagusIdentifiers.push(identifier);
-        ds.embalmerSarcophaguses[msg.sender].push(identifier);
-        ds.archaeologistSarcophaguses[archaeologist].push(identifier);
-        ds.recipientSarcophaguses[recipientAddress].push(identifier);
+        s.sarcophaguses[identifier] = sarc;
+        s.sarcophagusIdentifiers.push(identifier);
+        s.embalmerSarcophaguses[msg.sender].push(identifier);
+        s.archaeologistSarcophaguses[archaeologist].push(identifier);
+        s.recipientSarcophaguses[recipientAddress].push(identifier);
 
         // transfer digging fee + bounty + storage fee from embalmer to this
         // contract
@@ -195,6 +194,6 @@ library LibSarcophaguses {
         );
 
         // return index of the new sarcophagus
-        return ds.sarcophagusIdentifiers.length - 1;
+        return s.sarcophagusIdentifiers.length - 1;
     }
 }
