@@ -12,7 +12,7 @@ import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 /// diamondCut function which adds, replaces, and removes functions from a facet
 library LibDiamond {
     // The hash of a unique string. This hash is used as a pointer to the slot
-    // of the diamond storage.
+    // of the diamond storage. The string may be any unique value.
     bytes32 public constant DIAMOND_STORAGE_POSITION =
         keccak256("diamond.standard.diamond.storage");
 
@@ -43,6 +43,7 @@ library LibDiamond {
     );
 
     /// @notice An event that emits when a diamond is cut
+    /// @dev Emitting this event is required to maintain a record of diamond cuts
     /// @param _diamondCut An array of facet cuts, each of which contains the
     /// facet address, the action, and an array of function selectors
     /// @param _init The address of the contract or facet to execute _calldata
@@ -56,7 +57,8 @@ library LibDiamond {
 
     /// @notice A function that returns the diamond storage object
     /// @dev Looks up the diamond storage based on the DIAMOND_STORAGE_POSITION
-    /// constant
+    /// constant. This storage is used specifically for mainting diamond pattern
+    /// state although any number of storages may be added.
     /// @return ds The diamond storage object
     function diamondStorage()
         internal
@@ -154,6 +156,7 @@ library LibDiamond {
         }
 
         // Emit an event for diamond cut
+        // This is needed to maintain a record of diamond cuts
         emit DiamondCut(_diamondCut, _init, _calldata);
 
         // Initialize a diamond cut
@@ -170,7 +173,8 @@ library LibDiamond {
         // Check that there are functions to be added
         require(_functionSelectors.length > 0, "No selectors in facet to cut");
 
-        // Make sure facet address is not address(0)
+        // Make sure facet address is not address(0). Setting the _facetAddress
+        // to address(0) is how we remove functions
         require(_facetAddress != address(0), "Facet can't be address(0)");
 
         // Make sure the facet actually has code
@@ -273,7 +277,8 @@ library LibDiamond {
 
     /// @notice Removes functions from a facet
     /// @dev The empty storage slots left from removed functions are replaced
-    /// with the lastest functions in storage
+    /// with the lastest functions in storage. Functions are removed by setting
+    /// their facet address to address(0)
     /// @param _facetAddress The address of the facet contract
     /// @param _functionSelectors 4 byte selectors of the functions to remove
     function removeFunctions(
@@ -283,7 +288,7 @@ library LibDiamond {
         // Check that there are functions to be removed
         require(_functionSelectors.length > 0, "No selectors in facet to cut");
 
-        // Make sure the facet address is not address(0)
+        // Make sure the facet address is address(0)
         require(
             _facetAddress == address(0),
             "Facet address must be address(0)"
@@ -351,12 +356,12 @@ library LibDiamond {
         internal
     {
         // If the _init value is address(0) then _calldata execution is skipped.
-        // In this case _calldata can contain 0 bytes or custom information.
+        // In this case _calldata can contain 0 bytes or custom information
         if (_init == address(0)) {
             require(_calldata.length == 0, "_calldata should be empty");
         } else {
             // If the _init value is not address(0) then _calldata must contain
-            // more than 0 bytes or the transaction reverts.
+            // more than 0 bytes or the transaction reverts
             require(_calldata.length > 0, "_calldata is empty");
 
             // Make sure the functions being initialized don't exist directly on

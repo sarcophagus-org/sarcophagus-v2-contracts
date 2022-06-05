@@ -5,10 +5,10 @@ import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {IDiamondLoupe} from "../interfaces/IDiamondLoupe.sol";
 import {IERC165} from "../interfaces/IERC165.sol";
 
+/// @title Diamond Loupe Functions
+/// @notice These functions are expected to be called frequently by tools
+/// @dev These functions are not gas optimized and should only be called externally
 contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
-    // Diamond Loupe Functions
-    // These functions are expected to be called frequently by tools.
-
     /// @notice Gets all facets and their selectors.
     /// @return facets_ Facet
     function facets() external view override returns (Facet[] memory facets_) {

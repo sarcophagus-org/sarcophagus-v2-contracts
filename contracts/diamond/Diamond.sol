@@ -30,8 +30,17 @@ contract Diamond {
         LibDiamond.diamondCut(cut, address(0), "");
     }
 
-    // This fallback function is an essential part of the diamond pattern. In
-    // most other cases we should avoid complex fallback functions.
+    // When an external function is called on a diamond its fallback function is
+    // executed. The fallback function finds in the selectorToFacet mapping
+    // which facet has the function that has been called and then executes that
+    // function from the facet using delegatecall.
+    //
+    // A diamond’s fallback function and delegatecall enable a diamond to
+    // execute a facet’s external function as its own external function. The
+    // msg.sender and msg.value values do not change and only the diamond’s
+    // contract storage is read and written to.
+    //
+    // In most other cases we should avoid complex fallback functions.
     // solhint-disable-next-line no-complex-fallback
     fallback() external payable {
         LibDiamond.DiamondStorage storage ds;
