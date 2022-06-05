@@ -22,4 +22,9 @@ module.exports = {
     ],
     "no-unused-vars": ["warn"],
   },
+  settings: {
+    node: {
+      tryExtensions: [".js", ".json", ".ts", ".d.ts"],
+    },
+  },
 };
