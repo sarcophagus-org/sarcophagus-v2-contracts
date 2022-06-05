@@ -249,13 +249,13 @@ library LibDiamond {
                 .facetAddress;
 
             // Make sure the functions being replaced don't exist directly on
-            // the diamond. These function are immutable.
+            // the diamond. These functions are immutable.
             require(
                 oldFacetAddress != address(this),
                 "Can't replace immutable function"
             );
 
-            // TODO: How can we know that the function already exists if the facet is the same?
+            // Make sure the function being replaced is in a new facet
             require(
                 oldFacetAddress != _facetAddress,
                 "That function already exists"
@@ -283,7 +283,7 @@ library LibDiamond {
         // Check that there are functions to be removed
         require(_functionSelectors.length > 0, "No selectors in facet to cut");
 
-        // Make sure the face address is not address(0)
+        // Make sure the facet address is not address(0)
         require(
             _facetAddress == address(0),
             "Facet address must be address(0)"
@@ -350,27 +350,22 @@ library LibDiamond {
     function initializeDiamondCut(address _init, bytes memory _calldata)
         internal
     {
-        // If _init == address(0) then diamondCut is being called in the
-        // constructor, which means this is the first time it's being called.
-        // During instantiation, all this function does is check that calldata
-        // is empty.
+        // If the _init value is address(0) then _calldata execution is skipped.
+        // In this case _calldata can contain 0 bytes or custom information.
         if (_init == address(0)) {
             require(_calldata.length == 0, "_calldata should be empty");
         } else {
-            // In this case, initializeDiamondCut is being called externally
-            // after instantiation of the diamond contract. The diamond cut
-            // expects calldata to have data.
+            // If the _init value is not address(0) then _calldata must contain
+            // more than 0 bytes or the transaction reverts.
             require(_calldata.length > 0, "_calldata is empty");
 
-            // TODO: Verify the following comment is correct
-            // Make sure the address of the contract executing the data is not an instance of the LibDiamond contract
+            // Make sure the functions being initialized don't exist directly on
+            // the diamond. These function are immutable.
             if (_init != address(this)) {
                 // Make sure the facet has actual contract code
                 enforceHasContractCode(_init, "_init address has no code");
 
-                // TODO: Need more documentation on this
                 // Call the function using delegatecall
-                // I think allowing a low level call is acceptable in this case
                 // solhint-disable-next-line avoid-low-level-calls
                 (bool success, bytes memory error) = _init.delegatecall(
                     _calldata
