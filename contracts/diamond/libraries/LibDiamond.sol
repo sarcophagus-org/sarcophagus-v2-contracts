@@ -69,11 +69,12 @@ library LibDiamond {
         // slot has a unique address that will not conflict with anything else.
         //
         // To do this, we hash a unique string (DIAMOND_STORAGE_POSITION) which
-        // can thought of as a symbol for the storage slot and use this as the
-        // storage slot. This ensures that nothing else in storage will conflict
-        // with this storage location.
+        // can be thought of as a symbol for the storage slot and use this as
+        // the storage slot. This ensures that nothing else in storage will
+        // conflict with this storage location.
         bytes32 position = DIAMOND_STORAGE_POSITION;
         assembly {
+            // Set the position of our struct in contract storage
             ds.slot := position
         }
     }

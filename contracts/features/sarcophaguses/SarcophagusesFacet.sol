@@ -6,7 +6,6 @@ import "../../libraries/LibTypes.sol";
 import "../../libraries/LibPrivateKeys.sol";
 import "../../libraries/LibUtils.sol";
 import "../../libraries/LibEvents.sol";
-import "hardhat/console.sol";
 import {LibDiamond} from "../../diamond/libraries/LibDiamond.sol";
 import {LibArchaeologists} from "../archaeologists/LibArchaeologists.sol";
 import {LibSarcophaguses} from "./LibSarcophaguses.sol";
@@ -523,7 +522,6 @@ contract SarcophagusesFacet {
             halfToEmbalmer
         );
 
-        // return true
         return true;
     }
 }

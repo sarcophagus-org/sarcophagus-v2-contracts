@@ -16,7 +16,7 @@ library LibArchaeologists {
      * exists or not
      */
     function archaeologistExists(address account, bool exists) internal view {
-        AppStorage storage s = LibAppStorage.diamondStorage();
+        AppStorage storage s = LibAppStorage.getAppStorage();
         // set the error message
         string memory err = "archaeologist has not been registered yet";
         if (!exists) err = "archaeologist has already been registered";
@@ -32,7 +32,7 @@ library LibArchaeologists {
      * @param amount the amount to increase free bond by
      */
     function increaseFreeBond(address archAddress, uint256 amount) internal {
-        AppStorage storage s = LibAppStorage.diamondStorage();
+        AppStorage storage s = LibAppStorage.getAppStorage();
         // load up the archaeologist
         LibTypes.Archaeologist storage arch = s.archaeologists[archAddress];
 
@@ -47,7 +47,7 @@ library LibArchaeologists {
      * @param amount the amount to decrease free bond by
      */
     function decreaseFreeBond(address archAddress, uint256 amount) internal {
-        AppStorage storage s = LibAppStorage.diamondStorage();
+        AppStorage storage s = LibAppStorage.getAppStorage();
 
         // load up the archaeologist
         LibTypes.Archaeologist storage arch = s.archaeologists[archAddress];
@@ -67,7 +67,7 @@ library LibArchaeologists {
      * @param amount the amount to increase cursed bond by
      */
     function increaseCursedBond(address archAddress, uint256 amount) internal {
-        AppStorage storage s = LibAppStorage.diamondStorage();
+        AppStorage storage s = LibAppStorage.getAppStorage();
 
         // load up the archaeologist
         LibTypes.Archaeologist storage arch = s.archaeologists[archAddress];
@@ -83,7 +83,7 @@ library LibArchaeologists {
      * @param amount the amount to decrease cursed bond by
      */
     function decreaseCursedBond(address archAddress, uint256 amount) internal {
-        AppStorage storage s = LibAppStorage.diamondStorage();
+        AppStorage storage s = LibAppStorage.getAppStorage();
 
         // load up the archaeologist
         LibTypes.Archaeologist storage arch = s.archaeologists[archAddress];

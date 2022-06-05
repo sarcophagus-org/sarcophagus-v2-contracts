@@ -26,11 +26,12 @@ struct AppStorage {
 }
 
 library LibAppStorage {
-    function diamondStorage() internal pure returns (AppStorage storage ds) {
+    function getAppStorage() internal pure returns (AppStorage storage s) {
+        // Set the position of our struct in contract storage
         // Since AppStorage s is the first and only state variable declared in
         // facets its position in contract storage is 0
         assembly {
-            ds.slot := 0
+            s.slot := 0
         }
     }
 }

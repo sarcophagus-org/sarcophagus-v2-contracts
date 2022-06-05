@@ -12,6 +12,9 @@ import {LibAppStorage, AppStorage} from "../../storage/LibAppStorage.sol";
 /// @title The sarcophaguses library
 /// @dev This library contains the internal and shared functions for sarcophaguses feature
 library LibSarcophaguses {
+    // These values are combined to reduce the number of arguments passed in to
+    // the createSarcophagus function in order to prevent the "stack too deep"
+    // error
     struct Rewards {
         uint256 storageFee;
         uint256 diggingFee;
@@ -100,7 +103,7 @@ library LibSarcophaguses {
         bytes memory recipientPublicKey,
         IERC20 sarcoToken
     ) internal returns (uint256) {
-        AppStorage storage s = LibAppStorage.diamondStorage();
+        AppStorage storage s = LibAppStorage.getAppStorage();
 
         // confirm that the archaeologist exists
         LibArchaeologists.archaeologistExists(archaeologist, true);
