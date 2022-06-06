@@ -1,5 +1,6 @@
 import { Contract, ContractReceipt } from "ethers";
 import { ethers } from "hardhat";
+import { Diamond } from "../typechain";
 import { DiamondCut, FacetCutAction } from "../types";
 
 /**
@@ -65,24 +66,29 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
 /**
  * Makes a diamond cut creating facets asynchronously
  *
- * @param cuts The cuts to be made to the diamond creating facets
- * @param diamondAddress The address of the diamond contract
- * @param functionCall The encoded data for the init function call from DiamondInit
+ * @param diamondCuts The cuts to be made to the diamond creating facets
+ * @param init The address making the cut
+ * @param calldata The function selector of the function to be called after the
+ * diamond cut
  * @returns The transaction receipt
  */
 const diamondCutAsync = async (
-  cuts: DiamondCut[],
-  diamondAddress: string,
-  functionCall: string
+  diamondCuts: DiamondCut[],
+  init: string,
+  calldata: string,
+  diamond: Diamond
 ): Promise<ContractReceipt> => {
-  // Get the diamondCut contract
-  const diamondCut = await ethers.getContractAt("IDiamondCut", diamondAddress);
+  // Get the diamondCut interface contract
+  const diamondCutContract = await ethers.getContractAt(
+    "IDiamondCut",
+    diamond.address
+  );
 
   // Make a diamond cut using the facets provided in cuts
-  const diamondCutTx = await diamondCut.diamondCut(
-    cuts,
-    diamondAddress,
-    functionCall
+  const diamondCutTx = await diamondCutContract.diamondCut(
+    diamondCuts,
+    init,
+    calldata
   );
 
   return new Promise((resolve, reject) => {
@@ -158,9 +164,6 @@ export const deployDiamond = async () => {
   // Prepare cuts from each app specific facet for the diamond cut
   const appCuts: DiamondCut[] = await createAppDiamondCuts();
 
-  // Encode the data for the init function call
-  const functionCall = diamondInit.interface.encodeFunctionData("init");
-
   // Combine the cuts needed for the diamond pattern to work with the cuts
   // needed for the app to work
   const cuts = [
@@ -177,9 +180,14 @@ export const deployDiamond = async () => {
     ...appCuts,
   ];
 
+  // Encode the data for the init function call
+  // The DiamondInit.init() function will be called with delegatecall after the
+  // diamond cut is performed
+  const functionCall = diamondInit.interface.encodeFunctionData("init");
+
   // Make the diamond cut to create the facets provided in cuts
   try {
-    await diamondCutAsync(cuts, diamond.address, functionCall);
+    await diamondCutAsync(cuts, diamondInit.address, functionCall, diamond);
     return diamond.address;
   } catch (error) {
     const _error = error as Error;
