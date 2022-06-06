@@ -20,6 +20,8 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   await libUtils.deployed();
 
   // Deploy Sarcophaguses Facet
+  // Functions used from other libraries are internal and thus do no need to be
+  // deployed with the facet
   const SarcophagusesFacet = await ethers.getContractFactory(
     "SarcophagusesFacet",
     {
@@ -33,6 +35,8 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   await sarcophagusesFacet.deployed();
 
   // Deploy Archaeologists Facet
+  // Functions used from other libraries are internal and thus do no need to be
+  // deployed with the facet
   const ArchaeologistsFacet = await ethers.getContractFactory(
     "ArchaeologistsFacet",
     {
@@ -103,19 +107,6 @@ const getSelectors = (contract: Contract): string[] => {
   return signatures
     .filter((sig) => sig !== "init(bytes)")
     .map((sig) => contract.interface.getSighash(sig));
-};
-
-/**
- * Deployes a library given a library name
- *
- * @param libraryName The name of the library
- * @returns The library contract
- */
-const deployLibrary = async (libraryName: string) => {
-  const Contract = await ethers.getContractFactory(libraryName);
-  const contract = await Contract.deploy();
-  await contract.deployed();
-  return contract;
 };
 
 /**
