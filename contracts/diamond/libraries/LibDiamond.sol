@@ -159,8 +159,8 @@ library LibDiamond {
         // This is needed to maintain a record of diamond cuts
         emit DiamondCut(_diamondCut, _init, _calldata);
 
-        // Initialize a diamond cut
-        initializeDiamondCut(_init, _calldata);
+        // Do some stuff after a diamond cut, like initializing storage variables
+        postProcessDiamondCut(_init, _calldata);
     }
 
     /// @notice Adds functions to a facet
@@ -348,29 +348,38 @@ library LibDiamond {
         }
     }
 
-    /// @notice Initializes a diamond cut
+    /// @notice Post processing on a diamond cut
+    /// @dev At this point the diamond cut has already been performed. This
+    /// calls whatever initializing functions need to be called after the
+    /// diamond cut happens, like intializing data for example.
+    ///
+    /// Example:
+    ///     _init = DiamondInit.address
+    ///     _calldata = the function selector for the `init()` function
+    ///     This will do a delegate call on DiamondInit.init()
+    ///
     /// @param _init The address of the contract or facet to execute _calldata
     /// @param _calldata A function call, including function selector and
     /// arguments _calldata is executed with delegatecall on _init
-    function initializeDiamondCut(address _init, bytes memory _calldata)
+    function postProcessDiamondCut(address _init, bytes memory _calldata)
         internal
     {
-        // If the _init value is address(0) then _calldata execution is skipped.
-        // In this case _calldata can contain 0 bytes or custom information
+        // If _init is address(0) then calldata should be empty and post
+        // processing will be skipped
         if (_init == address(0)) {
             require(_calldata.length == 0, "_calldata should be empty");
         } else {
-            // If the _init value is not address(0) then _calldata must contain
-            // more than 0 bytes or the transaction reverts
+            // If _init is not address(0) then there should be something in _calldata
             require(_calldata.length > 0, "_calldata is empty");
 
-            // Make sure the functions being initialized don't exist directly on
-            // the diamond. These function are immutable.
+            // In this case address(this) is the Diamond.sol contract address.
+            // Make sure the caller is not trying to call a function on the
+            // Diamond.sol contract
             if (_init != address(this)) {
-                // Make sure the facet has actual contract code
+                // Make sure the contract has a function to call
                 enforceHasContractCode(_init, "_init address has no code");
 
-                // Call the function using delegatecall
+                // Call the function defined in _calldata using delegatecall
                 // solhint-disable-next-line avoid-low-level-calls
                 (bool success, bytes memory error) = _init.delegatecall(
                     _calldata
