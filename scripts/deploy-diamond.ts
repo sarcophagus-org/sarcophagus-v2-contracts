@@ -24,41 +24,16 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   // Functions used from other libraries are internal and thus do no need to be
   // deployed with the facet
   const SarcophagusesFacet = await ethers.getContractFactory(
-    "SarcophagusesFacet",
-    {
-      libraries: {
-        LibPrivateKeys: libPrivateKeys.address,
-        LibUtils: libUtils.address,
-      },
-    }
+    "SarcophagusesFacet"
   );
   const sarcophagusesFacet = await SarcophagusesFacet.deploy();
   await sarcophagusesFacet.deployed();
-
-  // Deploy Archaeologists Facet
-  // Functions used from other libraries are internal and thus do no need to be
-  // deployed with the facet
-  const ArchaeologistsFacet = await ethers.getContractFactory(
-    "ArchaeologistsFacet",
-    {
-      libraries: {
-        LibUtils: libUtils.address,
-      },
-    }
-  );
-  const archaeologistsFacet = await ArchaeologistsFacet.deploy();
-  await archaeologistsFacet.deployed();
 
   return [
     {
       facetAddress: sarcophagusesFacet.address,
       action: FacetCutAction.Add,
       functionSelectors: getSelectors(sarcophagusesFacet),
-    },
-    {
-      facetAddress: archaeologistsFacet.address,
-      action: FacetCutAction.Add,
-      functionSelectors: getSelectors(archaeologistsFacet),
     },
   ];
 };
@@ -70,6 +45,7 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
  * @param init The address making the cut
  * @param calldata The function selector of the function to be called after the
  * diamond cut
+ * @param diamond The address of the diamond contract
  * @returns The transaction receipt
  */
 const diamondCutAsync = async (
