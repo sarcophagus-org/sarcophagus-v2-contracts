@@ -6,23 +6,21 @@ import "../libraries/LibTypes.sol";
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
     // archaeologists
-    address[] archaeologistAddresses;
-    mapping(address => LibTypes.Archaeologist) archaeologists;
+    mapping(address => uint256) freeBonds;
+    mapping(address => uint256) cursedBonds;
     // archaeologist stats
     mapping(address => bytes32[]) archaeologistSuccesses;
     mapping(address => bytes32[]) archaeologistCancels;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
-    // archaeologist key control
-    mapping(bytes => bool) archaeologistUsedKeys;
     // sarcophaguses
     bytes32[] sarcophagusIdentifiers;
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophaguses;
     // sarcophagus ownerships
+    // V2: May not need these anymore
     mapping(address => bytes32[]) embalmerSarcophaguses;
     mapping(address => bytes32[]) archaeologistSarcophaguses;
     mapping(address => bytes32[]) recipientSarcophaguses;
-    uint256 testValueA;
 }
 
 library LibAppStorage {
