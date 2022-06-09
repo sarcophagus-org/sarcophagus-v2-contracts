@@ -7,6 +7,7 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-solhint";
+import "hardhat-contract-sizer";
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.14",
+  solidity: "0.8.9",
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
@@ -35,6 +36,10 @@ const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
+    coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY,
+
+    // Uncomment to override gas price
+    gasPrice: 20,
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

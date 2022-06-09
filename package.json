@@ -4,7 +4,7 @@
   "description": "[![Discord](https://img.shields.io/discord/753398645507883099?color=768AD4&label=discord)](https://discord.com/channels/753398645507883099/) [![Twitter](https://img.shields.io/twitter/follow/sarcophagusio?style=social)](https://twitter.com/sarcophagusio)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified. Use `npx hardhat test`\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.6.8",
     "hardhat": "^2.9.6",
+    "hardhat-contract-sizer": "^2.5.1",
     "hardhat-gas-reporter": "^1.0.8",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
@@ -49,5 +50,8 @@
     "ts-node": "^10.8.0",
     "typechain": "^5.2.0",
     "typescript": "^4.7.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.6.0"
   }
 }

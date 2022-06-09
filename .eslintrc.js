@@ -20,5 +20,11 @@ module.exports = {
       "error",
       { ignores: ["modules"] },
     ],
+    "no-unused-vars": ["warn"],
+  },
+  settings: {
+    node: {
+      tryExtensions: [".js", ".json", ".ts", ".d.ts"],
+    },
   },
 };
