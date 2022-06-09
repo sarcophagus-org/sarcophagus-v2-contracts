@@ -259,7 +259,7 @@ library LibDiamond {
                 "Can't replace immutable function"
             );
 
-            // Make sure the function being replaced is in a new facet
+            // Make sure the facet address is different from the old facet address
             require(
                 oldFacetAddress != _facetAddress,
                 "That function already exists"
