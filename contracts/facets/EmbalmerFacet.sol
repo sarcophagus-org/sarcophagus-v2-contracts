@@ -14,6 +14,22 @@ contract EmbalmerFacet {
     AppStorage internal s;
 
     /// @notice Embalmer creates the skeleton for a new sarcopahgus.
+    ///
+    /// InitializeSarcophagus is the first step of the two step mummification
+    /// process.
+    ///
+    /// The purpose of intializeSarcophagus is to:
+    ///   - Lock up payment for the archaeologists (bounty, digging fees, and storage fee)
+    ///   - Store hashes of the unencrypted shards on chain
+    ///   - Store the particapting archaeologists' addresses and individual
+    ///     denominations of fees dedicated to each
+    ///
+    /// After initializeSarcophagus the archaeologists have been chosen but may
+    /// have no knowledge of the sarcophagus yet. An archaeologist still needs
+    /// to upload a payload to arweave and also communicate directly with the
+    /// embalmer to indicate that they are ready to do work. After this the
+    /// finalizeSarcohpagus() method should be called, which is the second step.
+    ///
     /// @param name the name of the sarcophagus
     /// @param archaeologists the data for the archaeologists
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
@@ -46,7 +62,8 @@ contract EmbalmerFacet {
             revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
         }
 
-        // Initialize a list of archaeologist addresses
+        // Initialize a list of archaeologist addresses to be passed in to the
+        // sarcophagus object
         address[] memory archaeologistAddresses = new address[](
             archaeologists.length
         );
@@ -56,6 +73,14 @@ contract EmbalmerFacet {
             uint256 cursedBondAmount = LibBonds.calculateCursedBond(
                 archaeologists[i].diggingFee,
                 archaeologists[i].bounty
+            );
+
+            // Confirm that the archaeologist has enough free bond.
+            // This error could mean that the archaeologist has either run out
+            // of free bond or has never even interacted with sarcophagus.
+            require(
+                s.freeBonds[archaeologists[i].archAddress] >= cursedBondAmount,
+                "archaeologist does not have enough free bond"
             );
 
             // Lock up the archaeologist's bond by the cursed bond amount
@@ -77,6 +102,7 @@ contract EmbalmerFacet {
             archaeologistAddresses[i] = archaeologists[i].archAddress;
         }
 
+        // Create the sarcophagus object and store it in AppStorage
         s.sarcophaguses[identifier] = LibTypes.Sarcophagus({
             name: name,
             state: LibTypes.SarcophagusState.Exists,
@@ -89,7 +115,7 @@ contract EmbalmerFacet {
             archaeologists: archaeologistAddresses
         });
 
-        // Add the identifier to necessary data structures
+        // Add the identifier to the necessary data structures
         s.sarcophagusIdentifiers.push(identifier);
         s.embalmerSarcophaguses[msg.sender].push(identifier);
         s.recipientSarcophaguses[recipient].push(identifier);
