@@ -14,6 +14,12 @@ library LibTypes {
         Done
     }
 
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
+
     struct Archaeologist {
         address archAddress;
         uint256 storageFee;
