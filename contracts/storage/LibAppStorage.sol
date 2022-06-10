@@ -26,7 +26,7 @@ struct AppStorage {
     // mapping stores the archaeologist's data we need per sarcophagus.
     // Example usage:
     //     uint256 bounty = sarcophagusArchaeologists[identifier][archAddress];
-    mapping(bytes32 => mapping(address => LibTypes.Archaeologist)) sarcophagusArchaeologists;
+    mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;
 }
 
 library LibAppStorage {

@@ -20,7 +20,12 @@ library LibTypes {
         bytes32 s;
     }
 
-    struct Archaeologist {
+    // ArchaeologistMemory is the struct that is passed into the
+    // initializeSarcophagus function. Even though we don't need each storage
+    // fee of the archaeologist, the storage fee is included in the struct to
+    // reduce the stack size within the function, preventing the "stack too
+    // deep" error.
+    struct ArchaeologistMemory {
         address archAddress;
         uint256 storageFee;
         uint256 diggingFee;
@@ -28,15 +33,27 @@ library LibTypes {
         bytes32 hashedShard;
     }
 
-    // The sarcophagus stores the addresses of each archaeologist added to it.
-    // The sarcophagusArchaeologists mapping in AppStorage is used to store the
-    // archaeologist's data per sarcophagus.
+    // ArchaeologistStorage is the struct that is stored in AppStorage under the
+    // sarcophagusArchaeologists mapping.
+    //
+    // The archaeologist address is left out since each archaeologist's address
+    // is stored on the sarcophagus object as an array.
+    //
+    // The storage fee is left out becuase we only need to store the storage fee
+    // of the archaeologist uploading to arweave, which will be stored directly
+    // on the sarcophagus.
+    struct ArchaeologistStorage {
+        uint256 diggingFee;
+        uint256 bounty;
+        bytes32 hashedShard;
+    }
     struct Sarcophagus {
         string name;
         SarcophagusState state;
         bool canBeTransferred;
         uint256 resurrectionTime;
         string arweaveTxId;
+        uint256 storageFee;
         address embalmer;
         address recipientAddress;
         address arweaveArchaeologist;

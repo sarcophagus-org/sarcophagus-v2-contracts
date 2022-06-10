@@ -42,7 +42,7 @@ contract EmbalmerFacet {
     function initializeSarcophagus(
         string memory name,
         bytes32 identifier,
-        LibTypes.Archaeologist[] memory archaeologists,
+        LibTypes.ArchaeologistMemory[] memory archaeologists,
         address arweaveArchaeologist,
         address recipient,
         uint256 resurrectionTime,
@@ -71,6 +71,16 @@ contract EmbalmerFacet {
             archaeologists.length
         );
 
+        // Initialize the storage fee of the archaeologist who uploades to
+        // arweave. This will be obtained in the for loop and stored on the
+        // sarcophagus object.
+        uint256 storageFee = 0;
+
+        // We need to iterate over every archaeologist to
+        //   - lock up cursed bond
+        //   - get the storage fee from the arweave archaeologist
+        //   - store each archaeologist's bounty, digging fee, and unencrypted shard in app storage
+        //   - get the archaeologist's address to store on the sarcophagus
         for (uint256 i = 0; i < archaeologists.length; i++) {
             // Calculate the amount of cursed bond the archaeologists needs to lock up
             uint256 cursedBondAmount = LibBonds.calculateCursedBond(
@@ -92,13 +102,30 @@ contract EmbalmerFacet {
                 cursedBondAmount
             );
 
-            // Add to the neccessary data structures
+            // If the archaeologist is the arweave archaeologist, set the
+            // storage fee. This is the only storage fee we care about.
+            if (archaeologists[i].archAddress == arweaveArchaeologist) {
+                storageFee = archaeologists[i].storageFee;
+            }
+
+            // Define an archaeologist storage object to be stored on the sarcophagus.
+            LibTypes.ArchaeologistStorage memory archaeologistStorage = LibTypes
+                .ArchaeologistStorage({
+                    diggingFee: archaeologists[i].diggingFee,
+                    bounty: archaeologists[i].bounty,
+                    hashedShard: archaeologists[i].hashedShard
+                });
+
+            // Stores each archaeologist's bounty, digging fees, and unencrypted
+            // shard in app storage per sarcophagus
+            s.sarcophagusArchaeologists[identifier][
+                archaeologists[i].archAddress
+            ] = archaeologistStorage;
+
+            // Add the sarcophagus identifier to archaeologist's list of sarcophaguses
             s.archaeologistSarcophaguses[archaeologists[i].archAddress].push(
                 identifier
             );
-            s.sarcophagusArchaeologists[identifier][
-                archaeologists[i].archAddress
-            ] = archaeologists[i];
 
             // Add the archaeologist address to the list of addresses to be
             // passed in to the sarcophagus object
@@ -112,6 +139,7 @@ contract EmbalmerFacet {
             canBeTransferred: canBeTransferred,
             resurrectionTime: resurrectionTime,
             arweaveTxId: "",
+            storageFee: storageFee,
             embalmer: msg.sender,
             recipientAddress: recipient,
             arweaveArchaeologist: arweaveArchaeologist,
@@ -127,9 +155,7 @@ contract EmbalmerFacet {
         // receive from the embalmer
         uint256 totalFees = LibBonds.calculateTotalFees(
             archaeologists,
-            s
-            .sarcophagusArchaeologists[identifier][arweaveArchaeologist]
-                .storageFee
+            storageFee
         );
 
         // Transfer the total fees amount in sarco token from the msg.sender to this contract
