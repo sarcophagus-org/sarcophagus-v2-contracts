@@ -78,7 +78,7 @@ contract EmbalmerFacet {
         uint256 storageFee = 0;
 
         // We need to iterate over every archaeologist to
-        //   - lock up cursed bond
+        //   - lock up archaeologist's free bond
         //   - get the storage fee from the arweave archaeologist
         //   - store each archaeologist's bounty, digging fee, and unencrypted shard in app storage
         //   - get the archaeologist's address to store on the sarcophagus
@@ -176,5 +176,109 @@ contract EmbalmerFacet {
 
         // Return the index of the sarcophagus
         return s.sarcophagusIdentifiers.length - 1;
+    }
+
+    /// @notice Embalmer finalizes the skeleton of a sarcophagus.
+    ///
+    /// FinalizeSarcophagus is the last step of the two step mummification
+    /// process.
+    ///
+    /// The purpose of finalizeSarcophagus is to:
+    ///   - Provide the archaeologists' signatures to the contract. These
+    ///     confirm that the archaeologists approve the fees stored on the
+    ///     contract and are ready to work.
+    ///   - Provide the arweave transaction id to be stored on chain.
+    ///   - Reward the archaeologist who uploaded to payload to arweave with the storage fee.
+    ///
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologistSignatures the signatures of the archaeologists.
+    /// This is archaeologist.length - 1 since the arweave archaeologist will be providing their own signature.
+    /// @param arweaveArchaeologistSignature the signature of the archaeologist who uploaded to arweave
+    /// @param arweaveTxId the arweave transaction id
+    /// @param sarcoToken The erc20 sarcophagus token
+    /// @return The boolean true if the operation was successful
+    function finalizeSarcophagus(
+        bytes32 identifier,
+        LibTypes.Signature[] memory archaeologistSignatures,
+        LibTypes.Signature memory arweaveArchaeologistSignature,
+        string memory arweaveTxId,
+        IERC20 sarcoToken
+    ) external returns (bool) {
+        // Confirm that the sarcophagus exists
+        require(
+            s.sarcophaguses[identifier].exists,
+            "sarcophagus does not exist"
+        );
+
+        // Confirm that the embalmer is making this transaction
+        require(
+            s.sarcophaguses[identifier].embalmer == msg.sender,
+            "only the embalmer can finalize the sarcophagus"
+        );
+
+        // Confirm that the sarcophagus is not already finalized by checking if
+        // the arweaveTxId is empty
+        require(
+            bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0,
+            "sarcophagus already finalized"
+        );
+
+        // Confirm that the provided arweave transaction id is not empty
+        require(
+            bytes(arweaveTxId).length > 0,
+            "arweave transaction id is empty"
+        );
+
+        // Confirm that the correct number of archaeologist signatures was sent
+        // This will be archaeologist.length - 1 since the arweave archaeoligist
+        // will be providing their own signature.
+        require(
+            archaeologistSignatures.length ==
+                s.sarcophaguses[identifier].archaeologists.length - 1,
+            "incorrect number of signatures"
+        );
+
+        // Iterate over each regular archaeologist signature. This will not
+        // include the arweave archaeologist.
+        for (uint256 i = 0; i < archaeologistSignatures.length; i++) {
+            // Verify that the signature of the sarcophagus identifier came from
+            // the archaeologist. This signature confirms that the archaeologist
+            // approves the parameters of the sarcophagus (fees and resurrection
+            // time) and is ready to work.
+            LibUtils.signatureCheck(
+                abi.encodePacked(identifier),
+                archaeologistSignatures[i],
+                s.sarcophaguses[identifier].archaeologists[i]
+            );
+        }
+
+        // Verify that the signature of the arweave transaction id came from the
+        // arweave archaeologist. This signature confirms that the archaeologist
+        // approves the parameters of the sarcophagus (fees and resurrection
+        // time) and is ready to work. The arweave archaeologist's signature in
+        // particular is also used by the contract to confirm which
+        // archaeologist uploaded the payload to arweave and should be paid the
+        // storage fee.
+        LibUtils.signatureCheck(
+            abi.encodePacked(arweaveTxId),
+            arweaveArchaeologistSignature,
+            s.sarcophaguses[identifier].arweaveArchaeologist
+        );
+
+        // Store the arweave transaction id to the sarcophagus. The arweaveTxId
+        // being populated indirectly designates the sarcophagus as finalized.
+        s.sarcophaguses[identifier].arweaveTxId = arweaveTxId;
+
+        // Transfer the storage fee to the arweave archaeologist after setting
+        // the arweave transaction id.
+        sarcoToken.transfer(
+            s.sarcophaguses[identifier].arweaveArchaeologist,
+            s.sarcophaguses[identifier].storageFee
+        );
+
+        // Emit an event
+        emit LibEvents.FinalizeSarcophagus(identifier, arweaveTxId);
+
+        return true;
     }
 }
