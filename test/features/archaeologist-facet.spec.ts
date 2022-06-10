@@ -8,40 +8,37 @@ import { Archaeologist } from "../../types";
 import { BigNumber, ContractTransaction } from "ethers";
 import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
 
-describe.only("Contract: ArchaeologistFacet", () => {
+describe("Contract: ArchaeologistFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
   let archaeologist: SignerWithAddress;
   let sarcoToken: SarcoTokenMock;
   let archaeologistSarcBalance: BigNumber;
   let diamondAddress: string;
 
+  // Deploy the contracts and do stuff before each function, not before each
+  // test. There is no need to do all of this before every single test.
   const beforeEachFunc = async () => {
-    // Get the signers
     const signers = await ethers.getSigners();
 
-    // Set the archaeologist
     archaeologist = signers[0];
 
-    // Deploy the Diamond contract
     diamondAddress = await deployDiamond();
-
-    // Deploy the sarco token contract
     const SarcoToken = await ethers.getContractFactory("SarcoTokenMock");
     sarcoToken = await SarcoToken.deploy();
     await sarcoToken.deployed();
 
-    // Approve the archaeologist on the sarco token
+    // Approve the archaeologist on the sarco token so transferFrom will work
     await sarcoToken
       .connect(archaeologist)
       .approve(diamondAddress, ethers.constants.MaxUint256);
 
-    // Get the ArchaeologistFacet contract
     archaeologistFacet = await ethers.getContractAt(
       "ArchaeologistFacet",
       diamondAddress
     );
 
-    // Get the archaeologist's sarco token balance
+    // Get the archaeologist's sarco token balance. This is used throughout the
+    // tests.
     archaeologistSarcBalance = await sarcoToken.balanceOf(
       archaeologist.address
     );
@@ -51,7 +48,6 @@ describe.only("Contract: ArchaeologistFacet", () => {
     before(beforeEachFunc);
 
     it("should deposit free bond to the contract", async () => {
-      // Deposit free bond
       const tx = await archaeologistFacet.depositFreeBond(
         archaeologist.address,
         BigNumber.from(100),
@@ -62,14 +58,11 @@ describe.only("Contract: ArchaeologistFacet", () => {
       // Check that the transaction succeeded
       expect(receipt.status).to.equal(1);
 
-      // Get the free bond of the archaeologist on the contract and check that
-      // it is correct
       const freeBond = await archaeologistFacet.getFreeBond(
         archaeologist.address
       );
       expect(freeBond.toString()).to.equal("100");
 
-      // Get the sarco token balance of the archaeologist and check that it is correct
       const sarcoTokenBalance = await sarcoToken.balanceOf(
         archaeologist.address
       );
@@ -77,7 +70,6 @@ describe.only("Contract: ArchaeologistFacet", () => {
         archaeologistSarcBalance.sub(BigNumber.from(100)).toString()
       );
 
-      // Get the sarco token balance of the contract and check that it is correct
       const contractSarcBalance = await sarcoToken.balanceOf(
         archaeologistFacet.address
       );
@@ -85,7 +77,6 @@ describe.only("Contract: ArchaeologistFacet", () => {
     });
 
     it("should emit an event when the free bond is deposited", async () => {
-      // Deposit free bond
       const tx = await archaeologistFacet.depositFreeBond(
         archaeologist.address,
         BigNumber.from(100),
@@ -95,14 +86,14 @@ describe.only("Contract: ArchaeologistFacet", () => {
       const events = receipt.events!;
       expect(events).to.not.be.undefined;
 
-      // Check that the list of events includes an event that has an address matching the archaeologistFacet address
+      // Check that the list of events includes an event that has an address
+      // matching the archaeologistFacet address
       expect(
         events.some((event) => event.address === archaeologistFacet.address)
       ).to.be.true;
     });
 
     it("should emit a transfer event when the sarco token is transfered", async () => {
-      // Deposit free bond
       const tx = await archaeologistFacet.depositFreeBond(
         archaeologist.address,
         BigNumber.from(100),
@@ -112,7 +103,8 @@ describe.only("Contract: ArchaeologistFacet", () => {
       const events = receipt.events!;
       expect(events).to.not.be.undefined;
 
-      // Check that the list of events includes an event that has an address matching the archaeologistFacet address
+      // Check that the list of events includes an event that has an address
+      // matching the archaeologistFacet address
       expect(events.some((event) => event.address === sarcoToken.address)).to.be
         .true;
     });
@@ -144,7 +136,7 @@ describe.only("Contract: ArchaeologistFacet", () => {
     before(beforeEachFunc);
 
     it("should withdraw free bond from the contract", async () => {
-      // Deposit free bond
+      // Put some free bond on the contract so we can withdraw it
       await archaeologistFacet.depositFreeBond(
         archaeologist.address,
         BigNumber.from(100),
@@ -162,14 +154,11 @@ describe.only("Contract: ArchaeologistFacet", () => {
       // Check that the transaction succeeded
       expect(receipt.status).to.equal(1);
 
-      // Get the free bond of the archaeologist on the contract and check that
-      // it is correct
       const freeBond = await archaeologistFacet.getFreeBond(
         archaeologist.address
       );
       expect(freeBond.toString()).to.equal("0");
 
-      // Get the sarco token balance of the archaeologist and check that it is correct
       const sarcoTokenBalance = await sarcoToken.balanceOf(
         archaeologist.address
       );
@@ -177,7 +166,6 @@ describe.only("Contract: ArchaeologistFacet", () => {
         archaeologistSarcBalance.toString()
       );
 
-      // Get the sarco token balance of the contract and check that it is correct
       const contractSarcBalance = await sarcoToken.balanceOf(
         archaeologistFacet.address
       );
@@ -185,7 +173,7 @@ describe.only("Contract: ArchaeologistFacet", () => {
     });
 
     it("should emit an event when the free bond is withdrawn", async () => {
-      // Deposit free bond
+      // Put some free bond on the contract so we can withdraw it
       await archaeologistFacet.depositFreeBond(
         archaeologist.address,
         BigNumber.from(100),
@@ -202,14 +190,15 @@ describe.only("Contract: ArchaeologistFacet", () => {
       const events = receipt.events!;
       expect(events).to.not.be.undefined;
 
-      // Check that the list of events includes an event that has an address matching the archaeologistFacet address
+      // Check that the list of events includes an event that has an address
+      // matching the archaeologistFacet address
       expect(
         events.some((event) => event.address === archaeologistFacet.address)
       ).to.be.true;
     });
 
     it("should emit a transfer event when the sarco token is transfered", async () => {
-      // Deposit free bond
+      // Put some free bond on the contract so we can withdraw it
       await archaeologistFacet.depositFreeBond(
         archaeologist.address,
         BigNumber.from(100),
@@ -226,7 +215,8 @@ describe.only("Contract: ArchaeologistFacet", () => {
       const events = receipt.events!;
       expect(events).to.not.be.undefined;
 
-      // Check that the list of events includes an event that has an address matching the archaeologistFacet address
+      // Check that the list of events includes an event that has an address
+      // matching the archaeologistFacet address
       expect(events.some((event) => event.address === sarcoToken.address)).to.be
         .true;
     });

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.9;
 
 import {LibDiamond} from "../diamond/libraries/LibDiamond.sol";
-import "hardhat/console.sol";
 
 /**
  * @title Utility functions used within the Sarcophagus system

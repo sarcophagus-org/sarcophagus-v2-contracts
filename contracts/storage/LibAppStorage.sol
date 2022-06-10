@@ -17,10 +17,16 @@ struct AppStorage {
     bytes32[] sarcophagusIdentifiers;
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophaguses;
     // sarcophagus ownerships
-    // V2: May not need these anymore
     mapping(address => bytes32[]) embalmerSarcophaguses;
     mapping(address => bytes32[]) archaeologistSarcophaguses;
     mapping(address => bytes32[]) recipientSarcophaguses;
+    // A mapping used to store an archaeologist's data on a sarcophagus.
+    // Bounty, digging fees, storage fees, and the hashed shards of the
+    // archaeologists all need to be stored per sarcophagus. This mapping of a
+    // mapping stores the archaeologist's data we need per sarcophagus.
+    // Example usage:
+    //     uint256 bounty = sarcophagusArchaeologists[identifier][archAddress];
+    mapping(bytes32 => mapping(address => LibTypes.Archaeologist)) sarcophagusArchaeologists;
 }
 
 library LibAppStorage {

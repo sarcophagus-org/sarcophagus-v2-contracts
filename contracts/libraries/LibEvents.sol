@@ -44,14 +44,15 @@ library LibEvents {
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
-    event CreateSarcophagus(
+    event InitializeSarcophagus(
         bytes32 indexed identifier,
         string name,
         bool canBeTransferred,
         uint256 resurrectionTime,
-        uint256 resurrectionWindow,
         address embalmer,
-        address recipientAddress
+        address recipientAddress,
+        address arweaveArchaeologist,
+        address[] archaeologists
     );
 
     event UpdateSarcophagus(bytes32 indexed identifier, string assetId);
