@@ -47,6 +47,13 @@ library LibTypes {
         uint256 bounty;
         bytes32 hashedShard;
     }
+
+    // The ArchaeologistStorage struct could be contained in this Sarcophagus
+    // struct as a mapping, but it was put into it's own mapping
+    // (sarcophagusArchaeologists) directly in AppStorage. Instead the
+    // sarcophagus stores the addresses of each archaeologist added to it. This
+    // was done to simplify the creation of a sarcophagus object in
+    // initializeSarcophagus.
     struct Sarcophagus {
         string name;
         SarcophagusState state;

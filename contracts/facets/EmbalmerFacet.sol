@@ -23,6 +23,7 @@ contract EmbalmerFacet {
     ///   - Store hashes of the unencrypted shards on chain
     ///   - Store the particapting archaeologists' addresses and individual
     ///     denominations of fees dedicated to each
+    ///   - Create the sarcophagus object
     ///
     /// After initializeSarcophagus the archaeologists have been chosen but may
     /// have no knowledge of the sarcophagus yet. An archaeologist still needs

@@ -93,8 +93,9 @@ describe("Contract: EmbalmerFacet", () => {
 
   describe("initializeSarcophagus()", () => {
     /**
-     * Creates a sarcophagus with random data.
-     * This is used in several places throughout the tests.
+     * Creates a sarcophagus with random data. This is helpful in several places
+     * throughout the tests where a sarcophagus should be initialized
+     * successfully.
      */
     const initializeSarcophagus = async (
       name: string,
