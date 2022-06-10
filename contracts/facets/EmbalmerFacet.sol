@@ -31,21 +31,21 @@ contract EmbalmerFacet {
     /// finalizeSarcohpagus() method should be called, which is the second step.
     ///
     /// @param name the name of the sarcophagus
+    /// @param identifier the identifier of the sarcophagus
     /// @param archaeologists the data for the archaeologists
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
     /// @param recipient the address of the recipient
     /// @param resurrectionTime the resurrection time of the sarcophagus
-    /// @param identifier the identifier of the sarcophagus
     /// @param sarcoToken The erc20 sarcophagus token
     /// @param canBeTransferred Whether the sarcophagus can be transferred
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
         string memory name,
+        bytes32 identifier,
         LibTypes.Archaeologist[] memory archaeologists,
         address arweaveArchaeologist,
         address recipient,
         uint256 resurrectionTime,
-        bytes32 identifier,
         IERC20 sarcoToken,
         bool canBeTransferred
     ) external returns (uint256) {
