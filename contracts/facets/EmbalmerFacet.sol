@@ -62,6 +62,9 @@ contract EmbalmerFacet {
             revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
         }
 
+        // Confirm that archaeologists are provided
+        require(archaeologists.length > 0, "no archaeologists provided");
+
         // Initialize a list of archaeologist addresses to be passed in to the
         // sarcophagus object
         address[] memory archaeologistAddresses = new address[](

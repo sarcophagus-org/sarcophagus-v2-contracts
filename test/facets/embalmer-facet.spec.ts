@@ -164,6 +164,41 @@ describe("Contract: EmbalmerFacet", () => {
       ).to.be.revertedWith("ResurrectionTimeInPast");
     });
 
+    it("should revert if no archaeologists are provided", async () => {
+      // Not using the initalizeSarcophagus function provided in this spec so we
+      // can send an empty array for archaeologists
+      const name = "Sarcohpagus Test";
+
+      // Set resurrection time to 1 week from now in seconds as a big number.
+      // Date is an integer representing the number of seconds since the epoch.
+      // Deafult to argument in function.
+      const _resurrectionTime = BigNumber.from(
+        (Date.now() / 1000 + 60 * 60 * 24 * 7).toFixed(0)
+      );
+
+      // Generate a hash from the name to use as the identifier. It doesn't
+      // matter what the hash is of for the tests.
+      const identifier = ethers.utils.solidityKeccak256(["string"], [name]);
+
+      const canBeTransfered = true;
+
+      // Create a sarcophagus as the embalmer
+      const tx = embalmerFacet
+        .connect(embalmer)
+        .initializeSarcophagus(
+          name,
+          identifier,
+          [],
+          arweaveArchaeologist.address,
+          recipient.address,
+          _resurrectionTime,
+          sarcoToken.address,
+          canBeTransfered
+        );
+
+      return expect(tx).to.be.revertedWith("no archaeologists provided");
+    });
+
     it("should revert if an archaeologist does not have enough free bond", async () => {
       const freeBond = await archaeologistFacet.getFreeBond(
         archaeologists[0].address
