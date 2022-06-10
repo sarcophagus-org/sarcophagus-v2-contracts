@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.9;
 
+import "../libraries/LibTypes.sol";
 import {LibDiamond} from "../diamond/libraries/LibDiamond.sol";
 
 /**
@@ -57,20 +58,21 @@ library LibUtils {
      * @notice Reverts if the given data and signature did not come from the
      * given address
      * @param data the payload which has been signed
-     * @param v signature element
-     * @param r signature element
-     * @param s signature element
+     * @param signature The signature containing v, r, and s
      * @param account address to confirm data and signature came from
      */
     function signatureCheck(
         bytes memory data,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
+        LibTypes.Signature memory signature,
         address account
     ) public pure {
         // generate the address for a given data and signature
-        address hopefulAddress = ecrecover(keccak256(data), v, r, s);
+        address hopefulAddress = ecrecover(
+            keccak256(data),
+            signature.v,
+            signature.r,
+            signature.s
+        );
 
         require(
             hopefulAddress == account,
