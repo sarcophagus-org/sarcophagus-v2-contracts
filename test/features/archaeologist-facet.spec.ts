@@ -128,7 +128,7 @@ describe("Contract: ArchaeologistFacet", () => {
           BigNumber.from(1),
           sarcoToken.address
         )
-      ).to.be.revertedWith("sender must be the archaeologist");
+      ).to.be.revertedWith("SenderNotArch");
     });
   });
 
@@ -240,7 +240,7 @@ describe("Contract: ArchaeologistFacet", () => {
           BigNumber.from(1),
           sarcoToken.address
         )
-      ).to.be.revertedWith("sender must be the archaeologist");
+      ).to.be.revertedWith("SenderNotArch");
     });
   });
 });

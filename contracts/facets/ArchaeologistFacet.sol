@@ -21,10 +21,9 @@ contract ArchaeologistFacet {
         IERC20 sarcoToken
     ) external {
         // Confirm that sender is the archaeologist
-        require(
-            msg.sender == archaeologist,
-            "sender must be the archaeologist"
-        );
+        if (msg.sender != archaeologist) {
+            revert LibErrors.SenderNotArch(msg.sender, archaeologist);
+        }
 
         // Increase the archaeolgist's free bond in app storage
         LibBonds.increaseFreeBond(archaeologist, amount);
@@ -47,10 +46,9 @@ contract ArchaeologistFacet {
         IERC20 sarcoToken
     ) external {
         // Confirm that sender is the archaeologist
-        require(
-            msg.sender == archaeologist,
-            "sender must be the archaeologist"
-        );
+        if (msg.sender != archaeologist) {
+            revert LibErrors.SenderNotArch(msg.sender, archaeologist);
+        }
 
         // Decrease the archaeologist's free bond amount.
         // Reverts if there is not enough free bond on the contract.
