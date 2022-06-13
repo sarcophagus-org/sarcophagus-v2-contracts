@@ -62,7 +62,7 @@ contract EmbalmerFacet {
                 revert LibErrors.NotEnoughFreeBond(
                     s.freeBonds[archaeologists[i].archAddress],
                     cursedBondAmount
-            );
+                );
             }
 
             // Lock up the archaeologist's bond by the cursed bond amount
