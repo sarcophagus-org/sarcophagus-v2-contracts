@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "../storage/LibAppStorage.sol";
+import {LibErrors} from "../libraries/LibErrors.sol";
 
 library LibBonds {
     /// @notice Calculates the cursed bond that an archaeologist needs to lock
@@ -28,10 +29,12 @@ library LibBonds {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Revert if the amount is greater than the current free bond
-        require(
-            amount <= s.freeBonds[archaegologistAddress],
-            "Archaeologist does not have enough free bond"
+        if (amount > s.freeBonds[archaeologist]) {
+            revert LibErrors.NotEnoughFreeBond(
+                s.freeBonds[archaeologist],
+                amount
         );
+        }
 
         // Decrease the free bond amount
         s.freeBonds[archaegologistAddress] -= amount;
@@ -63,10 +66,12 @@ library LibBonds {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Revert if the amount is greater than the current cursed bond
-        require(
-            amount <= s.cursedBonds[archaegologistAddress],
-            "Archaeologist does not have enough cursed bond"
+        if (amount > s.cursedBonds[archaeologist]) {
+            revert LibErrors.NotEnoughCursedBond(
+                s.cursedBonds[archaeologist],
+                amount
         );
+        }
 
         // Decrease the cursed bond amount
         s.cursedBonds[archaegologistAddress] -= amount;

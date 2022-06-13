@@ -152,7 +152,7 @@ describe("Contract: EmbalmerFacet", () => {
       // Try to create the same sarcophagus again
       await expect(
         initializeSarcophagus("Test Sarcophagus")
-      ).to.be.revertedWith("sarcophagus already exists");
+      ).to.be.revertedWith("SarcophagusAlreadyExists");
     });
 
     it("should revert if the resurrection time is not in the future", () => {
@@ -161,7 +161,7 @@ describe("Contract: EmbalmerFacet", () => {
           "Test Sarcophagus",
           BigNumber.from((Date.now() / 1000).toFixed(0))
         )
-      ).to.be.revertedWith("resurrection time must be in the future");
+      ).to.be.revertedWith("ResurrectionTimeInPast");
     });
 
     it("should revert if an archaeologist does not have enough free bond", async () => {
@@ -182,7 +182,7 @@ describe("Contract: EmbalmerFacet", () => {
       // Initalize the sarcophagus and expect it to revert
       return expect(
         initializeSarcophagus("Test Sarcophagus")
-      ).to.be.revertedWith("archaeologist does not have enough free bond");
+      ).to.be.revertedWith("NotEnoughFreeBond");
     });
 
     it("should lock up an archaeologist's free bond", async () => {

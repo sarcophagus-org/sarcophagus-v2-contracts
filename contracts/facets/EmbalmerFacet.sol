@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 import "../libraries/LibEvents.sol";
+import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
@@ -33,16 +34,14 @@ contract EmbalmerFacet {
         bool canBeTransferred
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
-        require(
-            !s.sarcophaguses[identifier].exists,
-            "sarcophagus already exists"
-        );
+        if (s.sarcophaguses[identifier].exists) {
+            revert LibErrors.SarcophagusAlreadyExists(identifier);
+        }
 
         // Confirm that the ressurection time is in the future
-        require(
-            resurrectionTime > block.timestamp,
-            "resurrection time must be in the future"
-        );
+        if (resurrectionTime <= block.timestamp) {
+            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
+        }
 
         // Initialize a list of archaeologist addresses
         address[] memory archaeologistAddresses = new address[](
@@ -59,10 +58,12 @@ contract EmbalmerFacet {
             // Confirm that the archaeologist has enough free bond.
             // This error could mean that the archaeologist has either run out
             // of free bond or has never even interacted with sarcophagus
-            require(
-                s.freeBonds[archaeologists[i].archAddress] >= cursedBondAmount,
-                "archaeologist does not have enough free bond"
+            if (s.freeBonds[archaeologists[i].archAddress] < cursedBondAmount) {
+                revert LibErrors.NotEnoughFreeBond(
+                    s.freeBonds[archaeologists[i].archAddress],
+                    cursedBondAmount
             );
+            }
 
             // Lock up the archaeologist's bond by the cursed bond amount
             LibBonds.lockUpBond(
