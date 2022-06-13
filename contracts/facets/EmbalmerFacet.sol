@@ -20,7 +20,7 @@ contract EmbalmerFacet {
     /// @param resurrectionTime the resurrection time of the sarcophagus
     /// @param identifier the identifier of the sarcophagus
     /// @param sarcoToken The erc20 sarcophagus token
-    /// @param canBeTransfered Whether the sarcophagus can be transferred
+    /// @param canBeTransferred Whether the sarcophagus can be transferred
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
         string memory name,
@@ -30,7 +30,7 @@ contract EmbalmerFacet {
         uint256 resurrectionTime,
         bytes32 identifier,
         IERC20 sarcoToken,
-        bool canBeTransfered
+        bool canBeTransferred
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
         require(
@@ -86,7 +86,7 @@ contract EmbalmerFacet {
         s.sarcophaguses[identifier] = LibTypes.Sarcophagus({
             name: name,
             exists: true,
-            canBeTransferred: canBeTransfered,
+            canBeTransferred: canBeTransferred,
             resurrectionTime: resurrectionTime,
             arweaveTxId: "",
             embalmer: msg.sender,
@@ -116,7 +116,7 @@ contract EmbalmerFacet {
         emit LibEvents.InitializeSarcophagus(
             identifier,
             name,
-            canBeTransfered,
+            canBeTransferred,
             resurrectionTime,
             msg.sender,
             recipient,
