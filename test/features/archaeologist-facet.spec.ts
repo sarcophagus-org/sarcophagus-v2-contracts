@@ -1,12 +1,10 @@
 import "@nomiclabs/hardhat-waffle";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
+import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { deployDiamond } from "../../scripts/deploy-diamond";
 import { ArchaeologistFacet, SarcoTokenMock } from "../../typechain";
-import { Archaeologist } from "../../types";
-import { BigNumber, ContractTransaction } from "ethers";
-import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
 
 describe("Contract: ArchaeologistFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
