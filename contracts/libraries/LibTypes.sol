@@ -7,6 +7,13 @@ pragma solidity ^0.8.9;
  * system uses
  */
 library LibTypes {
+    // DoesNotExist must come first on the list to be the default value
+    enum SarcophagusState {
+        DoesNotExist,
+        Exists,
+        Done
+    }
+
     struct Archaeologist {
         address archAddress;
         uint256 storageFee;
@@ -20,7 +27,7 @@ library LibTypes {
     // archaeologist's data per sarcophagus.
     struct Sarcophagus {
         string name;
-        bool exists;
+        SarcophagusState state;
         bool canBeTransferred;
         uint256 resurrectionTime;
         string arweaveTxId;

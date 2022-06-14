@@ -34,7 +34,10 @@ contract EmbalmerFacet {
         bool canBeTransferred
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
-        if (s.sarcophaguses[identifier].exists) {
+        if (
+            s.sarcophaguses[identifier].state !=
+            LibTypes.SarcophagusState.DoesNotExist
+        ) {
             revert LibErrors.SarcophagusAlreadyExists(identifier);
         }
 
@@ -86,7 +89,7 @@ contract EmbalmerFacet {
 
         s.sarcophaguses[identifier] = LibTypes.Sarcophagus({
             name: name,
-            exists: true,
+            state: LibTypes.SarcophagusState.Exists,
             canBeTransferred: canBeTransferred,
             resurrectionTime: resurrectionTime,
             arweaveTxId: "",
