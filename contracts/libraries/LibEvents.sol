@@ -37,24 +37,22 @@ library LibEvents {
         bytes currentPublicKey
     );
 
-    event WithdrawalFreeBond(
+    event WithdrawFreeBond(
         address indexed archaeologist,
         uint256 withdrawnBond
     );
 
-    event CreateSarcophagus(
+    event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
+
+    event InitializeSarcophagus(
         bytes32 indexed identifier,
-        address indexed archaeologist,
-        bytes archaeologistPublicKey,
-        address embalmer,
         string name,
+        bool canBeTransferred,
         uint256 resurrectionTime,
-        uint256 resurrectionWindow,
-        uint256 storageFee,
-        uint256 diggingFee,
-        uint256 bounty,
-        bytes recipientPublicKey,
-        uint256 cursedBond
+        address embalmer,
+        address recipientAddress,
+        address arweaveArchaeologist,
+        address[] archaeologists
     );
 
     event UpdateSarcophagus(bytes32 indexed identifier, string assetId);

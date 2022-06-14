@@ -6,15 +6,13 @@ import "../libraries/LibTypes.sol";
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
     // archaeologists
-    address[] archaeologistAddresses;
-    mapping(address => LibTypes.Archaeologist) archaeologists;
+    mapping(address => uint256) freeBonds;
+    mapping(address => uint256) cursedBonds;
     // archaeologist stats
     mapping(address => bytes32[]) archaeologistSuccesses;
     mapping(address => bytes32[]) archaeologistCancels;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
-    // archaeologist key control
-    mapping(bytes => bool) archaeologistUsedKeys;
     // sarcophaguses
     bytes32[] sarcophagusIdentifiers;
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophaguses;
@@ -22,7 +20,13 @@ struct AppStorage {
     mapping(address => bytes32[]) embalmerSarcophaguses;
     mapping(address => bytes32[]) archaeologistSarcophaguses;
     mapping(address => bytes32[]) recipientSarcophaguses;
-    uint256 testValueA;
+    // A mapping used to store an archaeologist's data on a sarcophagus.
+    // Bounty, digging fees, storage fees, and the hashed shards of the
+    // archaeologists all need to be stored per sarcophagus. This mapping of a
+    // mapping stores the archaeologist's data we need per sarcophagus.
+    // Example usage:
+    //     uint256 bounty = sarcophagusArchaeologists[identifier][archAddress];
+    mapping(bytes32 => mapping(address => LibTypes.Archaeologist)) sarcophagusArchaeologists;
 }
 
 library LibAppStorage {

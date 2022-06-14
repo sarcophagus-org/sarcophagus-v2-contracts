@@ -22,6 +22,14 @@ module.exports = {
     ],
     "no-unused-vars": ["warn"],
   },
+  overrides: [
+    {
+      files: ["*.spec.ts"],
+      rules: {
+        "no-unused-expressions": "off",
+      },
+    },
+  ],
   settings: {
     node: {
       tryExtensions: [".js", ".json", ".ts", ".d.ts"],

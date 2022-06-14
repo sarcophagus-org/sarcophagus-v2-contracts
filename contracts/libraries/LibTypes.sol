@@ -7,39 +7,33 @@ pragma solidity ^0.8.9;
  * system uses
  */
 library LibTypes {
-    struct Archaeologist {
-        bool exists;
-        bytes currentPublicKey;
-        string endpoint;
-        address paymentAddress;
-        uint256 feePerByte;
-        uint256 minimumBounty;
-        uint256 minimumDiggingFee;
-        uint256 maximumResurrectionTime;
-        uint256 freeBond;
-        uint256 cursedBond;
-    }
-
-    enum SarcophagusStates {
+    // DoesNotExist must come first on the list to be the default value
+    enum SarcophagusState {
         DoesNotExist,
         Exists,
         Done
     }
 
-    struct Sarcophagus {
-        SarcophagusStates state;
-        address archaeologist;
-        bytes archaeologistPublicKey;
-        address embalmer;
-        string name;
-        uint256 resurrectionTime;
-        uint256 resurrectionWindow;
-        string assetId;
-        bytes recipientPublicKey;
+    struct Archaeologist {
+        address archAddress;
         uint256 storageFee;
         uint256 diggingFee;
         uint256 bounty;
-        uint256 currentCursedBond;
-        bytes32 privateKey;
+        bytes32 hashedShard;
+    }
+
+    // The sarcophagus stores the addresses of each archaeologist added to it.
+    // The sarcophagusArchaeologists mapping in AppStorage is used to store the
+    // archaeologist's data per sarcophagus.
+    struct Sarcophagus {
+        string name;
+        SarcophagusState state;
+        bool canBeTransferred;
+        uint256 resurrectionTime;
+        string arweaveTxId;
+        address embalmer;
+        address recipientAddress;
+        address arweaveArchaeologist;
+        address[] archaeologists;
     }
 }

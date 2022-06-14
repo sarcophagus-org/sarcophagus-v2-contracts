@@ -20,20 +20,30 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   const libUtils = await LibUtils.deploy();
   await libUtils.deployed();
 
-  // Deploy Sarcophaguses Facet
+  // Deploy Embalmer Facet
   // Functions used from other libraries are internal and thus do no need to be
   // deployed with the facet
-  const SarcophagusesFacet = await ethers.getContractFactory(
-    "SarcophagusesFacet"
+  const EmbalmerFacet = await ethers.getContractFactory("EmbalmerFacet");
+  const embalmerFacet = await EmbalmerFacet.deploy();
+  await embalmerFacet.deployed();
+
+  // Deploy Archaeologist Facet
+  const ArchaeologistFacet = await ethers.getContractFactory(
+    "ArchaeologistFacet"
   );
-  const sarcophagusesFacet = await SarcophagusesFacet.deploy();
-  await sarcophagusesFacet.deployed();
+  const archaeologistFacet = await ArchaeologistFacet.deploy();
+  await archaeologistFacet.deployed();
 
   return [
     {
-      facetAddress: sarcophagusesFacet.address,
+      facetAddress: embalmerFacet.address,
       action: FacetCutAction.Add,
-      functionSelectors: getSelectors(sarcophagusesFacet),
+      functionSelectors: getSelectors(embalmerFacet),
+    },
+    {
+      facetAddress: archaeologistFacet.address,
+      action: FacetCutAction.Add,
+      functionSelectors: getSelectors(archaeologistFacet),
     },
   ];
 };
