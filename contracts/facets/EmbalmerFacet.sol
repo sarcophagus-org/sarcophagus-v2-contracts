@@ -58,16 +58,6 @@ contract EmbalmerFacet {
                 archaeologists[i].bounty
             );
 
-            // Confirm that the archaeologist has enough free bond.
-            // This error could mean that the archaeologist has either run out
-            // of free bond or has never even interacted with sarcophagus
-            if (s.freeBonds[archaeologists[i].archAddress] < cursedBondAmount) {
-                revert LibErrors.NotEnoughFreeBond(
-                    s.freeBonds[archaeologists[i].archAddress],
-                    cursedBondAmount
-                );
-            }
-
             // Lock up the archaeologist's bond by the cursed bond amount
             LibBonds.lockUpBond(
                 archaeologists[i].archAddress,
