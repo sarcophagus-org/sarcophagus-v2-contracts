@@ -7,18 +7,25 @@ pragma solidity ^0.8.9;
  * uses.
  */
 library LibErrors {
-    // Reverts when the msg.sender of a function is not the archaeologist
-    error SenderNotArch(address sender, address arch);
+    error ArweaveTxIdEmpty();
 
-    // Reverts when a sarcophagus that already exists is initialized
-    error SarcophagusAlreadyExists(bytes32 identifier);
+    error InvalidNumberOfArchaeologistSignatures(uint256 signaturesLength);
 
-    // Reverts when a sarcophagus's resurrection time is set to the past
-    error ResurrectionTimeInPast(uint256 resurrectionTime);
+    error NoArchaeologistsProvided();
 
-    // Reverts when an archaeologist doesn't have enough free bond upon initalizeSarophagus
+    error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
+
     error NotEnoughFreeBond(uint256 freeBond, uint256 amount);
 
-    // Reverts when an archaeologist doesn't have enough cursed bond when trying to withdraw cursed bond
-    error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
+    error ResurrectionTimeInPast(uint256 resurrectionTime);
+
+    error SarcophagusAlreadyExists(bytes32 identifier);
+
+    error SarcophagusAlreadyFinalized(bytes32 identifier);
+
+    error SarcophagusDoesNotExist(bytes32 identifier);
+
+    error SenderNotArch(address sender, address arch);
+
+    error SenderNotEmbalmer(address sender, address embalmer);
 }

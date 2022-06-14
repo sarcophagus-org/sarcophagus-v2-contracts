@@ -64,7 +64,9 @@ contract EmbalmerFacet {
         }
 
         // Confirm that archaeologists are provided
-        require(archaeologists.length > 0, "no archaeologists provided");
+        if (archaeologists.length == 0) {
+            revert LibErrors.NoArchaeologistsProvided();
+        }
 
         // Initialize a list of archaeologist addresses to be passed in to the
         // sarcophagus object
@@ -205,38 +207,43 @@ contract EmbalmerFacet {
         IERC20 sarcoToken
     ) external returns (bool) {
         // Confirm that the sarcophagus exists
-        require(
-            s.sarcophaguses[identifier].exists,
-            "sarcophagus does not exist"
-        );
+        if (
+            s.sarcophaguses[identifier].state !=
+            LibTypes.SarcophagusState.Exists
+        ) {
+            revert LibErrors.SarcophagusDoesNotExist(identifier);
+        }
 
         // Confirm that the embalmer is making this transaction
-        require(
-            s.sarcophaguses[identifier].embalmer == msg.sender,
-            "only the embalmer can finalize the sarcophagus"
-        );
+        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+            revert LibErrors.SenderNotEmbalmer(
+                msg.sender,
+                s.sarcophaguses[identifier].embalmer
+            );
+        }
 
         // Confirm that the sarcophagus is not already finalized by checking if
         // the arweaveTxId is empty
-        require(
-            bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0,
-            "sarcophagus already finalized"
-        );
+        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length > 0) {
+            revert LibErrors.SarcophagusAlreadyFinalized(identifier);
+        }
 
         // Confirm that the provided arweave transaction id is not empty
-        require(
-            bytes(arweaveTxId).length > 0,
-            "arweave transaction id is empty"
-        );
+        if (bytes(arweaveTxId).length == 0) {
+            revert LibErrors.ArweaveTxIdEmpty();
+        }
 
         // Confirm that the correct number of archaeologist signatures was sent
         // This will be archaeologist.length - 1 since the arweave archaeoligist
         // will be providing their own signature.
-        require(
-            archaeologistSignatures.length ==
-                s.sarcophaguses[identifier].archaeologists.length - 1,
-            "incorrect number of signatures"
-        );
+        if (
+            archaeologistSignatures.length !=
+            s.sarcophaguses[identifier].archaeologists.length - 1
+        ) {
+            revert LibErrors.InvalidNumberOfArchaeologistSignatures(
+                archaeologistSignatures.length
+            );
+        }
 
         // Iterate over each regular archaeologist signature. This will not
         // include the arweave archaeologist.
