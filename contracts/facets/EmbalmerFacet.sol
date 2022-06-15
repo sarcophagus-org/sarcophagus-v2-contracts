@@ -282,7 +282,7 @@ contract EmbalmerFacet {
             arweaveArchaeologistSignature.v,
             arweaveArchaeologistSignature.r,
             arweaveArchaeologistSignature.s,
-            arweaveArchaeologistSignature.account
+            s.sarcophaguses[identifier].arweaveArchaeologist
         );
 
         // Store the arweave transaction id to the sarcophagus. The arweaveTxId
