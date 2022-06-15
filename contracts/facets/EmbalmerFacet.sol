@@ -120,6 +120,17 @@ contract EmbalmerFacet {
                     hashedShard: archaeologists[i].hashedShard
                 });
 
+            // Confirm that the archaeologist list is unique. This is done by
+            // checking that the archaeologist does not already exist from
+            // previous iterations in this loop.
+            if (
+                archaeologistExists(identifier, archaeologists[i].archAddress)
+            ) {
+                revert LibErrors.ArchaeologistListNotUnique(
+                    archaeologistAddresses
+                );
+            }
+
             // Stores each archaeologist's bounty, digging fees, and unencrypted
             // shard in app storage per sarcophagus
             s.sarcophagusArchaeologists[identifier][

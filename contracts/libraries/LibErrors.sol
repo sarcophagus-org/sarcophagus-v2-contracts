@@ -39,4 +39,6 @@ library LibErrors {
     error MinShardsGreaterThanArchaeologists(uint8 minShards);
 
     error MinShardsZero();
+
+    error ArchaeologistListNotUnique(address[] archaeologists);
 }

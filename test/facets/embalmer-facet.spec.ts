@@ -210,6 +210,21 @@ describe("Contract: EmbalmerFacet", () => {
       ).to.be.revertedWith("NoArchaeologistsProvided");
     });
 
+    it("should revert if the list of archaeologists is not unique", async () => {
+      const nonUniqueArchaeologists = archaeologists.slice();
+      const firstArchaeologist = archaeologists[0];
+      nonUniqueArchaeologists.push(firstArchaeologist);
+
+      expect(
+        initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          archaeologists
+        )
+      ).to.be.revertedWith("ArchaeologistListNotUnique");
+    });
+
     it("should revert if minShards is greater than the number of archaeologists", async () => {
       expect(
         initializeSarcophagus(
