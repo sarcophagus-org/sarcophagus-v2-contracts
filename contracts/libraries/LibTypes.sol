@@ -14,7 +14,12 @@ library LibTypes {
         Done
     }
 
-    struct Signature {
+    // Signature struct created to make passing in the signature argmuments into
+    // finalizedSarcophagus easier and to avoid the "stack too deep" error.
+    // Also attaching arachaeologist addresses so we can tie the signature back
+    // to the address in finalizeSarcophagus.
+    struct SignatureWithAccount {
+        address account;
         uint8 v;
         bytes32 r;
         bytes32 s;

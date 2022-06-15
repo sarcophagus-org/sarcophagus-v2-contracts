@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.9;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 import "../libraries/LibEvents.sol";
@@ -192,6 +191,9 @@ contract EmbalmerFacet {
     ///   - Provide the arweave transaction id to be stored on chain.
     ///   - Reward the archaeologist who uploaded to payload to arweave with the storage fee.
     ///
+    /// @dev The archaeologistSignatures must be sent in the same order that the
+    /// archaeologists were sent to the initializeSarcophagus function,
+    /// otherwise the transaction will revert.
     /// @param identifier the identifier of the sarcophagus
     /// @param archaeologistSignatures the signatures of the archaeologists.
     /// This is archaeologist.length - 1 since the arweave archaeologist will be providing their own signature.
@@ -201,8 +203,8 @@ contract EmbalmerFacet {
     /// @return The boolean true if the operation was successful
     function finalizeSarcophagus(
         bytes32 identifier,
-        LibTypes.Signature[] memory archaeologistSignatures,
-        LibTypes.Signature memory arweaveArchaeologistSignature,
+        LibTypes.SignatureWithAccount[] memory archaeologistSignatures,
+        LibTypes.SignatureWithAccount memory arweaveArchaeologistSignature,
         string memory arweaveTxId,
         IERC20 sarcoToken
     ) external returns (bool) {
@@ -252,10 +254,12 @@ contract EmbalmerFacet {
             // the archaeologist. This signature confirms that the archaeologist
             // approves the parameters of the sarcophagus (fees and resurrection
             // time) and is ready to work.
-            LibUtils.signatureCheck(
-                abi.encodePacked(identifier),
-                archaeologistSignatures[i],
-                s.sarcophaguses[identifier].archaeologists[i]
+            LibUtils.verifyBytes32Signature(
+                identifier,
+                archaeologistSignatures[i].v,
+                archaeologistSignatures[i].r,
+                archaeologistSignatures[i].s,
+                archaeologistSignatures[i].account
             );
         }
 
@@ -266,10 +270,12 @@ contract EmbalmerFacet {
         // particular is also used by the contract to confirm which
         // archaeologist uploaded the payload to arweave and should be paid the
         // storage fee.
-        LibUtils.signatureCheck(
-            abi.encodePacked(arweaveTxId),
-            arweaveArchaeologistSignature,
-            s.sarcophaguses[identifier].arweaveArchaeologist
+        LibUtils.verifyBytesSignature(
+            bytes(arweaveTxId),
+            arweaveArchaeologistSignature.v,
+            arweaveArchaeologistSignature.r,
+            arweaveArchaeologistSignature.s,
+            arweaveArchaeologistSignature.account
         );
 
         // Store the arweave transaction id to the sarcophagus. The arweaveTxId

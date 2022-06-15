@@ -55,24 +55,79 @@ library LibUtils {
     }
 
     /**
-     * @notice Reverts if the given data and signature did not come from the
-     * given address
-     * @param data the payload which has been signed
-     * @param signature The signature containing v, r, and s
+     * @notice Given some bytes32 data, a signature, and an account, verify that the
+     * identifier was signed by the account.
+     * @dev The verifyBytes32Signature function is identical to the
+     * verifyBytesSignature function except for the data type being passed in.
+     * The reason these are split up is beacuse it's really tricky to convert a
+     * bytes32 value into a bytes value and have ecrecover still work properly.
+     * If a simple solution can be found for this problem then please combine
+     * these two functions together.
+     * @param data the data to verify
+     * @param v signature element
+     * @param r signature element
+     * @param s signature element
      * @param account address to confirm data and signature came from
      */
-    function signatureCheck(
-        bytes memory data,
-        LibTypes.Signature memory signature,
+    function verifyBytes32Signature(
+        bytes32 data,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
         address account
-    ) public pure {
-        // generate the address for a given data and signature
-        address hopefulAddress = ecrecover(
-            keccak256(data),
-            signature.v,
-            signature.r,
-            signature.s
+    ) public view {
+        // Hash the hash of the data payload
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32",
+                keccak256(abi.encode(data))
+            )
         );
+
+        // Genearate the address from the signature.
+        // ecrecover should always return a valid address.
+        address hopefulAddress = ecrecover(messageHash, v, r, s);
+
+        require(
+            hopefulAddress == account,
+            "signature did not come from correct account"
+        );
+    }
+
+    /**
+     * @notice Given an identifier, a signature, and an account, verify that the
+     * identifier was signed by the account.
+     * @dev The verifyBytes32Signature function is identical to the
+     * verifyBytesSignature function except for the data type being passed in.
+     * The reason these are split up is beacuse it's really tricky to convert a
+     * bytes32 value into a bytes value and have ecrecover still work properly.
+     * If a simple solution can be found for this problem then please combine
+     * these two functions together.
+     * @param data the data to verify
+     * @param v signature element
+     * @param r signature element
+     * @param s signature element
+     * @param account address to confirm data and signature came from
+     */
+    function verifyBytesSignature(
+        bytes memory data,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        address account
+    ) public view {
+        // Hash the hash of the data payload
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32",
+                keccak256(abi.encode(data))
+            )
+        );
+
+        // Genearate the address from the signature.
+        // ecrecover should always return a valid address.
+        // It's highly recommended that a hash be passed into ecrecover
+        address hopefulAddress = ecrecover(messageHash, v, r, s);
 
         require(
             hopefulAddress == account,
