@@ -100,30 +100,35 @@ library LibBonds {
         increaseCursedBond(archaeologist, amount);
     }
 
-    /// @notice Given an array of archaeologists and a storage fee, sums the total of
+    /// @notice Given an array of archaeologists on a sarcophagus, sums the total of
     /// 1. Each archaeologists' bounty
     /// 2. Each archaeologists' digging fees
     /// 3. The storage fee
-    /// @param archaeologists the array of archaeologists
-    /// @param storageFee the storage fee
+    /// @param identifier The identifier of the sarcophagus
+    /// @param archaeologists The array of archaeologists' addresses
     /// @return the total of the above
     function calculateTotalFees(
-        LibTypes.ArchaeologistMemory[] memory archaeologists,
-        uint256 storageFee
-    ) internal pure returns (uint256) {
+        bytes32 identifier,
+        address[] memory archaeologists
+    ) internal view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
         uint256 totalFees = 0;
 
         // iterate through each archaeologist
         for (uint256 i = 0; i < archaeologists.length; i++) {
+            LibTypes.ArchaeologistStorage memory archaeologistsData = s
+                .sarcophagusArchaeologists[identifier][archaeologists[i]];
+
             // add the archaeologist's bounty to the total fees
-            totalFees += archaeologists[i].bounty;
+            totalFees += archaeologistsData.bounty;
 
             // add the archaeologist's digging fee to the total fees
-            totalFees += archaeologists[i].diggingFee;
+            totalFees += archaeologistsData.diggingFee;
         }
 
         // add the storage fee to the total fees
-        totalFees += storageFee;
+        totalFees += s.sarcophaguses[identifier].storageFee;
 
         // return the total fees
         return totalFees;

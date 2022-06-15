@@ -170,8 +170,8 @@ contract EmbalmerFacet {
         // Calculate the total fees in sarco tokens that the contract will
         // receive from the embalmer
         uint256 totalFees = LibBonds.calculateTotalFees(
-            archaeologists,
-            storageFee
+            identifier,
+            archaeologistAddresses
         );
 
         // Transfer the total fees amount in sarco token from the msg.sender to this contract
