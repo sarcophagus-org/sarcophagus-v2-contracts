@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "../libraries/LibTypes.sol";
+import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibDiamond} from "../diamond/libraries/LibDiamond.sol";
 
 /**
@@ -88,10 +89,9 @@ library LibUtils {
         // ecrecover should always return a valid address.
         address hopefulAddress = ecrecover(messageHash, v, r, s);
 
-        require(
-            hopefulAddress == account,
-            "signature did not come from correct account"
-        );
+        if (hopefulAddress != account) {
+            revert LibErrors.SignatureFromWrongAccount(hopefulAddress, account);
+        }
     }
 
     /**
@@ -129,10 +129,9 @@ library LibUtils {
         // It's highly recommended that a hash be passed into ecrecover
         address hopefulAddress = ecrecover(messageHash, v, r, s);
 
-        require(
-            hopefulAddress == account,
-            "signature did not come from correct account"
-        );
+        if (hopefulAddress != account) {
+            revert LibErrors.SignatureFromWrongAccount(hopefulAddress, account);
+        }
     }
 
     /**

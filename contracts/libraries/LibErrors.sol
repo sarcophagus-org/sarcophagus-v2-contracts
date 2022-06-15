@@ -28,4 +28,11 @@ library LibErrors {
     error SenderNotArch(address sender, address arch);
 
     error SenderNotEmbalmer(address sender, address embalmer);
+
+    error SignatureFromWrongAccount(
+        address hopefulAddress,
+        address actualAddress
+    );
+
+    error ArchaeologistNotOnSarcophagus(address archaeologist);
 }
