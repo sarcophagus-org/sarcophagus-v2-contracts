@@ -9,7 +9,7 @@ pragma solidity ^0.8.9;
 library LibErrors {
     error ArweaveTxIdEmpty();
 
-    error InvalidNumberOfArchaeologistSignatures(uint256 signaturesLength);
+    error IncorrectNumberOfArchaeologistSignatures(uint256 signaturesLength);
 
     error NoArchaeologistsProvided();
 

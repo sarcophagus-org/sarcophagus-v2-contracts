@@ -234,7 +234,7 @@ contract EmbalmerFacet {
             archaeologistSignatures.length !=
             s.sarcophaguses[identifier].archaeologists.length - 1
         ) {
-            revert LibErrors.InvalidNumberOfArchaeologistSignatures(
+            revert LibErrors.IncorrectNumberOfArchaeologistSignatures(
                 archaeologistSignatures.length
             );
         }
