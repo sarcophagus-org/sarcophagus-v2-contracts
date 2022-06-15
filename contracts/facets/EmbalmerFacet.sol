@@ -322,6 +322,76 @@ contract EmbalmerFacet {
         return true;
     }
 
+    /// @notice Cancels a sarcophagus. An embalmer may cancel a sarcophagus after
+    /// `initializeSarcophagus` but before `finalizeSarcophagus`.
+    /// @param identifier the identifier of the sarcophagus
+    /// @return The boolean true if the operation was successful
+
+    function cancelSarcophagus(bytes32 identifier) external returns (bool) {
+        // Confirm that the sender is the embalmer
+        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+            revert LibErrors.SenderNotEmbalmer(
+                msg.sender,
+                s.sarcophaguses[identifier].embalmer
+            );
+        }
+
+        // Confirm that the sarcophagus exists
+        if (
+            s.sarcophaguses[identifier].state !=
+            LibTypes.SarcophagusState.Exists
+        ) {
+            revert LibErrors.SarcophagusDoesNotExist(identifier);
+        }
+
+        // Confirm that the sarcophagus is not already finalized
+        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length > 0) {
+            revert LibErrors.SarcophagusAlreadyFinalized(identifier);
+        }
+
+        // Set the sarcophagus state to done
+        s.sarcophaguses[identifier].state = LibTypes.SarcophagusState.Done;
+
+        address[] memory archaeologistAddresses = s
+            .sarcophaguses[identifier]
+            .archaeologists;
+
+        // For each archaeologist on the sarcophagus, unlock their cursed bond.
+        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
+            // Get this archaeologist's fees
+            LibTypes.ArchaeologistStorage memory archaeologistStorage = s
+                .sarcophagusArchaeologists[identifier][
+                    archaeologistAddresses[i]
+                ];
+
+            // Calculate the cursed bond for the archaeologist
+            uint256 cursedBond = LibBonds.calculateCursedBond(
+                archaeologistStorage.diggingFee,
+                archaeologistStorage.bounty
+            );
+
+            // Unlock the archaeologist's cursed bond.
+            LibBonds.unlockBond(archaeologistAddresses[i], cursedBond);
+        }
+
+        // Re-calculate the total fees that the embalmer locked up in initializeSarcophagus
+        uint256 storageFees = LibBonds.calculateTotalFees(
+            identifier,
+            archaeologistAddresses
+        );
+
+        // Transfer the total fees back to the embalmer
+        s.sarcoToken.transfer(
+            s.sarcophaguses[identifier].embalmer,
+            storageFees
+        );
+
+        // Emit an event
+        emit LibEvents.CancelSarcophagus(identifier);
+
+        return true;
+    }
+
     /// @notice Checks if the archaeologist exists on the sarcophagus.
     /// @param identifier the identifier of the sarcophagus
     /// @param archaeologist the address of the archaeologist

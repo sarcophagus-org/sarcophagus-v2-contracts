@@ -2,12 +2,17 @@
 pragma solidity ^0.8.9;
 
 import "../storage/LibAppStorage.sol";
+import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 
 library LibBonds {
     /// @notice Calculates the cursed bond that an archaeologist needs to lock
     /// up
-    /// @dev The cursed bond amount is the sum of the digging fee and the bounty
+    /// @dev The cursed bond amount is the sum of the digging fee and the
+    /// bounty.
+    /// @param diggingFee The digging fee of the sarcophagus
+    /// @param bounty The bounty of the sarcophagus
+    /// @return The amount of cursed bond
     function calculateCursedBond(uint256 diggingFee, uint256 bounty)
         internal
         pure
@@ -98,6 +103,19 @@ library LibBonds {
 
         // Increase the cursed bond amount
         increaseCursedBond(archaeologist, amount);
+    }
+
+    /// @notice Unlocks the archaeologist's bond, increasing the
+    /// archaeologist's free bond by an amount and decreasing the
+    /// archaeologist's cursed bond by the same amount.
+    /// @param archaeologist The address of the archaeologist
+    /// @param amount The amount to unlock
+    function unlockBond(address archaeologist, uint256 amount) internal {
+        // Decrease the cursed bond amount
+        decreaseCursedBond(archaeologist, amount);
+
+        // Increase the free bond amount
+        increaseFreeBond(archaeologist, amount);
     }
 
     /// @notice Given an array of archaeologists on a sarcophagus, sums the total of
