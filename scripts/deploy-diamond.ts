@@ -23,9 +23,7 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   // Deploy Embalmer Facet
   // Functions used from other libraries are internal and thus do no need to be
   // deployed with the facet
-  const EmbalmerFacet = await ethers.getContractFactory("EmbalmerFacet", {
-    libraries: { LibUtils: libUtils.address },
-  });
+  const EmbalmerFacet = await ethers.getContractFactory("EmbalmerFacet");
   const embalmerFacet = await EmbalmerFacet.deploy();
   await embalmerFacet.deployed();
 
@@ -115,6 +113,11 @@ export const deployDiamond = async () => {
   // Get contract owner
   const contractOwner = accounts[0];
 
+  // Deploy the mock sarco token
+  const MockSarcoToken = await ethers.getContractFactory("SarcoTokenMock");
+  const mockSarcoToken = await MockSarcoToken.deploy();
+  await mockSarcoToken.deployed();
+
   // Deploy DiamondInit contract
   // DiamondInit provides a function that is called when the diamond is upgraded
   // to initialize state variables
@@ -123,6 +126,11 @@ export const deployDiamond = async () => {
   const DiamondInit = await ethers.getContractFactory("DiamondInit");
   const diamondInit = await DiamondInit.deploy();
   await diamondInit.deployed();
+
+  // Deploy AppStorageInit contract
+  const AppStorageInit = await ethers.getContractFactory("AppStorageInit");
+  const appStorageInit = await AppStorageInit.deploy();
+  await appStorageInit.deployed();
 
   // Deploy DiamondCutFacet contract
   const DiamondCutFacet = await ethers.getContractFactory("DiamondCutFacet");
@@ -165,18 +173,40 @@ export const deployDiamond = async () => {
       action: FacetCutAction.Add,
       functionSelectors: getSelectors(ownershipFacet),
     },
-    ...appCuts,
   ];
 
-  // Encode the data for the init function call
-  // The DiamondInit.init() function will be called with delegatecall after the
-  // diamond cut is performed
-  const functionCall = diamondInit.interface.encodeFunctionData("init");
+  // Encode the data for the diamondInit init function call The
+  // DiamondInit.init() function will be called with delegatecall after the
+  // diamond cut for the diamond facets is performed
+  const diamondInitCallData = diamondInit.interface.encodeFunctionData("init");
+
+  // This adds the sarco token to AppStorage.
+  //
+  // Encode the data for appStorageInit init function call The
+  // AppStorageInit.init() function will be called with delegatecall after the
+  // diamond cut for the sarcophagus facets is performed.
+  const appInitCallData = appStorageInit.interface.encodeFunctionData("init", [
+    mockSarcoToken.address,
+  ]);
 
   // Make the diamond cut to create the facets provided in cuts
   try {
-    await diamondCutAsync(cuts, diamondInit.address, functionCall, diamond);
-    return diamond.address;
+    // Make the diamond cuts needed for the diamond pattern to work
+    await diamondCutAsync(
+      cuts,
+      diamondInit.address,
+      diamondInitCallData,
+      diamond
+    );
+
+    // Make the diamond cuts for sarcophagus
+    await diamondCutAsync(
+      appCuts,
+      appStorageInit.address,
+      appInitCallData,
+      diamond
+    );
+    return { diamondAddress: diamond.address, sarcoToken: mockSarcoToken };
   } catch (error) {
     const _error = error as Error;
     throw new Error(_error.message);
