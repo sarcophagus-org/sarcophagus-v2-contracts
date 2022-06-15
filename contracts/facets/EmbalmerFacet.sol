@@ -90,14 +90,6 @@ contract EmbalmerFacet {
                 archaeologists[i].bounty
             );
 
-            // Confirm that the archaeologist has enough free bond.
-            // This error could mean that the archaeologist has either run out
-            // of free bond or has never even interacted with sarcophagus.
-            require(
-                s.freeBonds[archaeologists[i].archAddress] >= cursedBondAmount,
-                "archaeologist does not have enough free bond"
-            );
-
             // Lock up the archaeologist's bond by the cursed bond amount
             LibBonds.lockUpBond(
                 archaeologists[i].archAddress,
