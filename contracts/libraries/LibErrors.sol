@@ -47,4 +47,7 @@ library LibErrors {
     );
 
     error SignatureListNotUnique();
+
+    // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
+    error SarcophagusNotCleanable();
 }
