@@ -242,6 +242,21 @@ contract EmbalmerFacet {
         // Iterate over each regular archaeologist signature. This will not
         // include the arweave archaeologist.
         for (uint256 i = 0; i < archaeologistSignatures.length; i++) {
+            // Confirm that the archaeologist address in the signature is on the
+            // sarcophagus. The alternative to this is to iterate over each
+            // archaeologist on the sarcophagus and run ecrecover to see if
+            // there is a match. This is much more efficient.
+            if (
+                !archaeologistExists(
+                    identifier,
+                    archaeologistSignatures[i].account
+                )
+            ) {
+                revert LibErrors.ArchaeologistNotOnSarcophagus(
+                    archaeologistSignatures[i].account
+                );
+            }
+
             // Verify that the signature of the sarcophagus identifier came from
             // the archaeologist. This signature confirms that the archaeologist
             // approves the parameters of the sarcophagus (fees and resurrection
@@ -285,5 +300,22 @@ contract EmbalmerFacet {
         emit LibEvents.FinalizeSarcophagus(identifier, arweaveTxId);
 
         return true;
+    }
+
+    /// @notice Checks if the archaeologist exists on the sarcophagus.
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologist the address of the archaeologist
+    /// @return The boolean true if the archaeologist exists on the sarcophagus
+    function archaeologistExists(bytes32 identifier, address archaeologist)
+        private
+        view
+        returns (bool)
+    {
+        // If the hashedShard on an archaeologist is 0 (which is its default
+        // value), then the archaeologist doesn't exist on the sarcophagus
+        return
+            s
+            .sarcophagusArchaeologists[identifier][archaeologist].hashedShard !=
+            0;
     }
 }
