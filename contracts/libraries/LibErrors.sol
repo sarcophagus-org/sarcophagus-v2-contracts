@@ -35,4 +35,8 @@ library LibErrors {
     );
 
     error ArchaeologistNotOnSarcophagus(address archaeologist);
+
+    error MinShardsGreaterThanArchaeologists(uint8 minShards);
+
+    error MinShardsZero();
 }

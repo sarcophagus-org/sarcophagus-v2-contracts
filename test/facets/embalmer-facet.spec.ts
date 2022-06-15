@@ -74,7 +74,8 @@ describe("Contract: EmbalmerFacet", () => {
     name: string,
     resurrectionTime: BigNumber,
     identifier: string,
-    archaeologists: any[]
+    archaeologists: any[],
+    minShards?: number
   ): Promise<ContractTransaction> => {
     // Define archaeologist objects to be passed into the sarcophagus
     const archaeologistObjects = archaeologists.map((a, i) => ({
@@ -97,8 +98,8 @@ describe("Contract: EmbalmerFacet", () => {
         arweaveArchaeologist.address,
         recipient.address,
         resurrectionTime,
-        sarcoToken.address,
-        canBeTransfered
+        canBeTransfered,
+        minShards || 3
       );
 
     return tx;
@@ -206,6 +207,30 @@ describe("Contract: EmbalmerFacet", () => {
           []
         )
       ).to.be.revertedWith("NoArchaeologistsProvided");
+    });
+
+    it("should revert if minShards is greater than the number of archaeologists", async () => {
+      expect(
+        initializeSarcophagus(
+          "Test Sarcophagus",
+          BigNumber.from((Date.now() / 1000).toFixed(0)),
+          identifier,
+          archaeologists,
+          5
+        )
+      ).to.be.revertedWith("MinShardsGreaterThanArchaeologists");
+    });
+
+    it("should revert if minShards is 0", async () => {
+      expect(
+        initializeSarcophagus(
+          "Test Sarcophagus",
+          BigNumber.from((Date.now() / 1000).toFixed(0)),
+          identifier,
+          archaeologists,
+          0
+        )
+      ).to.be.revertedWith("MinShardsZero");
     });
 
     it("should revert if an archaeologist does not have enough free bond", async () => {

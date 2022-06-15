@@ -74,6 +74,7 @@ library LibTypes {
         string name;
         SarcophagusState state;
         bool canBeTransferred;
+        uint8 minShards;
         uint256 resurrectionTime;
         string arweaveTxId;
         uint256 storageFee;
