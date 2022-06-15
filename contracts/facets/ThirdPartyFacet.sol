@@ -94,8 +94,9 @@ contract ThirdPartyFacet {
         uint256 totalBounty;
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
+            // potentially a better way? If archaeologistSuccesses2[archAddresses[i]] produced a mapping instead of an array
+            // if (!s.archaeologistSuccesses2[archAddresses[i]][identifier]) { 
             if (archFailedSarcho(archAddresses[i], identifier)) {
-            // if (!s.archaeologistSuccesses2[archAddresses[i]][identifier]) { // potentially a better way? If archaeologistSuccesses2[archAddresses[i]] produced a mapping instead of an array
                 LibTypes.Archaeologist memory defaulter = s.sarcophagusArchaeologists[identifier][archAddresses[i]];
 
                 totalBounty += defaulter.bounty;
