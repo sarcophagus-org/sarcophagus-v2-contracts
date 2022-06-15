@@ -10,8 +10,6 @@ import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
-import "hardhat/console.sol";
-
 contract ThirdPartyFacet {
     AppStorage internal s;
 
