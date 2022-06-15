@@ -10,6 +10,7 @@ struct AppStorage {
     mapping(address => uint256) cursedBonds;
     // archaeologist stats
     mapping(address => bytes32[]) archaeologistSuccesses;
+    // mapping(address => mapping(bytes32 => bool)) archaeologistSuccesses2;
     mapping(address => bytes32[]) archaeologistCancels;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;

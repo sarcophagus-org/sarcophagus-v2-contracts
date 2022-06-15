@@ -21,4 +21,7 @@ library LibErrors {
 
     // Reverts when an archaeologist doesn't have enough cursed bond when trying to withdraw cursed bond
     error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
+
+    // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
+    error SarcophagusNotCleanable();
 }
