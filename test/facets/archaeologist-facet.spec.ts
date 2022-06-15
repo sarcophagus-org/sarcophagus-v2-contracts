@@ -20,7 +20,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
     archaeologist = signers[0];
 
-    diamondAddress = await deployDiamond();
+    diamondAddress = (await deployDiamond()).diamondAddress;
     const SarcoToken = await ethers.getContractFactory("SarcoTokenMock");
     sarcoToken = await SarcoToken.deploy();
     await sarcoToken.deployed();

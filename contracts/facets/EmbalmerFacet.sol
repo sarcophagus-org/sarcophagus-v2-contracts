@@ -164,7 +164,7 @@ contract EmbalmerFacet {
         );
 
         // Transfer the total fees amount in sarco token from the msg.sender to this contract
-        sarcoToken.transferFrom(msg.sender, address(this), totalFees);
+        s.sarcoToken.transferFrom(msg.sender, address(this), totalFees);
 
         // Emit the event
         emit LibEvents.InitializeSarcophagus(
@@ -202,14 +202,12 @@ contract EmbalmerFacet {
     /// This is archaeologist.length - 1 since the arweave archaeologist will be providing their own signature.
     /// @param arweaveArchaeologistSignature the signature of the archaeologist who uploaded to arweave
     /// @param arweaveTxId the arweave transaction id
-    /// @param sarcoToken The erc20 sarcophagus token
     /// @return The boolean true if the operation was successful
     function finalizeSarcophagus(
         bytes32 identifier,
         LibTypes.SignatureWithAccount[] memory archaeologistSignatures,
         LibTypes.Signature memory arweaveArchaeologistSignature,
-        string memory arweaveTxId,
-        IERC20 sarcoToken
+        string memory arweaveTxId
     ) external returns (bool) {
         // Confirm that the sarcophagus exists
         if (
@@ -302,7 +300,7 @@ contract EmbalmerFacet {
 
         // Transfer the storage fee to the arweave archaeologist after setting
         // the arweave transaction id.
-        sarcoToken.transfer(
+        s.sarcoToken.transfer(
             s.sarcophaguses[identifier].arweaveArchaeologist,
             s.sarcophaguses[identifier].storageFee
         );
