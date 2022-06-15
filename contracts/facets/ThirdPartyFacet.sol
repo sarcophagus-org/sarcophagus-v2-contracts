@@ -110,6 +110,8 @@ contract ThirdPartyFacet {
             }
         }
 
-        _distributeLoot(paymentAddress, sarco, totalCursedBond,totalDiggingFee,totalBounty, sarcoToken);
+        (uint256 cleanerBondReward, uint256 embalmerBondReward) = _distributeLoot(paymentAddress, sarco, totalCursedBond,totalDiggingFee,totalBounty, sarcoToken);
+
+        emit LibEvents.CleanUpSarcophagus(identifier,msg.sender,cleanerBondReward,embalmerBondReward);
     }
 }
