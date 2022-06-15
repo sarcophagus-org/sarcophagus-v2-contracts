@@ -79,6 +79,10 @@ contract ThirdPartyFacet {
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[identifier];
 
+        if (sarco.state != LibTypes.SarcophagusState.Exists) {
+            revert LibErrors.SarcophagusNotExist();
+        }
+
         // Make sure the sarco is cleanable
         if (block.timestamp < LibUtils.getGracePeriod(sarco.resurrectionTime) + sarco.resurrectionTime) {
             revert LibErrors.SarcophagusNotCleanable();
