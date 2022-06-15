@@ -14,6 +14,17 @@ library LibTypes {
         Done
     }
 
+    // A struct of just the signature. This is used primarily by the
+    // finalizeSarcpohagus function for the arweave archaeologist. Note that,
+    // unlike the regular archaeologists, the sarcophagus already stores the
+    // single arweave archaeologist's address so there is no need to pass in the
+    // address to the finalizeSarcophagus function.
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
+
     // Signature struct created to make passing in the signature argmuments into
     // finalizedSarcophagus easier and to avoid the "stack too deep" error.
     // Also attaching arachaeologist addresses so we can tie the signature back

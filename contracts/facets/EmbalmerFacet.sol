@@ -196,7 +196,7 @@ contract EmbalmerFacet {
     function finalizeSarcophagus(
         bytes32 identifier,
         LibTypes.SignatureWithAccount[] memory archaeologistSignatures,
-        LibTypes.SignatureWithAccount memory arweaveArchaeologistSignature,
+        LibTypes.Signature memory arweaveArchaeologistSignature,
         string memory arweaveTxId,
         IERC20 sarcoToken
     ) external returns (bool) {
