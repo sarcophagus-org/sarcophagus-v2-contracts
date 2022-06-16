@@ -152,6 +152,15 @@ contract EmbalmerFacet {
             archaeologistAddresses[i] = archaeologists[i].archAddress;
         }
 
+        // If the storage fee is 0, then the storage fee was never set since the
+        // default value is 0. This means that either the arweave archaeologist
+        // was not included in the list of archaeologists or the arweave
+        // archaeologist set their storage fee to 0. In either case the
+        // transaction should be reverted.
+        if (storageFee == 0) {
+            revert LibErrors.ArweaveArchaeologistNotInList();
+        }
+
         // Create the sarcophagus object and store it in AppStorage
         s.sarcophaguses[identifier] = LibTypes.Sarcophagus({
             name: name,

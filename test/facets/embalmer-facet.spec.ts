@@ -491,7 +491,38 @@ describe("Contract: EmbalmerFacet", () => {
         );
 
         // Initalize the sarcophagus and expect it to revert
-        return expect(tx).to.be.revertedWith("NotEnoughFreeBond");
+        expect(tx).to.be.revertedWith("NotEnoughFreeBond");
+      });
+
+      it.only("should revert if the arweave archaeologist is not included in the list of archaeologists", async () => {
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["arweaveArchNotInList"]
+        );
+
+        const archaeologistObjects = archaeologists.map((a, i) => ({
+          archAddress: a.address,
+          storageFee: BigNumber.from(archaeologistsFees[i].storageFee),
+          diggingFee: BigNumber.from(archaeologistsFees[i].diggingFee),
+          bounty: BigNumber.from(archaeologistsFees[i].bounty),
+          hashedShard: ethers.utils.solidityKeccak256(["string"], [a.address]),
+        }));
+
+        const canBeTransfered = true;
+
+        // Create a sarcophagus where the arweave archaeologist is not included in the list of archaeologists
+        const tx = embalmerFacet.initializeSarcophagus(
+          "Sarcophagus Test",
+          identifier,
+          archaeologistObjects,
+          signers[8].address,
+          recipient.address,
+          resurrectionTimeInFuture,
+          canBeTransfered,
+          3
+        );
+
+        expect(tx).to.be.revertedWith("ArweaveArchaeologistNotInList");
       });
     });
   });

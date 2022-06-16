@@ -43,4 +43,6 @@ library LibErrors {
     error ArchaeologistListNotUnique(address[] archaeologists);
 
     error SignatureListNotUnique();
+
+    error ArweaveArchaeologistNotInList();
 }
