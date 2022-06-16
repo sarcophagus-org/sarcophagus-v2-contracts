@@ -50,7 +50,4 @@ library LibErrors {
 
     // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
     error SarcophagusNotCleanable();
-
-    // Reverted when the identifier used does not match any active sarcophagus on the system
-    error SarcophagusNotExist();
 }
