@@ -409,6 +409,67 @@ contract EmbalmerFacet {
         return true;
     }
 
+    /// @notice Permanently closes the sarcophagus, giving it no opportunity to
+    /// be resurrected.
+    /// This may only be done after finalizeSarcophagus and before the
+    /// resurrection time has passed.
+    /// @dev Extends the resurrection time into infinity so that that unwrap
+    /// will never be successful.
+    function burySarcohpagus(bytes32 identifier) external returns (bool) {
+        // Confirm that the sender is the embalmer
+        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+            revert LibErrors.SenderNotEmbalmer(
+                msg.sender,
+                s.sarcophaguses[identifier].embalmer
+            );
+        }
+
+        // Confirm that the sarcophagus exists
+        if (
+            s.sarcophaguses[identifier].state !=
+            LibTypes.SarcophagusState.Exists
+        ) {
+            revert LibErrors.SarcophagusDoesNotExist(identifier);
+        }
+
+        // Confirm that the current resurrection time is in the future
+        if (s.sarcophaguses[identifier].resurrectionTime <= block.timestamp) {
+            revert LibErrors.ResurrectionTimeInPast(
+                s.sarcophaguses[identifier].resurrectionTime
+            );
+        }
+
+        // Set resurrection time to infinity
+        s.sarcophaguses[identifier].resurrectionTime = 2**256 - 1;
+
+        // Set sarcophagus state to done
+        s.sarcophaguses[identifier].state = LibTypes.SarcophagusState.Done;
+
+        // For each archaeologist on the sarcophagus,
+        // 1. Unlock their cursed bond
+        // 2. Transfer digging fees to the archaeologist.
+        address[] memory archaeologistAddresses = s
+            .sarcophaguses[identifier]
+            .archaeologists;
+
+        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
+            // Unlock the archaeologist's cursed bond
+            LibBonds.freeArchaeologist(identifier, archaeologistAddresses[i]);
+
+            // Transfer the digging fees to the archaeologist
+            s.sarcoToken.transfer(
+                archaeologistAddresses[i],
+                getArchaeologist(identifier, archaeologistAddresses[i])
+                    .diggingFee
+            );
+        }
+
+        // Emit an event
+        emit LibEvents.BurySarcophagus(identifier);
+
+        return true;
+    }
+
     /// @notice Checks if the archaeologist exists on the sarcophagus.
     /// @param identifier the identifier of the sarcophagus
     /// @param archaeologist the address of the archaeologist
