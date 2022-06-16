@@ -18,7 +18,9 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   // Deploy Embalmer Facet
   // Functions used from other libraries are internal and thus do no need to be
   // deployed with the facet
-  const EmbalmerFacet = await ethers.getContractFactory("EmbalmerFacet");
+  const EmbalmerFacet = await ethers.getContractFactory("EmbalmerFacet", {
+    libraries: { LibUtils: libUtils.address },
+  });
   const embalmerFacet = await EmbalmerFacet.deploy();
   await embalmerFacet.deployed();
 
