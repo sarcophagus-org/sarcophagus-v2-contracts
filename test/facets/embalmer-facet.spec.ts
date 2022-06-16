@@ -729,6 +729,24 @@ describe("Contract: EmbalmerFacet", () => {
         );
       });
 
+      it("should revert if there are duplicate signatures", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "duplicateSignatures",
+          archaeologists
+        );
+
+        const signaturesAllSame = signatures.map((_) => signatures[0]);
+
+        const tx = embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signaturesAllSame,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        await expect(tx).to.be.revertedWith("SignatureListNotUnique");
+      });
+
       it("should revert if any signature provided by a regular archaeologist is from the wrong archaeologist", async () => {
         const { identifier } = await createSarcophagusAndSignatures(
           "sigFromWrongArchaeologist",

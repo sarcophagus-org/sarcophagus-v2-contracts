@@ -41,4 +41,6 @@ library LibErrors {
     error MinShardsZero();
 
     error ArchaeologistListNotUnique(address[] archaeologists);
+
+    error SignatureListNotUnique();
 }

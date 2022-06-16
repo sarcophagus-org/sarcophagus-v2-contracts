@@ -10,7 +10,12 @@ import {LibUtils} from "../libraries/LibUtils.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract EmbalmerFacet {
+    // IMPORTANT: AppStorage must be the first state variable in the facet.
     AppStorage internal s;
+
+    // Archaeologist's addresses are added to this mapping per sarcophagus to
+    // verify that the same archaeologist signature is not used more than once.
+    mapping(bytes32 => mapping(address => bool)) private verifiedArchaeologists;
 
     /// @notice Embalmer creates the skeleton for a new sarcopahgus.
     ///
@@ -262,6 +267,17 @@ contract EmbalmerFacet {
         // Iterate over each regular archaeologist signature. This will not
         // include the arweave archaeologist.
         for (uint256 i = 0; i < archaeologistSignatures.length; i++) {
+            // Confirm that this signauture has not already been verified. This
+            // in combination with the signature length check guarantees that
+            // each archaeologist gets verified and gets verified only once.
+            if (
+                verifiedArchaeologists[identifier][
+                    archaeologistSignatures[i].account
+                ]
+            ) {
+                revert LibErrors.SignatureListNotUnique();
+            }
+
             // Confirm that the archaeologist address in the signature is on the
             // sarcophagus. The alternative to this is to iterate over each
             // archaeologist on the sarcophagus and run ecrecover to see if
@@ -288,6 +304,12 @@ contract EmbalmerFacet {
                 archaeologistSignatures[i].s,
                 archaeologistSignatures[i].account
             );
+
+            // Add this archaeologist to the mapping of verified archaeologists
+            // so that it can't be checked again.
+            verifiedArchaeologists[identifier][
+                archaeologistSignatures[i].account
+            ] = true;
         }
 
         // Verify that the signature of the arweave transaction id came from the
