@@ -19,13 +19,6 @@ describe("Contract: EmbalmerFacet", () => {
     Date.now() + 60 * 60 * 24 * 7
   );
 
-  // Generate a hash from the name to use as the identifier. It doesn't
-  // matter what the hash is of for the tests.
-  const identifier = ethers.utils.solidityKeccak256(
-    ["string"],
-    ["sarcophagusIdentifier"]
-  );
-
   let embalmerFacet: EmbalmerFacet;
   let archaeologistFacet: ArchaeologistFacet;
   let embalmer: SignerWithAddress;
@@ -133,7 +126,7 @@ describe("Contract: EmbalmerFacet", () => {
         .connect(archaeologist)
         .depositFreeBond(
           archaeologist.address,
-          BigNumber.from("1000"),
+          BigNumber.from("5000"),
           sarcoToken.address
         );
     }
@@ -206,15 +199,10 @@ describe("Contract: EmbalmerFacet", () => {
   };
 
   describe("initializeSarcophagus()", () => {
-    // Deploys the entire diamond before each test.
-    // This is necessary so that each test will start in a clean state.
-    beforeEach(async () => {
-      // Deploy the sarco token contract
-
-      const { diamondAddress, sarcoToken: _sarcoToken } = await deployDiamond();
-
-      // Set sarcoToken globally
-      sarcoToken = _sarcoToken;
+    // Deploy the contracts
+    before(async () => {
+      let diamondAddress: string;
+      ({ diamondAddress, sarcoToken } = await deployDiamond());
 
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
@@ -227,251 +215,290 @@ describe("Contract: EmbalmerFacet", () => {
         diamondAddress
       );
 
-      for (const archaeologist of archaeologists) {
-        // Transfer 10,000 sarco tokens to each archaeologist to be put into free
-        // bond
-        await _sarcoToken.transfer(
-          archaeologist.address,
-          BigNumber.from(10_000)
+      await setupArchaeologists(
+        archaeologistFacet,
+        archaeologists,
+        diamondAddress,
+        embalmer,
+        sarcoToken
+      );
+    });
+
+    context("Successful initialization", () => {
+      it("should successfully initialize sarcophagus", async () => {
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["successfulInitializeSarcophagus"]
         );
 
-        // Approve the archaeologist on the sarco token so transferFrom will work
-        await _sarcoToken
-          .connect(archaeologist)
-          .approve(diamondAddress, ethers.constants.MaxUint256);
-
-        // Approve the embalmer on the sarco token so transferFrom will work
-        await _sarcoToken
-          .connect(embalmer)
-          .approve(diamondAddress, ethers.constants.MaxUint256);
-
-        // Deposit some free bond to the contract so initializeSarcophagus will
-        // work
-        await archaeologistFacet
-          .connect(archaeologist)
-          .depositFreeBond(
-            archaeologist.address,
-            BigNumber.from("1000"),
-            _sarcoToken.address
-          );
-      }
-    });
-
-    it("should successfully create sarcophagus", async () => {
-      const tx = await initializeSarcophagus(
-        "Test Sarcophagus",
-        resurrectionTimeInFuture,
-        identifier,
-        archaeologists
-      );
-      const receipt = await tx.wait();
-
-      expect(receipt.status).to.equal(1);
-    });
-
-    it("should revert when creating a sarcophagus that already exists", async () => {
-      await initializeSarcophagus(
-        "Test Sarcophagus",
-        resurrectionTimeInFuture,
-        identifier,
-        archaeologists
-      );
-
-      // Try to create the same sarcophagus again
-      await expect(
-        initializeSarcophagus(
+        const tx = await initializeSarcophagus(
           "Test Sarcophagus",
           resurrectionTimeInFuture,
           identifier,
           archaeologists
-        )
-      ).to.be.revertedWith("SarcophagusAlreadyExists");
+        );
+        const receipt = await tx.wait();
+
+        expect(receipt.status).to.equal(1);
+      });
+
+      it("should lock up an archaeologist's free bond", async () => {
+        // TODO: Modify this when the calculateCursedBond method changes in the contract
+        const firstArchaeologistCursedBond =
+          firstArchaeologistBounty + firstArchaeologistDiggingFee;
+
+        // Get the free and cursed bond before and after, then compare them
+        const freeBondBefore = await archaeologistFacet.getFreeBond(
+          archaeologists[0].address
+        );
+        const cursedBondBefore = await archaeologistFacet.getCursedBond(
+          archaeologists[0].address
+        );
+
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["shouldLockUpFreeBond"]
+        );
+
+        await initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          archaeologists
+        );
+
+        const freeBondAfter = await archaeologistFacet.getFreeBond(
+          archaeologists[0].address
+        );
+        const cursedBondAfter = await archaeologistFacet.getCursedBond(
+          archaeologists[0].address
+        );
+
+        expect(freeBondBefore.sub(freeBondAfter)).to.equal(
+          BigNumber.from(firstArchaeologistCursedBond)
+        );
+        expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(
+          BigNumber.from(firstArchaeologistCursedBond)
+        );
+      });
+
+      it("should transfer fees in sarco token from the embalmer to the contract", async () => {
+        // Get the embalmer's sarco token balance before and after, then compare
+        const embalmerBalanceBefore = await sarcoToken.balanceOf(
+          embalmer.address
+        );
+
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["shouldTransferFees"]
+        );
+
+        await initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          archaeologists
+        );
+
+        const embalmerBalanceAfter = await sarcoToken.balanceOf(
+          embalmer.address
+        );
+
+        // Find the arweave archaeologist and get their storage fee amount
+        const arweaveArchaeologistIndex = archaeologists.findIndex(
+          (a) => a.address === arweaveArchaeologist.address
+        );
+        const arweaveArchaeologistStorageFee = BigNumber.from(
+          archaeologistsFees[arweaveArchaeologistIndex].storageFee
+        );
+        const arweaveArchaeologistStorageFeeInt =
+          arweaveArchaeologistStorageFee.toNumber();
+
+        // Calculate the total fees:
+        // The arweaver archaeologist's storage fee + all bounties + all digging
+        // fees
+        const totalFees =
+          archaeologistsFees.reduce(
+            (acc, fee) => acc + fee.bounty + fee.diggingFee,
+            0
+          ) + arweaveArchaeologistStorageFeeInt;
+
+        expect(embalmerBalanceBefore.sub(embalmerBalanceAfter)).to.equal(
+          BigNumber.from(totalFees)
+        );
+      });
+
+      it("should emit an event on initialize", async () => {
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["shouldEmitEvent"]
+        );
+
+        const tx = await initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          archaeologists
+        );
+        const receipt = await tx.wait();
+
+        const events = receipt.events!;
+        expect(events).to.not.be.undefined;
+
+        // Check that the list of events includes an event that has an address
+        // matching the embalmerFacet address
+        expect(events.some((event) => event.address === embalmerFacet.address))
+          .to.be.true;
+      });
     });
 
-    it("should revert if the resurrection time is not in the future", () => {
-      expect(
-        initializeSarcophagus(
+    context("Failed initialization", () => {
+      it("should revert when creating a sarcophagus that already exists", async () => {
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["sarcophagusAlreadyExists"]
+        );
+
+        await initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          archaeologists
+        );
+
+        const tx = initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          archaeologists
+        );
+
+        // Try to create the same sarcophagus again
+        await expect(tx).to.be.revertedWith("SarcophagusAlreadyExists");
+      });
+
+      it("should revert if the resurrection time is not in the future", async () => {
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["notInFuture"]
+        );
+
+        const tx = initializeSarcophagus(
           "Test Sarcophagus",
           BigNumber.from((Date.now() / 1000).toFixed(0)),
           identifier,
           archaeologists
-        )
-      ).to.be.revertedWith("ResurrectionTimeInPast");
-    });
+        );
 
-    it("should revert if no archaeologists are provided", async () => {
-      expect(
-        initializeSarcophagus(
+        expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
+      });
+
+      it("should revert if no archaeologists are provided", async () => {
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["noArchaeologistsProvided"]
+        );
+
+        const tx = initializeSarcophagus(
           "Test Sarcophagus",
-          BigNumber.from((Date.now() / 1000).toFixed(0)),
+          resurrectionTimeInFuture,
           identifier,
           []
-        )
-      ).to.be.revertedWith("NoArchaeologistsProvided");
-    });
-
-    it("should revert if the list of archaeologists is not unique", async () => {
-      const nonUniqueArchaeologists = archaeologists.slice();
-      const firstArchaeologist = archaeologists[0];
-      nonUniqueArchaeologists.push(firstArchaeologist);
-
-      expect(
-        initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists
-        )
-      ).to.be.revertedWith("ArchaeologistListNotUnique");
-    });
-
-    it("should revert if minShards is greater than the number of archaeologists", async () => {
-      expect(
-        initializeSarcophagus(
-          "Test Sarcophagus",
-          BigNumber.from((Date.now() / 1000).toFixed(0)),
-          identifier,
-          archaeologists,
-          5
-        )
-      ).to.be.revertedWith("MinShardsGreaterThanArchaeologists");
-    });
-
-    it("should revert if minShards is 0", async () => {
-      expect(
-        initializeSarcophagus(
-          "Test Sarcophagus",
-          BigNumber.from((Date.now() / 1000).toFixed(0)),
-          identifier,
-          archaeologists,
-          0
-        )
-      ).to.be.revertedWith("MinShardsZero");
-    });
-
-    it("should revert if an archaeologist does not have enough free bond", async () => {
-      const freeBond = await archaeologistFacet.getFreeBond(
-        archaeologists[0].address
-      );
-
-      // Connect with the first archaeologist and withdraw the freeBond amount
-      // The first archaeologist's free bond balance should now be 0
-      await archaeologistFacet
-        .connect(archaeologists[0])
-        .withdrawFreeBond(
-          archaeologists[0].address,
-          freeBond,
-          sarcoToken.address
         );
 
-      // Initalize the sarcophagus and expect it to revert
-      return expect(
-        initializeSarcophagus(
+        expect(tx).to.be.revertedWith("NoArchaeologistsProvided");
+      });
+
+      it("should revert if the list of archaeologists is not unique", async () => {
+        const nonUniqueArchaeologists = archaeologists.slice();
+        const firstArchaeologist = archaeologists[0];
+        nonUniqueArchaeologists.push(firstArchaeologist);
+
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["notUniqueArchaeologists"]
+        );
+
+        const tx = initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          nonUniqueArchaeologists
+        );
+
+        expect(tx).to.be.revertedWith("ArchaeologistListNotUnique");
+      });
+
+      it("should revert if minShards is greater than the number of archaeologists", async () => {
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["notUniqueArchaeologists"]
+        );
+
+        const tx = initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          archaeologists,
+          10
+        );
+
+        expect(tx).to.be.revertedWith("MinShardsGreaterThanArchaeologists");
+      });
+
+      it("should revert if minShards is 0", async () => {
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["shardsIsZero"]
+        );
+
+        const tx = initializeSarcophagus(
+          "Test Sarcophagus",
+          resurrectionTimeInFuture,
+          identifier,
+          archaeologists,
+          0
+        );
+
+        expect(tx).to.be.revertedWith("MinShardsZero");
+      });
+
+      it("should revert if an archaeologist does not have enough free bond", async () => {
+        const freeBond = await archaeologistFacet.getFreeBond(
+          archaeologists[0].address
+        );
+
+        // Connect with the first archaeologist and withdraw the freeBond amount
+        // The first archaeologist's free bond balance should now be 0
+        await archaeologistFacet
+          .connect(archaeologists[0])
+          .withdrawFreeBond(
+            archaeologists[0].address,
+            freeBond,
+            sarcoToken.address
+          );
+
+        const identifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["notEnoughFreeBond"]
+        );
+
+        const tx = initializeSarcophagus(
           "Test Sarcophagus",
           resurrectionTimeInFuture,
           identifier,
           archaeologists
-        )
-      ).to.be.revertedWith("NotEnoughFreeBond");
-    });
+        );
 
-    it("should lock up an archaeologist's free bond", async () => {
-      // TODO: Modify this when the calculateCursedBond method changes in the contract
-      const firstArchaeologistCursedBond =
-        firstArchaeologistBounty + firstArchaeologistDiggingFee;
-
-      // Get the free and cursed bond before and after, then compare them
-      const freeBondBefore = await archaeologistFacet.getFreeBond(
-        archaeologists[0].address
-      );
-      const cursedBondBefore = await archaeologistFacet.getCursedBond(
-        archaeologists[0].address
-      );
-
-      await initializeSarcophagus(
-        "Test Sarcophagus",
-        resurrectionTimeInFuture,
-        identifier,
-        archaeologists
-      );
-
-      const freeBondAfter = await archaeologistFacet.getFreeBond(
-        archaeologists[0].address
-      );
-      const cursedBondAfter = await archaeologistFacet.getCursedBond(
-        archaeologists[0].address
-      );
-
-      expect(freeBondBefore.sub(freeBondAfter)).to.equal(
-        BigNumber.from(firstArchaeologistCursedBond)
-      );
-      expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(
-        BigNumber.from(firstArchaeologistCursedBond)
-      );
-    });
-
-    it("should transfer fees in sarco token from the embalmer to the contract", async () => {
-      // Get the embalmer's sarco token balance before and after, then compare
-      const embalmerBalanceBefore = await sarcoToken.balanceOf(
-        embalmer.address
-      );
-
-      await initializeSarcophagus(
-        "Test Sarcophagus",
-        resurrectionTimeInFuture,
-        identifier,
-        archaeologists
-      );
-
-      const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-
-      // Find the arweave archaeologist and get their storage fee amount
-      const arweaveArchaeologistIndex = archaeologists.findIndex(
-        (a) => a.address === arweaveArchaeologist.address
-      );
-      const arweaveArchaeologistStorageFee = BigNumber.from(
-        archaeologistsFees[arweaveArchaeologistIndex].storageFee
-      );
-      const arweaveArchaeologistStorageFeeInt =
-        arweaveArchaeologistStorageFee.toNumber();
-
-      // Calculate the total fees:
-      // The arweaver archaeologist's storage fee + all bounties + all digging
-      // fees
-      const totalFees =
-        archaeologistsFees.reduce(
-          (acc, fee) => acc + fee.bounty + fee.diggingFee,
-          0
-        ) + arweaveArchaeologistStorageFeeInt;
-
-      expect(embalmerBalanceBefore.sub(embalmerBalanceAfter)).to.equal(
-        BigNumber.from(totalFees)
-      );
-    });
-
-    it("should emit an event on initialize", async () => {
-      const tx = await initializeSarcophagus(
-        "Test Sarcophagus",
-        resurrectionTimeInFuture,
-        identifier,
-        archaeologists
-      );
-      const receipt = await tx.wait();
-
-      const events = receipt.events!;
-      expect(events).to.not.be.undefined;
-
-      // Check that the list of events includes an event that has an address
-      // matching the embalmerFacet address
-      expect(events.some((event) => event.address === embalmerFacet.address)).to
-        .be.true;
+        // Initalize the sarcophagus and expect it to revert
+        return expect(tx).to.be.revertedWith("NotEnoughFreeBond");
+      });
     });
   });
 
   describe("finalizeSarcophagus()", () => {
-    const arweaveTxId: string = "arweave-transaction-id";
+    const arweaveTxId: string = "arweaveTransactionId";
 
-    let signatures: SignatureWithAccount[];
     let diamondAddress: string;
     let arweaveSignature: Signature;
 
@@ -504,13 +531,6 @@ describe("Contract: EmbalmerFacet", () => {
         sarcoToken
       );
 
-      // Get regular archaeologist signatures. This excludes the arweave archaeologist.
-      signatures = await getArchaeologistSignatures(
-        archaeologists,
-        arweaveArchaeologist,
-        identifier
-      );
-
       // For the arweave archaeologist, sign the arweave transaction id
       arweaveSignature = await sign(
         arweaveArchaeologist,
@@ -519,36 +539,20 @@ describe("Contract: EmbalmerFacet", () => {
       );
     });
 
-    // Initialize the sarcophagus so finalize will work
-    before(async () => {
-      await initializeSarcophagus(
-        "Test Sarcophagus",
-        resurrectionTimeInFuture,
-        identifier,
-        archaeologists
-      );
-    });
-
     context("Successful finalization", () => {
-      let tx: ContractTransaction;
-      let arweaveArchSarcoBalanceBefore: BigNumber;
-
-      // Finalize the sarcophagus only once for all success tests
-      before(async () => {
-        // Get the arweave archaeologist's sarco balance before finalization
-        arweaveArchSarcoBalanceBefore = await sarcoToken.balanceOf(
-          arweaveArchaeologist.address
+      it("should finalize the sarcophagus successfully", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "successfulFinalize",
+          archaeologists
         );
 
-        tx = await embalmerFacet.finalizeSarcophagus(
+        const tx = await embalmerFacet.finalizeSarcophagus(
           identifier,
           signatures,
           arweaveSignature,
           arweaveTxId
         );
-      });
 
-      it("should finalize the sarcophagus successfully", async () => {
         const receipt = await tx.wait();
         expect(receipt.status).to.equal(1);
       });
@@ -558,6 +562,22 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should transfer the storage fee to the arweave archaeologist", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldTransferStorageFee",
+          archaeologists
+        );
+
+        // Get the arweave archaeologist's sarco token balance before finalization
+        const arweaveArchaeologistSarcoTokenBalanceBefore =
+          await sarcoToken.balanceOf(arweaveArchaeologist.address);
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
         // Get the storage fee of the arweave archaeologist
         const arweaveArchaeologistIndex = archaeologists.findIndex(
           (a) => a.address === arweaveArchaeologist.address
@@ -574,12 +594,26 @@ describe("Contract: EmbalmerFacet", () => {
         // Check that the arweave archaeologist's
         // sarco token balance after - sarco token balance before = storage fee
         expect(
-          arweaveArchSarcoBalanceAfter.sub(arweaveArchSarcoBalanceBefore)
+          arweaveArchSarcoBalanceAfter.sub(
+            arweaveArchaeologistSarcoTokenBalanceBefore
+          )
         ).to.equal(arweaveArchaeologistStorageFee);
       });
 
       it("should emit an event", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldEmitEvent",
+          archaeologists
+        );
+
+        const tx = await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
         const receipt = await tx.wait();
+
         const events = receipt.events!;
         expect(events).to.not.be.undefined;
 
@@ -591,12 +625,17 @@ describe("Contract: EmbalmerFacet", () => {
     });
 
     context("General reverts", () => {
-      beforeEach(async () => {});
       it("should revert if the sarcophagus does not exist", async () => {
-        // Recall that the identifier is a hash
         const fakeIdentifier = ethers.utils.solidityKeccak256(
           ["string"],
           ["someFakeIdentifier"]
+        );
+
+        // Get new signatures from the archaeologists of the new identifier
+        const signatures = await getArchaeologistSignatures(
+          archaeologists,
+          arweaveArchaeologist,
+          fakeIdentifier
         );
 
         const tx = embalmerFacet.finalizeSarcophagus(
@@ -610,6 +649,11 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the embalmer is not making the transaction", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "senderNotEmbalmer",
+          archaeologists
+        );
+
         const tx = embalmerFacet
           .connect(archaeologists[0])
           .finalizeSarcophagus(
@@ -686,17 +730,8 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if any signature provided by a regular archaeologist is from the wrong archaeologist", async () => {
-        // Create a new identifier
-        const newIdentifier = ethers.utils.solidityKeccak256(
-          ["string"],
-          ["withIncorrectArchaeologist"]
-        );
-
-        // Initialize the sarcophagus with the new identifier
-        await initializeSarcophagus(
-          "New Test Sarcophagus",
-          resurrectionTimeInFuture,
-          newIdentifier,
+        const { identifier } = await createSarcophagusAndSignatures(
+          "sigFromWrongArchaeologist",
           archaeologists
         );
 
@@ -712,12 +747,12 @@ describe("Contract: EmbalmerFacet", () => {
         const newSignatures = await getArchaeologistSignatures(
           newArchaeologists,
           arweaveArchaeologist,
-          newIdentifier
+          identifier
         );
 
         // Finalize the sarcophagus with the new identifier
         const tx = embalmerFacet.finalizeSarcophagus(
-          newIdentifier,
+          identifier,
           newSignatures,
           arweaveSignature,
           arweaveTxId
@@ -766,7 +801,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should revert if the arweave archaeologist's signature is from the wrong archaeologist", async () => {
         const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "sigFromWrongArchaeologist",
+          "sigFromWrongArweaveArchaeologist",
           archaeologists
         );
 
@@ -862,8 +897,27 @@ describe("Contract: EmbalmerFacet", () => {
       it("should set the sarcophagus state to done", async () => {
         // TODO: Write a view method to get the sarcophagus state
       });
+
       it("should unlock each archaeologist's cursed bond", async () => {
-        // TODO: Write a view method to get the archaoelogists' cursed bond
+        const { identifier } = await createSarcophagusAndSignatures(
+          "shouldUnlockCursedBond",
+          archaeologists
+        );
+
+        await embalmerFacet.cancelSarcophagus(identifier);
+
+        const cursedBonds: BigNumber[] = [];
+        for (const archaeologist of archaeologists) {
+          const cursedBond = await archaeologistFacet.getCursedBond(
+            archaeologist.address
+          );
+          cursedBonds.push(cursedBond);
+        }
+
+        // expect each cursed bond to have an amount of 0
+        for (const cursedBond of cursedBonds) {
+          expect(cursedBond).to.equal(0);
+        }
       });
 
       it("should transfer total fees back to the embalmer", async () => {
