@@ -108,7 +108,7 @@ library LibBonds {
     /// @param storageFee the storage fee
     /// @return the total of the above
     function calculateTotalFees(
-        LibTypes.Archaeologist[] memory archaeologists,
+        LibTypes.ArchaeologistMemory[] memory archaeologists,
         uint256 storageFee
     ) internal pure returns (uint256) {
         uint256 totalFees = 0;
