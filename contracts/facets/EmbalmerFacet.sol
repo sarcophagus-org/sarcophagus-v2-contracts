@@ -99,18 +99,6 @@ contract EmbalmerFacet {
         //   - store each archaeologist's bounty, digging fee, and unencrypted shard in app storage
         //   - get the archaeologist's address to store on the sarcophagus
         for (uint256 i = 0; i < archaeologists.length; i++) {
-            // Calculate the amount of cursed bond the archaeologists needs to lock up
-            uint256 cursedBondAmount = LibBonds.calculateCursedBond(
-                archaeologists[i].diggingFee,
-                archaeologists[i].bounty
-            );
-
-            // Lock up the archaeologist's bond by the cursed bond amount
-            LibBonds.lockUpBond(
-                archaeologists[i].archAddress,
-                cursedBondAmount
-            );
-
             // If the archaeologist is the arweave archaeologist, set the
             // storage fee. This is the only storage fee we care about.
             if (archaeologists[i].archAddress == arweaveArchaeologist) {
@@ -314,6 +302,13 @@ contract EmbalmerFacet {
                 archaeologistSignatures[i].account
             );
 
+            // Calculates the archaeologist's cursed bond and curses them (locks
+            // up the free bond)
+            LibBonds.curseArchaeologist(
+                identifier,
+                archaeologistSignatures[i].account
+            );
+
             // Add this archaeologist to the mapping of verified archaeologists
             // so that it can't be checked again.
             verifiedArchaeologists[identifier][
@@ -333,6 +328,13 @@ contract EmbalmerFacet {
             arweaveArchaeologistSignature.v,
             arweaveArchaeologistSignature.r,
             arweaveArchaeologistSignature.s,
+            s.sarcophaguses[identifier].arweaveArchaeologist
+        );
+
+        // Calculates the arweave archaeologist's cursed bond and curses
+        // them (locks up the free bond)
+        LibBonds.curseArchaeologist(
+            identifier,
             s.sarcophaguses[identifier].arweaveArchaeologist
         );
 
@@ -388,24 +390,6 @@ contract EmbalmerFacet {
             .sarcophaguses[identifier]
             .archaeologists;
 
-        // For each archaeologist on the sarcophagus, unlock their cursed bond.
-        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
-            // Get this archaeologist's fees
-            LibTypes.ArchaeologistStorage memory archaeologistStorage = s
-                .sarcophagusArchaeologists[identifier][
-                    archaeologistAddresses[i]
-                ];
-
-            // Calculate the cursed bond for the archaeologist
-            uint256 cursedBond = LibBonds.calculateCursedBond(
-                archaeologistStorage.diggingFee,
-                archaeologistStorage.bounty
-            );
-
-            // Unlock the archaeologist's cursed bond.
-            LibBonds.unlockBond(archaeologistAddresses[i], cursedBond);
-        }
-
         // Re-calculate the total fees that the embalmer locked up in initializeSarcophagus
         uint256 storageFees = LibBonds.calculateTotalFees(
             identifier,
@@ -439,5 +423,18 @@ contract EmbalmerFacet {
             s
             .sarcophagusArchaeologists[identifier][archaeologist].hashedShard !=
             0;
+    }
+
+    /// @notice Gets an archaeologist given the sarcophagus identifier and the
+    /// archaeologist's address.
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologist the address of the archaeologist
+    /// @return The archaeologist
+    function getArchaeologist(bytes32 identifier, address archaeologist)
+        private
+        view
+        returns (LibTypes.ArchaeologistStorage memory)
+    {
+        return s.sarcophagusArchaeologists[identifier][archaeologist];
     }
 }

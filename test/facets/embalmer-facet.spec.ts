@@ -10,10 +10,6 @@ import { SignatureWithAccount } from "../../types";
 import { sign } from "../utils/helpers";
 
 describe("Contract: EmbalmerFacet", () => {
-  // Set up some values to be used in the tests
-  const firstArchaeologistBounty = 100;
-  const firstArchaeologistDiggingFee = 10;
-
   // Define a resurrrection time one week in the future
   const resurrectionTimeInFuture = BigNumber.from(
     Date.now() + 60 * 60 * 24 * 7
@@ -242,46 +238,6 @@ describe("Contract: EmbalmerFacet", () => {
         expect(receipt.status).to.equal(1);
       });
 
-      it("should lock up an archaeologist's free bond", async () => {
-        // TODO: Modify this when the calculateCursedBond method changes in the contract
-        const firstArchaeologistCursedBond =
-          firstArchaeologistBounty + firstArchaeologistDiggingFee;
-
-        // Get the free and cursed bond before and after, then compare them
-        const freeBondBefore = await archaeologistFacet.getFreeBond(
-          archaeologists[0].address
-        );
-        const cursedBondBefore = await archaeologistFacet.getCursedBond(
-          archaeologists[0].address
-        );
-
-        const identifier = ethers.utils.solidityKeccak256(
-          ["string"],
-          ["shouldLockUpFreeBond"]
-        );
-
-        await initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists
-        );
-
-        const freeBondAfter = await archaeologistFacet.getFreeBond(
-          archaeologists[0].address
-        );
-        const cursedBondAfter = await archaeologistFacet.getCursedBond(
-          archaeologists[0].address
-        );
-
-        expect(freeBondBefore.sub(freeBondAfter)).to.equal(
-          BigNumber.from(firstArchaeologistCursedBond)
-        );
-        expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(
-          BigNumber.from(firstArchaeologistCursedBond)
-        );
-      });
-
       it("should transfer fees in sarco token from the embalmer to the contract", async () => {
         // Get the embalmer's sarco token balance before and after, then compare
         const embalmerBalanceBefore = await sarcoToken.balanceOf(
@@ -494,7 +450,7 @@ describe("Contract: EmbalmerFacet", () => {
         expect(tx).to.be.revertedWith("NotEnoughFreeBond");
       });
 
-      it.only("should revert if the arweave archaeologist is not included in the list of archaeologists", async () => {
+      it("should revert if the arweave archaeologist is not included in the list of archaeologists", async () => {
         const identifier = ethers.utils.solidityKeccak256(
           ["string"],
           ["arweaveArchNotInList"]
@@ -629,6 +585,92 @@ describe("Contract: EmbalmerFacet", () => {
             arweaveArchaeologistSarcoTokenBalanceBefore
           )
         ).to.equal(arweaveArchaeologistStorageFee);
+      });
+
+      it("should lock up an archaeologist's free bond", async () => {
+        // Get the free and cursed bond before and after, then compare them
+        const freeBondBefore = await archaeologistFacet.getFreeBond(
+          archaeologists[1].address
+        );
+        const cursedBondBefore = await archaeologistFacet.getCursedBond(
+          archaeologists[1].address
+        );
+
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldLockUpFreeBond",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        const freeBondAfter = await archaeologistFacet.getFreeBond(
+          archaeologists[1].address
+        );
+        const cursedBondAfter = await archaeologistFacet.getCursedBond(
+          archaeologists[1].address
+        );
+
+        // TODO: Modify this when the calculateCursedBond method changes in the contract
+        const firstArchaeologistCursedBond =
+          archaeologistsFees[1].bounty + archaeologistsFees[1].diggingFee;
+
+        expect(freeBondBefore.sub(freeBondAfter)).to.equal(
+          BigNumber.from(firstArchaeologistCursedBond)
+        );
+        expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(
+          BigNumber.from(firstArchaeologistCursedBond)
+        );
+      });
+
+      it("should lock up the arweave archaeologist's free bond", async () => {
+        // Get the free and cursed bond before and after, then compare them
+        const freeBondBefore = await archaeologistFacet.getFreeBond(
+          arweaveArchaeologist.address
+        );
+        const cursedBondBefore = await archaeologistFacet.getCursedBond(
+          arweaveArchaeologist.address
+        );
+
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldLockUpArweaveFreeBond",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        const freeBondAfter = await archaeologistFacet.getFreeBond(
+          arweaveArchaeologist.address
+        );
+        const cursedBondAfter = await archaeologistFacet.getCursedBond(
+          arweaveArchaeologist.address
+        );
+
+        // Get the archaeologist fee data for the arweave archaeologist
+        const arweaveArchaeologistIndex = archaeologists.findIndex(
+          (a) => a.address === arweaveArchaeologist.address
+        );
+
+        // TODO: Modify this when the calculateCursedBond method changes in the contract
+        const firstArchaeologistCursedBond =
+          archaeologistsFees[arweaveArchaeologistIndex].bounty +
+          archaeologistsFees[arweaveArchaeologistIndex].diggingFee;
+
+        expect(freeBondBefore.sub(freeBondAfter)).to.equal(
+          BigNumber.from(firstArchaeologistCursedBond)
+        );
+        expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(
+          BigNumber.from(firstArchaeologistCursedBond)
+        );
       });
 
       it("should emit an event", async () => {
@@ -947,28 +989,6 @@ describe("Contract: EmbalmerFacet", () => {
         // TODO: Write a view method to get the sarcophagus state
       });
 
-      it("should unlock each archaeologist's cursed bond", async () => {
-        const { identifier } = await createSarcophagusAndSignatures(
-          "shouldUnlockCursedBond",
-          archaeologists
-        );
-
-        await embalmerFacet.cancelSarcophagus(identifier);
-
-        const cursedBonds: BigNumber[] = [];
-        for (const archaeologist of archaeologists) {
-          const cursedBond = await archaeologistFacet.getCursedBond(
-            archaeologist.address
-          );
-          cursedBonds.push(cursedBond);
-        }
-
-        // expect each cursed bond to have an amount of 0
-        for (const cursedBond of cursedBonds) {
-          expect(cursedBond).to.equal(0);
-        }
-      });
-
       it("should transfer total fees back to the embalmer", async () => {
         // Get the sarco balance of the embalmer before canceling the sarcophagus
         const sarcoBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
@@ -987,6 +1007,7 @@ describe("Contract: EmbalmerFacet", () => {
           sarcoBalanceAfter.toString()
         );
       });
+
       it("should emit an event", async () => {
         const { identifier } = await createSarcophagusAndSignatures(
           "shouldEmitEvent",

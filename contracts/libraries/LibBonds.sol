@@ -151,4 +151,27 @@ library LibBonds {
         // return the total fees
         return totalFees;
     }
+
+    /// @notice Calculates an archaeologist's cursed bond and curses them (locks
+    /// up the free bond).
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologist the address of the archaeologist
+    function curseArchaeologist(bytes32 identifier, address archaeologist)
+        internal
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        // Get the archaeologist's data from storage
+        LibTypes.ArchaeologistStorage memory archaeologistData = s
+            .sarcophagusArchaeologists[identifier][archaeologist];
+
+        // Calculate the amount of cursed bond the archaeologists needs to lock up
+        uint256 cursedBondAmount = LibBonds.calculateCursedBond(
+            archaeologistData.diggingFee,
+            archaeologistData.bounty
+        );
+
+        // Lock up the archaeologist's bond by the cursed bond amount
+        LibBonds.lockUpBond(archaeologist, cursedBondAmount);
+    }
 }
