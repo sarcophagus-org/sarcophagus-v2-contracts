@@ -323,7 +323,8 @@ contract EmbalmerFacet {
     }
 
     /// @notice Cancels a sarcophagus. An embalmer may cancel a sarcophagus after
-    /// `initializeSarcophagus` but before `finalizeSarcophagus`.
+    /// `initializeSarcophagus` but before `finalizeSarcophagus`. The embalmer's
+    /// fees that were locked up will be refunded.
     /// @param identifier the identifier of the sarcophagus
     /// @return The boolean true if the operation was successful
 
