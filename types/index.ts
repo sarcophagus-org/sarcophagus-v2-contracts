@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, Signature } from "ethers";
 
 export enum FacetCutAction {
   Add,
@@ -16,4 +16,8 @@ export interface Archaeologist {
   diggingFee: BigNumber;
   bounty: BigNumber;
   hashedShard: string;
+}
+
+export interface SignatureWithAccount extends Signature {
+  account: string;
 }

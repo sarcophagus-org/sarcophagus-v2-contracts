@@ -55,7 +55,7 @@ library LibEvents {
         address[] archaeologists
     );
 
-    event UpdateSarcophagus(bytes32 indexed identifier, string assetId);
+    event FinalizeSarcophagus(bytes32 indexed identifier, string arweaveTxId);
 
     event CancelSarcophagus(bytes32 indexed identifier);
 
