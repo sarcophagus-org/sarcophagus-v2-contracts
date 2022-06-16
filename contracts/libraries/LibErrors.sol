@@ -7,9 +7,19 @@ pragma solidity ^0.8.13;
  * uses.
  */
 library LibErrors {
+    error ArchaeologistListNotUnique(address[] archaeologists);
+
+    error ArchaeologistNotOnSarcophagus(address archaeologist);
+
+    error ArweaveArchaeologistNotInList();
+
     error ArweaveTxIdEmpty();
 
     error IncorrectNumberOfArchaeologistSignatures(uint256 signaturesLength);
+
+    error MinShardsGreaterThanArchaeologists(uint8 minShards);
+
+    error MinShardsZero();
 
     error NoArchaeologistsProvided();
 
@@ -23,6 +33,8 @@ library LibErrors {
 
     error SarcophagusAlreadyFinalized(bytes32 identifier);
 
+    error SarcophagusNotFinalized(bytes32 identifier);
+
     error SarcophagusDoesNotExist(bytes32 identifier);
 
     error SenderNotArch(address sender, address arch);
@@ -34,15 +46,5 @@ library LibErrors {
         address actualAddress
     );
 
-    error ArchaeologistNotOnSarcophagus(address archaeologist);
-
-    error MinShardsGreaterThanArchaeologists(uint8 minShards);
-
-    error MinShardsZero();
-
-    error ArchaeologistListNotUnique(address[] archaeologists);
-
     error SignatureListNotUnique();
-
-    error ArweaveArchaeologistNotInList();
 }

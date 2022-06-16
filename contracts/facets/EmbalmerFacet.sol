@@ -415,7 +415,7 @@ contract EmbalmerFacet {
     /// resurrection time has passed.
     /// @dev Extends the resurrection time into infinity so that that unwrap
     /// will never be successful.
-    function burySarcohpagus(bytes32 identifier) external returns (bool) {
+    function burySarcophagus(bytes32 identifier) external returns (bool) {
         // Confirm that the sender is the embalmer
         if (s.sarcophaguses[identifier].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
@@ -430,6 +430,12 @@ contract EmbalmerFacet {
             LibTypes.SarcophagusState.Exists
         ) {
             revert LibErrors.SarcophagusDoesNotExist(identifier);
+        }
+
+        // Confirm that the sarcophagus is finalized by checking if there is an
+        // arweaveTxId
+        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0) {
+            revert LibErrors.SarcophagusNotFinalized(identifier);
         }
 
         // Confirm that the current resurrection time is in the future
