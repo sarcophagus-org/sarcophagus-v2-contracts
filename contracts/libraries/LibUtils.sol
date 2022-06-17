@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
+import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibDiamond} from "../diamond/libraries/LibDiamond.sol";
@@ -243,5 +244,24 @@ library LibUtils {
 
         // revert if the given bounty is too low
         require(bounty >= minimumBounty, "bounty is too low");
+    }
+
+    /// @notice Checks if the archaeologist exists on the sarcophagus.
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologist the address of the archaeologist
+    /// @return The boolean true if the archaeologist exists on the sarcophagus
+    function archaeologistExists(bytes32 identifier, address archaeologist)
+        internal
+        view
+        returns (bool)
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        // If the hashedShard on an archaeologist is 0 (which is its default
+        // value), then the archaeologist doesn't exist on the sarcophagus
+        return
+            s
+            .sarcophagusArchaeologists[identifier][archaeologist].hashedShard !=
+            0;
     }
 }
