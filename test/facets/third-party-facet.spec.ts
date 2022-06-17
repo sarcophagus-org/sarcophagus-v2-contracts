@@ -1,11 +1,13 @@
 import "@nomiclabs/hardhat-waffle";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { BigNumber } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { ethers } from "hardhat";
 import { deployDiamond } from "../../scripts/deploy-diamond";
 import { ThirdPartyFacet, SarcoTokenMock, ArchaeologistFacet, EmbalmerFacet } from "../../typechain";
-import { before } from "mocha";
+import { BytesLike, formatBytes32String } from "ethers/lib/utils";
+import time from "../utils/time";
+import { sign } from "../utils/helpers";
 
 describe("Contract: ThirdPartyFacet", () => {
     let archaeologistFacet: ArchaeologistFacet;
@@ -22,12 +24,24 @@ describe("Contract: ThirdPartyFacet", () => {
 
     let sarcoToken: SarcoTokenMock;
     let diamondAddress: string;
+    let resurrectionTime: BigNumberish;
+
+    let sarcoId: BytesLike;
 
     const freeBond = BigNumber.from(100);
     const storageFee = BigNumber.from(1);
     const diggingFee = BigNumber.from(1);
     const bounty = BigNumber.from(1);
-    const resurrectionTime = BigNumber.from(1000);
+    const balance = BigNumber.from(1000);
+
+    const sarcoResurrectionTimeInDays = 1;
+
+    const _distributeTokens = async () => {
+        sarcoToken.transfer(archaeologist1.address, balance);
+        sarcoToken.transfer(archaeologist2.address, balance);
+        sarcoToken.transfer(arweaveAchaeologist.address, balance);
+        sarcoToken.transfer(embalmer.address, balance);
+    }
 
     const _approveSpending = async () => {
         await sarcoToken
@@ -53,42 +67,55 @@ describe("Contract: ThirdPartyFacet", () => {
             sarcoToken.address
         )
         archaeologistFacet.connect(archaeologist2).depositFreeBond(
-            archaeologist1.address,
+            archaeologist2.address,
             freeBond,
             sarcoToken.address
         )
         archaeologistFacet.connect(arweaveAchaeologist).depositFreeBond(
-            archaeologist1.address,
+            arweaveAchaeologist.address,
             freeBond,
             sarcoToken.address
         )
     }
 
     const _setupTestSarcophagus = async () => {
-        const EmbalmerFacet = await ethers.getContractFactory("EmbalmerFacet");
-        embalmerFacet = await EmbalmerFacet.deploy();
-        await embalmerFacet.deployed();
+        embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
 
-        const sarcoId = "sarcoId";
-        const arweavetxId = "arweavetxId";
+        sarcoId = formatBytes32String("sarcoId");
 
         const archs = [
-            { archAddress: archaeologist1.address, storageFee: storageFee, diggingFee: diggingFee, bounty: bounty, hashedShard: "hashedShard1" },
-            { archAddress: archaeologist2.address, storageFee: storageFee, diggingFee: diggingFee, bounty: bounty, hashedShard: "hashedShard2" },
+            { archAddress: archaeologist1.address, storageFee, diggingFee, bounty, hashedShard: formatBytes32String("hashedShard1") },
+            { archAddress: archaeologist2.address, storageFee, diggingFee, bounty, hashedShard: formatBytes32String("hashedShard2") },
+            { archAddress: arweaveAchaeologist.address, storageFee, diggingFee, bounty, hashedShard: formatBytes32String("hashedShard3") },
         ];
 
+        const tomorrow = (await time.latest()) + time.duration.days(sarcoResurrectionTimeInDays);
+
+        resurrectionTime = BigNumber.from(tomorrow);
+
+        const arweavetxId = "arweavetxId";
         const initSarcoTx = await embalmerFacet.initializeSarcophagus("Test Sarco", sarcoId, archs, arweaveAchaeologist.address, receiverAddress.address, resurrectionTime, sarcoToken.address, false);
-        const initSarcoReceipt = await initSarcoTx.wait();
 
-        const sign1 = await archaeologist1.signMessage(arweavetxId);
-        console.log('sign1', sign1);
+        await initSarcoTx.wait();
+
+        const signature1 = await sign(archaeologist1, sarcoId, "bytes32");
+        const signature2 = await sign(archaeologist2, sarcoId, "bytes32");
+        const arweaveArchSig = await sign(arweaveAchaeologist, arweavetxId, "string");
 
 
-        // embalmerFacet.finalizeSarcophagus(sarcoId, [], {}, "", sarcoToken.address);
+        await embalmerFacet.finalizeSarcophagus(
+            sarcoId,
+            [
+                { account: archaeologist1.address, ...signature1 },
+                { account: archaeologist2.address, ...signature2 },
+            ],
+            arweaveArchSig,
+            arweavetxId,
+            sarcoToken.address
+        );
     }
 
-    // Deploy the contracts and do stuff before each function, not before each
-    // test. There is no need to do all of this before every single test.
+    // Deploy the contracts and setup initial state before each test
     const beforeEachFunc = async () => {
         const signers = await ethers.getSigners();
 
@@ -105,22 +132,51 @@ describe("Contract: ThirdPartyFacet", () => {
         sarcoToken = await SarcoToken.deploy();
         await sarcoToken.deployed();
 
-        // Approve the signers on the sarco token so transferFrom will work
-        _approveSpending();
+        // Add tokens to accounts
+        await _distributeTokens();
+
+        // Approve signers on the sarco token so transferFrom will work
+        await _approveSpending();
 
         thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamondAddress);
 
-        // Setup archaeologists
-        _setupArcheologists();
+        // Setup archaeologists - add free bonds to their accounts
+        await _setupArcheologists();
 
-        // Create a sarcophagus with archaeologists assigned
-        _setupTestSarcophagus();
+        // Create a sarcophagus with archaeologists assigned, with a 1 day resurrection time
+        await _setupTestSarcophagus();
     };
 
     describe.only("clean()", () => {
-        before(beforeEachFunc);
-        it("Should distribute all cursed bonds of bad-acting archaeologists to embalmer and caller-specified address", () => {
-            thirdPartyFacet.clean("sarcoID", paymentAccount.address, sarcoToken.address)
+        beforeEach(beforeEachFunc);
+        it("Should distribute sum of cursed bonds of bad-acting archaeologists to embalmer and the address specified by cleaner", async () => {
+            // Increasing by this much so that the sarco is definitely expired
+            await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+
+            const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
+            const paymentDestinationBalance = await sarcoToken.balanceOf(paymentAccount.address);
+
+            console.log(embalmerBalance.toString());
+            console.log(paymentDestinationBalance.toString());
+
+            const tx = await thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address, sarcoToken.address);
+            await tx.wait();
+            console.log((await sarcoToken.balanceOf(embalmer.address)).toString());
+            console.log((await sarcoToken.balanceOf(paymentAccount.address)).toString());
+            expect(true).to.eq(false);
+        });
+
+        it("Should revert if cleaning is attempted before sacro can be unwrapped or attempted within its resurrection grace period", async () => {
+            // No time advancement before clean attempt
+            const cleanTx = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address, sarcoToken.address);
+            await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
+
+            // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
+            await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+
+            const cleanTxAgain = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address, sarcoToken.address);
+            await expect(cleanTxAgain).to.be.revertedWith("SarcophagusNotCleanable()");
         });
     });
+
 });
