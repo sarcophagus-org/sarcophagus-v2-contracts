@@ -264,4 +264,19 @@ library LibUtils {
             .sarcophagusArchaeologists[identifier][archaeologist].hashedShard !=
             0;
     }
+
+    /// @notice Gets an archaeologist given the sarcophagus identifier and the
+    /// archaeologist's address.
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologist the address of the archaeologist
+    /// @return The archaeologist
+    function getArchaeologist(bytes32 identifier, address archaeologist)
+        internal
+        view
+        returns (LibTypes.ArchaeologistStorage memory)
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        return s.sarcophagusArchaeologists[identifier][archaeologist];
+    }
 }

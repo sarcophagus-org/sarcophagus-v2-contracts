@@ -420,11 +420,8 @@ contract EmbalmerFacet {
 
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             // Get the archaeolgist's fee data
-            LibTypes.ArchaeologistStorage
-                memory archaeologistData = getArchaeologist(
-                    identifier,
-                    archaeologistAddresses[i]
-                );
+            LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
+                .getArchaeologist(identifier, archaeologistAddresses[i]);
 
             // Transfer the archaeologist's digging fee allocation to the archaeologist
             s.sarcoToken.transfer(
@@ -557,11 +554,8 @@ contract EmbalmerFacet {
             // Unlock the archaeologist's cursed bond
             LibBonds.freeArchaeologist(identifier, archaeologistAddresses[i]);
 
-            LibTypes.ArchaeologistStorage
-                memory archaeologistData = getArchaeologist(
-                    identifier,
-                    archaeologistAddresses[i]
-                );
+            LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
+                .getArchaeologist(identifier, archaeologistAddresses[i]);
 
             // Transfer the digging fees to the archaeologist
             s.sarcoToken.transfer(
@@ -580,18 +574,5 @@ contract EmbalmerFacet {
         emit LibEvents.BurySarcophagus(identifier);
 
         return true;
-    }
-
-    /// @notice Gets an archaeologist given the sarcophagus identifier and the
-    /// archaeologist's address.
-    /// @param identifier the identifier of the sarcophagus
-    /// @param archaeologist the address of the archaeologist
-    /// @return The archaeologist
-    function getArchaeologist(bytes32 identifier, address archaeologist)
-        private
-        view
-        returns (LibTypes.ArchaeologistStorage memory)
-    {
-        return s.sarcophagusArchaeologists[identifier][archaeologist];
     }
 }
