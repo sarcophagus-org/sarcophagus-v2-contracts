@@ -36,8 +36,8 @@ contract EmbalmerFacet {
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
     /// @param recipient the address of the recipient
     /// @param resurrectionTime the resurrection time of the sarcophagus
-    /// @param sarcoToken The erc20 sarcophagus token
     /// @param canBeTransferred Whether the sarcophagus can be transferred
+    /// @param minShards The minimum number of shards
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
         string memory name,
@@ -46,8 +46,8 @@ contract EmbalmerFacet {
         address arweaveArchaeologist,
         address recipient,
         uint256 resurrectionTime,
-        IERC20 sarcoToken,
-        bool canBeTransferred
+        bool canBeTransferred,
+        uint8 minShards
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
         if (
@@ -65,6 +65,16 @@ contract EmbalmerFacet {
         // Confirm that archaeologists are provided
         if (archaeologists.length == 0) {
             revert LibErrors.NoArchaeologistsProvided();
+        }
+
+        // Confirm that minShards to less than the number of archaeologists
+        if (minShards > archaeologists.length) {
+            revert LibErrors.MinShardsGreaterThanArchaeologists(minShards);
+        }
+
+        // Confirm that minShards is greater than 0
+        if (minShards == 0) {
+            revert LibErrors.MinShardsZero();
         }
 
         // Initialize a list of archaeologist addresses to be passed in to the
@@ -131,6 +141,7 @@ contract EmbalmerFacet {
             name: name,
             state: LibTypes.SarcophagusState.Exists,
             canBeTransferred: canBeTransferred,
+            minShards: minShards,
             resurrectionTime: resurrectionTime,
             arweaveTxId: "",
             storageFee: storageFee,
@@ -153,7 +164,7 @@ contract EmbalmerFacet {
         );
 
         // Transfer the total fees amount in sarco token from the msg.sender to this contract
-        sarcoToken.transferFrom(msg.sender, address(this), totalFees);
+        s.sarcoToken.transferFrom(msg.sender, address(this), totalFees);
 
         // Emit the event
         emit LibEvents.InitializeSarcophagus(
@@ -191,14 +202,12 @@ contract EmbalmerFacet {
     /// This is archaeologist.length - 1 since the arweave archaeologist will be providing their own signature.
     /// @param arweaveArchaeologistSignature the signature of the archaeologist who uploaded to arweave
     /// @param arweaveTxId the arweave transaction id
-    /// @param sarcoToken The erc20 sarcophagus token
     /// @return The boolean true if the operation was successful
     function finalizeSarcophagus(
         bytes32 identifier,
         LibTypes.SignatureWithAccount[] memory archaeologistSignatures,
         LibTypes.Signature memory arweaveArchaeologistSignature,
-        string memory arweaveTxId,
-        IERC20 sarcoToken
+        string memory arweaveTxId
     ) external returns (bool) {
         // Confirm that the sarcophagus exists
         if (
@@ -291,7 +300,7 @@ contract EmbalmerFacet {
 
         // Transfer the storage fee to the arweave archaeologist after setting
         // the arweave transaction id.
-        sarcoToken.transfer(
+        s.sarcoToken.transfer(
             s.sarcophaguses[identifier].arweaveArchaeologist,
             s.sarcophaguses[identifier].storageFee
         );

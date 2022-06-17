@@ -76,7 +76,7 @@ library LibUtils {
         bytes32 r,
         bytes32 s,
         address account
-    ) public view {
+    ) internal pure {
         // Hash the hash of the data payload
         bytes32 messageHash = keccak256(
             abi.encodePacked(
@@ -115,7 +115,7 @@ library LibUtils {
         bytes32 r,
         bytes32 s,
         address account
-    ) public view {
+    ) internal pure {
         // Hash the hash of the data payload
         bytes32 messageHash = keccak256(
             abi.encodePacked(

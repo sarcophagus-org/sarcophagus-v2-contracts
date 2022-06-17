@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
+    IERC20 sarcoToken;
     // Each archaeologist's total free and cursed bonds
     mapping(address => uint256) freeBonds;
     mapping(address => uint256) cursedBonds;

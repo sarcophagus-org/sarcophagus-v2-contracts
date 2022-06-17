@@ -74,7 +74,8 @@ describe("Contract: EmbalmerFacet", () => {
     name: string,
     resurrectionTime: BigNumber,
     identifier: string,
-    archaeologists: any[]
+    archaeologists: any[],
+    minShards?: number
   ): Promise<ContractTransaction> => {
     // Define archaeologist objects to be passed into the sarcophagus
     const archaeologistObjects = archaeologists.map((a, i) => ({
@@ -97,8 +98,8 @@ describe("Contract: EmbalmerFacet", () => {
         arweaveArchaeologist.address,
         recipient.address,
         resurrectionTime,
-        sarcoToken.address,
-        canBeTransfered
+        canBeTransfered,
+        minShards || 3
       );
 
     return tx;
@@ -109,11 +110,12 @@ describe("Contract: EmbalmerFacet", () => {
     // This is necessary so that each test will start in a clean state.
     beforeEach(async () => {
       // Deploy the sarco token contract
-      const SarcoToken = await ethers.getContractFactory("SarcoTokenMock");
-      sarcoToken = await SarcoToken.deploy();
-      await sarcoToken.deployed();
 
-      const diamondAddress = await deployDiamond();
+      const { diamondAddress, sarcoToken: _sarcoToken } = await deployDiamond();
+
+      // Set sarcoToken globally
+      sarcoToken = _sarcoToken;
+
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
         diamondAddress
@@ -128,18 +130,18 @@ describe("Contract: EmbalmerFacet", () => {
       for (const archaeologist of archaeologists) {
         // Transfer 10,000 sarco tokens to each archaeologist to be put into free
         // bond
-        await sarcoToken.transfer(
+        await _sarcoToken.transfer(
           archaeologist.address,
           BigNumber.from(10_000)
         );
 
         // Approve the archaeologist on the sarco token so transferFrom will work
-        await sarcoToken
+        await _sarcoToken
           .connect(archaeologist)
           .approve(diamondAddress, ethers.constants.MaxUint256);
 
         // Approve the embalmer on the sarco token so transferFrom will work
-        await sarcoToken
+        await _sarcoToken
           .connect(embalmer)
           .approve(diamondAddress, ethers.constants.MaxUint256);
 
@@ -150,7 +152,7 @@ describe("Contract: EmbalmerFacet", () => {
           .depositFreeBond(
             archaeologist.address,
             BigNumber.from("1000"),
-            sarcoToken.address
+            _sarcoToken.address
           );
       }
     });
@@ -206,6 +208,30 @@ describe("Contract: EmbalmerFacet", () => {
           []
         )
       ).to.be.revertedWith("NoArchaeologistsProvided");
+    });
+
+    it("should revert if minShards is greater than the number of archaeologists", async () => {
+      expect(
+        initializeSarcophagus(
+          "Test Sarcophagus",
+          BigNumber.from((Date.now() / 1000).toFixed(0)),
+          identifier,
+          archaeologists,
+          5
+        )
+      ).to.be.revertedWith("MinShardsGreaterThanArchaeologists");
+    });
+
+    it("should revert if minShards is 0", async () => {
+      expect(
+        initializeSarcophagus(
+          "Test Sarcophagus",
+          BigNumber.from((Date.now() / 1000).toFixed(0)),
+          identifier,
+          archaeologists,
+          0
+        )
+      ).to.be.revertedWith("MinShardsZero");
     });
 
     it("should revert if an archaeologist does not have enough free bond", async () => {
@@ -365,12 +391,11 @@ describe("Contract: EmbalmerFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      // Deploy the sarco token contract
-      const SarcoToken = await ethers.getContractFactory("SarcoTokenMock");
-      sarcoToken = await SarcoToken.deploy();
-      await sarcoToken.deployed();
+      const { diamondAddress: _diamondAddress, sarcoToken: _sarcoToken } =
+        await deployDiamond();
+      diamondAddress = _diamondAddress;
+      sarcoToken = _sarcoToken;
 
-      diamondAddress = await deployDiamond();
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
         diamondAddress
@@ -454,8 +479,7 @@ describe("Contract: EmbalmerFacet", () => {
           identifier,
           signatures,
           arweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
       });
 
@@ -514,8 +538,7 @@ describe("Contract: EmbalmerFacet", () => {
           fakeIdentifier,
           signatures,
           arweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
 
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
@@ -528,8 +551,7 @@ describe("Contract: EmbalmerFacet", () => {
             identifier,
             signatures,
             arweaveSignature,
-            arweaveTxId,
-            sarcoToken.address
+            arweaveTxId
           );
 
         await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
@@ -562,8 +584,7 @@ describe("Contract: EmbalmerFacet", () => {
           newIdentifier,
           newSignatures,
           arweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
 
         // Finalize the sarcophagus with the new identifier again and expect revert
@@ -571,8 +592,7 @@ describe("Contract: EmbalmerFacet", () => {
           newIdentifier,
           signatures,
           arweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
 
         await expect(tx).to.be.revertedWith("SarcophagusAlreadyFinalized");
@@ -605,8 +625,7 @@ describe("Contract: EmbalmerFacet", () => {
           newIdentifier,
           newSignatures,
           arweaveSignature,
-          "",
-          sarcoToken.address
+          ""
         );
 
         await expect(tx).to.be.revertedWith("ArweaveTxIdEmpty");
@@ -641,8 +660,7 @@ describe("Contract: EmbalmerFacet", () => {
           newIdentifier,
           newSignatures.slice(1),
           arweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
 
         await expect(tx).to.be.revertedWith(
@@ -685,8 +703,7 @@ describe("Contract: EmbalmerFacet", () => {
           newIdentifier,
           newSignatures,
           arweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
 
         await expect(tx).to.be.revertedWith("ArchaeologistNotOnSarcophagus");
@@ -740,8 +757,7 @@ describe("Contract: EmbalmerFacet", () => {
           newIdentifier,
           newSignatures,
           arweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
 
         await expect(tx).to.be.revertedWith("SignatureFromWrongAccount");
@@ -782,8 +798,7 @@ describe("Contract: EmbalmerFacet", () => {
           newIdentifier,
           newSignatures,
           falseArweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
 
         await expect(tx).to.be.revertedWith("SignatureFromWrongAccount");
@@ -823,8 +838,7 @@ describe("Contract: EmbalmerFacet", () => {
           newIdentifier,
           newSignatures,
           falseArweaveSignature,
-          arweaveTxId,
-          sarcoToken.address
+          arweaveTxId
         );
 
         // Note that it's not possible to get a custom error for this case
