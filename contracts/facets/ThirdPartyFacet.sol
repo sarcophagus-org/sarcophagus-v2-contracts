@@ -80,7 +80,7 @@ contract ThirdPartyFacet {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[identifier];
 
         if (sarco.state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusNotExist();
+            revert LibErrors.SarcophagusDoesNotExist(identifier);
         }
 
         // Make sure the sarco is cleanable
@@ -101,7 +101,7 @@ contract ThirdPartyFacet {
             // potentially a better way? If archaeologistSuccesses2[archAddresses[i]] produced a mapping instead of an array
             // if (!s.archaeologistSuccesses2[archAddresses[i]][identifier]) { 
             if (archFailedSarcho(archAddresses[i], identifier)) {
-                LibTypes.Archaeologist memory defaulter = s.sarcophagusArchaeologists[identifier][archAddresses[i]];
+                LibTypes.ArchaeologistStorage memory defaulter = s.sarcophagusArchaeologists[identifier][archAddresses[i]];
 
                 totalBounty += defaulter.bounty;
                 totalDiggingFee += defaulter.diggingFee;
@@ -111,7 +111,7 @@ contract ThirdPartyFacet {
                 totalCursedBond += cursedBond;
 
                 // decrease the defaulter's cursed bond
-                LibBonds.decreaseCursedBond(defaulter.archAddress, cursedBond);
+                LibBonds.decreaseCursedBond(archAddresses[i], cursedBond);
             }
         }
 
