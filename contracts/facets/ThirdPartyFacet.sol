@@ -10,6 +10,8 @@ import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
+import "hardhat/console.sol";
+
 contract ThirdPartyFacet {
     AppStorage internal s;
 
@@ -40,13 +42,16 @@ contract ThirdPartyFacet {
 
         // transfer the cursed half, plus bounty, plus digging fee to the
         // embalmer
-        sarcoToken.transfer(
+        console.log("transfer to ", sarc.embalmer);
+        sarcoToken.transferFrom(
+            address(this),
             sarc.embalmer,
             totalBounty + totalDiggingFee + halfToEmbalmer
         );
 
         // transfer the other half of the cursed bond to the transaction caller
-        sarcoToken.transfer(paymentAddress, halfToSender);
+        sarcoToken.transferFrom(address(this), paymentAddress, halfToSender);
+        console.log("transfer to ", paymentAddress);
 
         // This cannot be (easily) done here.
         // Instead, it's done as defaulters are being aggregated in clean function
@@ -59,8 +64,16 @@ contract ThirdPartyFacet {
     }
 
     // TODO: This loop though...
-    function archFailedSarcho(address archaeologist, bytes32 sarcoId) private view returns (bool) {
-        for (uint256 i = 0; i < s.archaeologistSuccesses[archaeologist].length; i++) {
+    function archFailedSarcho(address archaeologist, bytes32 sarcoId)
+        private
+        view
+        returns (bool)
+    {
+        for (
+            uint256 i = 0;
+            i < s.archaeologistSuccesses[archaeologist].length;
+            i++
+        ) {
             if (s.archaeologistSuccesses[archaeologist][i] == sarcoId) {
                 return true;
             }
@@ -75,6 +88,7 @@ contract ThirdPartyFacet {
     function clean(
         bytes32 identifier,
         address paymentAddress,
+        address embalmerFacetAddress,
         IERC20 sarcoToken
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[identifier];
@@ -84,10 +98,13 @@ contract ThirdPartyFacet {
         }
 
         // Make sure the sarco is cleanable
-        if (block.timestamp < LibUtils.getGracePeriod(sarco.resurrectionTime) + sarco.resurrectionTime) {
+        if (
+            block.timestamp <
+            LibUtils.getGracePeriod(sarco.resurrectionTime) +
+                sarco.resurrectionTime
+        ) {
             revert LibErrors.SarcophagusNotCleanable();
         }
-        
 
         // Figure out which archaeoligists did not fulfil their duties;
         // accumulate their digging fees and bounties
@@ -99,14 +116,18 @@ contract ThirdPartyFacet {
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
             // potentially a better way? If archaeologistSuccesses2[archAddresses[i]] produced a mapping instead of an array
-            // if (!s.archaeologistSuccesses2[archAddresses[i]][identifier]) { 
+            // if (!s.archaeologistSuccesses2[archAddresses[i]][identifier]) {
             if (archFailedSarcho(archAddresses[i], identifier)) {
-                LibTypes.ArchaeologistStorage memory defaulter = s.sarcophagusArchaeologists[identifier][archAddresses[i]];
+                LibTypes.ArchaeologistStorage memory defaulter = s
+                    .sarcophagusArchaeologists[identifier][archAddresses[i]];
 
                 totalBounty += defaulter.bounty;
                 totalDiggingFee += defaulter.diggingFee;
 
-                uint256 cursedBond = LibBonds.calculateCursedBond(defaulter.diggingFee, defaulter.bounty);
+                uint256 cursedBond = LibBonds.calculateCursedBond(
+                    defaulter.diggingFee,
+                    defaulter.bounty
+                );
 
                 totalCursedBond += cursedBond;
 
@@ -115,8 +136,23 @@ contract ThirdPartyFacet {
             }
         }
 
-        (uint256 cleanerBondReward, uint256 embalmerBondReward) = _distributeLoot(paymentAddress, sarco, totalCursedBond,totalDiggingFee,totalBounty, sarcoToken);
+        (
+            uint256 cleanerBondReward,
+            uint256 embalmerBondReward
+        ) = _distributeLoot(
+                paymentAddress,
+                sarco,
+                totalCursedBond,
+                totalDiggingFee,
+                totalBounty,
+                sarcoToken
+            );
 
-        emit LibEvents.CleanUpSarcophagus(identifier,msg.sender,cleanerBondReward,embalmerBondReward);
+        emit LibEvents.CleanUpSarcophagus(
+            identifier,
+            msg.sender,
+            cleanerBondReward,
+            embalmerBondReward
+        );
     }
 }
