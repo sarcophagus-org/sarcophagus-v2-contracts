@@ -392,16 +392,13 @@ contract EmbalmerFacet {
             .archaeologists;
 
         // Re-calculate the total fees that the embalmer locked up in initializeSarcophagus
-        uint256 storageFees = LibBonds.calculateTotalFees(
+        uint256 totalFees = LibBonds.calculateTotalFees(
             identifier,
             archaeologistAddresses
         );
 
         // Transfer the total fees back to the embalmer
-        s.sarcoToken.transfer(
-            s.sarcophaguses[identifier].embalmer,
-            storageFees
-        );
+        s.sarcoToken.transfer(s.sarcophaguses[identifier].embalmer, totalFees);
 
         // Emit an event
         emit LibEvents.CancelSarcophagus(identifier);
