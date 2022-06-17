@@ -7,6 +7,8 @@ pragma solidity ^0.8.13;
  * uses.
  */
 library LibErrors {
+    error ArchaeologistAlreadyUnwrapped(address archaeologist);
+
     error ArchaeologistListNotUnique(address[] archaeologists);
 
     error ArchaeologistNotOnSarcophagus(address archaeologist);
@@ -47,4 +49,17 @@ library LibErrors {
     );
 
     error SignatureListNotUnique();
+
+    error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
+
+    error TooLateToUnwrap(
+        uint256 resurrectionTime,
+        uint256 resurrectionWindow,
+        uint256 currentTime
+    );
+
+    error UnencryptedShardHashMismatch(
+        bytes unencryptedShard,
+        bytes32 hashedShard
+    );
 }

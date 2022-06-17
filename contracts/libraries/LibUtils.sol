@@ -56,6 +56,19 @@ library LibUtils {
         require(bytes(newAssetId).length > 0, "assetId must not have 0 length");
     }
 
+    function archaeologistUnwrappedCheck(
+        bytes32 identifier,
+        address archaeologist
+    ) internal view {
+        if (
+            getArchaeologist(identifier, archaeologist)
+                .unencryptedShard
+                .length > 0
+        ) {
+            revert LibErrors.ArchaeologistAlreadyUnwrapped(archaeologist);
+        }
+    }
+
     /**
      * @notice Given some bytes32 data, a signature, and an account, verify that the
      * identifier was signed by the account.
@@ -187,20 +200,25 @@ library LibUtils {
      * (relative, i.e. "30 minutes")
      */
     function unwrapTime(uint256 resurrectionTime, uint256 resurrectionWindow)
-        public
+        internal
         view
     {
         // revert if too early
-        require(
-            resurrectionTime <= block.timestamp,
-            "it's not time to unwrap the sarcophagus"
-        );
+        if (resurrectionTime > block.timestamp) {
+            revert LibErrors.TooEarlyToUnwrap(
+                resurrectionTime,
+                block.timestamp
+            );
+        }
 
         // revert if too late
-        require(
-            resurrectionTime + resurrectionWindow >= block.timestamp,
-            "the resurrection window has expired"
-        );
+        if (resurrectionTime + resurrectionWindow < block.timestamp) {
+            revert LibErrors.TooLateToUnwrap(
+                resurrectionTime,
+                resurrectionWindow,
+                block.timestamp
+            );
+        }
     }
 
     /**
@@ -212,38 +230,6 @@ library LibUtils {
             account == msg.sender,
             "sarcophagus cannot be updated by account"
         );
-    }
-
-    /**
-     * @notice Reverts if the input resurrection time, digging fee, or bounty
-     * don't fit within the other given maximum and minimum values
-     * @param resurrectionTime the resurrection time to check
-     * @param diggingFee the digging fee to check
-     * @param bounty the bounty to check
-     * @param maximumResurrectionTime the maximum resurrection time to check
-     * against, in relative terms (i.e. "1 year" is 31536000 (seconds))
-     * @param minimumDiggingFee the minimum digging fee to check against
-     * @param minimumBounty the minimum bounty to check against
-     */
-    function withinArchaeologistLimits(
-        uint256 resurrectionTime,
-        uint256 diggingFee,
-        uint256 bounty,
-        uint256 maximumResurrectionTime,
-        uint256 minimumDiggingFee,
-        uint256 minimumBounty
-    ) public view {
-        // revert if the given resurrection time is too far in the future
-        require(
-            resurrectionTime <= block.timestamp + maximumResurrectionTime,
-            "resurrection time too far in the future"
-        );
-
-        // revert if the given digging fee is too low
-        require(diggingFee >= minimumDiggingFee, "digging fee is too low");
-
-        // revert if the given bounty is too low
-        require(bounty >= minimumBounty, "bounty is too low");
     }
 
     /// @notice Checks if the archaeologist exists on the sarcophagus.
