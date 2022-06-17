@@ -100,6 +100,17 @@ contract EmbalmerFacet {
         //   - store each archaeologist's bounty, digging fee, and unencrypted shard in app storage
         //   - get the archaeologist's address to store on the sarcophagus
         for (uint256 i = 0; i < archaeologists.length; i++) {
+            // Confirm that the archaeologist list is unique. This is done by
+            // checking that the archaeologist does not already exist from
+            // previous iterations in this loop.
+            if (
+                archaeologistExists(identifier, archaeologists[i].archAddress)
+            ) {
+                revert LibErrors.ArchaeologistListNotUnique(
+                    archaeologistAddresses
+                );
+            }
+
             // If the archaeologist is the arweave archaeologist, set the
             // storage fee. This is the only storage fee we care about.
             if (archaeologists[i].archAddress == arweaveArchaeologist) {
@@ -113,17 +124,6 @@ contract EmbalmerFacet {
                     bounty: archaeologists[i].bounty,
                     hashedShard: archaeologists[i].hashedShard
                 });
-
-            // Confirm that the archaeologist list is unique. This is done by
-            // checking that the archaeologist does not already exist from
-            // previous iterations in this loop.
-            if (
-                archaeologistExists(identifier, archaeologists[i].archAddress)
-            ) {
-                revert LibErrors.ArchaeologistListNotUnique(
-                    archaeologistAddresses
-                );
-            }
 
             // Stores each archaeologist's bounty, digging fees, and unencrypted
             // shard in app storage per sarcophagus
