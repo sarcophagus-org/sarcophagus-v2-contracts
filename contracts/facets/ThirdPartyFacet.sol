@@ -40,19 +40,21 @@ contract ThirdPartyFacet {
         uint256 halfToEmbalmer = totalCursedBond / 2;
         uint256 halfToSender = totalCursedBond - halfToEmbalmer;
 
+        console.log(sarcoToken.balanceOf(address(this)));
+
         // transfer the cursed half, plus bounty, plus digging fee to the
         // embalmer
-        console.log("transfer to ", sarc.embalmer);
         sarcoToken.transferFrom(
             address(this),
             sarc.embalmer,
             totalBounty + totalDiggingFee + halfToEmbalmer
         );
 
+        console.log(sarcoToken.balanceOf(address(this)));
         // transfer the other half of the cursed bond to the transaction caller
         sarcoToken.transferFrom(address(this), paymentAddress, halfToSender);
-        console.log("transfer to ", paymentAddress);
 
+        console.log(sarcoToken.balanceOf(address(this)));
         // This cannot be (easily) done here.
         // Instead, it's done as defaulters are being aggregated in clean function
         // LibBonds.decreaseCursedBond(
@@ -88,7 +90,6 @@ contract ThirdPartyFacet {
     function clean(
         bytes32 identifier,
         address paymentAddress,
-        address embalmerFacetAddress,
         IERC20 sarcoToken
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[identifier];

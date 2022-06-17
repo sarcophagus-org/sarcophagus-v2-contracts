@@ -165,17 +165,17 @@ describe("Contract: ThirdPartyFacet", () => {
             console.log(embalmerBalanceBefore.toString());
             console.log(paymentDestinationBalance.toString());
 
-            console.log("paymentAccount.address", paymentAccount.address);
-
-
             const tx = await thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address, sarcoToken.address);
-            tx.wait();
+            const receipt = await tx.wait();
 
-            const tr = await sarcoToken.transfer(paymentAccount.address, BigNumber.from(10));
+            expect(receipt.status).to.equal(1);
+
+
+            // const tr = await sarcoToken.transfer(paymentAccount.address, BigNumber.from(10));
             let embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
             paymentDestinationBalance = await sarcoToken.balanceOf(paymentAccount.address);
 
-            tr.wait();
+            // tr.wait();
 
             console.log(embalmerBalanceAfter.toString());
             console.log(paymentDestinationBalance.toString());
