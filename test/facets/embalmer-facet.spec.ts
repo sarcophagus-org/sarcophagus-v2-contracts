@@ -1081,7 +1081,7 @@ describe("Contract: EmbalmerFacet", () => {
     });
   });
 
-  describe.only("burySarcophagus()", () => {
+  describe("burySarcophagus()", () => {
     let sarcoToken: SarcoTokenMock;
     let arweaveSignature: Signature;
 
@@ -1202,6 +1202,42 @@ describe("Contract: EmbalmerFacet", () => {
         // Check that the difference in balances is equal to the digging fee
         expect(sarcoBalanceAfter.sub(sarcoBalanceBefore).toString()).to.equal(
           diggingFee.toString()
+        );
+      });
+
+      it("should transfer the bounty back to the embalmer", async () => {
+        // Initialize a sarcophagus
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldTransferBountyToEmbalmer",
+          archaeologists
+        );
+
+        // Finalize the sarcophagus
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Get the archaeologist's sarco balance before bury
+        const sarcoBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
+
+        // Bury the sarcophagus
+        await embalmerFacet.burySarcophagus(identifier);
+
+        // Get the archaeologist sarco balance after bury
+        const sarcoBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
+
+        // Add the bounties in archaeologist fees
+        const totalBounty = archaeologistsFees.reduce(
+          (acc, cur) => acc.add(cur.bounty),
+          ethers.constants.Zero
+        );
+
+        // Check that the difference in balances is equal to the total bounty
+        expect(sarcoBalanceAfter.sub(sarcoBalanceBefore).toString()).to.equal(
+          totalBounty.toString()
         );
       });
 

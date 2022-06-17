@@ -412,6 +412,8 @@ contract EmbalmerFacet {
     /// resurrection time has passed.
     /// @dev Extends the resurrection time into infinity so that that unwrap
     /// will never be successful.
+    /// @param identifier the identifier of the sarcophagus
+    /// @return The boolean true if the operation was successful
     function burySarcophagus(bytes32 identifier) external returns (bool) {
         // Confirm that the sender is the embalmer
         if (s.sarcophaguses[identifier].embalmer != msg.sender) {
@@ -448,6 +450,10 @@ contract EmbalmerFacet {
         // Set sarcophagus state to done
         s.sarcophaguses[identifier].state = LibTypes.SarcophagusState.Done;
 
+        // Total bounty will be added up when we loop through the
+        // archaeologists. This will be sent back to the embalmer.
+        uint256 totalBounty = 0;
+
         // For each archaeologist on the sarcophagus,
         // 1. Unlock their cursed bond
         // 2. Transfer digging fees to the archaeologist.
@@ -459,13 +465,24 @@ contract EmbalmerFacet {
             // Unlock the archaeologist's cursed bond
             LibBonds.freeArchaeologist(identifier, archaeologistAddresses[i]);
 
+            LibTypes.ArchaeologistStorage
+                memory archaeologistData = getArchaeologist(
+                    identifier,
+                    archaeologistAddresses[i]
+                );
+
             // Transfer the digging fees to the archaeologist
             s.sarcoToken.transfer(
                 archaeologistAddresses[i],
-                getArchaeologist(identifier, archaeologistAddresses[i])
-                    .diggingFee
+                archaeologistData.diggingFee
             );
+
+            // Add the archaeoogist's bounty to totalBounty
+            totalBounty += archaeologistData.bounty;
         }
+
+        // Transfer the total bounty back to the embalmer (msg.sender)
+        s.sarcoToken.transfer(msg.sender, totalBounty);
 
         // Emit an event
         emit LibEvents.BurySarcophagus(identifier);
