@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 import "../storage/LibAppStorage.sol";
+import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 
 library LibBonds {
     /// @notice Calculates the cursed bond that an archaeologist needs to lock
     /// up
-    /// @dev The cursed bond amount is the sum of the digging fee and the bounty
+    /// @dev The cursed bond amount is the sum of the digging fee and the
+    /// bounty.
+    /// @param diggingFee The digging fee of the sarcophagus
+    /// @param bounty The bounty of the sarcophagus
+    /// @return The amount of cursed bond
     function calculateCursedBond(uint256 diggingFee, uint256 bounty)
         internal
         pure
@@ -100,32 +105,96 @@ library LibBonds {
         increaseCursedBond(archaeologist, amount);
     }
 
-    /// @notice Given an array of archaeologists and a storage fee, sums the total of
+    /// @notice Unlocks the archaeologist's bond, increasing the
+    /// archaeologist's free bond by an amount and decreasing the
+    /// archaeologist's cursed bond by the same amount.
+    /// @param archaeologist The address of the archaeologist
+    /// @param amount The amount to unlock
+    function unlockBond(address archaeologist, uint256 amount) internal {
+        // Decrease the cursed bond amount
+        decreaseCursedBond(archaeologist, amount);
+
+        // Increase the free bond amount
+        increaseFreeBond(archaeologist, amount);
+    }
+
+    /// @notice Given an array of archaeologists on a sarcophagus, sums the total of
     /// 1. Each archaeologists' bounty
     /// 2. Each archaeologists' digging fees
     /// 3. The storage fee
-    /// @param archaeologists the array of archaeologists
-    /// @param storageFee the storage fee
+    /// @param identifier The identifier of the sarcophagus
+    /// @param archaeologists The array of archaeologists' addresses
     /// @return the total of the above
     function calculateTotalFees(
-        LibTypes.ArchaeologistMemory[] memory archaeologists,
-        uint256 storageFee
-    ) internal pure returns (uint256) {
+        bytes32 identifier,
+        address[] memory archaeologists
+    ) internal view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
         uint256 totalFees = 0;
 
         // iterate through each archaeologist
         for (uint256 i = 0; i < archaeologists.length; i++) {
+            LibTypes.ArchaeologistStorage memory archaeologistsData = s
+                .sarcophagusArchaeologists[identifier][archaeologists[i]];
+
             // add the archaeologist's bounty to the total fees
-            totalFees += archaeologists[i].bounty;
+            totalFees += archaeologistsData.bounty;
 
             // add the archaeologist's digging fee to the total fees
-            totalFees += archaeologists[i].diggingFee;
+            totalFees += archaeologistsData.diggingFee;
         }
 
         // add the storage fee to the total fees
-        totalFees += storageFee;
+        totalFees += s.sarcophaguses[identifier].storageFee;
 
         // return the total fees
         return totalFees;
+    }
+
+    /// @notice Calculates an archaeologist's cursed bond and curses them (locks
+    /// up the free bond).
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologist the address of the archaeologist
+    function curseArchaeologist(bytes32 identifier, address archaeologist)
+        internal
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        // Get the archaeologist's data from storage
+        LibTypes.ArchaeologistStorage memory archaeologistData = s
+            .sarcophagusArchaeologists[identifier][archaeologist];
+
+        // Calculate the amount of cursed bond the archaeologists needs to lock up
+        uint256 cursedBondAmount = calculateCursedBond(
+            archaeologistData.diggingFee,
+            archaeologistData.bounty
+        );
+
+        // Lock up the archaeologist's bond by the cursed bond amount
+        LibBonds.lockUpBond(archaeologist, cursedBondAmount);
+    }
+
+    /// @notice Calculates an archaeologist's cursed bond and frees them
+    /// (unlocks the cursed bond).
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologist the address of the archaeologist
+    function freeArchaeologist(bytes32 identifier, address archaeologist)
+        internal
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        // Get the archaeologist's data from storage
+        LibTypes.ArchaeologistStorage memory archaeologistData = s
+            .sarcophagusArchaeologists[identifier][archaeologist];
+
+        // Calculate the amount of cursed bond the archaeologists needs to lock up
+        uint256 cursedBondAmount = calculateCursedBond(
+            archaeologistData.diggingFee,
+            archaeologistData.bounty
+        );
+
+        // Lock up the archaeologist's bond by the cursed bond amount
+        LibBonds.unlockBond(archaeologist, cursedBondAmount);
     }
 }

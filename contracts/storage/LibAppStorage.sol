@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
@@ -12,7 +12,6 @@ struct AppStorage {
     mapping(address => uint256) cursedBonds;
     // archaeologist stats
     mapping(address => bytes32[]) archaeologistSuccesses;
-    mapping(address => bytes32[]) archaeologistCancels;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
     // sarcophaguses
