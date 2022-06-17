@@ -194,6 +194,28 @@ describe("Contract: EmbalmerFacet", () => {
     return { identifier: newIdentifier, signatures: newSignatures };
   };
 
+  /**
+   * Gets a list of archaeologist sarco balances.
+   *
+   * @param archaeologists A list of archaeologist signers
+   * @returns a list of archaeologist sarco balanaces
+   */
+  const getArchaeologistSarcoBalances = async (
+    archaeologists: SignerWithAddress[],
+    sarcoToken: SarcoTokenMock
+  ): Promise<{ address: string; balance: BigNumber }[]> => {
+    const balances: { address: string; balance: BigNumber }[] = [];
+    for (const arch of archaeologists) {
+      const balance = await sarcoToken.balanceOf(arch.address);
+      balances.push({
+        address: arch.address,
+        balance: balance,
+      });
+    }
+
+    return balances;
+  };
+
   describe("initializeSarcophagus()", () => {
     // Deploy the contracts
     before(async () => {
@@ -939,6 +961,269 @@ describe("Contract: EmbalmerFacet", () => {
         // Note that it's not possible to get a custom error for this case
         // because ecrecover always returns a valid address.
         await expect(tx).to.be.revertedWith("SignatureFromWrongAccount");
+      });
+    });
+  });
+
+  describe("rewrapSarcophagus()", () => {
+    let sarcoToken: SarcoTokenMock;
+    let arweaveSignature: Signature;
+    let diamondAddress: string;
+
+    const arweaveTxId = "someArweaveTxId";
+
+    // Deploy the contracts
+    before(async () => {
+      ({ diamondAddress, sarcoToken } = await deployDiamond());
+
+      embalmerFacet = await ethers.getContractAt(
+        "EmbalmerFacet",
+        diamondAddress
+      );
+
+      // Get the archaeologistFacet so we can add some free bond for the archaeologists
+      archaeologistFacet = await ethers.getContractAt(
+        "ArchaeologistFacet",
+        diamondAddress
+      );
+
+      await setupArchaeologists(
+        archaeologistFacet,
+        archaeologists,
+        diamondAddress,
+        embalmer,
+        sarcoToken
+      );
+
+      arweaveSignature = await sign(
+        arweaveArchaeologist,
+        arweaveTxId,
+        "string"
+      );
+    });
+
+    context("Successful rewrap", () => {
+      it("should store the new resurrection time", async () => {
+        // TODO: Write a view method to get the sarcophagus state
+      });
+
+      it("should store the new resurrection window", async () => {
+        // TODO: Write a view method to get the sarcophagus state
+      });
+
+      it("should transfer the digging fees to the archaeologists", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldTransferDiggingFees",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        const archBalancesBefore = await getArchaeologistSarcoBalances(
+          archaeologists,
+          sarcoToken
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        // Rewrap the sarcophagus
+        await embalmerFacet.rewrapSarcophagus(identifier, newResurrectionTime);
+
+        const archBalancesAfter = await getArchaeologistSarcoBalances(
+          archaeologists,
+          sarcoToken
+        );
+
+        // For each archaeologist, check that the difference in balances is equal to each archaeologist's digging fee
+        for (let i = 0; i < archaeologists.length; i++) {
+          const diggingFee = archaeologistsFees[i].diggingFee;
+          expect(
+            archBalancesAfter[i].balance
+              .sub(archBalancesBefore[i].balance)
+              .toString()
+          ).to.equal(diggingFee.toString());
+        }
+      });
+
+      it("should transfer the digging fee sum from the embalmer to the contract", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldTransferFeesFromEmbalmer",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Get the embalmer's sarco balance before rewrap
+        const embalmerSarcoBalanceBefore = await sarcoToken.balanceOf(
+          embalmer.address
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        // Rewrap the sarcophagus
+        await embalmerFacet.rewrapSarcophagus(identifier, newResurrectionTime);
+
+        // Get the embalmer's sarco balance after rewrap
+        const embalmerSarcoBalanceAfter = await sarcoToken.balanceOf(
+          embalmer.address
+        );
+
+        // Calculate the sum of digging fees from archaeologistFees
+        const diggingFeeSum = archaeologistsFees.reduce(
+          (acc, cur) => acc.add(cur.diggingFee),
+          BigNumber.from(0)
+        );
+
+        // Check that the difference in balances is equal to the sum of digging fees
+        expect(
+          embalmerSarcoBalanceBefore.sub(embalmerSarcoBalanceAfter).toString()
+        ).to.equal(diggingFeeSum.toString());
+      });
+
+      it("should emit an event", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldEmitAnEvent",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        // Rewrap the sarcophagus
+        const tx = await embalmerFacet.rewrapSarcophagus(
+          identifier,
+          newResurrectionTime
+        );
+
+        const receipt = await tx.wait();
+
+        const events = receipt.events!;
+        expect(events).to.not.be.undefined;
+
+        // Check that the list of events includes an event that has an address
+        // matching the embalmerFacet address
+        expect(events.some((event) => event.address === embalmerFacet.address))
+          .to.be.true;
+      });
+    });
+
+    context("Failed rewrap", () => {
+      it("should revert if the sender is not embalmer", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "senderIsNotEmbalmer",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        // Rewrap the sarcophagus
+        const tx = embalmerFacet
+          .connect(signers[8])
+          .rewrapSarcophagus(identifier, newResurrectionTime);
+
+        expect(tx).to.be.revertedWith("SenderNotEmbalmer");
+      });
+
+      it("should revert if the sarcophagus does not exist", async () => {
+        const falseIdentifier = ethers.utils.solidityKeccak256(
+          ["string"],
+          ["falseIdentifier"]
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        // Rewrap the sarcophagus
+        const tx = embalmerFacet.rewrapSarcophagus(
+          falseIdentifier,
+          newResurrectionTime
+        );
+
+        expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+      });
+
+      it("should revert if the sarcophagus is not finalized", async () => {
+        const { identifier } = await createSarcophagusAndSignatures(
+          "sarcophagusIsNotFinalized",
+          archaeologists
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        // Rewrap the sarcophagus
+        const tx = embalmerFacet.rewrapSarcophagus(
+          identifier,
+          newResurrectionTime
+        );
+
+        expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
+      });
+
+      it("should revert if the new resurrection time is not in the future", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "newResTimeNotInFuture",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Define a new resurrection time not in the future
+        const newResurrectionTime = BigNumber.from(
+          (Date.now() / 1000).toFixed(0)
+        );
+
+        // Rewrap the sarcophagus
+        const tx = embalmerFacet.rewrapSarcophagus(
+          identifier,
+          newResurrectionTime
+        );
+
+        expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
       });
     });
   });
