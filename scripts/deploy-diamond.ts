@@ -10,11 +10,6 @@ import { DiamondCut, FacetCutAction } from "../types";
  * @returns An array of diamond cuts
  */
 const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
-  // Deploy PrivateKeys library
-  const LibPrivateKeys = await ethers.getContractFactory("LibPrivateKeys");
-  const libPrivateKeys = await LibPrivateKeys.deploy();
-  await libPrivateKeys.deployed();
-
   // Deploy Utils library
   const LibUtils = await ethers.getContractFactory("LibUtils");
   const libUtils = await LibUtils.deploy();
