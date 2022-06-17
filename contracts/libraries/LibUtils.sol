@@ -236,11 +236,10 @@ library LibUtils {
     /// @param identifier the identifier of the sarcophagus
     /// @param archaeologist the address of the archaeologist
     /// @return The boolean true if the archaeologist exists on the sarcophagus
-    function archaeologistExists(bytes32 identifier, address archaeologist)
-        internal
-        view
-        returns (bool)
-    {
+    function archaeologistExistsOnSarc(
+        bytes32 identifier,
+        address archaeologist
+    ) internal view returns (bool) {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // If the hashedShard on an archaeologist is 0 (which is its default

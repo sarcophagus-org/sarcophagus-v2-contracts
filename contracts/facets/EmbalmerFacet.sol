@@ -104,7 +104,7 @@ contract EmbalmerFacet {
             // checking that the archaeologist does not already exist from
             // previous iterations in this loop.
             if (
-                LibUtils.archaeologistExists(
+                LibUtils.archaeologistExistsOnSarc(
                     identifier,
                     archaeologists[i].archAddress
                 )
@@ -125,7 +125,8 @@ contract EmbalmerFacet {
                 .ArchaeologistStorage({
                     diggingFee: archaeologists[i].diggingFee,
                     bounty: archaeologists[i].bounty,
-                    hashedShard: archaeologists[i].hashedShard
+                    hashedShard: archaeologists[i].hashedShard,
+                    unencryptedShard: ""
                 });
 
             // Stores each archaeologist's bounty, digging fees, and unencrypted
@@ -285,7 +286,7 @@ contract EmbalmerFacet {
             // archaeologist on the sarcophagus and run ecrecover to see if
             // there is a match. This is much more efficient.
             if (
-                !LibUtils.archaeologistExists(
+                !LibUtils.archaeologistExistsOnSarc(
                     identifier,
                     archaeologistSignatures[i].account
                 )
