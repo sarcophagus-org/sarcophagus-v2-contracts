@@ -75,7 +75,7 @@ describe("Contract: EmbalmerFacet", () => {
       hashedShard: ethers.utils.solidityKeccak256(["string"], [a.address]),
     }));
 
-    const canBeTransfered = true;
+    const canBeTransferred = true;
 
     // Create a sarcophagus as the embalmer
     const tx = await embalmerFacet
@@ -87,7 +87,7 @@ describe("Contract: EmbalmerFacet", () => {
         arweaveArchaeologist.address,
         recipient.address,
         resurrectionTime,
-        canBeTransfered,
+        canBeTransferred,
         minShards || 3
       );
 
@@ -464,7 +464,7 @@ describe("Contract: EmbalmerFacet", () => {
           hashedShard: ethers.utils.solidityKeccak256(["string"], [a.address]),
         }));
 
-        const canBeTransfered = true;
+        const canBeTransferred = true;
 
         // Create a sarcophagus where the arweave archaeologist is not included in the list of archaeologists
         const tx = embalmerFacet.initializeSarcophagus(
@@ -474,7 +474,7 @@ describe("Contract: EmbalmerFacet", () => {
           signers[8].address,
           recipient.address,
           resurrectionTimeInFuture,
-          canBeTransfered,
+          canBeTransferred,
           3
         );
 
