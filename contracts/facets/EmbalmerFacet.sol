@@ -186,7 +186,6 @@ contract EmbalmerFacet {
             identifier,
             name,
             canBeTransferred,
-            minShards,
             resurrectionTime,
             msg.sender,
             recipient,

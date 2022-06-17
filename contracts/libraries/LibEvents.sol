@@ -48,7 +48,6 @@ library LibEvents {
         bytes32 indexed identifier,
         string name,
         bool canBeTransferred,
-        uint8 minShards,
         uint256 resurrectionTime,
         address embalmer,
         address recipientAddress,
