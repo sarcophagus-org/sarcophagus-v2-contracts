@@ -50,4 +50,7 @@ library LibErrors {
 
     // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
     error SarcophagusNotCleanable();
+
+    // Used when accusing with not enough, or invalid, unencrypted shard
+    error NotEnoughProof();
 }

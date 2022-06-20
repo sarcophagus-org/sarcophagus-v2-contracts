@@ -121,9 +121,37 @@ contract ThirdPartyFacet {
         );
     }
 
-    function accuse(bytes32 sarcoId, bytes32[] memory unencryptedShards)
+    function accuse(bytes32 sarcoId, bytes[] memory unencryptedShards)
         external
     {
+        LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
+        if (unencryptedShards.length < sarco.minShards) {
+            revert LibErrors.NotEnoughProof();
+        }
+
+        address[] memory bondedArchsAddresses = sarco.archaeologists;
+        address[] memory accusedArchs = new address[](unencryptedShards.length);
+
+        uint256 pos = 0;
+        for (uint256 i = 0; i < unencryptedShards.length; i++) {
+            bytes32 shardHash = keccak256(unencryptedShards[i]);
+
+            // Ew
+            for (uint256 j = 0; j < bondedArchsAddresses.length; j++) {
+                LibTypes.ArchaeologistStorage storage bondedArch = s
+                    .sarcophagusArchaeologists[sarcoId][
+                        bondedArchsAddresses[j]
+                    ];
+
+                if (bondedArch.hashedShard == shardHash) {
+                    accusedArchs[pos++] = bondedArchsAddresses[j];
+                    continue;
+                }
+
+                revert LibErrors.NotEnoughProof();
+            }
+        }
+
         emit LibEvents.AccuseArchaeologist(sarcoId, msg.sender, 0, 0);
     }
 }
