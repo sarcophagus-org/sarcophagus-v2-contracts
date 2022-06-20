@@ -170,18 +170,14 @@ describe("Contract: ThirdPartyFacet", () => {
 
             expect(receipt.status).to.equal(1);
 
-
-            // const tr = await sarcoToken.transfer(paymentAccount.address, BigNumber.from(10));
             let embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
             paymentDestinationBalance = await sarcoToken.balanceOf(paymentAccount.address);
-
-            // tr.wait();
 
             console.log(embalmerBalanceAfter.toString());
             console.log(paymentDestinationBalance.toString());
 
             // after cleaning...
-            // expect(embalmerBalanceAfter.gt(embalmerBalanceBefore)).to.be.true;
+            expect(embalmerBalanceAfter.gt(embalmerBalanceBefore)).to.be.true;
             expect(paymentDestinationBalance.gt(0)).to.be.true;
         });
 
