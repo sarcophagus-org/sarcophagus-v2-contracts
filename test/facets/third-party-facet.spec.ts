@@ -64,21 +64,9 @@ describe("Contract: ThirdPartyFacet", () => {
     const _setupArcheologists = async () => {
         archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamondAddress);
 
-        archaeologistFacet.connect(archaeologist1).depositFreeBond(
-            archaeologist1.address,
-            freeBond,
-            sarcoToken.address
-        )
-        archaeologistFacet.connect(archaeologist2).depositFreeBond(
-            archaeologist2.address,
-            freeBond,
-            sarcoToken.address
-        )
-        archaeologistFacet.connect(arweaveAchaeologist).depositFreeBond(
-            arweaveAchaeologist.address,
-            freeBond,
-            sarcoToken.address
-        )
+        archaeologistFacet.connect(archaeologist1).depositFreeBond(freeBond)
+        archaeologistFacet.connect(archaeologist2).depositFreeBond(freeBond)
+        archaeologistFacet.connect(arweaveAchaeologist).depositFreeBond(freeBond)
     }
 
     const _setupTestSarcophagus = async () => {

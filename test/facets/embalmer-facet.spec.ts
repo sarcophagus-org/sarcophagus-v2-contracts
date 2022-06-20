@@ -120,11 +120,7 @@ describe("Contract: EmbalmerFacet", () => {
       // work
       await archaeologistFacet
         .connect(archaeologist)
-        .depositFreeBond(
-          archaeologist.address,
-          BigNumber.from("5000"),
-          sarcoToken.address
-        );
+        .depositFreeBond(BigNumber.from("5000"));
     }
   };
 
@@ -450,11 +446,7 @@ describe("Contract: EmbalmerFacet", () => {
         // The first archaeologist's free bond balance should now be 0
         await archaeologistFacet
           .connect(archaeologists[0])
-          .withdrawFreeBond(
-            archaeologists[0].address,
-            freeBond,
-            sarcoToken.address
-          );
+          .withdrawFreeBond(freeBond);
 
         const identifier = ethers.utils.solidityKeccak256(
           ["string"],
