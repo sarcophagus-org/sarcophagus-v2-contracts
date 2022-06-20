@@ -156,7 +156,7 @@ library LibUtils {
      * calculated as 1% of the time between now and resurrection time.
      */
     function getGracePeriod(uint256 resurrectionTime)
-        public
+        internal
         view
         returns (uint256)
     {

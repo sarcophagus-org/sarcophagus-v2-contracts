@@ -60,13 +60,9 @@ library LibEvents {
     event CancelSarcophagus(bytes32 indexed identifier);
 
     event RewrapSarcophagus(
-        string assetId,
         bytes32 indexed identifier,
         uint256 resurrectionTime,
-        uint256 resurrectionWindow,
-        uint256 diggingFee,
-        uint256 bounty,
-        uint256 cursedBond
+        uint256 resurrectionWindow
     );
 
     event UnwrapSarcophagus(
