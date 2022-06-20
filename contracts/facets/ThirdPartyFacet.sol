@@ -40,21 +40,16 @@ contract ThirdPartyFacet {
         uint256 halfToEmbalmer = totalCursedBond / 2;
         uint256 halfToSender = totalCursedBond - halfToEmbalmer;
 
-        console.log(sarcoToken.balanceOf(address(this)));
-
         // transfer the cursed half, plus bounty, plus digging fee to the
         // embalmer
-        sarcoToken.transferFrom(
-            address(this),
+        sarcoToken.transfer(
             sarc.embalmer,
             totalBounty + totalDiggingFee + halfToEmbalmer
         );
 
-        console.log(sarcoToken.balanceOf(address(this)));
         // transfer the other half of the cursed bond to the transaction caller
-        sarcoToken.transferFrom(address(this), paymentAddress, halfToSender);
+        sarcoToken.transfer(paymentAddress, halfToSender);
 
-        console.log(sarcoToken.balanceOf(address(this)));
         // This cannot be (easily) done here.
         // Instead, it's done as defaulters are being aggregated in clean function
         // LibBonds.decreaseCursedBond(
@@ -63,25 +58,6 @@ contract ThirdPartyFacet {
         // );
 
         return (halfToSender, halfToEmbalmer);
-    }
-
-    // TODO: This loop though...
-    function archFailedSarcho(address archaeologist, bytes32 sarcoId)
-        private
-        view
-        returns (bool)
-    {
-        for (
-            uint256 i = 0;
-            i < s.archaeologistSuccesses[archaeologist].length;
-            i++
-        ) {
-            if (s.archaeologistSuccesses[archaeologist][i] == sarcoId) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /// @notice Close a sarcophagus that has not been unwrapped before its resurrection window is passed
@@ -116,9 +92,7 @@ contract ThirdPartyFacet {
         uint256 totalBounty;
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
-            // potentially a better way? If archaeologistSuccesses2[archAddresses[i]] produced a mapping instead of an array
-            // if (!s.archaeologistSuccesses2[archAddresses[i]][identifier]) {
-            if (archFailedSarcho(archAddresses[i], identifier)) {
+            if (!s.archaeologistSuccesses[archAddresses[i]][identifier]) {
                 LibTypes.ArchaeologistStorage memory defaulter = s
                     .sarcophagusArchaeologists[identifier][archAddresses[i]];
 
