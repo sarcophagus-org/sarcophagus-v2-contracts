@@ -23,7 +23,6 @@ contract ThirdPartyFacet {
      * @param totalCursedBond the sum of cursed bonds of all archs that failed to fulfil their duties
      * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties
      * @param totalBounty the sum of bounties that would have been paid to all archs that failed to fulfil their duties
-     * @param sarcoToken the SARCO token used for payment handling
      * @return halfToSender the amount of SARCO token going to transaction
      * sender
      * @return halfToEmbalmer the amount of SARCO token going to embalmer
@@ -33,8 +32,7 @@ contract ThirdPartyFacet {
         LibTypes.Sarcophagus storage sarc,
         uint256 totalCursedBond,
         uint256 totalDiggingFee,
-        uint256 totalBounty,
-        IERC20 sarcoToken
+        uint256 totalBounty
     ) private returns (uint256, uint256) {
         // split the sarcophagus's cursed bond into two halves
         uint256 halfToEmbalmer = totalCursedBond / 2;
@@ -42,13 +40,13 @@ contract ThirdPartyFacet {
 
         // transfer the cursed half, plus bounty, plus digging fee to the
         // embalmer
-        sarcoToken.transfer(
+        s.sarcoToken.transfer(
             sarc.embalmer,
             totalBounty + totalDiggingFee + halfToEmbalmer
         );
 
         // transfer the other half of the cursed bond to the transaction caller
-        sarcoToken.transfer(paymentAddress, halfToSender);
+        s.sarcoToken.transfer(paymentAddress, halfToSender);
 
         // This cannot be (easily) done here.
         // Instead, it's done as defaulters are being aggregated in clean function
@@ -63,11 +61,7 @@ contract ThirdPartyFacet {
     /// @notice Close a sarcophagus that has not been unwrapped before its resurrection window is passed
     /// @param identifier The sarcophagus ID
     /// @param paymentAddress The address to which rewards will be sent
-    function clean(
-        bytes32 identifier,
-        address paymentAddress,
-        IERC20 sarcoToken
-    ) external {
+    function clean(bytes32 identifier, address paymentAddress) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[identifier];
 
         if (sarco.state != LibTypes.SarcophagusState.Exists) {
@@ -119,8 +113,7 @@ contract ThirdPartyFacet {
                 sarco,
                 totalCursedBond,
                 totalDiggingFee,
-                totalBounty,
-                sarcoToken
+                totalBounty
             );
 
         emit LibEvents.CleanUpSarcophagus(

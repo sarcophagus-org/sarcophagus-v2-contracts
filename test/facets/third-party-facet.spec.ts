@@ -97,7 +97,17 @@ describe("Contract: ThirdPartyFacet", () => {
         resurrectionTime = BigNumber.from(tomorrow);
 
         const arweavetxId = "arweavetxId";
-        const initSarcoTx = await embalmerFacet.connect(embalmer).initializeSarcophagus("Test Sarco", sarcoId, archs, arweaveAchaeologist.address, receiverAddress.address, resurrectionTime, sarcoToken.address, false);
+        const initSarcoTx = await embalmerFacet.connect(embalmer)
+            .initializeSarcophagus(
+                "Test Sarco",
+                sarcoId,
+                archs,
+                arweaveAchaeologist.address,
+                receiverAddress.address,
+                resurrectionTime,
+                false,
+                2
+            );
 
         await initSarcoTx.wait();
 
@@ -114,7 +124,6 @@ describe("Contract: ThirdPartyFacet", () => {
             ],
             arweaveArchSig,
             arweavetxId,
-            sarcoToken.address
         );
     }
 
@@ -130,10 +139,7 @@ describe("Contract: ThirdPartyFacet", () => {
         arweaveAchaeologist = signers[5];
         receiverAddress = signers[6];
 
-        diamondAddress = await deployDiamond();
-        const SarcoToken = await ethers.getContractFactory("SarcoTokenMock");
-        sarcoToken = await SarcoToken.deploy();
-        await sarcoToken.deployed();
+        ({ diamondAddress, sarcoToken } = await deployDiamond());
 
         // Add tokens to accounts
         await _distributeTokens();
@@ -150,7 +156,7 @@ describe("Contract: ThirdPartyFacet", () => {
         await _setupTestSarcophagus();
     };
 
-    describe.only("clean()", () => {
+    describe("clean()", () => {
         beforeEach(beforeEachFunc);
         it("Should distribute sum of cursed bonds of bad-acting archaeologists to embalmer and the address specified by cleaner", async () => {
             // Increasing by this much so that the sarco is definitely expired
@@ -162,19 +168,13 @@ describe("Contract: ThirdPartyFacet", () => {
             // before cleaning...
             expect(paymentDestinationBalance).to.eq(0);
 
-            console.log(embalmerBalanceBefore.toString());
-            console.log(paymentDestinationBalance.toString());
-
-            const tx = await thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address, sarcoToken.address);
+            const tx = await thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
             const receipt = await tx.wait();
 
             expect(receipt.status).to.equal(1);
 
             let embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
             paymentDestinationBalance = await sarcoToken.balanceOf(paymentAccount.address);
-
-            console.log(embalmerBalanceAfter.toString());
-            console.log(paymentDestinationBalance.toString());
 
             // after cleaning...
             expect(embalmerBalanceAfter.gt(embalmerBalanceBefore)).to.be.true;
@@ -185,20 +185,34 @@ describe("Contract: ThirdPartyFacet", () => {
             // Increasing by this much so that the sarco is definitely expired
             await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
-            const tx = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address, sarcoToken.address);
+            const tx = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
 
             expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus")
         });
 
+        it("Should add all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
+            // Increasing by this much so that the sarco is definitely expired
+            await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+
+            const tx = await thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
+            await tx.wait();
+
+            // need access to appstorage here. Or add a getter function on ArchaeologistFacet?
+
+            // for each defaulting archId,
+            // verify that archaeologistCleanups[archId] contains sarcoId
+            expect.fail();
+        });
+
         it("Should revert if cleaning is attempted before sacro can be unwrapped or attempted within its resurrection grace period", async () => {
             // No time advancement before clean attempt
-            const cleanTx = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address, sarcoToken.address);
+            const cleanTx = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
             await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
 
             // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
             await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
 
-            const cleanTxAgain = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address, sarcoToken.address);
+            const cleanTxAgain = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
             await expect(cleanTxAgain).to.be.revertedWith("SarcophagusNotCleanable()");
         });
     });
