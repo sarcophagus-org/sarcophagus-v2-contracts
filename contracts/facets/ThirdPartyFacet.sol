@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.13;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 import "../libraries/LibEvents.sol";
@@ -120,5 +119,11 @@ contract ThirdPartyFacet {
             cleanerBondReward,
             embalmerBondReward
         );
+    }
+
+    function accuse(bytes32 sarcoId, bytes32[] memory unencryptedShards)
+        external
+    {
+        emit LibEvents.AccuseArchaeologist(sarcoId, msg.sender, 0, 0);
     }
 }

@@ -19,7 +19,7 @@ describe("Contract: ThirdPartyFacet", () => {
     let arweaveAchaeologist: SignerWithAddress;
     let embalmer: SignerWithAddress;
     let receiverAddress: SignerWithAddress;
-    let cleaner: SignerWithAddress;
+    let thirdParty: SignerWithAddress;
     let paymentAccount: SignerWithAddress;
 
     let sarcoToken: SarcoTokenMock;
@@ -36,6 +36,14 @@ describe("Contract: ThirdPartyFacet", () => {
 
     const sarcoResurrectionTimeInDays = 1;
 
+    const unencryptedShards: string[] = [
+        formatBytes32String("unencryptedShard1"),
+        formatBytes32String("unencryptedShard2"),
+        formatBytes32String("unencryptedShard3"),
+    ];
+
+    let hashedShards: string[];
+
     const _distributeTokens = async () => {
         sarcoToken.transfer(archaeologist1.address, balance);
         sarcoToken.transfer(archaeologist2.address, balance);
@@ -45,7 +53,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
     const _approveSpending = async () => {
         await sarcoToken
-            .connect(cleaner)
+            .connect(thirdParty)
             .approve(diamondAddress, ethers.constants.MaxUint256);
         await sarcoToken
             .connect(embalmer)
@@ -74,10 +82,18 @@ describe("Contract: ThirdPartyFacet", () => {
 
         sarcoId = formatBytes32String("sarcoId");
 
+        hashedShards = [];
+        for (let i = 0; i < 3; i++) {
+            hashedShards.push(ethers.utils.solidityKeccak256(
+                ['bytes32'],
+                [unencryptedShards[i]]
+            ))
+        }
+
         const archs = [
-            { archAddress: archaeologist1.address, storageFee, diggingFee, bounty, hashedShard: formatBytes32String("hashedShard1") },
-            { archAddress: archaeologist2.address, storageFee, diggingFee, bounty, hashedShard: formatBytes32String("hashedShard2") },
-            { archAddress: arweaveAchaeologist.address, storageFee, diggingFee, bounty, hashedShard: formatBytes32String("hashedShard3") },
+            { archAddress: archaeologist1.address, storageFee, diggingFee, bounty, hashedShard: hashedShards[0] },
+            { archAddress: archaeologist2.address, storageFee, diggingFee, bounty, hashedShard: hashedShards[1] },
+            { archAddress: arweaveAchaeologist.address, storageFee, diggingFee, bounty, hashedShard: hashedShards[2] },
         ];
 
         const tomorrow = (await time.latest()) + time.duration.days(sarcoResurrectionTimeInDays);
@@ -115,11 +131,10 @@ describe("Contract: ThirdPartyFacet", () => {
         );
     }
 
-    // Deploy the contracts and setup initial state before each test
-    const beforeEachFunc = async () => {
+    const _initialiseEnvironment = async () => {
         const signers = await ethers.getSigners();
 
-        cleaner = signers[0];
+        thirdParty = signers[0];
         embalmer = signers[1];
         paymentAccount = signers[2];
         archaeologist1 = signers[3];
@@ -129,7 +144,6 @@ describe("Contract: ThirdPartyFacet", () => {
 
         ({ diamondAddress, sarcoToken } = await deployDiamond());
 
-        // Add tokens to accounts
         await _distributeTokens();
 
         // Approve signers on the sarco token so transferFrom will work
@@ -142,10 +156,11 @@ describe("Contract: ThirdPartyFacet", () => {
 
         // Create a sarcophagus with archaeologists assigned, with a 1 day resurrection time
         await _setupTestSarcophagus();
-    };
+    }
 
     describe("clean()", () => {
-        beforeEach(beforeEachFunc);
+        beforeEach(_initialiseEnvironment);
+
         it("Should distribute sum of cursed bonds of bad-acting archaeologists to embalmer and the address specified by cleaner", async () => {
             // Increasing by this much so that the sarco is definitely expired
             await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
@@ -156,7 +171,7 @@ describe("Contract: ThirdPartyFacet", () => {
             // before cleaning...
             expect(paymentDestinationBalance).to.eq(0);
 
-            const tx = await thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
+            const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
             const receipt = await tx.wait();
 
             expect(receipt.status).to.equal(1);
@@ -167,13 +182,15 @@ describe("Contract: ThirdPartyFacet", () => {
             // after cleaning...
             expect(embalmerBalanceAfter.gt(embalmerBalanceBefore)).to.be.true;
             expect(paymentDestinationBalance.gt(0)).to.be.true;
+
+            //TODO: Actually calculate sum, and verify on exact amounts instead
         });
 
         it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
             // Increasing by this much so that the sarco is definitely expired
             await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
-            const tx = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
+            const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
 
             expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus")
         });
@@ -182,7 +199,7 @@ describe("Contract: ThirdPartyFacet", () => {
             // Increasing by this much so that the sarco is definitely expired
             await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
-            const tx = await thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
+            const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
             await tx.wait();
 
             // need access to appstorage here. Or add a getter function on ArchaeologistFacet?
@@ -194,14 +211,42 @@ describe("Contract: ThirdPartyFacet", () => {
 
         it("Should revert if cleaning is attempted before sacro can be unwrapped or attempted within its resurrection grace period", async () => {
             // No time advancement before clean attempt
-            const cleanTx = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
+            const cleanTx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
             await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
 
             // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
             await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
 
-            const cleanTxAgain = thirdPartyFacet.connect(cleaner).clean(sarcoId, paymentAccount.address);
+            const cleanTxAgain = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
             await expect(cleanTxAgain).to.be.revertedWith("SarcophagusNotCleanable()");
+        });
+    });
+
+    describe("accuse()", () => {
+        beforeEach(_initialiseEnvironment);
+
+        context("when m unencrypted shard are provided", async () => {
+            it("Should emit AccuseArchaeologist", async () => {
+                const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 1));
+                expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist").withArgs(sarcoId, thirdParty.address, 0, 0, [archaeologist1.address, archaeologist2.address]);
+            });
+
+            it("Should update sarcophagus' state to DONE");
+            it("Should distribute half the sum of the accused archaeologists' bounties and digging fees to accuser, and other half to embalmer");
+            it("Should distribute the bounties and digging fees of unaccused archaeologists back to them, and un-curse their associated bonds");
+        });
+
+        it("Should revert with NotEnoughProof() if less than m unencrypted shards are provided", async () => {
+            const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, []);
+            await expect(tx).to.be.revertedWith("NotEnoughProof()");
+
+            const tx2 = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [unencryptedShards[0]]);
+            await expect(tx2).to.be.revertedWith("NotEnoughProof()");
+        });
+
+        it("Should revert with NotEnoughProof() if at least m unencrypted shards are provided, but one or more are invalid", async () => {
+            const tx2 = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [unencryptedShards[0], hashedShards[1]]);
+            await expect(tx2).to.be.revertedWith("NotEnoughProof()");
         });
     });
 
