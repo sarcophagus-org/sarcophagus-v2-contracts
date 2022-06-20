@@ -37,8 +37,6 @@ library LibErrors {
 
     error SarcophagusDoesNotExist(bytes32 identifier);
 
-    error SenderNotArch(address sender, address arch);
-
     error SenderNotEmbalmer(address sender, address embalmer);
 
     error SignatureFromWrongAccount(
