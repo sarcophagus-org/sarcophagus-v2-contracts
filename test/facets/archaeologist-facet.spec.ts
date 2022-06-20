@@ -172,15 +172,15 @@ describe("Contract: ArchaeologistFacet", () => {
       ).to.be.reverted;
     });
 
-    it("should revert if sender is not the archaeologist", async () => {
+    it("should revert on attempt to withdraw more than free bond", async () => {
+      // Put some free bond on the contract so we can withdraw it
+      const tx = await archaeologistFacet.depositFreeBond(BigNumber.from(100));
+      await tx.wait();
+
       // Try to withdraw with a non-archaeologist address
       await expect(
-        archaeologistFacet.withdrawFreeBond(
-          ethers.constants.AddressZero,
-          BigNumber.from(1),
-          sarcoToken.address
-        )
-      ).to.be.revertedWith("SenderNotArch");
+        archaeologistFacet.withdrawFreeBond(BigNumber.from(101))
+      ).to.be.revertedWith("NotEnoughFreeBond");
     });
   });
 });
