@@ -245,13 +245,13 @@ describe("Contract: ThirdPartyFacet", () => {
 
             it("Should update sarcophagus' state to DONE", async () => {
                 let sarco = await thirdPartyFacet.getSarcophagus(sarcoId);
-                expect(sarco.state).to.be.eq(1); // 1 is EXISTS
+                expect(sarco.state).to.be.eq(1); // 1 is "Exists"
 
                 const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
                 await tx.wait();
 
                 sarco = await thirdPartyFacet.getSarcophagus(sarcoId);
-                expect(sarco.state).to.be.eq(2); // 2 is DONE
+                expect(sarco.state).to.be.eq(2); // 2 is "Done"
             });
 
             it("Should distribute half the sum of the accused archaeologists' bounties and digging fees to accuser, and other half to embalmer", async () => {
@@ -262,8 +262,6 @@ describe("Contract: ThirdPartyFacet", () => {
 
                 const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
                 await tx.wait();
-
-                archaeologistFacet.getCursedBond(archaeologist1.address);
 
                 // Set up amounts that should have been transferred to accuser and embalmer
                 const arch1 = await thirdPartyFacet.getArchaeologistData(sarcoId, archaeologist1.address);
