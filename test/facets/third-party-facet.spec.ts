@@ -32,7 +32,7 @@ describe("Contract: ThirdPartyFacet", () => {
     const storageFee = BigNumber.from(1);
     const diggingFee = BigNumber.from(1);
     const bounty = BigNumber.from(1);
-    const balance = BigNumber.from(1000);
+    const balance = BigNumber.from(100000);
 
     const sarcoResurrectionTimeInDays = 1;
 
@@ -45,10 +45,10 @@ describe("Contract: ThirdPartyFacet", () => {
     let hashedShards: string[];
 
     const _distributeTokens = async () => {
-        sarcoToken.transfer(archaeologist1.address, balance);
-        sarcoToken.transfer(archaeologist2.address, balance);
-        sarcoToken.transfer(arweaveAchaeologist.address, balance);
-        sarcoToken.transfer(embalmer.address, balance);
+        sarcoToken.transfer(archaeologist1.address, balance.add(648));
+        sarcoToken.transfer(archaeologist2.address, balance.add(34));
+        sarcoToken.transfer(arweaveAchaeologist.address, balance.add(768));
+        sarcoToken.transfer(embalmer.address, balance.add(23));
     }
 
     const _approveSpending = async () => {
@@ -72,9 +72,9 @@ describe("Contract: ThirdPartyFacet", () => {
     const _setupArcheologists = async () => {
         archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamondAddress);
 
-        archaeologistFacet.connect(archaeologist1).depositFreeBond(freeBond)
-        archaeologistFacet.connect(archaeologist2).depositFreeBond(freeBond)
-        archaeologistFacet.connect(arweaveAchaeologist).depositFreeBond(freeBond)
+        await archaeologistFacet.connect(archaeologist1).depositFreeBond(freeBond.add(486))
+        await archaeologistFacet.connect(archaeologist2).depositFreeBond(freeBond.add(978))
+        await archaeologistFacet.connect(arweaveAchaeologist).depositFreeBond(freeBond.add(2332))
     }
 
     const _setupTestSarcophagus = async () => {
@@ -83,10 +83,6 @@ describe("Contract: ThirdPartyFacet", () => {
         sarcoId = formatBytes32String("sarcoId");
 
         hashedShards = [];
-        // for await (const shard of unencryptedShards) {
-        //     const hashed = await thirdPartyFacet.hashHelper(shard);
-        //     hashedShards.push(hashed);
-        // }
 
         unencryptedShards.forEach(shard => {
             hashedShards.push(ethers.utils.solidityKeccak256(
