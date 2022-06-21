@@ -83,12 +83,17 @@ describe("Contract: ThirdPartyFacet", () => {
         sarcoId = formatBytes32String("sarcoId");
 
         hashedShards = [];
-        for (let i = 0; i < 3; i++) {
+        // for await (const shard of unencryptedShards) {
+        //     const hashed = await thirdPartyFacet.hashHelper(shard);
+        //     hashedShards.push(hashed);
+        // }
+
+        unencryptedShards.forEach(shard => {
             hashedShards.push(ethers.utils.solidityKeccak256(
-                ['bytes32'],
-                [unencryptedShards[i]]
+                ["bytes32"],
+                [shard]
             ))
-        }
+        });
 
         const archs = [
             { archAddress: archaeologist1.address, storageFee, diggingFee, bounty, hashedShard: hashedShards[0] },
@@ -227,11 +232,20 @@ describe("Contract: ThirdPartyFacet", () => {
 
         context("when m unencrypted shard are provided", async () => {
             it("Should emit AccuseArchaeologist", async () => {
-                const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 1));
+                const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2));
                 expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist").withArgs(sarcoId, thirdParty.address, 0, 0, [archaeologist1.address, archaeologist2.address]);
             });
 
-            it("Should update sarcophagus' state to DONE");
+            it("Should update sarcophagus' state to DONE", async () => {
+                let sarco = await thirdPartyFacet.getSarcophagus(sarcoId);
+                expect(sarco.state).to.be.eq(1); // 1 is EXISTS
+
+                const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2));
+                await tx.wait();
+
+                sarco = await thirdPartyFacet.getSarcophagus(sarcoId);
+                expect(sarco.state).to.be.eq(2); // 2 is DONE
+            });
             it("Should distribute half the sum of the accused archaeologists' bounties and digging fees to accuser, and other half to embalmer");
             it("Should distribute the bounties and digging fees of unaccused archaeologists back to them, and un-curse their associated bonds");
         });

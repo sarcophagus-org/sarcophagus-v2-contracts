@@ -121,7 +121,11 @@ contract ThirdPartyFacet {
         );
     }
 
-    function accuse(bytes32 sarcoId, bytes[] memory unencryptedShards)
+    function hashHelper(bytes32 data) public pure returns (bytes32) {
+        return keccak256(abi.encode(data));
+    }
+
+    function accuse(bytes32 sarcoId, bytes32[] memory unencryptedShards)
         external
     {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
@@ -132,9 +136,13 @@ contract ThirdPartyFacet {
         address[] memory bondedArchsAddresses = sarco.archaeologists;
         address[] memory accusedArchs = new address[](unencryptedShards.length);
 
+        // For each provided shard, search through each archaeologist's hashed shard
+        // to see if the provided hard's hash matches one on storage. If so, flag that
+        // archaeologist as accusable
         uint256 pos = 0;
         for (uint256 i = 0; i < unencryptedShards.length; i++) {
-            bytes32 shardHash = keccak256(unencryptedShards[i]);
+            bytes32 shardHash = hashHelper(unencryptedShards[i]);
+            bool matchingHash = false;
 
             // Ew
             for (uint256 j = 0; j < bondedArchsAddresses.length; j++) {
@@ -145,13 +153,30 @@ contract ThirdPartyFacet {
 
                 if (bondedArch.hashedShard == shardHash) {
                     accusedArchs[pos++] = bondedArchsAddresses[j];
-                    continue;
+                    matchingHash = true;
+                    break;
                 }
+            }
 
+            if (!matchingHash) {
                 revert LibErrors.NotEnoughProof();
             }
         }
 
+        // Reaching here means accusal is good to go
+        s.sarcophaguses[sarcoId].state = LibTypes.SarcophagusState.Done;
+
         emit LibEvents.AccuseArchaeologist(sarcoId, msg.sender, 0, 0);
+    }
+
+    /// @notice Gets a sarcophagus given its identifier and the
+    /// @param identifier the identifier of the sarcophagus
+    /// @return The sarcophagus
+    function getSarcophagus(bytes32 identifier)
+        public
+        view
+        returns (LibTypes.Sarcophagus memory)
+    {
+        return s.sarcophaguses[identifier];
     }
 }
