@@ -393,7 +393,7 @@ contract EmbalmerFacet {
 
         // Confirm that the current resurrection time is in the future
         if (s.sarcophaguses[identifier].resurrectionTime <= block.timestamp) {
-            revert LibErrors.ResurrectionTimeInPast(
+            revert LibErrors.NewResurrectionTimeInPast(
                 s.sarcophaguses[identifier].resurrectionTime
             );
         }

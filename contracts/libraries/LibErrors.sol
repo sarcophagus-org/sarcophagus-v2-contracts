@@ -23,6 +23,8 @@ library LibErrors {
 
     error MinShardsZero();
 
+    error NewResurrectionTimeInPast(uint256 newResurrectionTime);
+
     error NoArchaeologistsProvided();
 
     error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
