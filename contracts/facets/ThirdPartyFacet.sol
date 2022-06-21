@@ -125,9 +125,11 @@ contract ThirdPartyFacet {
         return keccak256(abi.encode(data));
     }
 
-    function accuse(bytes32 sarcoId, bytes32[] memory unencryptedShards)
-        external
-    {
+    function accuse(
+        bytes32 sarcoId,
+        bytes32[] memory unencryptedShards,
+        address paymentAddress
+    ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
         if (unencryptedShards.length < sarco.minShards) {
             revert LibErrors.NotEnoughProof();

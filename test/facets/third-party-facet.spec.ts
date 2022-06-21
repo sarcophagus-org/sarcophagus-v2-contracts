@@ -232,7 +232,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         context("when m unencrypted shard are provided", async () => {
             it("Should emit AccuseArchaeologist", async () => {
-                const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2));
+                const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
                 expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist").withArgs(sarcoId, thirdParty.address, 0, 0, [archaeologist1.address, archaeologist2.address]);
             });
 
@@ -240,7 +240,7 @@ describe("Contract: ThirdPartyFacet", () => {
                 let sarco = await thirdPartyFacet.getSarcophagus(sarcoId);
                 expect(sarco.state).to.be.eq(1); // 1 is EXISTS
 
-                const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2));
+                const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
                 await tx.wait();
 
                 sarco = await thirdPartyFacet.getSarcophagus(sarcoId);
@@ -251,15 +251,15 @@ describe("Contract: ThirdPartyFacet", () => {
         });
 
         it("Should revert with NotEnoughProof() if less than m unencrypted shards are provided", async () => {
-            const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, []);
+            const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [], paymentAccount.address);
             await expect(tx).to.be.revertedWith("NotEnoughProof()");
 
-            const tx2 = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [unencryptedShards[0]]);
+            const tx2 = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [unencryptedShards[0]], paymentAccount.address);
             await expect(tx2).to.be.revertedWith("NotEnoughProof()");
         });
 
         it("Should revert with NotEnoughProof() if at least m unencrypted shards are provided, but one or more are invalid", async () => {
-            const tx2 = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [unencryptedShards[0], hashedShards[1]]);
+            const tx2 = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [unencryptedShards[0], hashedShards[1]], paymentAccount.address);
             await expect(tx2).to.be.revertedWith("NotEnoughProof()");
         });
     });
