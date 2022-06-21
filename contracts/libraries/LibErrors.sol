@@ -46,8 +46,6 @@ library LibErrors {
 
     error SignatureListNotUnique();
 
-    error NotEnoughFreeBond(uint256 freeBond, uint256 amount);
-
     // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
     error SarcophagusNotCleanable();
 
