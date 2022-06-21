@@ -2,6 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber, Signature } from "ethers";
+import { toUtf8String } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import { deployDiamond } from "../../scripts/deploy-diamond";
 import {
@@ -10,7 +11,7 @@ import {
   SarcoTokenMock,
   ViewStateFacet,
 } from "../../typechain";
-import { SignatureWithAccount } from "../../types";
+import { SarcophagusState, SignatureWithAccount } from "../../types";
 import {
   increaseNextBlockTimestamp,
   setupArchaeologists,
@@ -313,6 +314,11 @@ describe("Contract: ArchaeologistFacet", () => {
         diamondAddress
       );
 
+      viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
+        diamondAddress
+      );
+
       await setupArchaeologists(
         archaeologistFacet,
         archaeologists,
@@ -408,11 +414,65 @@ describe("Contract: ArchaeologistFacet", () => {
 
     context("Successful unwrap", () => {
       it("should store the unencrypted shard on the contract", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        // Initialize the sarcophagusk
+        const identifier = await initializeSarcophagus("shouldStoreShard");
+
+        // Finalize the sarcophagus
+        await finalizeSarcophagus(identifier);
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const unencryptedShard = archaeologists[0].address;
+
+        // Set the evm timestamp of the next block to be 1 week and 1 second in
+        // the future
+        await increaseNextBlockTimestamp(604801);
+
+        // Have archaeologist unwrap
+        await archaeologistFacet
+          .connect(archaeologists[0])
+          .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
+
+        // Check that the unencrypted shard is stored on the contract
+        const archaeologist = await viewStateFacet.getSarcophagusArchaeologist(
+          identifier,
+          archaeologists[0].address
+        );
+
+        expect(toUtf8String(archaeologist.unencryptedShard)).to.equal(
+          unencryptedShard
+        );
       });
+
       it("should set the state of the sarcophagus to done", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        // Initialize the sarcophagusk
+        const identifier = await initializeSarcophagus("shouldSetState");
+
+        // Finalize the sarcophagus
+        await finalizeSarcophagus(identifier);
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const unencryptedShard = archaeologists[0].address;
+
+        // Set the evm timestamp of the next block to be 1 week and 1 second in
+        // the future
+        await increaseNextBlockTimestamp(604801);
+
+        // Have archaeologist unwrap
+        await archaeologistFacet
+          .connect(archaeologists[0])
+          .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
+
+        const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
+
+        expect(sarcophagus.state).to.equal(SarcophagusState.Done);
       });
+
       it("should free up the archaeologist's cursed bond", async () => {
         // Get the cursed bond amount of the first archaeologist before initialize
         const cursedBondAmountBefore = await viewStateFacet.getCursedBond(
@@ -447,14 +507,38 @@ describe("Contract: ArchaeologistFacet", () => {
           archaeologists[0].address
         );
 
-        // await ethers.provider.send("evm_increaseTime", [-604801]);
-
         // Check that the cursed bond amount before intialize and after unwrap are the same amount.
         expect(cursedBondAmountAfter).to.equal(cursedBondAmountBefore);
       });
 
       it("should add this sarcophagus to the archaeologist's successful sarcophaguses", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        // Initialize the sarcophagusk
+        const identifier = await initializeSarcophagus("shouldUpdateMetrics");
+
+        // Finalize the sarcophagus
+        await finalizeSarcophagus(identifier);
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const unencryptedShard = archaeologists[0].address;
+
+        // Set the evm timestamp of the next block to be 1 week and 1 second in
+        // the future
+        await increaseNextBlockTimestamp(604801);
+
+        // Have archaeologist unwrap
+        await archaeologistFacet
+          .connect(archaeologists[0])
+          .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
+
+        const successfulSarcophaguses =
+          await viewStateFacet.getArchaeologistSuccesses(
+            archaeologists[0].address
+          );
+
+        expect(successfulSarcophaguses).to.include(identifier);
       });
 
       it("should transfer the digging fee and bounty to the archaeologist", async () => {

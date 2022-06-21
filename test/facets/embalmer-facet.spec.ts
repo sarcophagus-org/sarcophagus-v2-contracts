@@ -10,7 +10,7 @@ import {
   ViewStateFacet,
 } from "../../typechain";
 import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
-import { SignatureWithAccount } from "../../types";
+import { SarcophagusState, SignatureWithAccount } from "../../types";
 import { sign } from "../utils/helpers";
 
 describe("Contract: EmbalmerFacet", () => {
@@ -582,7 +582,23 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should store the arweave transaction id", async () => {
-        // TODO: Write view function that gets the arweave transaction id from the sarcophagus
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldStoreArweaveTxId",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        const sarcophagusStored = await viewStateFacet.getSarcophagus(
+          identifier
+        );
+
+        expect(sarcophagusStored.arweaveTxId).to.equal(arweaveTxId);
       });
 
       it("should transfer the storage fee to the arweave archaeologist", async () => {
@@ -1024,11 +1040,67 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("Successful rewrap", () => {
       it("should store the new resurrection time", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldStoreResurrectionTime",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        // Rewrap the sarcophagus
+        await embalmerFacet.rewrapSarcophagus(identifier, newResurrectionTime);
+
+        const sarcophagusStored = await viewStateFacet.getSarcophagus(
+          identifier
+        );
+
+        expect(sarcophagusStored.resurrectionTime).to.equal(
+          newResurrectionTime.toString()
+        );
       });
 
       it("should store the new resurrection window", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldStoreResurrectionWindow",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        const sarcophagusStoredBefore = await viewStateFacet.getSarcophagus(
+          identifier
+        );
+
+        // Rewrap the sarcophagus
+        await embalmerFacet.rewrapSarcophagus(identifier, newResurrectionTime);
+
+        const sarcophagusStoredAfter = await viewStateFacet.getSarcophagus(
+          identifier
+        );
+
+        expect(sarcophagusStoredAfter.resurrectionWindow).to.not.equal(
+          sarcophagusStoredBefore.resurrectionWindow
+        );
       });
 
       it("should transfer the digging fees to the archaeologists", async () => {
@@ -1296,7 +1368,16 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should set the sarcophagus state to done", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        const { identifier } = await createSarcophagusAndSignatures(
+          "shouldSetSarcophagusStateToDone",
+          archaeologists
+        );
+
+        await embalmerFacet.cancelSarcophagus(identifier);
+
+        const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
+
+        expect(sarcophagus.state).to.equal(SarcophagusState.Done);
       });
 
       it("should transfer total fees back to the embalmer", async () => {
@@ -1435,11 +1516,51 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("Successful bury", () => {
       it("should set resurrection time to inifinity", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        // Initialize a sarcophagus
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldSetResurrectionTimeToInfinity",
+          archaeologists
+        );
+
+        // Finalize the sarcophagus
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Bury the sarcophagus
+        await embalmerFacet.burySarcophagus(identifier);
+
+        const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
+
+        expect(sarcophagus.resurrectionTime).to.equal(
+          ethers.constants.MaxUint256
+        );
       });
 
       it("should set the sarcophagus state to done", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        // Initialize a sarcophagus
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldSetStateToDone",
+          archaeologists
+        );
+
+        // Finalize the sarcophagus
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Bury the sarcophagus
+        await embalmerFacet.burySarcophagus(identifier);
+
+        const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
+
+        expect(sarcophagus.state).to.equal(SarcophagusState.Done);
       });
 
       it("should free the archaeologist's bond", async () => {
