@@ -120,6 +120,11 @@ contract ArchaeologistFacet {
         // Confirm that the archaeologist has not already unwrapped by checking if the unencryptedShard is empty
         LibUtils.archaeologistUnwrappedCheck(identifier, msg.sender);
 
+        // Comfirm that the sarcophagus has been finalized
+        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0) {
+            revert LibErrors.SarcophagusNotFinalized(identifier);
+        }
+
         // Get the archaeologist's data from storage
         LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
             .getArchaeologist(identifier, msg.sender);
