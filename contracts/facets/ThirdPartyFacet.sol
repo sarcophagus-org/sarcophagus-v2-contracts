@@ -140,19 +140,27 @@ contract ThirdPartyFacet {
         }
 
         sarco = s.sarcophaguses[sarcoId];
-        _distributeLoot(
-            paymentAddress,
-            sarco,
-            totalCursedBond,
-            diggingFeesToBeDistributed,
-            bountyToBeDistributed
-        );
+        (
+            uint256 accuserBondReward,
+            uint256 embalmerBondReward
+        ) = _distributeLoot(
+                paymentAddress,
+                sarco,
+                totalCursedBond,
+                diggingFeesToBeDistributed,
+                bountyToBeDistributed
+            );
 
         // _reimburseArchs(archs);
 
         sarco.state = LibTypes.SarcophagusState.Done;
 
-        emit LibEvents.AccuseArchaeologist(sarcoId, msg.sender, 0, 0);
+        emit LibEvents.AccuseArchaeologist(
+            sarcoId,
+            msg.sender,
+            accuserBondReward,
+            embalmerBondReward
+        );
     }
 
     /// @notice Gets a sarcophagus given its identifier
