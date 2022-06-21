@@ -179,6 +179,25 @@ contract ThirdPartyFacet {
     }
 
     /**
+     * @notice After a sarcophagus has been successfully accused, transfers the value
+     * of the cursed bonds of the archs back to them, and un-curses their bonds.
+     * @param sarcoId The identifier of the sarcophagus for which the bonds were cursed
+     * @param archs The archaeologists to reimburse
+     * @param amounts amounts of sarco tokens to transfer to archaeologists. Should be in same order
+     * as archs.
+     */
+    function _reimburseArchs(
+        bytes32 sarcoId,
+        address[] storage archs,
+        uint256[] memory amounts
+    ) private {
+        for (uint256 i = 0; i < archs.length; i++) {
+            s.sarcoToken.transfer(archs[i], amounts[i]); // What account will this transfer from?!
+            LibBonds.freeArchaeologist(sarcoId, archs[i]);
+        }
+    }
+
+    /**
      * @notice Takes a sarcophagus's cursed bond, splits it in half, and sends
      * to paymentAddress and embalmer
      * @param paymentAddress payment address for the transaction caller
