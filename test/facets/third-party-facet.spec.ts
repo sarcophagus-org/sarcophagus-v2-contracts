@@ -242,7 +242,38 @@ describe("Contract: ThirdPartyFacet", () => {
                 sarco = await thirdPartyFacet.getSarcophagus(sarcoId);
                 expect(sarco.state).to.be.eq(2); // 2 is DONE
             });
-            it("Should distribute half the sum of the accused archaeologists' bounties and digging fees to accuser, and other half to embalmer");
+
+            it("Should distribute half the sum of the accused archaeologists' bounties and digging fees to accuser, and other half to embalmer", async () => {
+                const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
+                const paymentAccountBalanceBefore = await sarcoToken.balanceOf(paymentAccount.address);
+
+                expect(paymentAccountBalanceBefore.eq(0)).to.be.true;
+
+                const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+                await tx.wait();
+
+                archaeologistFacet.getCursedBond(archaeologist1.address);
+
+                // Set up amounts that should have been transferred to accuser and embalmer
+                const arch1 = await thirdPartyFacet.getArchaeologistData(sarcoId, archaeologist1.address);
+                const arch2 = await thirdPartyFacet.getArchaeologistData(sarcoId, archaeologist2.address);
+
+                const totalDiggingFees = arch1.diggingFee.add(arch2.diggingFee);
+                const totalBounty = arch1.bounty.add(arch2.bounty);
+
+                const cursedBond = totalDiggingFees.add(totalBounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+                const toEmbalmer = cursedBond.div(2);
+                const toAccuser = cursedBond.sub(toEmbalmer);
+
+                const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
+                const paymentAccountBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
+
+                // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
+                expect(embalmerBalanceAfter.gte(embalmerBalanceBefore.add(toEmbalmer.add(totalBounty.add(totalDiggingFees))))).to.be.true;
+                expect(paymentAccountBalanceAfter.gte(paymentAccountBalanceBefore.add(toAccuser))).to.be.true;
+
+            });
+
             it("Should distribute the bounties and digging fees of unaccused archaeologists back to them, and un-curse their associated bonds");
         });
 
