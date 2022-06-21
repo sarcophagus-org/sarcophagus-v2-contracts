@@ -162,7 +162,7 @@ contract EmbalmerFacet {
             minShards: minShards,
             resurrectionTime: resurrectionTime,
             resurrectionWindow: LibUtils.getGracePeriod(resurrectionTime),
-            arweaveTxId: "",
+            arweaveTxIds: new string[](0),
             storageFee: storageFee,
             embalmer: msg.sender,
             recipientAddress: recipient,
@@ -246,7 +246,7 @@ contract EmbalmerFacet {
 
         // Confirm that the sarcophagus is not already finalized by checking if
         // the arweaveTxId is empty
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length > 0) {
+        if (LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusAlreadyFinalized(identifier);
         }
 
@@ -346,7 +346,7 @@ contract EmbalmerFacet {
 
         // Store the arweave transaction id to the sarcophagus. The arweaveTxId
         // being populated indirectly designates the sarcophagus as finalized.
-        s.sarcophaguses[identifier].arweaveTxId = arweaveTxId;
+        s.sarcophaguses[identifier].arweaveTxIds.push(arweaveTxId);
 
         // Transfer the storage fee to the arweave archaeologist after setting
         // the arweave transaction id.
@@ -387,7 +387,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm that the sarcophagus is finalized
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0) {
+        if (!LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusNotFinalized(identifier);
         }
 
@@ -470,7 +470,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm that the sarcophagus is not already finalized
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length > 0) {
+        if (LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusAlreadyFinalized(identifier);
         }
 
@@ -523,7 +523,7 @@ contract EmbalmerFacet {
 
         // Confirm that the sarcophagus is finalized by checking if there is an
         // arweaveTxId
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0) {
+        if (!LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusNotFinalized(identifier);
         }
 

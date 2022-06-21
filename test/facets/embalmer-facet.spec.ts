@@ -598,7 +598,7 @@ describe("Contract: EmbalmerFacet", () => {
           identifier
         );
 
-        expect(sarcophagusStored.arweaveTxId).to.equal(arweaveTxId);
+        expect(sarcophagusStored.arweaveTxIds).to.contain(arweaveTxId);
       });
 
       it("should transfer the storage fee to the arweave archaeologist", async () => {

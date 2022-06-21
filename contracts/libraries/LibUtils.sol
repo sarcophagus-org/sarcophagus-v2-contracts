@@ -264,4 +264,18 @@ library LibUtils {
 
         return s.sarcophagusArchaeologists[identifier][archaeologist];
     }
+
+    /// @notice Checks if a sarcophagus has been finalized by checking if it
+    /// contains any arweaveTxIds.
+    /// @param identifier the identifier of the sarcophagus
+    /// @return The boolean true if the sarcophagus has been finalized
+    function isSarcophagusFinalized(bytes32 identifier)
+        internal
+        view
+        returns (bool)
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        return s.sarcophaguses[identifier].arweaveTxIds.length > 0;
+    }
 }

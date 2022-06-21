@@ -97,7 +97,7 @@ contract ArchaeologistFacet {
         LibUtils.archaeologistUnwrappedCheck(identifier, msg.sender);
 
         // Comfirm that the sarcophagus has been finalized
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0) {
+        if (!LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusNotFinalized(identifier);
         }
 
