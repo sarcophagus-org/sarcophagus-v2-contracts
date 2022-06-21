@@ -4,7 +4,11 @@ import { expect } from "chai";
 import { BigNumber, ContractTransaction, Signature } from "ethers";
 import { ethers } from "hardhat";
 import { deployDiamond } from "../../scripts/deploy-diamond";
-import { ArchaeologistFacet, SarcoTokenMock } from "../../typechain";
+import {
+  ArchaeologistFacet,
+  SarcoTokenMock,
+  ViewStateFacet,
+} from "../../typechain";
 import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
 import { SignatureWithAccount } from "../../types";
 import { sign } from "../utils/helpers";
@@ -17,6 +21,7 @@ describe("Contract: EmbalmerFacet", () => {
 
   let embalmerFacet: EmbalmerFacet;
   let archaeologistFacet: ArchaeologistFacet;
+  let viewStateFacet: ViewStateFacet;
   let embalmer: SignerWithAddress;
   let archaeologists: SignerWithAddress[];
   let recipient: SignerWithAddress;
@@ -233,6 +238,11 @@ describe("Contract: EmbalmerFacet", () => {
         diamondAddress
       );
 
+      viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
+        diamondAddress
+      );
+
       await setupArchaeologists(
         archaeologistFacet,
         archaeologists,
@@ -442,7 +452,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if an archaeologist does not have enough free bond", async () => {
-        const freeBond = await archaeologistFacet.getFreeBond(
+        const freeBond = await viewStateFacet.getFreeBond(
           archaeologists[0].address
         );
 
@@ -528,6 +538,11 @@ describe("Contract: EmbalmerFacet", () => {
         "ArchaeologistFacet",
         diamondAddress
       );
+
+      viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
+        diamondAddress
+      );
     });
 
     // Set up the archaeologists
@@ -611,10 +626,10 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should lock up an archaeologist's free bond", async () => {
         // Get the free and cursed bond before and after, then compare them
-        const freeBondBefore = await archaeologistFacet.getFreeBond(
+        const freeBondBefore = await viewStateFacet.getFreeBond(
           archaeologists[1].address
         );
-        const cursedBondBefore = await archaeologistFacet.getCursedBond(
+        const cursedBondBefore = await viewStateFacet.getCursedBond(
           archaeologists[1].address
         );
 
@@ -630,10 +645,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxId
         );
 
-        const freeBondAfter = await archaeologistFacet.getFreeBond(
+        const freeBondAfter = await viewStateFacet.getFreeBond(
           archaeologists[1].address
         );
-        const cursedBondAfter = await archaeologistFacet.getCursedBond(
+        const cursedBondAfter = await viewStateFacet.getCursedBond(
           archaeologists[1].address
         );
 
@@ -651,10 +666,10 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should lock up the arweave archaeologist's free bond", async () => {
         // Get the free and cursed bond before and after, then compare them
-        const freeBondBefore = await archaeologistFacet.getFreeBond(
+        const freeBondBefore = await viewStateFacet.getFreeBond(
           arweaveArchaeologist.address
         );
-        const cursedBondBefore = await archaeologistFacet.getCursedBond(
+        const cursedBondBefore = await viewStateFacet.getCursedBond(
           arweaveArchaeologist.address
         );
 
@@ -670,10 +685,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxId
         );
 
-        const freeBondAfter = await archaeologistFacet.getFreeBond(
+        const freeBondAfter = await viewStateFacet.getFreeBond(
           arweaveArchaeologist.address
         );
-        const cursedBondAfter = await archaeologistFacet.getCursedBond(
+        const cursedBondAfter = await viewStateFacet.getCursedBond(
           arweaveArchaeologist.address
         );
 
@@ -987,6 +1002,11 @@ describe("Contract: EmbalmerFacet", () => {
         diamondAddress
       );
 
+      viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
+        diamondAddress
+      );
+
       await setupArchaeologists(
         archaeologistFacet,
         archaeologists,
@@ -1247,6 +1267,11 @@ describe("Contract: EmbalmerFacet", () => {
         diamondAddress
       );
 
+      viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
+        diamondAddress
+      );
+
       await setupArchaeologists(
         archaeologistFacet,
         archaeologists,
@@ -1388,6 +1413,11 @@ describe("Contract: EmbalmerFacet", () => {
         diamondAddress
       );
 
+      viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
+        diamondAddress
+      );
+
       await setupArchaeologists(
         archaeologistFacet,
         archaeologists,
@@ -1414,10 +1444,10 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should free the archaeologist's bond", async () => {
         // Get the free and cursed bond before
-        const freeBondBefore = await archaeologistFacet.getFreeBond(
+        const freeBondBefore = await viewStateFacet.getFreeBond(
           archaeologists[0].address
         );
-        const cursedBondBefore = await archaeologistFacet.getCursedBond(
+        const cursedBondBefore = await viewStateFacet.getCursedBond(
           archaeologists[0].address
         );
 
@@ -1439,10 +1469,10 @@ describe("Contract: EmbalmerFacet", () => {
         await embalmerFacet.burySarcophagus(identifier);
 
         // Get the free and cursed bond after bury
-        const freeBondAfter = await archaeologistFacet.getFreeBond(
+        const freeBondAfter = await viewStateFacet.getFreeBond(
           archaeologists[0].address
         );
-        const cursedBondAfter = await archaeologistFacet.getCursedBond(
+        const cursedBondAfter = await viewStateFacet.getCursedBond(
           archaeologists[0].address
         );
 

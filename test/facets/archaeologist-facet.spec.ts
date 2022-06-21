@@ -8,6 +8,7 @@ import {
   ArchaeologistFacet,
   EmbalmerFacet,
   SarcoTokenMock,
+  ViewStateFacet,
 } from "../../typechain";
 import { SignatureWithAccount } from "../../types";
 import {
@@ -18,6 +19,7 @@ import {
 
 describe("Contract: ArchaeologistFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
+  let viewStateFacet: ViewStateFacet;
   let archaeologist: SignerWithAddress;
   let sarcoToken: SarcoTokenMock;
   let archaeologistSarcBalance: BigNumber;
@@ -45,6 +47,11 @@ describe("Contract: ArchaeologistFacet", () => {
       diamondAddress
     );
 
+    viewStateFacet = await ethers.getContractAt(
+      "ViewStateFacet",
+      diamondAddress
+    );
+
     // Get the archaeologist's sarco token balance. This is used throughout the
     // tests.
     archaeologistSarcBalance = await sarcoToken.balanceOf(
@@ -66,9 +73,7 @@ describe("Contract: ArchaeologistFacet", () => {
       // Check that the transaction succeeded
       expect(receipt.status).to.equal(1);
 
-      const freeBond = await archaeologistFacet.getFreeBond(
-        archaeologist.address
-      );
+      const freeBond = await viewStateFacet.getFreeBond(archaeologist.address);
       expect(freeBond.toString()).to.equal("100");
 
       const sarcoTokenBalance = await sarcoToken.balanceOf(
@@ -162,9 +167,7 @@ describe("Contract: ArchaeologistFacet", () => {
       // Check that the transaction succeeded
       expect(receipt.status).to.equal(1);
 
-      const freeBond = await archaeologistFacet.getFreeBond(
-        archaeologist.address
-      );
+      const freeBond = await viewStateFacet.getFreeBond(archaeologist.address);
       expect(freeBond.toString()).to.equal("0");
 
       const sarcoTokenBalance = await sarcoToken.balanceOf(
@@ -412,7 +415,7 @@ describe("Contract: ArchaeologistFacet", () => {
       });
       it("should free up the archaeologist's cursed bond", async () => {
         // Get the cursed bond amount of the first archaeologist before initialize
-        const cursedBondAmountBefore = await archaeologistFacet.getCursedBond(
+        const cursedBondAmountBefore = await viewStateFacet.getCursedBond(
           archaeologists[0].address
         );
 
@@ -440,7 +443,7 @@ describe("Contract: ArchaeologistFacet", () => {
           .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
 
         // Get the cursed bond amount of the first archaeologist after unwrapping
-        const cursedBondAmountAfter = await archaeologistFacet.getCursedBond(
+        const cursedBondAmountAfter = await viewStateFacet.getCursedBond(
           archaeologists[0].address
         );
 
