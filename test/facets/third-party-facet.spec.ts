@@ -234,7 +234,7 @@ describe("Contract: ThirdPartyFacet", () => {
         });
     });
 
-    describe.only("accuse()", () => {
+    describe("accuse()", () => {
         beforeEach(_initialiseEnvironment);
 
         context("when m unencrypted shard are provided", async () => {

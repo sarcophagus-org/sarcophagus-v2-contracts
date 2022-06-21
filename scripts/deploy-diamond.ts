@@ -23,9 +23,7 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   await embalmerFacet.deployed();
 
   // Deploy ThirdParty Facet
-  const ThirdPartyFacet = await ethers.getContractFactory("ThirdPartyFacet", {
-    libraries: { LibUtils: libUtils.address },
-  });
+  const ThirdPartyFacet = await ethers.getContractFactory("ThirdPartyFacet");
   const thirdPartyFacet = await ThirdPartyFacet.deploy();
   await thirdPartyFacet.deployed();
 
