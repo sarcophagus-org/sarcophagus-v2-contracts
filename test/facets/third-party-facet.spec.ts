@@ -17,6 +17,7 @@ describe("Contract: ThirdPartyFacet", () => {
     let archaeologist1: SignerWithAddress;
     let archaeologist2: SignerWithAddress;
     let arweaveAchaeologist: SignerWithAddress;
+    let unaccusedArchaeologist: SignerWithAddress;
     let embalmer: SignerWithAddress;
     let receiverAddress: SignerWithAddress;
     let thirdParty: SignerWithAddress;
@@ -40,6 +41,7 @@ describe("Contract: ThirdPartyFacet", () => {
         formatBytes32String("unencryptedShard1"),
         formatBytes32String("unencryptedShard2"),
         formatBytes32String("unencryptedShard3"),
+        formatBytes32String("unencryptedShard4"),
     ];
 
     let hashedShards: string[];
@@ -48,6 +50,7 @@ describe("Contract: ThirdPartyFacet", () => {
         sarcoToken.transfer(archaeologist1.address, balance.add(648));
         sarcoToken.transfer(archaeologist2.address, balance.add(34));
         sarcoToken.transfer(arweaveAchaeologist.address, balance.add(768));
+        sarcoToken.transfer(unaccusedArchaeologist.address, balance.add(798));
         sarcoToken.transfer(embalmer.address, balance.add(23));
     }
 
@@ -67,6 +70,9 @@ describe("Contract: ThirdPartyFacet", () => {
         await sarcoToken
             .connect(arweaveAchaeologist)
             .approve(diamondAddress, ethers.constants.MaxUint256);
+        await sarcoToken
+            .connect(unaccusedArchaeologist)
+            .approve(diamondAddress, ethers.constants.MaxUint256);
     }
 
     const _setupArcheologists = async () => {
@@ -75,6 +81,7 @@ describe("Contract: ThirdPartyFacet", () => {
         await archaeologistFacet.connect(archaeologist1).depositFreeBond(freeBond.add(486))
         await archaeologistFacet.connect(archaeologist2).depositFreeBond(freeBond.add(978))
         await archaeologistFacet.connect(arweaveAchaeologist).depositFreeBond(freeBond.add(2332))
+        await archaeologistFacet.connect(unaccusedArchaeologist).depositFreeBond(freeBond.add(859))
     }
 
     const _setupTestSarcophagus = async () => {
@@ -95,6 +102,7 @@ describe("Contract: ThirdPartyFacet", () => {
             { archAddress: archaeologist1.address, storageFee, diggingFee, bounty, hashedShard: hashedShards[0] },
             { archAddress: archaeologist2.address, storageFee, diggingFee, bounty, hashedShard: hashedShards[1] },
             { archAddress: arweaveAchaeologist.address, storageFee, diggingFee, bounty, hashedShard: hashedShards[2] },
+            { archAddress: unaccusedArchaeologist.address, storageFee, diggingFee, bounty, hashedShard: hashedShards[3] },
         ];
 
         const tomorrow = (await time.latest()) + time.duration.days(sarcoResurrectionTimeInDays);
@@ -118,6 +126,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const signature1 = await sign(archaeologist1, sarcoId, "bytes32");
         const signature2 = await sign(archaeologist2, sarcoId, "bytes32");
+        const signature3 = await sign(unaccusedArchaeologist, sarcoId, "bytes32");
         const arweaveArchSig = await sign(arweaveAchaeologist, arweavetxId, "string");
 
 
@@ -126,6 +135,7 @@ describe("Contract: ThirdPartyFacet", () => {
             [
                 { account: archaeologist1.address, ...signature1 },
                 { account: archaeologist2.address, ...signature2 },
+                { account: unaccusedArchaeologist.address, ...signature3 },
             ],
             arweaveArchSig,
             arweavetxId,
@@ -142,6 +152,7 @@ describe("Contract: ThirdPartyFacet", () => {
         archaeologist2 = signers[4];
         arweaveAchaeologist = signers[5];
         receiverAddress = signers[6];
+        unaccusedArchaeologist = signers[7];
 
         ({ diamondAddress, sarcoToken } = await deployDiamond());
 
