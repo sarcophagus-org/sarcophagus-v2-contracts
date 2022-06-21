@@ -136,7 +136,11 @@ contract ThirdPartyFacet {
         }
 
         address[] memory bondedArchsAddresses = sarco.archaeologists;
-        address[] memory accusedArchs = new address[](unencryptedShards.length);
+
+        LibTypes.ArchaeologistStorage[]
+            memory accusedArchs = new LibTypes.ArchaeologistStorage[](
+                unencryptedShards.length
+            );
 
         // For each provided shard, search through each archaeologist's hashed shard
         // to see if the provided hard's hash matches one on storage. If so, flag that
@@ -154,7 +158,7 @@ contract ThirdPartyFacet {
                     ];
 
                 if (bondedArch.hashedShard == shardHash) {
-                    accusedArchs[pos++] = bondedArchsAddresses[j];
+                    accusedArchs[pos++] = bondedArch;
                     matchingHash = true;
                     break;
                 }
@@ -165,8 +169,35 @@ contract ThirdPartyFacet {
             }
         }
 
-        // Reaching here means accusal is good to go
-        s.sarcophaguses[sarcoId].state = LibTypes.SarcophagusState.Done;
+        // Reaching this point means accusal is good to go
+
+        uint256 diggingFeesToBeDistributed = 0;
+        uint256 bountyToBeDistributed = 0;
+        uint256 totalCursedBond = 0;
+
+        for (uint256 i = 0; i < accusedArchs.length; i++) {
+            uint256 cursedBond = LibBonds.calculateCursedBond(
+                accusedArchs[i].diggingFee,
+                accusedArchs[i].bounty
+            );
+
+            diggingFeesToBeDistributed += accusedArchs[i].diggingFee;
+            bountyToBeDistributed += accusedArchs[i].bounty;
+            totalCursedBond += cursedBond;
+        }
+
+        sarco = s.sarcophaguses[sarcoId];
+        _distributeLoot(
+            paymentAddress,
+            sarco,
+            totalCursedBond,
+            diggingFeesToBeDistributed,
+            bountyToBeDistributed
+        );
+
+        // _reimburseArchs(archs);
+
+        sarco.state = LibTypes.SarcophagusState.Done;
 
         emit LibEvents.AccuseArchaeologist(sarcoId, msg.sender, 0, 0);
     }
@@ -180,5 +211,17 @@ contract ThirdPartyFacet {
         returns (LibTypes.Sarcophagus memory)
     {
         return s.sarcophaguses[identifier];
+    }
+
+    /// @notice Gets data of the archaeologist bonded to the given sarco id
+    /// @param identifier the identifier of the sarcophagus
+    /// @param archaeologist Address of the archaeologist
+    /// @return The bonded archaeologist
+    function getArchaeologistData(bytes32 identifier, address archaeologist)
+        public
+        view
+        returns (LibTypes.ArchaeologistStorage memory)
+    {
+        return s.sarcophagusArchaeologists[identifier][archaeologist];
     }
 }
