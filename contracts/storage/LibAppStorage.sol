@@ -22,6 +22,9 @@ struct AppStorage {
     mapping(address => bytes32[]) embalmerSarcophaguses;
     mapping(address => bytes32[]) archaeologistSarcophaguses;
     mapping(address => bytes32[]) recipientSarcophaguses;
+    // Mapping of unencrypted shard hashes to archaeologists who are
+    // responsible for them.
+    mapping(bytes32 => address) hashedShardArchaeologists;
     // A mapping used to store an archaeologist's data on a sarcophagus.
     // Bounty, digging fees, storage fees, and the hashed shards of the
     // archaeologists all need to be stored per sarcophagus. This mapping of a
