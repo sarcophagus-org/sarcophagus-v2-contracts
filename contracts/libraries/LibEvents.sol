@@ -82,4 +82,12 @@ library LibEvents {
         uint256 cleanerBondReward,
         uint256 embalmerBondReward
     );
+
+    event FinalizeTransfer(
+        bytes32 identifier,
+        string arweaveTxId,
+        address oldArchaeologist,
+        address newArchaeologist,
+        bytes32 newHashedShard
+    );
 }

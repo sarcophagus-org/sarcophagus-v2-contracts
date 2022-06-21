@@ -52,6 +52,11 @@ library LibErrors {
 
     error SignatureListNotUnique();
 
+    error SignerNotArchaeologistOnSarcophagus(
+        bytes32 identifier,
+        address signer
+    );
+
     error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
 
     error TooLateToUnwrap(

@@ -148,6 +148,35 @@ library LibUtils {
         }
     }
 
+    /// @notice Returns the address that signed some data given the data and the
+    /// signature.
+    /// @param data the data to verify
+    /// @param v signature element
+    /// @param r signature element
+    /// @param s signature element
+    /// @return the address that signed the data
+    function recoverAddress(
+        bytes memory data,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal pure returns (address) {
+        // Hash the hash of the data payload
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32",
+                keccak256(abi.encode(data))
+            )
+        );
+
+        // Genearate the address from the signature.
+        // ecrecover should always return a valid address.
+        // It's highly recommended that a hash be passed into ecrecover
+        address account = ecrecover(messageHash, v, r, s);
+
+        return account;
+    }
+
     /**
      * @notice Reverts if the given resurrection time is not in the future
      * @param resurrectionTime the time to check against block.timestamp

@@ -138,4 +138,112 @@ contract ArchaeologistFacet {
 
         return true;
     }
+
+    /// @notice Finalizes a transfer of roles and responsibilities between two
+    /// archaeologists. This is to be called by the new archaeologist.
+    /// @param identifier The identifier of the sarcophagus
+    /// @param arweaveTxId The id of the arweave transaction where the new shard
+    /// @param oldArchSignature The signature of the old archaeologist
+    /// was uploaded
+    /// @param newHashedShard The hash of the new shard
+    /// @return The boolean true if the operation was successful
+    function finalizeTransfer(
+        bytes32 identifier,
+        string memory arweaveTxId,
+        LibTypes.Signature memory oldArchSignature,
+        bytes32 newHashedShard
+    ) external returns (bool) {
+        // Confirm that the sarcophagus exists
+        if (
+            s.sarcophaguses[identifier].state !=
+            LibTypes.SarcophagusState.Exists
+        ) {
+            revert LibErrors.SarcophagusDoesNotExist(identifier);
+        }
+
+        // Confirm that the sarcophagus has been finalized
+        if (!LibUtils.isSarcophagusFinalized(identifier)) {
+            revert LibErrors.SarcophagusNotFinalized(identifier);
+        }
+
+        // Confirm that the resurrection time is in the future
+        LibUtils.resurrectionInFuture(
+            s.sarcophaguses[identifier].resurrectionTime
+        );
+
+        // Get the address that signed the oldArchSignature
+        address oldArchaeologist = LibUtils.recoverAddress(
+            bytes(arweaveTxId),
+            oldArchSignature.v,
+            oldArchSignature.r,
+            oldArchSignature.s
+        );
+
+        // Confirm that the oldArchaeologist is an archaeologist on this
+        // sarcophagus. Failure here means that someone besides an archaeologist
+        // on the sarcophagus signed this message or that the data being signed
+        // was not the provided arweaveTxId.
+        if (!LibUtils.archaeologistExistsOnSarc(identifier, oldArchaeologist)) {
+            revert LibErrors.SignerNotArchaeologistOnSarcophagus(
+                identifier,
+                oldArchaeologist
+            );
+        }
+
+        // Update the list of archaeologist's on the sarcophagus
+        // For each archaeologist on the sarcophagus, find the old archaeologist
+        // and replace it with the sender's address.
+        for (
+            uint256 i = 0;
+            i < s.sarcophaguses[identifier].archaeologists.length;
+            i++
+        ) {
+            // Find the archaeologist that matches the old archaeologist's address
+            if (
+                s.sarcophaguses[identifier].archaeologists[i] ==
+                oldArchaeologist
+            ) {
+                s.sarcophaguses[identifier].archaeologists[i] = msg.sender;
+
+                // Once found there is no need to continue
+                break;
+            }
+        }
+
+        LibTypes.ArchaeologistStorage memory oldArchData = s
+            .sarcophagusArchaeologists[identifier][oldArchaeologist];
+        LibTypes.ArchaeologistStorage memory newArchData = s
+            .sarcophagusArchaeologists[identifier][oldArchaeologist];
+
+        // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
+        newArchData.diggingFee = oldArchData.diggingFee;
+        newArchData.bounty = oldArchData.bounty;
+        newArchData.hashedShard = newHashedShard;
+        newArchData.unencryptedShard = "";
+
+        // Set the old archaeologist's data in the sarcophagusArchaeologists
+        // mapping to their default values
+        oldArchData.diggingFee = 0;
+        oldArchData.bounty = 0;
+        oldArchData.hashedShard = 0;
+        oldArchData.unencryptedShard = "";
+
+        // Add the arweave transaction id to arweaveTxIds on the sarcophagus
+        s.sarcophaguses[identifier].arweaveTxIds.push(arweaveTxId);
+
+        // Free the old archaeologist's bond
+        LibBonds.freeArchaeologist(identifier, oldArchaeologist);
+
+        // Curse the new archaeologist's bond
+        LibBonds.curseArchaeologist(identifier, msg.sender);
+
+        // Emit an event
+        emit LibEvents.FinalizeTransfer(
+            identifier,
+            arweaveTxId,
+            oldArchaeologist,
+            msg.sender,
+            newHashedShard
+        );
+    }
 }
