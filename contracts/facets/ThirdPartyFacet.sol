@@ -12,49 +12,6 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ThirdPartyFacet {
     AppStorage internal s;
 
-    /**
-     * @notice Takes a sarcophagus's cursed bond, splits it in half, and sends
-     * to paymentAddress and embalmer
-     * @param paymentAddress payment address for the transaction caller
-     * @param sarc the sarcophagus to operate on
-     * @param totalCursedBond the sum of cursed bonds of all archs that failed to fulfil their duties
-     * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties
-     * @param totalBounty the sum of bounties that would have been paid to all archs that failed to fulfil their duties
-     * @return halfToSender the amount of SARCO token going to transaction
-     * sender
-     * @return halfToEmbalmer the amount of SARCO token going to embalmer
-     */
-    function _distributeLoot(
-        address paymentAddress,
-        LibTypes.Sarcophagus storage sarc,
-        uint256 totalCursedBond,
-        uint256 totalDiggingFee,
-        uint256 totalBounty
-    ) private returns (uint256, uint256) {
-        // split the sarcophagus's cursed bond into two halves
-        uint256 halfToEmbalmer = totalCursedBond / 2;
-        uint256 halfToSender = totalCursedBond - halfToEmbalmer;
-
-        // transfer the cursed half, plus bounty, plus digging fee to the
-        // embalmer
-        s.sarcoToken.transfer(
-            sarc.embalmer,
-            totalBounty + totalDiggingFee + halfToEmbalmer
-        );
-
-        // transfer the other half of the cursed bond to the transaction caller
-        s.sarcoToken.transfer(paymentAddress, halfToSender);
-
-        // This cannot be (easily) done here.
-        // Instead, it's done as defaulters are being aggregated in clean function
-        // LibBonds.decreaseCursedBond(
-        //     sarc.archaeologist,
-        //     sarc.currentCursedBond
-        // );
-
-        return (halfToSender, halfToEmbalmer);
-    }
-
     /// @notice Close a sarcophagus that has not been unwrapped before its resurrection window is passed
     /// @param identifier The sarcophagus ID
     /// @param paymentAddress The address to which rewards will be sent
@@ -121,10 +78,6 @@ contract ThirdPartyFacet {
         );
     }
 
-    function hashHelper(bytes32 data) public pure returns (bytes32) {
-        return keccak256(abi.encode(data));
-    }
-
     function accuse(
         bytes32 sarcoId,
         bytes32[] memory unencryptedShards,
@@ -147,7 +100,7 @@ contract ThirdPartyFacet {
         // archaeologist as accusable
         uint256 pos = 0;
         for (uint256 i = 0; i < unencryptedShards.length; i++) {
-            bytes32 shardHash = hashHelper(unencryptedShards[i]);
+            bytes32 shardHash = _hashHelper(unencryptedShards[i]);
             bool matchingHash = false;
 
             // Ew
@@ -202,7 +155,7 @@ contract ThirdPartyFacet {
         emit LibEvents.AccuseArchaeologist(sarcoId, msg.sender, 0, 0);
     }
 
-    /// @notice Gets a sarcophagus given its identifier and the
+    /// @notice Gets a sarcophagus given its identifier
     /// @param identifier the identifier of the sarcophagus
     /// @return The sarcophagus
     function getSarcophagus(bytes32 identifier)
@@ -223,5 +176,52 @@ contract ThirdPartyFacet {
         returns (LibTypes.ArchaeologistStorage memory)
     {
         return s.sarcophagusArchaeologists[identifier][archaeologist];
+    }
+
+    /**
+     * @notice Takes a sarcophagus's cursed bond, splits it in half, and sends
+     * to paymentAddress and embalmer
+     * @param paymentAddress payment address for the transaction caller
+     * @param sarc the sarcophagus to operate on
+     * @param totalCursedBond the sum of cursed bonds of all archs that failed to fulfil their duties
+     * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties
+     * @param totalBounty the sum of bounties that would have been paid to all archs that failed to fulfil their duties
+     * @return halfToSender the amount of SARCO token going to transaction
+     * sender
+     * @return halfToEmbalmer the amount of SARCO token going to embalmer
+     */
+    function _distributeLoot(
+        address paymentAddress,
+        LibTypes.Sarcophagus storage sarc,
+        uint256 totalCursedBond,
+        uint256 totalDiggingFee,
+        uint256 totalBounty
+    ) private returns (uint256, uint256) {
+        // split the sarcophagus's cursed bond into two halves
+        uint256 halfToEmbalmer = totalCursedBond / 2;
+        uint256 halfToSender = totalCursedBond - halfToEmbalmer;
+
+        // transfer the cursed half, plus bounty, plus digging fee to the
+        // embalmer
+        s.sarcoToken.transfer(
+            sarc.embalmer,
+            totalBounty + totalDiggingFee + halfToEmbalmer
+        );
+
+        // transfer the other half of the cursed bond to the transaction caller
+        s.sarcoToken.transfer(paymentAddress, halfToSender);
+
+        // This cannot be (easily) done here.
+        // Instead, it's done as defaulters are being aggregated in clean function
+        // LibBonds.decreaseCursedBond(
+        //     sarc.archaeologist,
+        //     sarc.currentCursedBond
+        // );
+
+        return (halfToSender, halfToEmbalmer);
+    }
+
+    function _hashHelper(bytes32 data) private pure returns (bytes32) {
+        return keccak256(abi.encode(data));
     }
 }
