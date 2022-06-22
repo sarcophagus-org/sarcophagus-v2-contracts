@@ -9,7 +9,7 @@ contract AdminFacet {
 
     /// @notice Withdraws the total protocol fee amount from the contract.
     /// @dev Can only be called by the owner.
-    function withdrawProtocolFee() external {
+    function withdrawProtocolFees() external {
         LibDiamond.enforceIsContractOwner();
 
         // Get the total protocol fees from storage

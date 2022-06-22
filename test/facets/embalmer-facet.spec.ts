@@ -1174,6 +1174,57 @@ describe("Contract: EmbalmerFacet", () => {
         ).to.equal(diggingFeeSum.add(BigNumber.from(protocolFee)).toString());
       });
 
+      it("should collect protocol fees", async () => {
+        const { identifier, signatures } = await createSarcophagusAndSignatures(
+          "shouldCollectProtocolFees",
+          archaeologists
+        );
+
+        await embalmerFacet.finalizeSarcophagus(
+          identifier,
+          signatures,
+          arweaveSignature,
+          arweaveTxId
+        );
+
+        // Define a new resurrection time one week in the future
+        const newResurrectionTime = BigNumber.from(
+          Date.now() + 60 * 60 * 24 * 7 * 1000
+        );
+
+        // Get the protocol fee amount
+        const protocolFee = await viewStateFacet.getProtocolFeeAmount();
+
+        // Get the total protocol fees before rewrap
+        const totalProtocolFeesBefore =
+          await viewStateFacet.getTotalProtocolFees();
+
+        // Get the balance of the contract before rewrap
+        const contractBalanceBefore = await sarcoToken.balanceOf(
+          diamondAddress
+        );
+
+        // Rewrap the sarcophagus
+        await embalmerFacet.rewrapSarcophagus(identifier, newResurrectionTime);
+
+        // Get the total protocol fees after rewrap
+        const totalProtocolFeesAfter =
+          await viewStateFacet.getTotalProtocolFees();
+
+        // Get the balance of the contract after rewrap
+        const contractBalanceAfter = await sarcoToken.balanceOf(diamondAddress);
+
+        // Check that the difference in total protocol fees is equal to the protocol fee amount
+        expect(
+          totalProtocolFeesAfter.sub(totalProtocolFeesBefore).toString()
+        ).to.equal(protocolFee.toString());
+
+        // Check that the difference in contract balance is equal to the protocol fee amount
+        expect(
+          contractBalanceAfter.sub(contractBalanceBefore).toString()
+        ).to.equal(protocolFee.toString());
+      });
+
       it("should emit an event", async () => {
         const { identifier, signatures } = await createSarcophagusAndSignatures(
           "shouldEmitAnEvent",
