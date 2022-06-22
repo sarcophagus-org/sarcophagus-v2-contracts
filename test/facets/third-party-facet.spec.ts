@@ -287,6 +287,11 @@ describe("Contract: ThirdPartyFacet", () => {
                 expect(paymentAccountBalanceAfter.gte(paymentAccountBalanceBefore.add(toAccuser))).to.be.true;
             });
 
+
+            it("Should reduce cursed bond on storage of accused archaeologists after distributing their value");
+
+            it("Should reduce cursed bond on storage of unaccused archaeologists after reimbursing them");
+
             it("Should distribute the bounties and digging fees of unaccused archaeologists back to them, and un-curse their associated bonds"
                 // , async () => {
                 //     const unaccusedArchaeologist1BalBefore = await sarcoToken.balanceOf(arweaveAchaeologist.address);

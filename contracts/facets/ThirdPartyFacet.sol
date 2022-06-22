@@ -132,6 +132,8 @@ contract ThirdPartyFacet {
                 diggingFeesToBeDistributed += badArch.diggingFee;
                 bountyToBeDistributed += badArch.bounty;
                 totalCursedBond += cursedBond;
+
+                LibBonds.decreaseCursedBond(matchingArchAddr, cursedBond);
             } else {
                 revert LibErrors.NotEnoughProof();
             }
