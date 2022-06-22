@@ -978,15 +978,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -996,12 +987,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         await archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         const archaeologistAddresses = (
           await viewStateFacet.getSarcophagus(identifier)
@@ -1021,15 +1007,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -1039,12 +1016,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         await archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         // Check that new archaeologist has some legitimate data
         const newArchaeologistData =
@@ -1079,15 +1051,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -1097,12 +1060,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         await archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         const arweaveTxIds = (await viewStateFacet.getSarcophagus(identifier))
           .arweaveTxIds;
@@ -1122,15 +1080,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -1149,12 +1098,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         await archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         // Get the old archaeologist's cursed bond after transfer
         const oldArchaeologistCursedBondAfter =
@@ -1193,15 +1137,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -1220,12 +1155,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         await archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         // Get the new archaeologist's cursed bond after transfer
         const newArchaeologistCursedBondAfter =
@@ -1260,15 +1190,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -1278,12 +1199,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         const tx = await archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         const receipt = await tx.wait();
         const events = receipt.events!;
@@ -1304,15 +1220,6 @@ describe("Contract: ArchaeologistFacet", () => {
           ["falseIdentifier"]
         );
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -1325,8 +1232,7 @@ describe("Contract: ArchaeologistFacet", () => {
           .finalizeTransfer(
             falseIdentifier,
             arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
+            oldArchaeologistSignature
           );
 
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
@@ -1340,15 +1246,6 @@ describe("Contract: ArchaeologistFacet", () => {
 
         // Skip the finalization step
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -1358,12 +1255,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         await expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
       });
@@ -1377,15 +1269,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           oldArchaeologist,
@@ -1397,12 +1280,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         await expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
       });
@@ -1416,15 +1294,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         // Use the old archaeologist to sign the arweaveTxId
         const oldArchaeologistSignature = await sign(
           signers[9],
@@ -1434,12 +1303,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         await expect(tx).to.be.revertedWith(
           "SignerNotArchaeologistOnSarcophagus"
@@ -1455,15 +1319,6 @@ describe("Contract: ArchaeologistFacet", () => {
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const newHashedShard = ethers.utils.solidityKeccak256(
-          ["string"],
-          [newArchaeologist.address]
-        );
-
         const fakeArweaveTxId =
           "somethingelsethatisnotthearweavetxidliksomerandomstringlikethisoneitcouldbedogbreedsorcarnameslikeschnauzerorporsche";
 
@@ -1476,12 +1331,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            identifier,
-            arweaveTxId,
-            oldArchaeologistSignature,
-            newHashedShard
-          );
+          .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         await expect(tx).to.be.revertedWith(
           "SignerNotArchaeologistOnSarcophagus"

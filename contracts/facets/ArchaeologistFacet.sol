@@ -146,13 +146,11 @@ contract ArchaeologistFacet {
     /// @param arweaveTxId The id of the arweave transaction where the new shard
     /// @param oldArchSignature The signature of the old archaeologist
     /// was uploaded
-    /// @param newHashedShard The hash of the new shard
     /// @return The boolean true if the operation was successful
     function finalizeTransfer(
         bytes32 identifier,
         string memory arweaveTxId,
-        LibTypes.Signature memory oldArchSignature,
-        bytes32 newHashedShard
+        LibTypes.Signature memory oldArchSignature
     ) external returns (bool) {
         // Confirm that the sarcophagus exists
         if (
@@ -222,7 +220,7 @@ contract ArchaeologistFacet {
         // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
         newArchData.diggingFee = oldArchData.diggingFee;
         newArchData.bounty = oldArchData.bounty;
-        newArchData.hashedShard = newHashedShard;
+        newArchData.hashedShard = oldArchData.hashedShard;
         newArchData.unencryptedShard = "";
 
         // Set the old archaeologist's data in the sarcophagusArchaeologists
@@ -243,8 +241,7 @@ contract ArchaeologistFacet {
             identifier,
             arweaveTxId,
             oldArchaeologist,
-            msg.sender,
-            newHashedShard
+            msg.sender
         );
     }
 }

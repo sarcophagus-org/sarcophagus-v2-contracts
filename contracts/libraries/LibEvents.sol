@@ -87,7 +87,6 @@ library LibEvents {
         bytes32 identifier,
         string arweaveTxId,
         address oldArchaeologist,
-        address newArchaeologist,
-        bytes32 newHashedShard
+        address newArchaeologist
     );
 }
