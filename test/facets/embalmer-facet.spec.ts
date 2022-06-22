@@ -1244,10 +1244,9 @@ describe("Contract: EmbalmerFacet", () => {
         );
 
         // Rewrap the sarcophagus
-        const tx = embalmerFacet.rewrapSarcophagus(
-          falseIdentifier,
-          newResurrectionTime
-        );
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .rewrapSarcophagus(falseIdentifier, newResurrectionTime);
 
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });

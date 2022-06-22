@@ -365,20 +365,20 @@ contract EmbalmerFacet {
         external
         returns (bool)
     {
-        // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
-            revert LibErrors.SenderNotEmbalmer(
-                msg.sender,
-                s.sarcophaguses[identifier].embalmer
-            );
-        }
-
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=
             LibTypes.SarcophagusState.Exists
         ) {
             revert LibErrors.SarcophagusDoesNotExist(identifier);
+        }
+
+        // Confirm that the sender is the embalmer
+        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+            revert LibErrors.SenderNotEmbalmer(
+                msg.sender,
+                s.sarcophaguses[identifier].embalmer
+            );
         }
 
         // Confirm that the sarcophagus is finalized
