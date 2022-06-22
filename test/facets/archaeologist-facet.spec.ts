@@ -407,9 +407,6 @@ describe("Contract: ArchaeologistFacet", () => {
       it("should store the unencrypted shard on the contract", async () => {
         // TODO: Write a view method to get the sarcophagus state
       });
-      it("should set the state of the sarcophagus to done", async () => {
-        // TODO: Write a view method to get the sarcophagus state
-      });
       it("should free up the archaeologist's cursed bond", async () => {
         // Get the cursed bond amount of the first archaeologist before initialize
         const cursedBondAmountBefore = await archaeologistFacet.getCursedBond(
