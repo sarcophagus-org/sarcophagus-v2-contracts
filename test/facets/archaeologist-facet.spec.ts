@@ -1332,14 +1332,161 @@ describe("Contract: ArchaeologistFacet", () => {
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
-      it("should revert if the sarcophagus has not been finalized");
-      it("should revert if the resurrection time has passed");
-      it(
-        "should revert if the provided signature is not from an archaeologist on the sarcophagus"
-      );
-      it(
-        "should revert if the provided signature is not a signature of the arweave transaction id"
-      );
+      it("should revert if the sarcophagus has not been finalized", async () => {
+        // Initialize the sarcophagus
+        const identifier = await initializeSarcophagus(
+          "sarcophagusNotFinalized"
+        );
+
+        // Skip the finalization step
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const newHashedShard = ethers.utils.solidityKeccak256(
+          ["string"],
+          [newArchaeologist.address]
+        );
+
+        // Use the old archaeologist to sign the arweaveTxId
+        const oldArchaeologistSignature = await sign(
+          oldArchaeologist,
+          arweaveTxId,
+          "string"
+        );
+
+        const tx = archaeologistFacet
+          .connect(newArchaeologist)
+          .finalizeTransfer(
+            identifier,
+            arweaveTxId,
+            oldArchaeologistSignature,
+            newHashedShard
+          );
+
+        await expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
+      });
+
+      it("should revert if the resurrection time has passed", async () => {
+        // Initialize the sarcophagus
+        const identifier = await initializeSarcophagus(
+          "resurrectionTimePassed"
+        );
+
+        // Finalize the sarcophagus
+        await finalizeSarcophagus(identifier);
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const newHashedShard = ethers.utils.solidityKeccak256(
+          ["string"],
+          [newArchaeologist.address]
+        );
+
+        // Use the old archaeologist to sign the arweaveTxId
+        const oldArchaeologistSignature = await sign(
+          oldArchaeologist,
+          arweaveTxId,
+          "string"
+        );
+
+        await increaseNextBlockTimestamp(604800 * 2);
+
+        const tx = archaeologistFacet
+          .connect(newArchaeologist)
+          .finalizeTransfer(
+            identifier,
+            arweaveTxId,
+            oldArchaeologistSignature,
+            newHashedShard
+          );
+
+        await expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
+      });
+
+      it("should revert if the provided signature is not from an archaeologist on the sarcophagus", async () => {
+        // Initialize the sarcophagus
+        const identifier = await initializeSarcophagus(
+          "signatureNotFromArchaeologist"
+        );
+
+        // Finalize the sarcophagus
+        await finalizeSarcophagus(identifier);
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const newHashedShard = ethers.utils.solidityKeccak256(
+          ["string"],
+          [newArchaeologist.address]
+        );
+
+        // Use the old archaeologist to sign the arweaveTxId
+        const oldArchaeologistSignature = await sign(
+          signers[9],
+          arweaveTxId,
+          "string"
+        );
+
+        const tx = archaeologistFacet
+          .connect(newArchaeologist)
+          .finalizeTransfer(
+            identifier,
+            arweaveTxId,
+            oldArchaeologistSignature,
+            newHashedShard
+          );
+
+        await expect(tx).to.be.revertedWith(
+          "SignerNotArchaeologistOnSarcophagus"
+        );
+      });
+
+      it("should revert if the provided signature is not a signature of the arweave transaction id", async () => {
+        // Initialize the sarcophagus
+        const identifier = await initializeSarcophagus(
+          "SignatureNotOfArweaveTxId"
+        );
+
+        // Finalize the sarcophagus
+        await finalizeSarcophagus(identifier);
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const newHashedShard = ethers.utils.solidityKeccak256(
+          ["string"],
+          [newArchaeologist.address]
+        );
+
+        const fakeArweaveTxId =
+          "somethingelsethatisnotthearweavetxidliksomerandomstringlikethisoneitcouldbedogbreedsorcarnameslikeschnauzerorporsche";
+
+        // Use the old archaeologist to sign the arweaveTxId
+        const oldArchaeologistSignature = await sign(
+          oldArchaeologist,
+          fakeArweaveTxId,
+          "string"
+        );
+
+        const tx = archaeologistFacet
+          .connect(newArchaeologist)
+          .finalizeTransfer(
+            identifier,
+            arweaveTxId,
+            oldArchaeologistSignature,
+            newHashedShard
+          );
+
+        await expect(tx).to.be.revertedWith(
+          "SignerNotArchaeologistOnSarcophagus"
+        );
+      });
     });
   });
 });

@@ -182,10 +182,9 @@ library LibUtils {
      * @param resurrectionTime the time to check against block.timestamp
      */
     function resurrectionInFuture(uint256 resurrectionTime) internal view {
-        require(
-            resurrectionTime > block.timestamp,
-            "resurrection time must be in the future"
-        );
+        if (resurrectionTime <= block.timestamp) {
+            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
+        }
     }
 
     /**
