@@ -124,6 +124,11 @@ contract EmbalmerFacet {
                     hashedShard: archaeologists[i].hashedShard
                 });
 
+            // Map the hashed shared to this archaeologist's address for easier referencing on accuse
+            s.hashedShardArchaeologists[
+                archaeologists[i].hashedShard
+            ] = archaeologists[i].archAddress;
+
             // Stores each archaeologist's bounty, digging fees, and unencrypted
             // shard in app storage per sarcophagus
             s.sarcophagusArchaeologists[identifier][

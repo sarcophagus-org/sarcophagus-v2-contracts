@@ -102,8 +102,6 @@ contract ThirdPartyFacet {
             revert LibErrors.NotEnoughProof();
         }
 
-        address[] memory bondedArchsAddresses = sarco.archaeologists;
-
         LibTypes.ArchaeologistStorage[]
             memory accusedArchs = new LibTypes.ArchaeologistStorage[](
                 unencryptedShards.length
@@ -115,23 +113,17 @@ contract ThirdPartyFacet {
         uint256 pos = 0;
         for (uint256 i = 0; i < unencryptedShards.length; i++) {
             bytes32 shardHash = _hashHelper(unencryptedShards[i]);
-            bool matchingHash = false;
 
-            // Ew
-            for (uint256 j = 0; j < bondedArchsAddresses.length; j++) {
-                LibTypes.ArchaeologistStorage storage bondedArch = s
-                    .sarcophagusArchaeologists[sarcoId][
-                        bondedArchsAddresses[j]
-                    ];
+            address matchingArchaeologist = s.hashedShardArchaeologists[
+                shardHash
+            ];
 
-                if (bondedArch.hashedShard == shardHash) {
-                    accusedArchs[pos++] = bondedArch;
-                    matchingHash = true;
-                    break;
-                }
-            }
+            LibTypes.ArchaeologistStorage storage bondedArch = s
+                .sarcophagusArchaeologists[sarcoId][matchingArchaeologist];
 
-            if (!matchingHash) {
+            if (bondedArch.hashedShard == shardHash) {
+                accusedArchs[pos++] = bondedArch;
+            } else {
                 revert LibErrors.NotEnoughProof();
             }
         }
@@ -153,7 +145,6 @@ contract ThirdPartyFacet {
             totalCursedBond += cursedBond;
         }
 
-        sarco = s.sarcophaguses[sarcoId];
         (
             uint256 accuserBondReward,
             uint256 embalmerBondReward
