@@ -94,6 +94,10 @@ contract ThirdPartyFacet {
         address paymentAddress
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
+        if (sarco.resurrectionTime < block.timestamp) {
+            revert LibErrors.SarcophagusIsUnwrappable();
+        }
+
         if (unencryptedShards.length < sarco.minShards) {
             revert LibErrors.NotEnoughProof();
         }

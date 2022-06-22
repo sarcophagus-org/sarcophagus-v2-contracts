@@ -313,6 +313,13 @@ describe("Contract: ThirdPartyFacet", () => {
                 expect(cursedBond1Before.gte(cursedBond1After)).to.be.true;
                 expect(cursedBond2Before.gte(cursedBond2After)).to.be.true;
             });
+
+        it("Should revert with SarcophagusIsUnwrappable() if called after resurrection time has passed", async () => {
+            // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
+            await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+
+            const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+            await expect(tx).to.be.revertedWith("SarcophagusIsUnwrappable()");
         });
 
         it("Should revert with NotEnoughProof() if less than m unencrypted shards are provided", async () => {
