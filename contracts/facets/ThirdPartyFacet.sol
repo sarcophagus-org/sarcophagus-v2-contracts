@@ -80,7 +80,7 @@ contract ThirdPartyFacet {
 
     function accuse(
         bytes32 sarcoId,
-        bytes32[] memory unencryptedShards,
+        bytes[] memory unencryptedShards,
         address paymentAddress
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
@@ -248,7 +248,7 @@ contract ThirdPartyFacet {
         return (halfToSender, halfToEmbalmer);
     }
 
-    function _hashHelper(bytes32 data) private pure returns (bytes32) {
-        return keccak256(abi.encode(data));
+    function _hashHelper(bytes memory data) private pure returns (bytes32) {
+        return keccak256(data);
     }
 }
