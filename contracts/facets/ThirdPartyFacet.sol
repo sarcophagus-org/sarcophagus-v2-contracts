@@ -94,6 +94,7 @@ contract ThirdPartyFacet {
         address paymentAddress
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
+
         if (sarco.resurrectionTime < block.timestamp) {
             revert LibErrors.SarcophagusIsUnwrappable();
         }
@@ -102,47 +103,38 @@ contract ThirdPartyFacet {
             revert LibErrors.NotEnoughProof();
         }
 
-        LibTypes.ArchaeologistStorage[]
-            memory accusedArchs = new LibTypes.ArchaeologistStorage[](
-                unencryptedShards.length
-            );
+        address[] memory accusedArchAddresses = new address[](
+            unencryptedShards.length
+        );
 
-        // For each provided shard, search through each archaeologist's hashed shard
-        // to see if the provided hard's hash matches one on storage. If so, flag that
+        // For each provided shard, check if its hash matches one on storage. If so, flag that
         // archaeologist as accusable
+        uint256 diggingFeesToBeDistributed = 0;
+        uint256 bountyToBeDistributed = 0;
+        uint256 totalCursedBond = 0;
         uint256 pos = 0;
         for (uint256 i = 0; i < unencryptedShards.length; i++) {
             bytes32 shardHash = _hashHelper(unencryptedShards[i]);
 
-            address matchingArchaeologist = s.hashedShardArchaeologists[
-                shardHash
-            ];
+            address matchingArchAddr = s.hashedShardArchaeologists[shardHash];
 
-            LibTypes.ArchaeologistStorage storage bondedArch = s
-                .sarcophagusArchaeologists[sarcoId][matchingArchaeologist];
+            LibTypes.ArchaeologistStorage storage badArch = s
+                .sarcophagusArchaeologists[sarcoId][matchingArchAddr];
 
-            if (bondedArch.hashedShard == shardHash) {
-                accusedArchs[pos++] = bondedArch;
+            if (badArch.hashedShard == shardHash) {
+                accusedArchAddresses[pos++] = matchingArchAddr;
+
+                uint256 cursedBond = LibBonds.calculateCursedBond(
+                    badArch.diggingFee,
+                    badArch.bounty
+                );
+
+                diggingFeesToBeDistributed += badArch.diggingFee;
+                bountyToBeDistributed += badArch.bounty;
+                totalCursedBond += cursedBond;
             } else {
                 revert LibErrors.NotEnoughProof();
             }
-        }
-
-        // Reaching this point means accusal is good to go
-
-        uint256 diggingFeesToBeDistributed = 0;
-        uint256 bountyToBeDistributed = 0;
-        uint256 totalCursedBond = 0;
-
-        for (uint256 i = 0; i < accusedArchs.length; i++) {
-            uint256 cursedBond = LibBonds.calculateCursedBond(
-                accusedArchs[i].diggingFee,
-                accusedArchs[i].bounty
-            );
-
-            diggingFeesToBeDistributed += accusedArchs[i].diggingFee;
-            bountyToBeDistributed += accusedArchs[i].bounty;
-            totalCursedBond += cursedBond;
         }
 
         (
