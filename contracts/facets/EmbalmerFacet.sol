@@ -73,7 +73,7 @@ contract EmbalmerFacet {
             revert LibErrors.NoArchaeologistsProvided();
         }
 
-        // Confirm that minShards to less than the number of archaeologists
+        // Confirm that minShards is less than the number of archaeologists
         if (minShards > archaeologists.length) {
             revert LibErrors.MinShardsGreaterThanArchaeologists(minShards);
         }
@@ -94,11 +94,6 @@ contract EmbalmerFacet {
         // sarcophagus object.
         uint256 storageFee = 0;
 
-        // We need to iterate over every archaeologist to
-        //   - lock up archaeologist's free bond
-        //   - get the storage fee from the arweave archaeologist
-        //   - store each archaeologist's bounty, digging fee, and unencrypted shard in app storage
-        //   - get the archaeologist's address to store on the sarcophagus
         for (uint256 i = 0; i < archaeologists.length; i++) {
             // Confirm that the archaeologist list is unique. This is done by
             // checking that the archaeologist does not already exist from
@@ -400,7 +395,7 @@ contract EmbalmerFacet {
 
         // Confirm that the new resurrection time is in the future
         if (resurrectionTime <= block.timestamp) {
-            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
+            revert LibErrors.NewResurrectionTimeInPast(resurrectionTime);
         }
 
         // Calculate the new resurrectionWindow, which is the amount of time in

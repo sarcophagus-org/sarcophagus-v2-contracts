@@ -73,6 +73,10 @@ contract ArchaeologistFacet {
         bytes32 identifier,
         bytes memory unencryptedShard
     ) external returns (bool) {
+        // Confirm that the archaeologist has not already unwrapped by checking
+        // if the unencryptedShard is empty
+        LibUtils.archaeologistUnwrappedCheck(identifier, msg.sender);
+
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=
@@ -92,9 +96,6 @@ contract ArchaeologistFacet {
             s.sarcophaguses[identifier].resurrectionTime,
             s.sarcophaguses[identifier].resurrectionWindow
         );
-
-        // Confirm that the archaeologist has not already unwrapped by checking if the unencryptedShard is empty
-        LibUtils.archaeologistUnwrappedCheck(identifier, msg.sender);
 
         // Comfirm that the sarcophagus has been finalized
         if (!LibUtils.isSarcophagusFinalized(identifier)) {
@@ -210,9 +211,12 @@ contract ArchaeologistFacet {
             }
         }
 
-        LibTypes.ArchaeologistStorage memory oldArchData = s
-            .sarcophagusArchaeologists[identifier][oldArchaeologist];
-        LibTypes.ArchaeologistStorage memory newArchData = s
+        // Free the old archaeologist's bond
+        LibBonds.freeArchaeologist(identifier, oldArchaeologist);
+
+        LibTypes.ArchaeologistStorage storage newArchData = s
+            .sarcophagusArchaeologists[identifier][msg.sender];
+        LibTypes.ArchaeologistStorage storage oldArchData = s
             .sarcophagusArchaeologists[identifier][oldArchaeologist];
 
         // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
@@ -230,9 +234,6 @@ contract ArchaeologistFacet {
 
         // Add the arweave transaction id to arweaveTxIds on the sarcophagus
         s.sarcophaguses[identifier].arweaveTxIds.push(arweaveTxId);
-
-        // Free the old archaeologist's bond
-        LibBonds.freeArchaeologist(identifier, oldArchaeologist);
 
         // Curse the new archaeologist's bond
         LibBonds.curseArchaeologist(identifier, msg.sender);

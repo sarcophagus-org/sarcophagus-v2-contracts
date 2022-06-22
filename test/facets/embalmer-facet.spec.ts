@@ -93,7 +93,7 @@ describe("Contract: EmbalmerFacet", () => {
         recipient.address,
         resurrectionTime,
         canBeTransferred,
-        minShards || 3
+        minShards === 0 ? 0 : minShards || 3
       );
 
     return tx;
@@ -252,6 +252,11 @@ describe("Contract: EmbalmerFacet", () => {
       );
     });
 
+    before(async () => {
+      // Give the embalmer some sarco tokens
+      await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
+    });
+
     context("Successful initialization", () => {
       it("should successfully initialize sarcophagus", async () => {
         const identifier = ethers.utils.solidityKeccak256(
@@ -378,7 +383,7 @@ describe("Contract: EmbalmerFacet", () => {
           archaeologists
         );
 
-        expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
+        await expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
       });
 
       it("should revert if no archaeologists are provided", async () => {
@@ -394,11 +399,12 @@ describe("Contract: EmbalmerFacet", () => {
           []
         );
 
-        expect(tx).to.be.revertedWith("NoArchaeologistsProvided");
+        await expect(tx).to.be.revertedWith("NoArchaeologistsProvided");
       });
 
       it("should revert if the list of archaeologists is not unique", async () => {
         const nonUniqueArchaeologists = archaeologists.slice();
+        nonUniqueArchaeologists.pop();
         const firstArchaeologist = archaeologists[0];
         nonUniqueArchaeologists.push(firstArchaeologist);
 
@@ -414,7 +420,7 @@ describe("Contract: EmbalmerFacet", () => {
           nonUniqueArchaeologists
         );
 
-        expect(tx).to.be.revertedWith("ArchaeologistListNotUnique");
+        await expect(tx).to.be.revertedWith("ArchaeologistListNotUnique");
       });
 
       it("should revert if minShards is greater than the number of archaeologists", async () => {
@@ -431,7 +437,9 @@ describe("Contract: EmbalmerFacet", () => {
           10
         );
 
-        expect(tx).to.be.revertedWith("MinShardsGreaterThanArchaeologists");
+        await expect(tx).to.be.revertedWith(
+          "MinShardsGreaterThanArchaeologists"
+        );
       });
 
       it("should revert if minShards is 0", async () => {
@@ -448,38 +456,7 @@ describe("Contract: EmbalmerFacet", () => {
           0
         );
 
-        expect(tx).to.be.revertedWith("MinShardsZero");
-      });
-
-      it("should revert if an archaeologist does not have enough free bond", async () => {
-        const freeBond = await viewStateFacet.getFreeBond(
-          archaeologists[0].address
-        );
-
-        // Connect with the first archaeologist and withdraw the freeBond amount
-        // The first archaeologist's free bond balance should now be 0
-        await archaeologistFacet
-          .connect(archaeologists[0])
-          .withdrawFreeBond(
-            archaeologists[0].address,
-            freeBond,
-            sarcoToken.address
-          );
-
-        const identifier = ethers.utils.solidityKeccak256(
-          ["string"],
-          ["notEnoughFreeBond"]
-        );
-
-        const tx = initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists
-        );
-
-        // Initalize the sarcophagus and expect it to revert
-        expect(tx).to.be.revertedWith("NotEnoughFreeBond");
+        await expect(tx).to.be.revertedWith("MinShardsZero");
       });
 
       it("should revert if the arweave archaeologist is not included in the list of archaeologists", async () => {
@@ -499,18 +476,20 @@ describe("Contract: EmbalmerFacet", () => {
         const canBeTransferred = true;
 
         // Create a sarcophagus where the arweave archaeologist is not included in the list of archaeologists
-        const tx = embalmerFacet.initializeSarcophagus(
-          "Sarcophagus Test",
-          identifier,
-          archaeologistObjects,
-          signers[8].address,
-          recipient.address,
-          resurrectionTimeInFuture,
-          canBeTransferred,
-          3
-        );
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            "Sarcophagus Test",
+            identifier,
+            archaeologistObjects,
+            signers[8].address,
+            recipient.address,
+            resurrectionTimeInFuture,
+            canBeTransferred,
+            3
+          );
 
-        expect(tx).to.be.revertedWith("ArweaveArchaeologistNotInList");
+        await expect(tx).to.be.revertedWith("ArweaveArchaeologistNotInList");
       });
     });
   });
@@ -764,12 +743,14 @@ describe("Contract: EmbalmerFacet", () => {
           fakeIdentifier
         );
 
-        const tx = embalmerFacet.finalizeSarcophagus(
-          fakeIdentifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .finalizeSarcophagus(
+            fakeIdentifier,
+            signatures,
+            arweaveSignature,
+            arweaveTxId
+          );
 
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
@@ -1248,7 +1229,7 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(signers[8])
           .rewrapSarcophagus(identifier, newResurrectionTime);
 
-        expect(tx).to.be.revertedWith("SenderNotEmbalmer");
+        await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
       });
 
       it("should revert if the sarcophagus does not exist", async () => {
@@ -1268,7 +1249,7 @@ describe("Contract: EmbalmerFacet", () => {
           newResurrectionTime
         );
 
-        expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
       it("should revert if the sarcophagus is not finalized", async () => {
@@ -1288,7 +1269,7 @@ describe("Contract: EmbalmerFacet", () => {
           newResurrectionTime
         );
 
-        expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
+        await expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
       });
 
       it("should revert if the new resurrection time is not in the future", async () => {
@@ -1315,7 +1296,7 @@ describe("Contract: EmbalmerFacet", () => {
           newResurrectionTime
         );
 
-        expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
+        await expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
       });
     });
   });
@@ -1360,7 +1341,9 @@ describe("Contract: EmbalmerFacet", () => {
           archaeologists
         );
 
-        const tx = await embalmerFacet.cancelSarcophagus(identifier);
+        const tx = await embalmerFacet
+          .connect(embalmer)
+          .cancelSarcophagus(identifier);
 
         const receipt = await tx.wait();
 
@@ -1373,7 +1356,7 @@ describe("Contract: EmbalmerFacet", () => {
           archaeologists
         );
 
-        await embalmerFacet.cancelSarcophagus(identifier);
+        await embalmerFacet.connect(embalmer).cancelSarcophagus(identifier);
 
         const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
 
@@ -1389,7 +1372,7 @@ describe("Contract: EmbalmerFacet", () => {
           archaeologists
         );
 
-        embalmerFacet.cancelSarcophagus(identifier);
+        embalmerFacet.connect(embalmer).cancelSarcophagus(identifier);
 
         // Get the sarco balance of the embalmer after canceling the sarcophagus
         const sarcoBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
@@ -1405,7 +1388,9 @@ describe("Contract: EmbalmerFacet", () => {
           archaeologists
         );
 
-        const tx = await embalmerFacet.cancelSarcophagus(identifier);
+        const tx = await embalmerFacet
+          .connect(embalmer)
+          .cancelSarcophagus(identifier);
 
         const receipt = await tx.wait();
 
@@ -1430,7 +1415,7 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(archaeologists[0])
           .cancelSarcophagus(identifier);
 
-        expect(tx).to.be.revertedWith("SenderIsNotEmbalmer");
+        await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
       });
 
       it("should revert if the sarcophagus does not exist", async () => {
@@ -1439,9 +1424,11 @@ describe("Contract: EmbalmerFacet", () => {
           ["falseIdentifier"]
         );
 
-        const tx = embalmerFacet.cancelSarcophagus(falseIdentifier);
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .cancelSarcophagus(falseIdentifier);
 
-        expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
       it("should revert if the sarcohaphagus is already finalized", async () => {
@@ -1467,7 +1454,7 @@ describe("Contract: EmbalmerFacet", () => {
 
         const tx = embalmerFacet.cancelSarcophagus(identifier);
 
-        expect(tx).to.be.revertedWith("SarcophagusAlreadyFinalized");
+        await expect(tx).to.be.revertedWith("SarcophagusAlreadyFinalized");
       });
     });
   });
@@ -1727,7 +1714,7 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(signers[8])
           .burySarcophagus(identifier);
 
-        expect(tx).to.be.revertedWith("SenderNotEmbalmer");
+        await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
       });
 
       it("should revert if the sarcophagus does not exist", async () => {
@@ -1738,7 +1725,7 @@ describe("Contract: EmbalmerFacet", () => {
 
         const tx = embalmerFacet.burySarcophagus(falseIdentifier);
 
-        expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
       it("should revert if the sarcophagus is not finalized", async () => {
@@ -1751,7 +1738,7 @@ describe("Contract: EmbalmerFacet", () => {
         // Bury the sarcophagus
         const tx = embalmerFacet.burySarcophagus(identifier);
 
-        expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
+        await expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
       });
     });
   });

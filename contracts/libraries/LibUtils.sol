@@ -181,7 +181,7 @@ library LibUtils {
      * @notice Reverts if the given resurrection time is not in the future
      * @param resurrectionTime the time to check against block.timestamp
      */
-    function resurrectionInFuture(uint256 resurrectionTime) public view {
+    function resurrectionInFuture(uint256 resurrectionTime) internal view {
         require(
             resurrectionTime > block.timestamp,
             "resurrection time must be in the future"
