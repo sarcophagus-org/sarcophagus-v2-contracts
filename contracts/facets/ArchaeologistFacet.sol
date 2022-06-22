@@ -120,7 +120,6 @@ contract ArchaeologistFacet {
             .unencryptedShard = unencryptedShard;
 
         // Set the sarcophagus state as done
-        // TODO: remove this
         s.sarcophaguses[identifier].state = LibTypes.SarcophagusState.Done;
 
         // Free the archaeologist's cursed bond
