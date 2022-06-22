@@ -78,6 +78,16 @@ contract ThirdPartyFacet {
         );
     }
 
+    /**
+     * @notice Accuse archaeologoists of bad behaviour, by providing proof of leaked
+     * unencrypted shards before a sarcophagus is ready to be unwrapped. The minumum
+     * number of shards required to unwrap the sarcophagus should be provided for a
+     * a successful accusal.
+     * of the cursed bonds of the archs back to them, and un-curses their bonds.
+     * @param sarcoId The identifier of the sarcophagus having leaked shards
+     * @param unencryptedShards At least 'm' unencrypted shards as proof of bad behaviour
+     * @param paymentAddress the address to which rewards should be sent if successful
+     */
     function accuse(
         bytes32 sarcoId,
         bytes[] memory unencryptedShards,
