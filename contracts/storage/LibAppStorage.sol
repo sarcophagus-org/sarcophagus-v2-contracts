@@ -10,6 +10,8 @@ struct AppStorage {
     // The amount to be taken from the embalmer each time a protocol fee should
     // be collected
     uint256 protocolFee;
+    // The amount of protocol fees currently stored on the contract
+    uint256 totalProtocolFees;
     // Each archaeologist's total free and cursed bonds
     mapping(address => uint256) freeBonds;
     mapping(address => uint256) cursedBonds;

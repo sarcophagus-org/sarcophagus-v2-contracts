@@ -7,6 +7,18 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ViewStateFacet {
     AppStorage internal s;
 
+    /// @notice Gets the total protocol fees from the contract.
+    /// @return The total protocol fees
+    function getTotalProtocolFees() external view returns (uint256) {
+        return s.totalProtocolFees;
+    }
+
+    /// @notice Get the protocol fee amount from the contract.
+    /// @return The protocol fee amount
+    function getProtocolFeeAmount() external view returns (uint256) {
+        return s.protocolFee;
+    }
+
     /// @notice Returns the amount of free bond stored in the contract for an
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose
