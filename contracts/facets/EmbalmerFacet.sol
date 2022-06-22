@@ -429,8 +429,14 @@ contract EmbalmerFacet {
             diggingFeeSum += archaeologistData.diggingFee;
         }
 
+        uint256 protocolFee = LibUtils.calculateProtocolFee();
+
         // Transfer the new digging fees from the embalmer to the sarcophagus contract
-        s.sarcoToken.transferFrom(msg.sender, address(this), diggingFeeSum);
+        s.sarcoToken.transferFrom(
+            msg.sender,
+            address(this),
+            diggingFeeSum + protocolFee
+        );
 
         // Emit an event
         emit LibEvents.RewrapSarcophagus(

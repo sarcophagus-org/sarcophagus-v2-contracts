@@ -1126,7 +1126,7 @@ describe("Contract: EmbalmerFacet", () => {
         }
       });
 
-      it("should transfer the digging fee sum from the embalmer to the contract", async () => {
+      it("should transfer the digging fee sum plus the protocol fee from the embalmer to the contract", async () => {
         const { identifier, signatures } = await createSarcophagusAndSignatures(
           "shouldTransferFeesFromEmbalmer",
           archaeologists
@@ -1163,10 +1163,15 @@ describe("Contract: EmbalmerFacet", () => {
           BigNumber.from(0)
         );
 
+        const protocolFee = process.env.PROTOCOL_FEE;
+        if (!protocolFee) {
+          throw new Error("PROTOCOL_FEE environment variable not set");
+        }
+
         // Check that the difference in balances is equal to the sum of digging fees
         expect(
           embalmerSarcoBalanceBefore.sub(embalmerSarcoBalanceAfter).toString()
-        ).to.equal(diggingFeeSum.toString());
+        ).to.equal(diggingFeeSum.add(BigNumber.from(protocolFee)).toString());
       });
 
       it("should emit an event", async () => {

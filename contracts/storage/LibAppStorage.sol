@@ -7,6 +7,9 @@ import "../libraries/LibTypes.sol";
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
     IERC20 sarcoToken;
+    // The amount to be taken from the embalmer each time a protocol fee should
+    // be collected
+    uint256 protocolFee;
     // Each archaeologist's total free and cursed bonds
     mapping(address => uint256) freeBonds;
     mapping(address => uint256) cursedBonds;

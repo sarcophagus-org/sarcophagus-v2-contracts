@@ -306,4 +306,14 @@ library LibUtils {
 
         return s.sarcophaguses[identifier].arweaveTxIds.length > 0;
     }
+
+    /// @notice Calculates the protocol fees to be taken from the embalmer.
+    /// @return The protocol fees amount
+    function calculateProtocolFee() internal view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        // TODO: Need feedback from the community to determine how protocol fees should be calculated
+        // Just returns a constant value defined in an env file
+        return s.protocolFee;
+    }
 }
