@@ -13,54 +13,30 @@ contract ArchaeologistFacet {
     AppStorage internal s;
 
     /// @notice Deposits an archaeologist's free bond to the contract.
-    /// @param archaeologist The address of the archaeologist whose
-    /// free bond is being deposited
     /// @param amount The amount to deposit
-    /// @param sarcoToken the sarcophagus ERC20 token SARC
-    function depositFreeBond(
-        address archaeologist,
-        uint256 amount,
-        IERC20 sarcoToken
-    ) external {
-        // Confirm that sender is the archaeologist
-        if (msg.sender != archaeologist) {
-            revert LibErrors.SenderNotArch(msg.sender, archaeologist);
-        }
-
+    function depositFreeBond(uint256 amount) external {
         // Increase the archaeolgist's free bond in app storage
-        LibBonds.increaseFreeBond(archaeologist, amount);
+        LibBonds.increaseFreeBond(msg.sender, amount);
 
         // Transfer the amount of sarcoToken from the archaeologist to the contract
-        sarcoToken.transferFrom(msg.sender, address(this), amount);
+        s.sarcoToken.transferFrom(msg.sender, address(this), amount);
 
         // Emit an event
-        emit LibEvents.DepositFreeBond(archaeologist, amount);
+        emit LibEvents.DepositFreeBond(msg.sender, amount);
     }
 
     /// @notice Withdraws an archaeologist's free bond from the contract.
-    /// @param archaeologist The address of the archaeologist whose
-    /// free bond is being withdrawn
     /// @param amount The amount to withdraw
-    /// @param sarcoToken the sarcophagus ERC20 token SARC
-    function withdrawFreeBond(
-        address archaeologist,
-        uint256 amount,
-        IERC20 sarcoToken
-    ) external {
-        // Confirm that sender is the archaeologist
-        if (msg.sender != archaeologist) {
-            revert LibErrors.SenderNotArch(msg.sender, archaeologist);
-        }
-
+    function withdrawFreeBond(uint256 amount) external {
         // Decrease the archaeologist's free bond amount.
         // Reverts if there is not enough free bond on the contract.
-        LibBonds.decreaseFreeBond(archaeologist, amount);
+        LibBonds.decreaseFreeBond(msg.sender, amount);
 
         // Transfer the amount of sarcoToken to the archaeologist
-        sarcoToken.transfer(msg.sender, amount);
+        s.sarcoToken.transfer(msg.sender, amount);
 
         // Emit an event
-        emit LibEvents.WithdrawFreeBond(archaeologist, amount);
+        emit LibEvents.WithdrawFreeBond(msg.sender, amount);
     }
 
     /// @notice Unwraps the sarcophagus.
@@ -118,14 +94,11 @@ contract ArchaeologistFacet {
         .sarcophagusArchaeologists[identifier][msg.sender]
             .unencryptedShard = unencryptedShard;
 
-        // Set the sarcophagus state as done
-        s.sarcophaguses[identifier].state = LibTypes.SarcophagusState.Done;
-
         // Free the archaeologist's cursed bond
         LibBonds.freeArchaeologist(identifier, msg.sender);
 
         // Save the successful sarcophagus against the archaeologist
-        s.archaeologistSuccesses[msg.sender].push(identifier);
+        s.archaeologistSuccesses[msg.sender][identifier] = true;
 
         // Transfer the bounty and digging fee to the archaeologist
         s.sarcoToken.transfer(

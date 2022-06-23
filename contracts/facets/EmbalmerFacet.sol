@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 import "../libraries/LibEvents.sol";
@@ -128,6 +127,11 @@ contract EmbalmerFacet {
                     hashedShard: archaeologists[i].hashedShard,
                     unencryptedShard: ""
                 });
+
+            // Map the hashed shared to this archaeologist's address for easier referencing on accuse
+            s.hashedShardArchaeologists[
+                archaeologists[i].hashedShard
+            ] = archaeologists[i].archAddress;
 
             // Stores each archaeologist's bounty, digging fees, and unencrypted
             // shard in app storage per sarcophagus

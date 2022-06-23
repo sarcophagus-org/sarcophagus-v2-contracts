@@ -41,8 +41,6 @@ library LibErrors {
 
     error SarcophagusDoesNotExist(bytes32 identifier);
 
-    error SenderNotArch(address sender, address arch);
-
     error SenderNotEmbalmer(address sender, address embalmer);
 
     error SignatureFromWrongAccount(
@@ -52,6 +50,15 @@ library LibErrors {
 
     error SignatureListNotUnique();
 
+    // Used when an attempt is made to send an accusation after the resurrection time has already passed (so it's actually time to unwrap it)
+    error SarcophagusIsUnwrappable();
+
+    // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
+    error SarcophagusNotCleanable();
+
+    // Used when accusing with not enough, or invalid, unencrypted shard(s)
+    error NotEnoughProof();
+    
     error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
 
     error TooLateToUnwrap(
