@@ -255,6 +255,21 @@ describe("Contract: ThirdPartyFacet", () => {
             const cleanTxAgain = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
             await expect(cleanTxAgain).to.be.revertedWith("SarcophagusNotCleanable()");
         });
+
+        it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
+            const tx = thirdPartyFacet.connect(thirdParty).clean(formatBytes32String('unknown-sarcoId'), paymentAccount.address);
+            await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        });
+
+        it("Should revert with SarcophagusDoesNotExist if cleaning an already cleaned sarcophagus", async () => {
+            // Increasing time up to so sarco is cleanable
+            await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+
+            (await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address)).wait();
+
+            const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
+            await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        });
     });
 
     describe("accuse()", () => {
@@ -366,6 +381,18 @@ describe("Contract: ThirdPartyFacet", () => {
         it("Should revert with NotEnoughProof() if at least m unencrypted shards are provided, but one or more are invalid", async () => {
             const tx2 = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [unencryptedShards[0], hashedShards[1]], paymentAccount.address);
             await expect(tx2).to.be.revertedWith("NotEnoughProof()");
+        });
+
+        it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
+            const tx = thirdPartyFacet.connect(thirdParty).accuse(formatBytes32String("unknown-id"), unencryptedShards.slice(0, 2), paymentAccount.address);
+            await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        });
+
+        it("Should revert with SarcophagusDoesNotExist if calling accuse on a previously accused sarcophagus", async () => {
+            (await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address)).wait();
+
+            const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+            await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
         });
     });
 
