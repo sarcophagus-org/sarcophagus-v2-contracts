@@ -3,8 +3,6 @@ import { ethers } from "hardhat";
 import { Diamond } from "../typechain";
 import { DiamondCut, FacetCutAction } from "../types";
 
-const protocolFee = process.env.PROTOCOL_FEE || 0;
-
 /**
  * Deploys the Sarcophagus facets and creates the diamond cuts needed for the
  * sarcophagus app facets
