@@ -179,7 +179,11 @@ library LibUtils {
 
         // calculate 1% of the relative time between now and the resurrection
         // time
-        uint256 gracePeriod = (resurrectionTime - block.timestamp) / 100;
+        uint256 gracePeriod = (
+            resurrectionTime > block.timestamp
+                ? resurrectionTime - block.timestamp
+                : block.timestamp - resurrectionTime
+        ) / 100;
 
         // if our calculated grace period is less than the minimum time, we'll
         // use the minimum time instead
