@@ -9,7 +9,7 @@ import { BytesLike, formatBytes32String } from "ethers/lib/utils";
 import time from "../utils/time";
 import { sign } from "../utils/helpers";
 
-describe("Contract: ThirdPartyFacet", () => {
+describe.only("Contract: ThirdPartyFacet", () => {
     let archaeologistFacet: ArchaeologistFacet;
     let embalmerFacet: EmbalmerFacet;
     let thirdPartyFacet: ThirdPartyFacet;
@@ -198,16 +198,14 @@ describe("Contract: ThirdPartyFacet", () => {
             //TODO: Actually calculate sum, and verify on exact amounts instead
         });
 
-        it("Should emit CleanUpSarcophagus on successful cleanup"
-            // , async () => {
+        it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
             // Increasing by this much so that the sarco is definitely expired
-            // await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+            await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
-            // const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
+            const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
 
-            // await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus").withArgs(sarcoId)
-            // }
-        );
+            await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus");
+        });
 
         it("Should add all defaulting archaeologists to archaeologistCleanups storage on successful cleanup"
             // , async () => {
@@ -241,12 +239,10 @@ describe("Contract: ThirdPartyFacet", () => {
         beforeEach(_initialiseEnvironment);
 
         context("when m unencrypted shard are provided", async () => {
-            it("Should emit AccuseArchaeologist"
-                // async () => {
-                // const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
-                // await expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist").withArgs(sarcoId, thirdParty.address, 0, 0, [archaeologist1.address, archaeologist2.address]);
-                // }
-            );
+            it("Should emit AccuseArchaeologist", async () => {
+                const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+                await expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist");
+            });
 
             it("Should update sarcophagus' state to DONE", async () => {
                 let sarco = await thirdPartyFacet.getSarcophagus(sarcoId);

@@ -12,6 +12,20 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ThirdPartyFacet {
     AppStorage internal s;
 
+    event AccuseArchaeologist(
+        bytes32 indexed identifier,
+        address indexed accuser,
+        uint256 accuserBondReward,
+        uint256 embalmerBondReward
+    );
+
+    event CleanUpSarcophagus(
+        bytes32 indexed identifier,
+        address indexed cleaner,
+        uint256 cleanerBondReward,
+        uint256 embalmerBondReward
+    );
+
     /// @notice Close a sarcophagus that has not been unwrapped before its resurrection window is passed
     /// @param identifier The sarcophagus ID
     /// @param paymentAddress The address to which rewards will be sent
@@ -70,7 +84,7 @@ contract ThirdPartyFacet {
                 totalBounty
             );
 
-        emit LibEvents.CleanUpSarcophagus(
+        emit CleanUpSarcophagus(
             identifier,
             msg.sender,
             cleanerBondReward,
@@ -154,7 +168,7 @@ contract ThirdPartyFacet {
 
         sarco.state = LibTypes.SarcophagusState.Done;
 
-        emit LibEvents.AccuseArchaeologist(
+        emit AccuseArchaeologist(
             sarcoId,
             msg.sender,
             accuserBondReward,
