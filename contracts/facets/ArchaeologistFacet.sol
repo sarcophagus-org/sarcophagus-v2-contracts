@@ -39,30 +39,6 @@ contract ArchaeologistFacet {
         emit LibEvents.WithdrawFreeBond(msg.sender, amount);
     }
 
-    /// @notice Returns the amount of free bond stored in the contract for an
-    /// archaeologist.
-    /// @param archaeologist The address of the archaeologist whose
-    /// free bond is being returned
-    function getFreeBond(address archaeologist)
-        external
-        view
-        returns (uint256)
-    {
-        return s.freeBonds[archaeologist];
-    }
-
-    /// @notice Returns the amount of cursed bond stored in the contract for an
-    /// archaeologist.
-    /// @param archaeologist The address of the archaeologist whose
-    /// cursed bond is being returned
-    function getCursedBond(address archaeologist)
-        external
-        view
-        returns (uint256)
-    {
-        return s.cursedBonds[archaeologist];
-    }
-
     /// @notice Unwraps the sarcophagus.
     /// @dev Verifies that the unencrypted shard matches the hashedShard stored
     /// on chain and pays the archaeologist.

@@ -2,14 +2,16 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber, Signature } from "ethers";
+import { toUtf8String } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import { deployDiamond } from "../../scripts/deploy-diamond";
 import {
   ArchaeologistFacet,
   EmbalmerFacet,
   SarcoTokenMock,
+  ViewStateFacet,
 } from "../../typechain";
-import { SignatureWithAccount } from "../../types";
+import { SarcophagusState, SignatureWithAccount } from "../../types";
 import {
   increaseNextBlockTimestamp,
   setupArchaeologists,
@@ -18,6 +20,7 @@ import {
 
 describe("Contract: ArchaeologistFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
+  let viewStateFacet: ViewStateFacet;
   let archaeologist: SignerWithAddress;
   let sarcoToken: SarcoTokenMock;
   let archaeologistSarcBalance: BigNumber;
@@ -42,6 +45,11 @@ describe("Contract: ArchaeologistFacet", () => {
       diamondAddress
     );
 
+    viewStateFacet = await ethers.getContractAt(
+      "ViewStateFacet",
+      diamondAddress
+    );
+
     // Get the archaeologist's sarco token balance. This is used throughout the
     // tests.
     archaeologistSarcBalance = await sarcoToken.balanceOf(
@@ -59,9 +67,7 @@ describe("Contract: ArchaeologistFacet", () => {
       // Check that the transaction succeeded
       expect(receipt.status).to.equal(1);
 
-      const freeBond = await archaeologistFacet.getFreeBond(
-        archaeologist.address
-      );
+      const freeBond = await viewStateFacet.getFreeBond(archaeologist.address);
       expect(freeBond.toString()).to.equal("100");
 
       const sarcoTokenBalance = await sarcoToken.balanceOf(
@@ -104,9 +110,8 @@ describe("Contract: ArchaeologistFacet", () => {
 
     it("should revert if amount is negative", async () => {
       // Try to deposit a negative amount
-      await expect(
-        archaeologistFacet.depositFreeBond(BigNumber.from(-1))
-      ).to.be.reverted;
+      await expect(archaeologistFacet.depositFreeBond(BigNumber.from(-1))).to.be
+        .reverted;
     });
   });
 
@@ -124,9 +129,7 @@ describe("Contract: ArchaeologistFacet", () => {
       // Check that the transaction succeeded
       expect(receipt.status).to.equal(1);
 
-      const freeBond = await archaeologistFacet.getFreeBond(
-        archaeologist.address
-      );
+      const freeBond = await viewStateFacet.getFreeBond(archaeologist.address);
       expect(freeBond.toString()).to.equal("0");
 
       const sarcoTokenBalance = await sarcoToken.balanceOf(
@@ -177,9 +180,8 @@ describe("Contract: ArchaeologistFacet", () => {
 
     it("should revert if amount is negative", async () => {
       // Try to withdraw a negative amount
-      await expect(
-        archaeologistFacet.withdrawFreeBond(BigNumber.from(-1))
-      ).to.be.reverted;
+      await expect(archaeologistFacet.withdrawFreeBond(BigNumber.from(-1))).to
+        .be.reverted;
     });
 
     it("should revert on attempt to withdraw more than free bond", async () => {
@@ -249,6 +251,11 @@ describe("Contract: ArchaeologistFacet", () => {
       // Get the archaeologistFacet so we can add some free bond for the archaeologists
       archaeologistFacet = await ethers.getContractAt(
         "ArchaeologistFacet",
+        diamondAddress
+      );
+
+      viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
         diamondAddress
       );
 
@@ -347,11 +354,41 @@ describe("Contract: ArchaeologistFacet", () => {
 
     context("Successful unwrap", () => {
       it("should store the unencrypted shard on the contract", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        // Initialize the sarcophagusk
+        const identifier = await initializeSarcophagus("shouldStoreShard");
+
+        // Finalize the sarcophagus
+        await finalizeSarcophagus(identifier);
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const unencryptedShard = archaeologists[0].address;
+
+        // Set the evm timestamp of the next block to be 1 week and 1 second in
+        // the future
+        await increaseNextBlockTimestamp(604801);
+
+        // Have archaeologist unwrap
+        await archaeologistFacet
+          .connect(archaeologists[0])
+          .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
+
+        // Check that the unencrypted shard is stored on the contract
+        const archaeologist = await viewStateFacet.getSarcophagusArchaeologist(
+          identifier,
+          archaeologists[0].address
+        );
+
+        expect(toUtf8String(archaeologist.unencryptedShard)).to.equal(
+          unencryptedShard
+        );
       });
+
       it("should free up the archaeologist's cursed bond", async () => {
         // Get the cursed bond amount of the first archaeologist before initialize
-        const cursedBondAmountBefore = await archaeologistFacet.getCursedBond(
+        const cursedBondAmountBefore = await viewStateFacet.getCursedBond(
           archaeologists[0].address
         );
 
@@ -379,18 +416,43 @@ describe("Contract: ArchaeologistFacet", () => {
           .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
 
         // Get the cursed bond amount of the first archaeologist after unwrapping
-        const cursedBondAmountAfter = await archaeologistFacet.getCursedBond(
+        const cursedBondAmountAfter = await viewStateFacet.getCursedBond(
           archaeologists[0].address
         );
-
-        // await ethers.provider.send("evm_increaseTime", [-604801]);
 
         // Check that the cursed bond amount before intialize and after unwrap are the same amount.
         expect(cursedBondAmountAfter).to.equal(cursedBondAmountBefore);
       });
 
       it("should add this sarcophagus to the archaeologist's successful sarcophaguses", async () => {
-        // TODO: Write a view method to get the sarcophagus state
+        // Initialize the sarcophagusk
+        const identifier = await initializeSarcophagus("shouldUpdateMetrics");
+
+        // Finalize the sarcophagus
+        await finalizeSarcophagus(identifier);
+
+        // Earlier during initialize we used each archaeologist's address as the
+        // unencrypted shard. In practice this will obviously not be the
+        // archaeologist's address. The contract doesn't care what the
+        // unencrypted shard is.
+        const unencryptedShard = archaeologists[0].address;
+
+        // Set the evm timestamp of the next block to be 1 week and 1 second in
+        // the future
+        await increaseNextBlockTimestamp(604801);
+
+        // Have archaeologist unwrap
+        await archaeologistFacet
+          .connect(archaeologists[0])
+          .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
+
+        const isSuccessfulSarcophagus =
+          await viewStateFacet.getArchaeologistSuccessOnSarcophagus(
+            archaeologists[0].address,
+            identifier
+          );
+
+        expect(isSuccessfulSarcophagus).to.be.true;
       });
 
       it("should transfer the digging fee and bounty to the archaeologist", async () => {
