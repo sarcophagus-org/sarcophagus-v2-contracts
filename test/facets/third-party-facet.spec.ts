@@ -174,14 +174,20 @@ describe.only("Contract: ThirdPartyFacet", () => {
         beforeEach(_initialiseEnvironment);
 
         it("Should distribute sum of cursed bonds of bad-acting archaeologists to embalmer and the address specified by cleaner", async () => {
+            // Increase time to when sarco can be unwrapped
+            await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+
+            // unaccusedArchaeologist will fulfil their duty 
+            // archaeologistFacet.connect(unaccusedArchaeologist).unwrap() (TODO: uncomment and fix when unwrap is merged)
+
             // Increasing by this much so that the sarco is definitely expired
             await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
             let embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
-            let paymentDestinationBalance = await sarcoToken.balanceOf(paymentAccount.address);
+            let paymentAccountBalanceBefore = await sarcoToken.balanceOf(paymentAccount.address);
 
             // before cleaning...
-            expect(paymentDestinationBalance).to.eq(0);
+            expect(paymentAccountBalanceBefore).to.eq(0);
 
             const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
             const receipt = await tx.wait();
@@ -189,13 +195,29 @@ describe.only("Contract: ThirdPartyFacet", () => {
             expect(receipt.status).to.equal(1);
 
             let embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-            paymentDestinationBalance = await sarcoToken.balanceOf(paymentAccount.address);
+            let paymentAccountBalanceAfter = await sarcoToken.balanceOf(paymentAccount.address);
 
-            // after cleaning...
-            expect(embalmerBalanceAfter.gt(embalmerBalanceBefore)).to.be.true;
-            expect(paymentDestinationBalance.gt(0)).to.be.true;
+            // after cleaning, calculate sum, and verify on exact amounts instead
+            // Set up amounts that should have been transferred to accuser and embalmer
+            const arch1 = await thirdPartyFacet.getArchaeologistData(sarcoId, archaeologist1.address);
+            const arch2 = await thirdPartyFacet.getArchaeologistData(sarcoId, archaeologist2.address);
+            const arch3 = await thirdPartyFacet.getArchaeologistData(sarcoId, arweaveAchaeologist.address);
+            const arch4 = await thirdPartyFacet.getArchaeologistData(sarcoId, unaccusedArchaeologist.address);
 
-            //TODO: Actually calculate sum, and verify on exact amounts instead
+            const totalDiggingFees = arch1.diggingFee.add(arch2.diggingFee).add(arch3.diggingFee)
+                .add(arch4.diggingFee); // TODO: arch4 should unwrap, so remove once unwrap is merged and it can.
+
+            const totalBounty = arch1.bounty.add(arch2.bounty).add(arch3.bounty)
+                .add(arch4.bounty); // TODO: arch4 should unwrap, so remove once unwrap is merged and it can.
+
+            const cursedBond = totalDiggingFees.add(totalBounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+            const toEmbalmer = cursedBond.div(2);
+            const toCleaner = cursedBond.sub(toEmbalmer);
+
+            // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
+            const embalmerReward = toEmbalmer.add(totalBounty.add(totalDiggingFees)); // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
+            expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
+            expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toCleaner))).to.be.true;
         });
 
         it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
@@ -276,11 +298,13 @@ describe.only("Contract: ThirdPartyFacet", () => {
                 const toAccuser = cursedBond.sub(toEmbalmer);
 
                 const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-                const paymentAccountBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
+                const paymentAccountBalanceAfter = await sarcoToken.balanceOf(paymentAccount.address);
 
                 // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
-                expect(embalmerBalanceAfter.gte(embalmerBalanceBefore.add(toEmbalmer.add(totalBounty.add(totalDiggingFees))))).to.be.true;
-                expect(paymentAccountBalanceAfter.gte(paymentAccountBalanceBefore.add(toAccuser))).to.be.true;
+                const embalmerReward = toEmbalmer.add(totalBounty.add(totalDiggingFees)); // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
+                expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
+                expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toAccuser))).to.be.true;
+
             });
 
 
