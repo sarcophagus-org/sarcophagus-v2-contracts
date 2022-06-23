@@ -1,0 +1,22 @@
+name: Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  deploy:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run Tests
+        id: run-tests
+        run: npx hardhat test
