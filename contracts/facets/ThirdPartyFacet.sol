@@ -189,29 +189,6 @@ contract ThirdPartyFacet {
         );
     }
 
-    /// @notice Gets a sarcophagus given its identifier
-    /// @param identifier the identifier of the sarcophagus
-    /// @return The sarcophagus
-    function getSarcophagus(bytes32 identifier)
-        public
-        view
-        returns (LibTypes.Sarcophagus memory)
-    {
-        return s.sarcophaguses[identifier];
-    }
-
-    /// @notice Gets data of the archaeologist bonded to the given sarco id
-    /// @param identifier the identifier of the sarcophagus
-    /// @param archaeologist Address of the archaeologist
-    /// @return The bonded archaeologist
-    function getArchaeologistData(bytes32 identifier, address archaeologist)
-        public
-        view
-        returns (LibTypes.ArchaeologistStorage memory)
-    {
-        return s.sarcophagusArchaeologists[identifier][archaeologist];
-    }
-
     /**
      * @notice After a sarcophagus has been successfully accused, transfers the value
      * of the cursed bonds of the archs back to them, and un-curses their bonds.
