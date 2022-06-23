@@ -1159,10 +1159,7 @@ describe("Contract: EmbalmerFacet", () => {
           BigNumber.from(0)
         );
 
-        const protocolFee = process.env.PROTOCOL_FEE;
-        if (!protocolFee) {
-          throw new Error("PROTOCOL_FEE environment variable not set");
-        }
+        const protocolFee = process.env.PROTOCOL_FEE || "0";
 
         // Check that the difference in balances is equal to the sum of digging fees
         expect(

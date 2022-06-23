@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 import { Diamond } from "../typechain";
 import { DiamondCut, FacetCutAction } from "../types";
 
-const protocolFee = process.env.PROTOCOL_FEE;
+const protocolFee = process.env.PROTOCOL_FEE || 0;
 
 /**
  * Deploys the Sarcophagus facets and creates the diamond cuts needed for the
@@ -202,12 +202,9 @@ export const deployDiamond = async () => {
   // Encode the data for appStorageInit init function call The
   // AppStorageInit.init() function will be called with delegatecall after the
   // diamond cut for the sarcophagus facets is performed.
-  if (!protocolFee) {
-    throw new Error("PROTOCOL_FEE environment variable not set");
-  }
   const appInitCallData = appStorageInit.interface.encodeFunctionData("init", [
     mockSarcoToken.address,
-    BigNumber.from(protocolFee),
+    BigNumber.from(process.env.PROTOCOL_FEE || "0"),
   ]);
 
   // Make the diamond cut to create the facets provided in cuts
