@@ -68,4 +68,18 @@ library LibEvents {
     event UnwrapSarcophagus(bytes32 indexed identifier, bytes unencryptedShard);
 
     event BurySarcophagus(bytes32 indexed identifier);
+
+    event CleanUpSarcophagus(
+        bytes32 indexed identifier,
+        address indexed cleaner,
+        uint256 cleanerBondReward,
+        uint256 embalmerBondReward
+    );
+
+    event FinalizeTransfer(
+        bytes32 identifier,
+        string arweaveTxId,
+        address oldArchaeologist,
+        address newArchaeologist
+    );
 }

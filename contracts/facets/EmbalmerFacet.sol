@@ -72,7 +72,7 @@ contract EmbalmerFacet {
             revert LibErrors.NoArchaeologistsProvided();
         }
 
-        // Confirm that minShards to less than the number of archaeologists
+        // Confirm that minShards is less than the number of archaeologists
         if (minShards > archaeologists.length) {
             revert LibErrors.MinShardsGreaterThanArchaeologists(minShards);
         }
@@ -93,11 +93,6 @@ contract EmbalmerFacet {
         // sarcophagus object.
         uint256 storageFee = 0;
 
-        // We need to iterate over every archaeologist to
-        //   - lock up archaeologist's free bond
-        //   - get the storage fee from the arweave archaeologist
-        //   - store each archaeologist's bounty, digging fee, and unencrypted shard in app storage
-        //   - get the archaeologist's address to store on the sarcophagus
         for (uint256 i = 0; i < archaeologists.length; i++) {
             // Confirm that the archaeologist list is unique. This is done by
             // checking that the archaeologist does not already exist from
@@ -166,7 +161,7 @@ contract EmbalmerFacet {
             minShards: minShards,
             resurrectionTime: resurrectionTime,
             resurrectionWindow: LibUtils.getGracePeriod(resurrectionTime),
-            arweaveTxId: "",
+            arweaveTxIds: new string[](0),
             storageFee: storageFee,
             embalmer: msg.sender,
             recipientAddress: recipient,
@@ -250,7 +245,7 @@ contract EmbalmerFacet {
 
         // Confirm that the sarcophagus is not already finalized by checking if
         // the arweaveTxId is empty
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length > 0) {
+        if (LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusAlreadyFinalized(identifier);
         }
 
@@ -350,7 +345,7 @@ contract EmbalmerFacet {
 
         // Store the arweave transaction id to the sarcophagus. The arweaveTxId
         // being populated indirectly designates the sarcophagus as finalized.
-        s.sarcophaguses[identifier].arweaveTxId = arweaveTxId;
+        s.sarcophaguses[identifier].arweaveTxIds.push(arweaveTxId);
 
         // Transfer the storage fee to the arweave archaeologist after setting
         // the arweave transaction id.
@@ -374,14 +369,6 @@ contract EmbalmerFacet {
         external
         returns (bool)
     {
-        // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
-            revert LibErrors.SenderNotEmbalmer(
-                msg.sender,
-                s.sarcophaguses[identifier].embalmer
-            );
-        }
-
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=
@@ -390,8 +377,16 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusDoesNotExist(identifier);
         }
 
+        // Confirm that the sender is the embalmer
+        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+            revert LibErrors.SenderNotEmbalmer(
+                msg.sender,
+                s.sarcophaguses[identifier].embalmer
+            );
+        }
+
         // Confirm that the sarcophagus is finalized
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0) {
+        if (!LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusNotFinalized(identifier);
         }
 
@@ -404,7 +399,7 @@ contract EmbalmerFacet {
 
         // Confirm that the new resurrection time is in the future
         if (resurrectionTime <= block.timestamp) {
-            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
+            revert LibErrors.NewResurrectionTimeInPast(resurrectionTime);
         }
 
         // Calculate the new resurrectionWindow, which is the amount of time in
@@ -457,14 +452,6 @@ contract EmbalmerFacet {
     /// @param identifier the identifier of the sarcophagus
     /// @return The boolean true if the operation was successful
     function cancelSarcophagus(bytes32 identifier) external returns (bool) {
-        // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
-            revert LibErrors.SenderNotEmbalmer(
-                msg.sender,
-                s.sarcophaguses[identifier].embalmer
-            );
-        }
-
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=
@@ -473,8 +460,16 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusDoesNotExist(identifier);
         }
 
+        // Confirm that the sender is the embalmer
+        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+            revert LibErrors.SenderNotEmbalmer(
+                msg.sender,
+                s.sarcophaguses[identifier].embalmer
+            );
+        }
+
         // Confirm that the sarcophagus is not already finalized
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length > 0) {
+        if (LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusAlreadyFinalized(identifier);
         }
 
@@ -509,14 +504,6 @@ contract EmbalmerFacet {
     /// @param identifier the identifier of the sarcophagus
     /// @return The boolean true if the operation was successful
     function burySarcophagus(bytes32 identifier) external returns (bool) {
-        // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
-            revert LibErrors.SenderNotEmbalmer(
-                msg.sender,
-                s.sarcophaguses[identifier].embalmer
-            );
-        }
-
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=
@@ -525,9 +512,17 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusDoesNotExist(identifier);
         }
 
+        // Confirm that the sender is the embalmer
+        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+            revert LibErrors.SenderNotEmbalmer(
+                msg.sender,
+                s.sarcophaguses[identifier].embalmer
+            );
+        }
+
         // Confirm that the sarcophagus is finalized by checking if there is an
         // arweaveTxId
-        if (bytes(s.sarcophaguses[identifier].arweaveTxId).length == 0) {
+        if (!LibUtils.isSarcophagusFinalized(identifier)) {
             revert LibErrors.SarcophagusNotFinalized(identifier);
         }
 

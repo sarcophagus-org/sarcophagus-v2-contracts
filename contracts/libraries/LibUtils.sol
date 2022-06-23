@@ -148,15 +148,43 @@ library LibUtils {
         }
     }
 
+    /// @notice Returns the address that signed some data given the data and the
+    /// signature.
+    /// @param data the data to verify
+    /// @param v signature element
+    /// @param r signature element
+    /// @param s signature element
+    /// @return the address that signed the data
+    function recoverAddress(
+        bytes memory data,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal pure returns (address) {
+        // Hash the hash of the data payload
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32",
+                keccak256(abi.encode(data))
+            )
+        );
+
+        // Genearate the address from the signature.
+        // ecrecover should always return a valid address.
+        // It's highly recommended that a hash be passed into ecrecover
+        address account = ecrecover(messageHash, v, r, s);
+
+        return account;
+    }
+
     /**
      * @notice Reverts if the given resurrection time is not in the future
      * @param resurrectionTime the time to check against block.timestamp
      */
-    function resurrectionInFuture(uint256 resurrectionTime) public view {
-        require(
-            resurrectionTime > block.timestamp,
-            "resurrection time must be in the future"
-        );
+    function resurrectionInFuture(uint256 resurrectionTime) internal view {
+        if (resurrectionTime <= block.timestamp) {
+            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
+        }
     }
 
     /**
@@ -267,5 +295,19 @@ library LibUtils {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         return s.sarcophagusArchaeologists[identifier][archaeologist];
+    }
+
+    /// @notice Checks if a sarcophagus has been finalized by checking if it
+    /// contains any arweaveTxIds.
+    /// @param identifier the identifier of the sarcophagus
+    /// @return The boolean true if the sarcophagus has been finalized
+    function isSarcophagusFinalized(bytes32 identifier)
+        internal
+        view
+        returns (bool)
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        return s.sarcophaguses[identifier].arweaveTxIds.length > 0;
     }
 }

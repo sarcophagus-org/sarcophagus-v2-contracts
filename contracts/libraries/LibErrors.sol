@@ -50,6 +50,11 @@ library LibErrors {
 
     error SignatureListNotUnique();
 
+    error SignerNotArchaeologistOnSarcophagus(
+        bytes32 identifier,
+        address signer
+    );
+
     // Used when an attempt is made to send an accusation after the resurrection time has already passed (so it's actually time to unwrap it)
     error SarcophagusIsUnwrappable();
 
@@ -58,7 +63,7 @@ library LibErrors {
 
     // Used when accusing with not enough, or invalid, unencrypted shard(s)
     error NotEnoughProof();
-    
+
     error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
 
     error TooLateToUnwrap(
