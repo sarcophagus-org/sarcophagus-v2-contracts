@@ -9,7 +9,7 @@ import { BytesLike, formatBytes32String } from "ethers/lib/utils";
 import time from "../utils/time";
 import { sign } from "../utils/helpers";
 
-describe.only("Contract: ThirdPartyFacet", () => {
+describe("Contract: ThirdPartyFacet", () => {
     let archaeologistFacet: ArchaeologistFacet;
     let embalmerFacet: EmbalmerFacet;
     let thirdPartyFacet: ThirdPartyFacet;
