@@ -70,6 +70,9 @@ contract ThirdPartyFacet {
 
                 // decrease the defaulter's cursed bond
                 LibBonds.decreaseCursedBond(archAddresses[i], cursedBond);
+
+                // Save the failure to unwrap against the archaeologist
+                s.archaeologistCleanups[archAddresses[i]].push(identifier);
             }
         }
 
@@ -155,6 +158,9 @@ contract ThirdPartyFacet {
                 totalCursedBond += cursedBond;
 
                 LibBonds.decreaseCursedBond(matchingArchAddr, cursedBond);
+
+                // Save the accusal against the archaeologist
+                s.archaeologistAccusals[matchingArchAddr].push(sarcoId);
             } else {
                 revert LibErrors.NotEnoughProof();
             }
