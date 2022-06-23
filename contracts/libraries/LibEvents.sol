@@ -67,13 +67,6 @@ library LibEvents {
 
     event UnwrapSarcophagus(bytes32 indexed identifier, bytes unencryptedShard);
 
-    event AccuseArchaeologist(
-        bytes32 indexed identifier,
-        address indexed accuser,
-        uint256 accuserBondReward,
-        uint256 embalmerBondReward
-    );
-
     event BurySarcophagus(bytes32 indexed identifier);
 
     event CleanUpSarcophagus(

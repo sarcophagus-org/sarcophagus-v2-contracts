@@ -43,15 +43,11 @@ contract ViewStateFacet {
         return s.cursedBonds[archaeologist];
     }
 
-    /// @notice Returns the number of successful signings for an archaeologist.
-    /// @param archaeologist The address of the archaeologist whose signings
-    /// are being returned
-    function getArchaeologistSuccesses(address archaeologist)
-        external
-        view
-        returns (bytes32[] memory)
-    {
-        return s.archaeologistSuccesses[archaeologist];
+    function getArchaeologistSuccessOnSarcophagus(
+        address archaeologist,
+        bytes32 identifier
+    ) external view returns (bool) {
+        return s.archaeologistSuccesses[archaeologist][identifier];
     }
 
     /// @notice Returns the number of accusations for an archaeologist.
