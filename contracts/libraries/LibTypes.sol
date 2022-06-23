@@ -62,6 +62,7 @@ library LibTypes {
         uint256 diggingFee;
         uint256 bounty;
         bytes32 hashedShard;
+        bytes unencryptedShard;
     }
 
     // The ArchaeologistStorage struct could be contained in this Sarcophagus

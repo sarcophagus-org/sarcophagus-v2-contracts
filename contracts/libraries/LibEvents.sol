@@ -65,11 +65,7 @@ library LibEvents {
         uint256 resurrectionWindow
     );
 
-    event UnwrapSarcophagus(
-        string assetId,
-        bytes32 indexed identifier,
-        bytes32 privatekey
-    );
+    event UnwrapSarcophagus(bytes32 indexed identifier, bytes unencryptedShard);
 
     event AccuseArchaeologist(
         bytes32 indexed identifier,
