@@ -117,6 +117,7 @@ contract ThirdPartyFacet {
             revert LibErrors.NotEnoughProof();
         }
 
+        // TODO not in use now, but might be useful for filtering out unaccused archs for reimbursement.
         address[] memory accusedArchAddresses = new address[](
             unencryptedShards.length
         );
