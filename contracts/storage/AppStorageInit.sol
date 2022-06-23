@@ -7,10 +7,11 @@ import "./LibAppStorage.sol";
 contract AppStorageInit {
     /// @notice Initializes the app with default state values
     /// @dev Add any AppStorage struct properties here to initialize values
-    function init(IERC20 sarcoToken) external {
+    function init(IERC20 sarcoToken, uint256 protocolFee) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Add the ERC20 token to app storage (Sarco)
         s.sarcoToken = sarcoToken;
+        s.protocolFee = protocolFee;
     }
 }

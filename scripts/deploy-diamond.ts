@@ -1,7 +1,9 @@
-import { Contract, ContractReceipt } from "ethers";
+import { BigNumber, Contract, ContractReceipt } from "ethers";
 import { ethers } from "hardhat";
 import { Diamond } from "../typechain";
 import { DiamondCut, FacetCutAction } from "../types";
+
+const protocolFee = process.env.PROTOCOL_FEE || 0;
 
 /**
  * Deploys the Sarcophagus facets and creates the diamond cuts needed for the
@@ -202,6 +204,7 @@ export const deployDiamond = async () => {
   // diamond cut for the sarcophagus facets is performed.
   const appInitCallData = appStorageInit.interface.encodeFunctionData("init", [
     mockSarcoToken.address,
+    BigNumber.from(process.env.PROTOCOL_FEE || "0"),
   ]);
 
   // Make the diamond cut to create the facets provided in cuts
