@@ -360,6 +360,8 @@ describe("Contract: ThirdPartyFacet", () => {
                 //     expect(cursedBond2Before.gte(cursedBond2After)).to.be.true;
                 // }
             );
+
+            it("Should add all accused archaeologists to archaeologistAccusals storage on successful accusal");
         });
 
         it("Should revert with SarcophagusIsUnwrappable() if called after resurrection time has passed", async () => {
