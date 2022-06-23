@@ -122,7 +122,7 @@ contract ArchaeologistFacet {
         LibBonds.freeArchaeologist(identifier, msg.sender);
 
         // Save the successful sarcophagus against the archaeologist
-        s.archaeologistSuccesses[msg.sender].push(identifier);
+        s.archaeologistSuccesses[msg.sender][identifier] = true;
 
         // Transfer the bounty and digging fee to the archaeologist
         s.sarcoToken.transfer(
