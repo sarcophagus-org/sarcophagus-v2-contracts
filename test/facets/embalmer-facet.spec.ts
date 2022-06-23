@@ -125,11 +125,7 @@ describe("Contract: EmbalmerFacet", () => {
       // work
       await archaeologistFacet
         .connect(archaeologist)
-        .depositFreeBond(
-          archaeologist.address,
-          BigNumber.from("5000"),
-          sarcoToken.address
-        );
+        .depositFreeBond(BigNumber.from("5000"));
     }
   };
 

@@ -33,10 +33,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
     archaeologist = signers[0];
 
-    diamondAddress = (await deployDiamond()).diamondAddress;
-    const SarcoToken = await ethers.getContractFactory("SarcoTokenMock");
-    sarcoToken = await SarcoToken.deploy();
-    await sarcoToken.deployed();
+    ({ diamondAddress, sarcoToken } = await deployDiamond());
 
     // Approve the archaeologist on the sarco token so transferFrom will work
     await sarcoToken
@@ -64,11 +61,7 @@ describe("Contract: ArchaeologistFacet", () => {
     before(beforeEachFunc);
 
     it("should deposit free bond to the contract", async () => {
-      const tx = await archaeologistFacet.depositFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      const tx = await archaeologistFacet.depositFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
 
       // Check that the transaction succeeded
@@ -91,11 +84,7 @@ describe("Contract: ArchaeologistFacet", () => {
     });
 
     it("should emit an event when the free bond is deposited", async () => {
-      const tx = await archaeologistFacet.depositFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      const tx = await archaeologistFacet.depositFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
       const events = receipt.events!;
       expect(events).to.not.be.undefined;
@@ -108,11 +97,7 @@ describe("Contract: ArchaeologistFacet", () => {
     });
 
     it("should emit a transfer event when the sarco token is transfered", async () => {
-      const tx = await archaeologistFacet.depositFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      const tx = await archaeologistFacet.depositFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
       const events = receipt.events!;
       expect(events).to.not.be.undefined;
@@ -125,24 +110,8 @@ describe("Contract: ArchaeologistFacet", () => {
 
     it("should revert if amount is negative", async () => {
       // Try to deposit a negative amount
-      await expect(
-        archaeologistFacet.depositFreeBond(
-          archaeologist.address,
-          BigNumber.from(-1),
-          sarcoToken.address
-        )
-      ).to.be.reverted;
-    });
-
-    it("should revert if sender is not the archaeologist", async () => {
-      // Try to deposit with a non-archaeologist address
-      await expect(
-        archaeologistFacet.depositFreeBond(
-          ethers.constants.AddressZero,
-          BigNumber.from(1),
-          sarcoToken.address
-        )
-      ).to.be.revertedWith("SenderNotArch");
+      await expect(archaeologistFacet.depositFreeBond(BigNumber.from(-1))).to.be
+        .reverted;
     });
   });
 
@@ -151,18 +120,10 @@ describe("Contract: ArchaeologistFacet", () => {
 
     it("should withdraw free bond from the contract", async () => {
       // Put some free bond on the contract so we can withdraw it
-      await archaeologistFacet.depositFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      await archaeologistFacet.depositFreeBond(BigNumber.from(100));
 
       // Withdraw free bond
-      const tx = await archaeologistFacet.withdrawFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      const tx = await archaeologistFacet.withdrawFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
 
       // Check that the transaction succeeded
@@ -186,18 +147,10 @@ describe("Contract: ArchaeologistFacet", () => {
 
     it("should emit an event when the free bond is withdrawn", async () => {
       // Put some free bond on the contract so we can withdraw it
-      await archaeologistFacet.depositFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      await archaeologistFacet.depositFreeBond(BigNumber.from(100));
 
       // Withdraw free bond
-      const tx = await archaeologistFacet.withdrawFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      const tx = await archaeologistFacet.withdrawFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
       const events = receipt.events!;
       expect(events).to.not.be.undefined;
@@ -211,18 +164,10 @@ describe("Contract: ArchaeologistFacet", () => {
 
     it("should emit a transfer event when the sarco token is transfered", async () => {
       // Put some free bond on the contract so we can withdraw it
-      await archaeologistFacet.depositFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      await archaeologistFacet.depositFreeBond(BigNumber.from(100));
 
       // Withdraw free bond
-      const tx = await archaeologistFacet.withdrawFreeBond(
-        archaeologist.address,
-        BigNumber.from(100),
-        sarcoToken.address
-      );
+      const tx = await archaeologistFacet.withdrawFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
       const events = receipt.events!;
       expect(events).to.not.be.undefined;
@@ -235,24 +180,19 @@ describe("Contract: ArchaeologistFacet", () => {
 
     it("should revert if amount is negative", async () => {
       // Try to withdraw a negative amount
-      await expect(
-        archaeologistFacet.withdrawFreeBond(
-          archaeologist.address,
-          BigNumber.from(-1),
-          sarcoToken.address
-        )
-      ).to.be.reverted;
+      await expect(archaeologistFacet.withdrawFreeBond(BigNumber.from(-1))).to
+        .be.reverted;
     });
 
-    it("should revert if sender is not the archaeologist", async () => {
+    it("should revert on attempt to withdraw more than free bond", async () => {
+      // Put some free bond on the contract so we can withdraw it
+      const tx = await archaeologistFacet.depositFreeBond(BigNumber.from(100));
+      await tx.wait();
+
       // Try to withdraw with a non-archaeologist address
       await expect(
-        archaeologistFacet.withdrawFreeBond(
-          ethers.constants.AddressZero,
-          BigNumber.from(1),
-          sarcoToken.address
-        )
-      ).to.be.revertedWith("SenderNotArch");
+        archaeologistFacet.withdrawFreeBond(BigNumber.from(101))
+      ).to.be.revertedWith("NotEnoughFreeBond");
     });
   });
 
@@ -446,33 +386,6 @@ describe("Contract: ArchaeologistFacet", () => {
         );
       });
 
-      it("should set the state of the sarcophagus to done", async () => {
-        // Initialize the sarcophagusk
-        const identifier = await initializeSarcophagus("shouldSetState");
-
-        // Finalize the sarcophagus
-        await finalizeSarcophagus(identifier);
-
-        // Earlier during initialize we used each archaeologist's address as the
-        // unencrypted shard. In practice this will obviously not be the
-        // archaeologist's address. The contract doesn't care what the
-        // unencrypted shard is.
-        const unencryptedShard = archaeologists[0].address;
-
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await increaseNextBlockTimestamp(604801);
-
-        // Have archaeologist unwrap
-        await archaeologistFacet
-          .connect(archaeologists[0])
-          .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
-
-        const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
-
-        expect(sarcophagus.state).to.equal(SarcophagusState.Done);
-      });
-
       it("should free up the archaeologist's cursed bond", async () => {
         // Get the cursed bond amount of the first archaeologist before initialize
         const cursedBondAmountBefore = await viewStateFacet.getCursedBond(
@@ -533,12 +446,13 @@ describe("Contract: ArchaeologistFacet", () => {
           .connect(archaeologists[0])
           .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
 
-        const successfulSarcophaguses =
-          await viewStateFacet.getArchaeologistSuccesses(
-            archaeologists[0].address
+        const isSuccessfulSarcophagus =
+          await viewStateFacet.getArchaeologistSuccessOnSarcophagus(
+            archaeologists[0].address,
+            identifier
           );
 
-        expect(successfulSarcophaguses).to.include(identifier);
+        expect(isSuccessfulSarcophagus).to.be.true;
       });
 
       it("should transfer the digging fee and bounty to the archaeologist", async () => {
@@ -883,11 +797,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
       await archaeologistFacet
         .connect(newArchaeologist)
-        .depositFreeBond(
-          newArchaeologist.address,
-          BigNumber.from("5000"),
-          sarcoToken.address
-        );
+        .depositFreeBond(BigNumber.from("5000"));
     });
 
     const initializeSarcophagus = async (

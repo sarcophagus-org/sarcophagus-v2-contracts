@@ -22,6 +22,11 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   const embalmerFacet = await EmbalmerFacet.deploy();
   await embalmerFacet.deployed();
 
+  // Deploy ThirdParty Facet
+  const ThirdPartyFacet = await ethers.getContractFactory("ThirdPartyFacet");
+  const thirdPartyFacet = await ThirdPartyFacet.deploy();
+  await thirdPartyFacet.deployed();
+
   // Deploy Archaeologist Facet
   const ArchaeologistFacet = await ethers.getContractFactory(
     "ArchaeologistFacet"
@@ -49,6 +54,11 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
       facetAddress: viewStateFacet.address,
       action: FacetCutAction.Add,
       functionSelectors: getSelectors(viewStateFacet),
+    },
+    {
+      facetAddress: thirdPartyFacet.address,
+      action: FacetCutAction.Add,
+      functionSelectors: getSelectors(thirdPartyFacet),
     },
   ];
 };
