@@ -4,10 +4,6 @@ on:
   pull_request:
     types: [opened, synchronize]
 
-defaults:
-  run:
-    working-directory: .
-
 jobs:
   deploy:
     name: Tests
@@ -17,6 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Run Tests
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install node modules
+        run: npm install
+
+      - name: Run contract tests
         id: run-tests
         run: npx hardhat test
