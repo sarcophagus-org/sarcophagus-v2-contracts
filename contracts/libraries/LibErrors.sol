@@ -7,6 +7,8 @@ pragma solidity ^0.8.13;
  * uses.
  */
 library LibErrors {
+    error ArchaeologistAlreadyUnwrapped(address archaeologist);
+
     error ArchaeologistListNotUnique(address[] archaeologists);
 
     error ArchaeologistNotOnSarcophagus(address archaeologist);
@@ -20,6 +22,8 @@ library LibErrors {
     error MinShardsGreaterThanArchaeologists(uint8 minShards);
 
     error MinShardsZero();
+
+    error NewResurrectionTimeInPast(uint256 newResurrectionTime);
 
     error NoArchaeologistsProvided();
 
@@ -46,12 +50,25 @@ library LibErrors {
 
     error SignatureListNotUnique();
 
-    // Used when an attempt is made to send an accusation after the resurrection time has already passed
+    // Used when an attempt is made to send an accusation after the resurrection time has already passed (so it's actually time to unwrap it)
     error SarcophagusIsUnwrappable();
 
     // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
     error SarcophagusNotCleanable();
 
-    // Used when accusing with not enough, or invalid, unencrypted shard
+    // Used when accusing with not enough, or invalid, unencrypted shard(s)
     error NotEnoughProof();
+    
+    error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
+
+    error TooLateToUnwrap(
+        uint256 resurrectionTime,
+        uint256 resurrectionWindow,
+        uint256 currentTime
+    );
+
+    error UnencryptedShardHashMismatch(
+        bytes unencryptedShard,
+        bytes32 hashedShard
+    );
 }

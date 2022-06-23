@@ -1215,7 +1215,7 @@ describe("Contract: EmbalmerFacet", () => {
           newResurrectionTime
         );
 
-        expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
+        expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
       });
     });
   });

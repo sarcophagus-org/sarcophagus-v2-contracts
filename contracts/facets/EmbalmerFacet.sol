@@ -103,7 +103,10 @@ contract EmbalmerFacet {
             // checking that the archaeologist does not already exist from
             // previous iterations in this loop.
             if (
-                archaeologistExists(identifier, archaeologists[i].archAddress)
+                LibUtils.archaeologistExistsOnSarc(
+                    identifier,
+                    archaeologists[i].archAddress
+                )
             ) {
                 revert LibErrors.ArchaeologistListNotUnique(
                     archaeologistAddresses
@@ -121,7 +124,8 @@ contract EmbalmerFacet {
                 .ArchaeologistStorage({
                     diggingFee: archaeologists[i].diggingFee,
                     bounty: archaeologists[i].bounty,
-                    hashedShard: archaeologists[i].hashedShard
+                    hashedShard: archaeologists[i].hashedShard,
+                    unencryptedShard: ""
                 });
 
             // Map the hashed shared to this archaeologist's address for easier referencing on accuse
@@ -286,7 +290,7 @@ contract EmbalmerFacet {
             // archaeologist on the sarcophagus and run ecrecover to see if
             // there is a match. This is much more efficient.
             if (
-                !archaeologistExists(
+                !LibUtils.archaeologistExistsOnSarc(
                     identifier,
                     archaeologistSignatures[i].account
                 )
@@ -393,7 +397,7 @@ contract EmbalmerFacet {
 
         // Confirm that the current resurrection time is in the future
         if (s.sarcophaguses[identifier].resurrectionTime <= block.timestamp) {
-            revert LibErrors.ResurrectionTimeInPast(
+            revert LibErrors.NewResurrectionTimeInPast(
                 s.sarcophaguses[identifier].resurrectionTime
             );
         }
@@ -421,11 +425,8 @@ contract EmbalmerFacet {
 
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             // Get the archaeolgist's fee data
-            LibTypes.ArchaeologistStorage
-                memory archaeologistData = getArchaeologist(
-                    identifier,
-                    archaeologistAddresses[i]
-                );
+            LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
+                .getArchaeologist(identifier, archaeologistAddresses[i]);
 
             // Transfer the archaeologist's digging fee allocation to the archaeologist
             s.sarcoToken.transfer(
@@ -455,7 +456,6 @@ contract EmbalmerFacet {
     /// fees that were locked up will be refunded.
     /// @param identifier the identifier of the sarcophagus
     /// @return The boolean true if the operation was successful
-
     function cancelSarcophagus(bytes32 identifier) external returns (bool) {
         // Confirm that the sender is the embalmer
         if (s.sarcophaguses[identifier].embalmer != msg.sender) {
@@ -559,11 +559,8 @@ contract EmbalmerFacet {
             // Unlock the archaeologist's cursed bond
             LibBonds.freeArchaeologist(identifier, archaeologistAddresses[i]);
 
-            LibTypes.ArchaeologistStorage
-                memory archaeologistData = getArchaeologist(
-                    identifier,
-                    archaeologistAddresses[i]
-                );
+            LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
+                .getArchaeologist(identifier, archaeologistAddresses[i]);
 
             // Transfer the digging fees to the archaeologist
             s.sarcoToken.transfer(
@@ -582,35 +579,5 @@ contract EmbalmerFacet {
         emit LibEvents.BurySarcophagus(identifier);
 
         return true;
-    }
-
-    /// @notice Checks if the archaeologist exists on the sarcophagus.
-    /// @param identifier the identifier of the sarcophagus
-    /// @param archaeologist the address of the archaeologist
-    /// @return The boolean true if the archaeologist exists on the sarcophagus
-    function archaeologistExists(bytes32 identifier, address archaeologist)
-        private
-        view
-        returns (bool)
-    {
-        // If the hashedShard on an archaeologist is 0 (which is its default
-        // value), then the archaeologist doesn't exist on the sarcophagus
-        return
-            s
-            .sarcophagusArchaeologists[identifier][archaeologist].hashedShard !=
-            0;
-    }
-
-    /// @notice Gets an archaeologist given the sarcophagus identifier and the
-    /// archaeologist's address.
-    /// @param identifier the identifier of the sarcophagus
-    /// @param archaeologist the address of the archaeologist
-    /// @return The archaeologist
-    function getArchaeologist(bytes32 identifier, address archaeologist)
-        private
-        view
-        returns (LibTypes.ArchaeologistStorage memory)
-    {
-        return s.sarcophagusArchaeologists[identifier][archaeologist];
     }
 }
