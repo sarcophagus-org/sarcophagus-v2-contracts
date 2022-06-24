@@ -15,7 +15,7 @@ import { BytesLike, formatBytes32String } from "ethers/lib/utils";
 import time from "../utils/time";
 import { calculateCursedBond, sign } from "../utils/helpers";
 
-describe.only("Contract: ThirdPartyFacet", () => {
+describe("Contract: ThirdPartyFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
   let embalmerFacet: EmbalmerFacet;
   let viewStateFacet: ViewStateFacet;
@@ -225,197 +225,201 @@ describe.only("Contract: ThirdPartyFacet", () => {
   describe("clean()", () => {
     beforeEach(_initialiseEnvironment);
 
-    it("Should distribute sum of cursed bonds of bad-acting archaeologists to embalmer and the address specified by cleaner", async () => {
-      // Increase time to when sarco can be unwrapped
-      await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+    context("When successful", () => {
+      it("Should distribute sum of cursed bonds of bad-acting archaeologists to embalmer and the address specified by cleaner", async () => {
+        // Increase time to when sarco can be unwrapped
+        await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
 
-      // unaccusedArchaeologist will fulfil their duty
-      archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3])
+        // unaccusedArchaeologist will fulfil their duty
+        archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3])
 
-      // Increasing by this much so that the sarco is definitely expired
-      await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+        // Increasing by this much so that the sarco is definitely expired
+        await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
-      let embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
-      let paymentAccountBalanceBefore = await sarcoToken.balanceOf(
-        paymentAccount.address
-      );
+        let embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
+        let paymentAccountBalanceBefore = await sarcoToken.balanceOf(
+          paymentAccount.address
+        );
 
-      // before cleaning...
-      expect(paymentAccountBalanceBefore).to.eq(0);
+        // before cleaning...
+        expect(paymentAccountBalanceBefore).to.eq(0);
 
-      const tx = await thirdPartyFacet
-        .connect(thirdParty)
-        .clean(sarcoId, paymentAccount.address);
-      const receipt = await tx.wait();
-
-      expect(receipt.status).to.equal(1);
-
-      let embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-      let paymentAccountBalanceAfter = await sarcoToken.balanceOf(
-        paymentAccount.address
-      );
-
-      // after cleaning, calculate sum, and verify on exact amounts instead
-      // Set up amounts that should have been transferred to accuser and embalmer
-      const arch1 = await viewStateFacet.getSarcophagusArchaeologist(
-        sarcoId,
-        archaeologist1.address
-      );
-      const arch2 = await viewStateFacet.getSarcophagusArchaeologist(
-        sarcoId,
-        archaeologist2.address
-      );
-      const arch3 = await viewStateFacet.getSarcophagusArchaeologist(
-        sarcoId,
-        arweaveAchaeologist.address
-      );
-
-      const totalDiggingFees = arch1.diggingFee
-        .add(arch2.diggingFee)
-        .add(arch3.diggingFee);
-
-      const totalBounty = arch1.bounty
-        .add(arch2.bounty)
-        .add(arch3.bounty);
-
-      const cursedBond = calculateCursedBond(totalDiggingFees, totalBounty);
-      const toEmbalmer = cursedBond.div(2);
-      const toCleaner = cursedBond.sub(toEmbalmer);
-
-      // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
-      const embalmerReward = toEmbalmer.add(totalBounty.add(totalDiggingFees)); // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
-      expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward)))
-        .to.be.true;
-      expect(
-        paymentAccountBalanceAfter.eq(
-          paymentAccountBalanceBefore.add(toCleaner)
-        )
-      ).to.be.true;
-    });
-
-    it("Should reduce cursed bonds on storage of archaeologists after distributing their value, without increasing free bond of bad-acting ones", async () => {
-      // Cursed bonds before cleaning:
-      const cursedBond1Before = await viewStateFacet.getCursedBond(archaeologist1.address);
-      const cursedBond2Before = await viewStateFacet.getCursedBond(archaeologist2.address);
-      const cursedBond3Before = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
-      const cursedBondGoodBefore = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
-
-      const freeBond1Before = await viewStateFacet.getFreeBond(archaeologist1.address);
-      const freeBond2Before = await viewStateFacet.getFreeBond(archaeologist2.address);
-      const freeBond3Before = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
-      const freeBondGoodBefore = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
-
-      // Increase time to when sarco can be unwrapped
-      await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
-
-      // Have one arch actually do the unwrapping
-      const unwrapTx = await archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3]);
-      await unwrapTx.wait();
-
-      // Increasing by this much so that the sarco is definitely expired
-      await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
-
-      const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
-      await tx.wait();
-
-      // Cursed bonds after cleaning:
-      const cursedBond1After = await viewStateFacet.getCursedBond(archaeologist1.address);
-      const cursedBond2After = await viewStateFacet.getCursedBond(archaeologist2.address);
-      const cursedBond3After = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
-      const cursedBondGoodAfter = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
-
-      const freeBond1After = await viewStateFacet.getFreeBond(archaeologist1.address);
-      const freeBond2After = await viewStateFacet.getFreeBond(archaeologist2.address);
-      const freeBond3After = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
-      const freeBondGoodAfter = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
-
-      // Check that all archaeologists' cursed bonds have been reduced
-      expect(cursedBond1Before.gt(cursedBond1After)).to.be.true;
-      expect(cursedBond2Before.gt(cursedBond2After)).to.be.true;
-      expect(cursedBond3Before.gt(cursedBond3After)).to.be.true;
-      expect(cursedBondGoodBefore.gt(cursedBondGoodAfter)).to.be.true;
-
-      // Check that accused archaeologists' free bonds have NOT been increased
-      expect(freeBond1Before.eq(freeBond1After)).to.be.true;
-      expect(freeBond2Before.eq(freeBond2After)).to.be.true;
-      expect(freeBond3Before.eq(freeBond3After)).to.be.true;
-
-      // Check that good archaeologist's free bonds have been increased
-      expect(freeBondGoodBefore.lt(freeBondGoodAfter)).to.be.true;
-    });
-
-    it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
-      // Increasing by this much so that the sarco is definitely expired
-      await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
-
-      const tx = thirdPartyFacet
-        .connect(thirdParty)
-        .clean(sarcoId, paymentAccount.address);
-
-      await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus");
-    });
-
-    it("Should add all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
-      // Have one arch actually do the unwrapping
-      await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
-      await archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3]);
-
-      // Increasing by this much so that the sarco is definitely expired
-      await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
-
-      const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
-      await tx.wait();
-
-      const arch1Cleanups = await viewStateFacet.getArchaeologistCleanups(archaeologist1.address);
-      const arch2Cleanups = await viewStateFacet.getArchaeologistCleanups(archaeologist2.address);
-      const arch3Cleanups = await viewStateFacet.getArchaeologistCleanups(arweaveAchaeologist.address);
-      const goodArchCleanups = await viewStateFacet.getArchaeologistCleanups(unaccusedArchaeologist.address);
-
-      expect(arch1Cleanups).contains(sarcoId);
-      expect(arch2Cleanups).contains(sarcoId);
-      expect(arch3Cleanups).contains(sarcoId);
-      expect(goodArchCleanups).not.contains(sarcoId);
-    });
-
-    it("Should revert if cleaning is attempted before sacro can be unwrapped, or attempted within its resurrection grace period", async () => {
-      // No time advancement before clean attempt
-      const cleanTx = thirdPartyFacet
-        .connect(thirdParty)
-        .clean(sarcoId, paymentAccount.address);
-      await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
-
-      // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
-      await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
-
-      const cleanTxAgain = thirdPartyFacet
-        .connect(thirdParty)
-        .clean(sarcoId, paymentAccount.address);
-      await expect(cleanTxAgain).to.be.revertedWith(
-        "SarcophagusNotCleanable()"
-      );
-    });
-
-    it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
-      const tx = thirdPartyFacet
-        .connect(thirdParty)
-        .clean(formatBytes32String("unknown-sarcoId"), paymentAccount.address);
-      await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
-    });
-
-    it("Should revert with SarcophagusDoesNotExist if cleaning an already cleaned sarcophagus", async () => {
-      // Increasing time up to so sarco is cleanable
-      await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
-
-      (
-        await thirdPartyFacet
+        const tx = await thirdPartyFacet
           .connect(thirdParty)
-          .clean(sarcoId, paymentAccount.address)
-      ).wait();
+          .clean(sarcoId, paymentAccount.address);
+        const receipt = await tx.wait();
 
-      const tx = thirdPartyFacet
-        .connect(thirdParty)
-        .clean(sarcoId, paymentAccount.address);
-      await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        expect(receipt.status).to.equal(1);
+
+        let embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
+        let paymentAccountBalanceAfter = await sarcoToken.balanceOf(
+          paymentAccount.address
+        );
+
+        // after cleaning, calculate sum, and verify on exact amounts instead
+        // Set up amounts that should have been transferred to accuser and embalmer
+        const arch1 = await viewStateFacet.getSarcophagusArchaeologist(
+          sarcoId,
+          archaeologist1.address
+        );
+        const arch2 = await viewStateFacet.getSarcophagusArchaeologist(
+          sarcoId,
+          archaeologist2.address
+        );
+        const arch3 = await viewStateFacet.getSarcophagusArchaeologist(
+          sarcoId,
+          arweaveAchaeologist.address
+        );
+
+        const totalDiggingFees = arch1.diggingFee
+          .add(arch2.diggingFee)
+          .add(arch3.diggingFee);
+
+        const totalBounty = arch1.bounty
+          .add(arch2.bounty)
+          .add(arch3.bounty);
+
+        const cursedBond = calculateCursedBond(totalDiggingFees, totalBounty);
+        const toEmbalmer = cursedBond.div(2);
+        const toCleaner = cursedBond.sub(toEmbalmer);
+
+        // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
+        const embalmerReward = toEmbalmer.add(totalBounty.add(totalDiggingFees)); // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
+        expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward)))
+          .to.be.true;
+        expect(
+          paymentAccountBalanceAfter.eq(
+            paymentAccountBalanceBefore.add(toCleaner)
+          )
+        ).to.be.true;
+      });
+
+      it("Should reduce cursed bonds on storage of archaeologists after distributing their value, without increasing free bond of bad-acting ones", async () => {
+        // Cursed bonds before cleaning:
+        const cursedBond1Before = await viewStateFacet.getCursedBond(archaeologist1.address);
+        const cursedBond2Before = await viewStateFacet.getCursedBond(archaeologist2.address);
+        const cursedBond3Before = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
+        const cursedBondGoodBefore = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
+
+        const freeBond1Before = await viewStateFacet.getFreeBond(archaeologist1.address);
+        const freeBond2Before = await viewStateFacet.getFreeBond(archaeologist2.address);
+        const freeBond3Before = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
+        const freeBondGoodBefore = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
+
+        // Increase time to when sarco can be unwrapped
+        await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+
+        // Have one arch actually do the unwrapping
+        const unwrapTx = await archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3]);
+        await unwrapTx.wait();
+
+        // Increasing by this much so that the sarco is definitely expired
+        await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+
+        const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
+        await tx.wait();
+
+        // Cursed bonds after cleaning:
+        const cursedBond1After = await viewStateFacet.getCursedBond(archaeologist1.address);
+        const cursedBond2After = await viewStateFacet.getCursedBond(archaeologist2.address);
+        const cursedBond3After = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
+        const cursedBondGoodAfter = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
+
+        const freeBond1After = await viewStateFacet.getFreeBond(archaeologist1.address);
+        const freeBond2After = await viewStateFacet.getFreeBond(archaeologist2.address);
+        const freeBond3After = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
+        const freeBondGoodAfter = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
+
+        // Check that all archaeologists' cursed bonds have been reduced
+        expect(cursedBond1Before.gt(cursedBond1After)).to.be.true;
+        expect(cursedBond2Before.gt(cursedBond2After)).to.be.true;
+        expect(cursedBond3Before.gt(cursedBond3After)).to.be.true;
+        expect(cursedBondGoodBefore.gt(cursedBondGoodAfter)).to.be.true;
+
+        // Check that accused archaeologists' free bonds have NOT been increased
+        expect(freeBond1Before.eq(freeBond1After)).to.be.true;
+        expect(freeBond2Before.eq(freeBond2After)).to.be.true;
+        expect(freeBond3Before.eq(freeBond3After)).to.be.true;
+
+        // Check that good archaeologist's free bonds have been increased
+        expect(freeBondGoodBefore.lt(freeBondGoodAfter)).to.be.true;
+      });
+
+      it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
+        // Increasing by this much so that the sarco is definitely expired
+        await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+
+        const tx = thirdPartyFacet
+          .connect(thirdParty)
+          .clean(sarcoId, paymentAccount.address);
+
+        await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus");
+      });
+
+      it("Should add all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
+        // Have one arch actually do the unwrapping
+        await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+        await archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3]);
+
+        // Increasing by this much so that the sarco is definitely expired
+        await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+
+        const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
+        await tx.wait();
+
+        const arch1Cleanups = await viewStateFacet.getArchaeologistCleanups(archaeologist1.address);
+        const arch2Cleanups = await viewStateFacet.getArchaeologistCleanups(archaeologist2.address);
+        const arch3Cleanups = await viewStateFacet.getArchaeologistCleanups(arweaveAchaeologist.address);
+        const goodArchCleanups = await viewStateFacet.getArchaeologistCleanups(unaccusedArchaeologist.address);
+
+        expect(arch1Cleanups).contains(sarcoId);
+        expect(arch2Cleanups).contains(sarcoId);
+        expect(arch3Cleanups).contains(sarcoId);
+        expect(goodArchCleanups).not.contains(sarcoId);
+      });
+    });
+
+    context("Reverts", () => {
+      it("Should revert if cleaning is attempted before sacro can be unwrapped, or attempted within its resurrection grace period", async () => {
+        // No time advancement before clean attempt
+        const cleanTx = thirdPartyFacet
+          .connect(thirdParty)
+          .clean(sarcoId, paymentAccount.address);
+        await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
+
+        // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
+        await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+
+        const cleanTxAgain = thirdPartyFacet
+          .connect(thirdParty)
+          .clean(sarcoId, paymentAccount.address);
+        await expect(cleanTxAgain).to.be.revertedWith(
+          "SarcophagusNotCleanable()"
+        );
+      });
+
+      it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
+        const tx = thirdPartyFacet
+          .connect(thirdParty)
+          .clean(formatBytes32String("unknown-sarcoId"), paymentAccount.address);
+        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+      });
+
+      it("Should revert with SarcophagusDoesNotExist if cleaning an already cleaned sarcophagus", async () => {
+        // Increasing time up to so sarco is cleanable
+        await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+
+        (
+          await thirdPartyFacet
+            .connect(thirdParty)
+            .clean(sarcoId, paymentAccount.address)
+        ).wait();
+
+        const tx = thirdPartyFacet
+          .connect(thirdParty)
+          .clean(sarcoId, paymentAccount.address);
+        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+      });
     });
   });
 
@@ -593,65 +597,67 @@ describe.only("Contract: ThirdPartyFacet", () => {
       });
     });
 
-    it("Should revert with SarcophagusIsUnwrappable() if called after resurrection time has passed", async () => {
-      // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
-      await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+    context("Reverts", () => {
+      it("Should revert with SarcophagusIsUnwrappable() if called after resurrection time has passed", async () => {
+        // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
+        await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
 
-      const tx = thirdPartyFacet
-        .connect(thirdParty)
-        .accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
-      await expect(tx).to.be.revertedWith("SarcophagusIsUnwrappable()");
-    });
+        const tx = thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+        await expect(tx).to.be.revertedWith("SarcophagusIsUnwrappable()");
+      });
 
-    it("Should revert with NotEnoughProof() if less than m unencrypted shards are provided", async () => {
-      const tx = thirdPartyFacet
-        .connect(thirdParty)
-        .accuse(sarcoId, [], paymentAccount.address);
-      await expect(tx).to.be.revertedWith("NotEnoughProof()");
+      it("Should revert with NotEnoughProof() if less than m unencrypted shards are provided", async () => {
+        const tx = thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(sarcoId, [], paymentAccount.address);
+        await expect(tx).to.be.revertedWith("NotEnoughProof()");
 
-      const tx2 = thirdPartyFacet
-        .connect(thirdParty)
-        .accuse(sarcoId, [unencryptedShards[0]], paymentAccount.address);
-      await expect(tx2).to.be.revertedWith("NotEnoughProof()");
-    });
+        const tx2 = thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(sarcoId, [unencryptedShards[0]], paymentAccount.address);
+        await expect(tx2).to.be.revertedWith("NotEnoughProof()");
+      });
 
-    it("Should revert with NotEnoughProof() if at least m unencrypted shards are provided, but one or more are invalid", async () => {
-      const tx2 = thirdPartyFacet
-        .connect(thirdParty)
-        .accuse(
-          sarcoId,
-          [unencryptedShards[0], hashedShards[1]],
-          paymentAccount.address
-        );
-      await expect(tx2).to.be.revertedWith("NotEnoughProof()");
-    });
-
-    it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
-      const tx = thirdPartyFacet
-        .connect(thirdParty)
-        .accuse(
-          formatBytes32String("unknown-id"),
-          unencryptedShards.slice(0, 2),
-          paymentAccount.address
-        );
-      await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
-    });
-
-    it("Should revert with SarcophagusDoesNotExist if calling accuse on a previously accused sarcophagus", async () => {
-      (
-        await thirdPartyFacet
+      it("Should revert with NotEnoughProof() if at least m unencrypted shards are provided, but one or more are invalid", async () => {
+        const tx2 = thirdPartyFacet
           .connect(thirdParty)
           .accuse(
             sarcoId,
+            [unencryptedShards[0], hashedShards[1]],
+            paymentAccount.address
+          );
+        await expect(tx2).to.be.revertedWith("NotEnoughProof()");
+      });
+
+      it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
+        const tx = thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(
+            formatBytes32String("unknown-id"),
             unencryptedShards.slice(0, 2),
             paymentAccount.address
-          )
-      ).wait();
+          );
+        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+      });
 
-      const tx = thirdPartyFacet
-        .connect(thirdParty)
-        .accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
-      await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+      it("Should revert with SarcophagusDoesNotExist if calling accuse on a previously accused sarcophagus", async () => {
+        (
+          await thirdPartyFacet
+            .connect(thirdParty)
+            .accuse(
+              sarcoId,
+              unencryptedShards.slice(0, 2),
+              paymentAccount.address
+            )
+        ).wait();
+
+        const tx = thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+      });
     });
   });
 });
