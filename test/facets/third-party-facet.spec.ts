@@ -15,7 +15,7 @@ import { BytesLike, formatBytes32String } from "ethers/lib/utils";
 import time from "../utils/time";
 import { sign } from "../utils/helpers";
 
-describe("Contract: ThirdPartyFacet", () => {
+describe.only("Contract: ThirdPartyFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
   let embalmerFacet: EmbalmerFacet;
   let viewStateFacet: ViewStateFacet;
@@ -230,7 +230,7 @@ describe("Contract: ThirdPartyFacet", () => {
       await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
 
       // unaccusedArchaeologist will fulfil their duty
-      // archaeologistFacet.connect(unaccusedArchaeologist).unwrap() (TODO: uncomment and fix when unwrap is merged)
+      archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3])
 
       // Increasing by this much so that the sarco is definitely expired
       await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
@@ -269,20 +269,14 @@ describe("Contract: ThirdPartyFacet", () => {
         sarcoId,
         arweaveAchaeologist.address
       );
-      const arch4 = await viewStateFacet.getSarcophagusArchaeologist(
-        sarcoId,
-        unaccusedArchaeologist.address
-      );
 
       const totalDiggingFees = arch1.diggingFee
         .add(arch2.diggingFee)
-        .add(arch3.diggingFee)
-        .add(arch4.diggingFee); // TODO: arch4 should unwrap, so remove once unwrap is merged and it can.
+        .add(arch3.diggingFee);
 
       const totalBounty = arch1.bounty
         .add(arch2.bounty)
-        .add(arch3.bounty)
-        .add(arch4.bounty); // TODO: arch4 should unwrap, so remove once unwrap is merged and it can.
+        .add(arch3.bounty);
 
       const cursedBond = totalDiggingFees.add(totalBounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
       const toEmbalmer = cursedBond.div(2);
@@ -299,6 +293,57 @@ describe("Contract: ThirdPartyFacet", () => {
       ).to.be.true;
     });
 
+    it("Should reduce cursed bonds on storage of archaeologists after distributing their value, without increasing free bond of bad-acting ones", async () => {
+      // Cursed bonds before cleaning:
+      const cursedBond1Before = await viewStateFacet.getCursedBond(archaeologist1.address);
+      const cursedBond2Before = await viewStateFacet.getCursedBond(archaeologist2.address);
+      const cursedBond3Before = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
+      const cursedBondGoodBefore = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
+
+      const freeBond1Before = await viewStateFacet.getFreeBond(archaeologist1.address);
+      const freeBond2Before = await viewStateFacet.getFreeBond(archaeologist2.address);
+      const freeBond3Before = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
+      const freeBondGoodBefore = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
+
+      // Increase time to when sarco can be unwrapped
+      await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+
+      // Have one arch actually do the unwrapping
+      const unwrapTx = await archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3]);
+      await unwrapTx.wait();
+
+      // Increasing by this much so that the sarco is definitely expired
+      await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+
+      const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
+      await tx.wait();
+
+      // Cursed bonds after cleaning:
+      const cursedBond1After = await viewStateFacet.getCursedBond(archaeologist1.address);
+      const cursedBond2After = await viewStateFacet.getCursedBond(archaeologist2.address);
+      const cursedBond3After = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
+      const cursedBondGoodAfter = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
+
+      const freeBond1After = await viewStateFacet.getFreeBond(archaeologist1.address);
+      const freeBond2After = await viewStateFacet.getFreeBond(archaeologist2.address);
+      const freeBond3After = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
+      const freeBondGoodAfter = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
+
+      // Check that all archaeologists' cursed bonds have been reduced
+      expect(cursedBond1Before.gt(cursedBond1After)).to.be.true;
+      expect(cursedBond2Before.gt(cursedBond2After)).to.be.true;
+      expect(cursedBond3Before.gt(cursedBond3After)).to.be.true;
+      expect(cursedBondGoodBefore.gt(cursedBondGoodAfter)).to.be.true;
+
+      // Check that accused archaeologists' free bonds have NOT been increased
+      expect(freeBond1Before.eq(freeBond1After)).to.be.true;
+      expect(freeBond2Before.eq(freeBond2After)).to.be.true;
+      expect(freeBond3Before.eq(freeBond3After)).to.be.true;
+
+      // Check that good archaeologist's free bonds have been increased
+      expect(freeBondGoodBefore.lt(freeBondGoodAfter)).to.be.true;
+    });
+
     it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
       // Increasing by this much so that the sarco is definitely expired
       await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
@@ -310,21 +355,27 @@ describe("Contract: ThirdPartyFacet", () => {
       await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus");
     });
 
-    it(
-      "Should add all defaulting archaeologists to archaeologistCleanups storage on successful cleanup"
-      // , async () => {
-      //     // Increasing by this much so that the sarco is definitely expired
-      //     await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
+    it("Should add all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
+      // Have one arch actually do the unwrapping
+      await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
+      await archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3]);
 
-      //     const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
-      //     await tx.wait();
+      // Increasing by this much so that the sarco is definitely expired
+      await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
-      //     // need access to appstorage here. Or add a getter function on ArchaeologistFacet?
+      const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
+      await tx.wait();
 
-      //     // for each defaulting archId,
-      //     // verify that archaeologistCleanups[archId] contains sarcoId
-      // }
-    );
+      const arch1Cleanups = await viewStateFacet.getArchaeologistCleanups(archaeologist1.address);
+      const arch2Cleanups = await viewStateFacet.getArchaeologistCleanups(archaeologist2.address);
+      const arch3Cleanups = await viewStateFacet.getArchaeologistCleanups(arweaveAchaeologist.address);
+      const goodArchCleanups = await viewStateFacet.getArchaeologistCleanups(unaccusedArchaeologist.address);
+
+      expect(arch1Cleanups).contains(sarcoId);
+      expect(arch2Cleanups).contains(sarcoId);
+      expect(arch3Cleanups).contains(sarcoId);
+      expect(goodArchCleanups).not.contains(sarcoId);
+    });
 
     it("Should revert if cleaning is attempted before sacro can be unwrapped, or attempted within its resurrection grace period", async () => {
       // No time advancement before clean attempt
@@ -457,51 +508,89 @@ describe("Contract: ThirdPartyFacet", () => {
         ).to.be.true;
       });
 
-      it(
-        "Should reduce cursed bond on storage of accused archaeologists after distributing their value"
+      it("Should reduce cursed bond on storage of accused archaeologists after distributing their value, without increasing their free bond", async () => {
+        const cursedBond1Before = await viewStateFacet.getCursedBond(archaeologist1.address);
+        const cursedBond2Before = await viewStateFacet.getCursedBond(archaeologist2.address);
+        const freeBond1Before = await viewStateFacet.getFreeBond(archaeologist1.address);
+        const freeBond2Before = await viewStateFacet.getFreeBond(archaeologist2.address);
+
+        const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+        await tx.wait();
+
+        const cursedBond1After = await viewStateFacet.getCursedBond(archaeologist1.address);
+        const cursedBond2After = await viewStateFacet.getCursedBond(archaeologist2.address);
+        const freeBond1After = await viewStateFacet.getFreeBond(archaeologist1.address);
+        const freeBond2After = await viewStateFacet.getFreeBond(archaeologist2.address);
+
+        // Check that accused archaeologists' cursed bonds have been reduced
+        expect(cursedBond1Before.gt(cursedBond1After)).to.be.true;
+        expect(cursedBond2Before.gt(cursedBond2After)).to.be.true;
+
+        // Check that accused archaeologists' free bonds have NOT been increased
+        expect(freeBond1Before.eq(freeBond1After)).to.be.true;
+        expect(freeBond2Before.eq(freeBond2After)).to.be.true;
+      });
+
+      it("Should un-curse the bond (on storage) of unaccused archaeologists", async () => {
+        const cursedBond1Before = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
+        const cursedBond2Before = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
+        const freeBond1Before = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
+        const freeBond2Before = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
+
+        const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+        await tx.wait();
+
+        const cursedBond1After = await viewStateFacet.getCursedBond(archaeologist1.address);
+        const cursedBond2After = await viewStateFacet.getCursedBond(archaeologist2.address);
+        const freeBond1After = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
+        const freeBond2After = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
+
+        // Check that unaccused archaeologists' cursed bonds have been un-cursed
+        expect(cursedBond1Before.gt(cursedBond1After)).to.be.true;
+        expect(cursedBond2Before.gt(cursedBond2After)).to.be.true;
+
+        // Check that unaccused archaeologists' free bonds have been increased
+        expect(freeBond1Before.lt(freeBond1After)).to.be.true;
+        expect(freeBond2Before.lt(freeBond2After)).to.be.true;
+      });
+
+      it("Should distribute the bounties and digging fees of unaccused archaeologists back to them", async () => {
+        const unaccusedArchaeologist1BalBefore = await sarcoToken.balanceOf(arweaveAchaeologist.address);
+        const unaccusedArchaeologist2BalBefore = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
+
+        const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+        await tx.wait();
+
+        // Set up amounts that should have been transferred to unaccused archaeologists
+        const arch1 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, arweaveAchaeologist.address);
+        const arch2 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, unaccusedArchaeologist.address);
+
+        const cursedBond1 = arch1.diggingFee.add(arch1.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+        const cursedBond2 = arch2.diggingFee.add(arch2.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+
+        const unaccusedArchaeologist1BalAfter = await sarcoToken.balanceOf(arweaveAchaeologist.address);
+        const unaccusedArchaeologist2BalAfter = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
+
+        // Check that unaccused archaeologists now have balances that includes the amount that should have been transferred to them
+        expect(unaccusedArchaeologist1BalAfter.eq(unaccusedArchaeologist1BalBefore.add(cursedBond1))).to.be.true;
+        expect(unaccusedArchaeologist2BalAfter.eq(unaccusedArchaeologist2BalBefore.add(cursedBond2))).to.be.true;
+      }
       );
 
-      it(
-        "Should reduce cursed bond on storage of unaccused archaeologists after reimbursing them"
-      );
+      it("Should add all accused archaeologists to archaeologistAccusals storage on successful accusal", async () => {
+        const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+        await tx.wait();
 
-      it(
-        "Should distribute the bounties and digging fees of unaccused archaeologists back to them, and un-curse their associated bonds", async () => {
-          const unaccusedArchaeologist1BalBefore = await sarcoToken.balanceOf(arweaveAchaeologist.address);
-          const unaccusedArchaeologist2BalBefore = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
+        const arch1Accusals = await viewStateFacet.getArchaeologistAccusals(archaeologist1.address);
+        const arch2Accusals = await viewStateFacet.getArchaeologistAccusals(archaeologist2.address);
+        const arch3Accusals = await viewStateFacet.getArchaeologistAccusals(arweaveAchaeologist.address);
+        const goodArchAccusals = await viewStateFacet.getArchaeologistAccusals(unaccusedArchaeologist.address);
 
-          const cursedBond1Before = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
-          const cursedBond2Before = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
-
-          const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
-          await tx.wait();
-
-          // Set up amounts that should have been transferred to unaccused archaeologists
-          const arch1 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, arweaveAchaeologist.address);
-          const arch2 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, unaccusedArchaeologist.address);
-
-          const cursedBond1 = arch1.diggingFee.add(arch1.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
-          const cursedBond2 = arch2.diggingFee.add(arch2.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
-
-          const unaccusedArchaeologist1BalAfter = await sarcoToken.balanceOf(arweaveAchaeologist.address);
-          const unaccusedArchaeologist2BalAfter = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
-
-          const cursedBond1After = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
-          const cursedBond2After = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
-
-          // Check that unaccused archaeologists now have balances that includes the amount that should have been transferred to them
-          expect(unaccusedArchaeologist1BalAfter.gte(unaccusedArchaeologist1BalBefore.add(cursedBond1))).to.be.true;
-          expect(unaccusedArchaeologist2BalAfter.gte(unaccusedArchaeologist2BalBefore.add(cursedBond2))).to.be.true;
-
-          // Check that unaccused archaeologists' cursed bonds have been un-cursed
-          expect(cursedBond1Before.gte(cursedBond1After)).to.be.true;
-          expect(cursedBond2Before.gte(cursedBond2After)).to.be.true;
-        }
-      );
-
-      it(
-        "Should add all accused archaeologists to archaeologistAccusals storage on successful accusal"
-      );
+        expect(arch1Accusals).contains(sarcoId);
+        expect(arch2Accusals).contains(sarcoId);
+        expect(arch3Accusals).not.contains(sarcoId);
+        expect(goodArchAccusals).not.contains(sarcoId);
+      });
     });
 
     it("Should revert with SarcophagusIsUnwrappable() if called after resurrection time has passed", async () => {

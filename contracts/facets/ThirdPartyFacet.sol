@@ -282,13 +282,6 @@ contract ThirdPartyFacet {
         // transfer the other half of the cursed bond to the transaction caller
         s.sarcoToken.transfer(paymentAddress, halfToSender);
 
-        // This cannot be (easily) done here.
-        // Instead, it's done as defaulters are being aggregated in clean function
-        // LibBonds.decreaseCursedBond(
-        //     sarc.archaeologist,
-        //     sarc.currentCursedBond
-        // );
-
         return (halfToSender, halfToEmbalmer);
     }
 
