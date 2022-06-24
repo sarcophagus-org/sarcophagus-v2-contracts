@@ -126,7 +126,6 @@ contract ThirdPartyFacet {
             revert LibErrors.NotEnoughProof();
         }
 
-        // TODO not in use now, but might be useful for filtering out unaccused archs for reimbursement.
         address[] memory accusedArchAddresses = new address[](
             unencryptedShards.length
         );
@@ -166,6 +165,30 @@ contract ThirdPartyFacet {
             }
         }
 
+        // At this point, we need to filter out unaccused archs in order to reimburse them.
+        address[] memory sarcoArchsAddresses = s
+            .sarcophaguses[sarcoId]
+            .archaeologists;
+
+        for (uint256 i = 0; i < sarcoArchsAddresses.length; i++) {
+            // Need to check each archaeologist address on the sarcophagus
+            bool isUnaccused = true;
+
+            for (uint256 j = 0; j < accusedArchAddresses.length; j++) {
+                // For each arch address, if found in accusedArchAddresses,
+                // then don't add to unaccusedArchsAddresses
+                if (sarcoArchsAddresses[i] == accusedArchAddresses[j]) {
+                    isUnaccused = false;
+                    break;
+                }
+            }
+
+            // If this arch address wasn't in the accused list, reimburse it
+            if (isUnaccused) {
+                _reimburseArch(sarcoId, sarcoArchsAddresses[i]);
+            }
+        }
+
         (
             uint256 accuserBondReward,
             uint256 embalmerBondReward
@@ -176,8 +199,6 @@ contract ThirdPartyFacet {
                 diggingFeesToBeDistributed,
                 bountyToBeDistributed
             );
-
-        // _reimburseArchs(archs);
 
         sarco.state = LibTypes.SarcophagusState.Done;
 
@@ -190,8 +211,28 @@ contract ThirdPartyFacet {
     }
 
     /**
+     * @notice Transfers the value of the cursed bond of the archaeologist back to them, and un-curses their bond.
+     * @param sarcoId The identifier of the sarcophagus for which the bonds were cursed
+     * @param arch Address of the archaeologist to reimburse
+     */
+    function _reimburseArch(bytes32 sarcoId, address arch) private {
+        LibTypes.ArchaeologistStorage storage goodArch = s
+            .sarcophagusArchaeologists[sarcoId][arch];
+
+        uint256 cursedBond = LibBonds.calculateCursedBond(
+            goodArch.diggingFee,
+            goodArch.bounty
+        );
+
+        s.sarcoToken.transfer(arch, cursedBond);
+        LibBonds.freeArchaeologist(sarcoId, arch);
+    }
+
+    /**
      * @notice After a sarcophagus has been successfully accused, transfers the value
      * of the cursed bonds of the archs back to them, and un-curses their bonds.
+     * @dev not using this in accuse because it'd involve yet another loop.
+     * Instead, _reimburseArch will run on each unaccused archaeologist that's found.
      * @param sarcoId The identifier of the sarcophagus for which the bonds were cursed
      * @param archs The archaeologists to reimburse
      * @param amounts amounts of sarco tokens to transfer to archaeologists. Should be in same order
@@ -203,7 +244,7 @@ contract ThirdPartyFacet {
         uint256[] memory amounts
     ) private {
         for (uint256 i = 0; i < archs.length; i++) {
-            s.sarcoToken.transfer(archs[i], amounts[i]); // What account will this transfer from?!
+            s.sarcoToken.transfer(archs[i], amounts[i]);
             LibBonds.freeArchaeologist(sarcoId, archs[i]);
         }
     }
@@ -240,13 +281,6 @@ contract ThirdPartyFacet {
 
         // transfer the other half of the cursed bond to the transaction caller
         s.sarcoToken.transfer(paymentAddress, halfToSender);
-
-        // This cannot be (easily) done here.
-        // Instead, it's done as defaulters are being aggregated in clean function
-        // LibBonds.decreaseCursedBond(
-        //     sarc.archaeologist,
-        //     sarc.currentCursedBond
-        // );
 
         return (halfToSender, halfToEmbalmer);
     }

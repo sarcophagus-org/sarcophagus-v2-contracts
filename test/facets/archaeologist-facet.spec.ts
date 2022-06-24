@@ -11,7 +11,7 @@ import {
   SarcoTokenMock,
   ViewStateFacet,
 } from "../../typechain";
-import { SarcophagusState, SignatureWithAccount } from "../../types";
+import { SignatureWithAccount } from "../../types";
 import {
   increaseNextBlockTimestamp,
   setupArchaeologists,

@@ -76,3 +76,6 @@ export const setupArchaeologists = async (
       .depositFreeBond(BigNumber.from("5000"));
   }
 };
+
+// TODO: update if calculate cursed bond algorithm changes (or possibly read this from contract instead?)
+export const calculateCursedBond = (diggingFee: BigNumber, bounty: BigNumber) => diggingFee.add(bounty);
