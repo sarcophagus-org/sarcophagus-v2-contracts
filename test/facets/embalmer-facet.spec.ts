@@ -11,7 +11,7 @@ import {
 } from "../../typechain";
 import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
 import { SarcophagusState, SignatureWithAccount } from "../../types";
-import { sign } from "../utils/helpers";
+import { calculateCursedBond, sign } from "../utils/helpers";
 
 describe("Contract: EmbalmerFacet", () => {
   // Define a resurrrection time one week in the future
@@ -689,9 +689,10 @@ describe("Contract: EmbalmerFacet", () => {
         );
 
         // TODO: Modify this when the calculateCursedBond method changes in the contract
-        const firstArchaeologistCursedBond =
-          archaeologistsFees[arweaveArchaeologistIndex].bounty +
-          archaeologistsFees[arweaveArchaeologistIndex].diggingFee;
+        const firstArchaeologistCursedBond = calculateCursedBond(
+          BigNumber.from(archaeologistsFees[arweaveArchaeologistIndex].diggingFee),
+          BigNumber.from(archaeologistsFees[arweaveArchaeologistIndex].bounty)
+        );
 
         expect(freeBondBefore.sub(freeBondAfter)).to.equal(
           BigNumber.from(firstArchaeologistCursedBond)

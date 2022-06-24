@@ -13,7 +13,7 @@ import {
 } from "../../typechain";
 import { BytesLike, formatBytes32String } from "ethers/lib/utils";
 import time from "../utils/time";
-import { sign } from "../utils/helpers";
+import { calculateCursedBond, sign } from "../utils/helpers";
 
 describe.only("Contract: ThirdPartyFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
@@ -278,7 +278,7 @@ describe.only("Contract: ThirdPartyFacet", () => {
         .add(arch2.bounty)
         .add(arch3.bounty);
 
-      const cursedBond = totalDiggingFees.add(totalBounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+      const cursedBond = calculateCursedBond(totalDiggingFees, totalBounty);
       const toEmbalmer = cursedBond.div(2);
       const toCleaner = cursedBond.sub(toEmbalmer);
 
@@ -483,7 +483,7 @@ describe.only("Contract: ThirdPartyFacet", () => {
         const totalDiggingFees = arch1.diggingFee.add(arch2.diggingFee);
         const totalBounty = arch1.bounty.add(arch2.bounty);
 
-        const cursedBond = totalDiggingFees.add(totalBounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+        const cursedBond = calculateCursedBond(totalDiggingFees, totalBounty);
         const toEmbalmer = cursedBond.div(2);
         const toAccuser = cursedBond.sub(toEmbalmer);
 
@@ -565,8 +565,8 @@ describe.only("Contract: ThirdPartyFacet", () => {
         const arch1 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, arweaveAchaeologist.address);
         const arch2 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, unaccusedArchaeologist.address);
 
-        const cursedBond1 = arch1.diggingFee.add(arch1.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
-        const cursedBond2 = arch2.diggingFee.add(arch2.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+        const cursedBond1 = calculateCursedBond(arch1.diggingFee, arch1.bounty);
+        const cursedBond2 = calculateCursedBond(arch2.diggingFee, arch2.bounty);
 
         const unaccusedArchaeologist1BalAfter = await sarcoToken.balanceOf(arweaveAchaeologist.address);
         const unaccusedArchaeologist2BalAfter = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
