@@ -466,38 +466,37 @@ describe("Contract: ThirdPartyFacet", () => {
       );
 
       it(
-        "Should distribute the bounties and digging fees of unaccused archaeologists back to them, and un-curse their associated bonds"
-        // , async () => {
-        //     const unaccusedArchaeologist1BalBefore = await sarcoToken.balanceOf(arweaveAchaeologist.address);
-        //     const unaccusedArchaeologist2BalBefore = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
+        "Should distribute the bounties and digging fees of unaccused archaeologists back to them, and un-curse their associated bonds", async () => {
+          const unaccusedArchaeologist1BalBefore = await sarcoToken.balanceOf(arweaveAchaeologist.address);
+          const unaccusedArchaeologist2BalBefore = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
 
-        //     const cursedBond1Before = await archaeologistFacet.getCursedBond(arweaveAchaeologist.address);
-        //     const cursedBond2Before = await archaeologistFacet.getCursedBond(unaccusedArchaeologist.address);
+          const cursedBond1Before = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
+          const cursedBond2Before = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
 
-        //     const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
-        //     await tx.wait();
+          const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
+          await tx.wait();
 
-        //     // Set up amounts that should have been transferred to unaccused archaeologists
-        //     const arch1 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, arweaveAchaeologist.address);
-        //     const arch2 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, unaccusedArchaeologist.address);
+          // Set up amounts that should have been transferred to unaccused archaeologists
+          const arch1 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, arweaveAchaeologist.address);
+          const arch2 = await viewStateFacet.getSarcophagusArchaeologist(sarcoId, unaccusedArchaeologist.address);
 
-        //     const cursedBond1 = arch1.diggingFee.add(arch1.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
-        //     const cursedBond2 = arch2.diggingFee.add(arch2.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+          const cursedBond1 = arch1.diggingFee.add(arch1.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
+          const cursedBond2 = arch2.diggingFee.add(arch2.bounty); // TODO: update if calculate cursed bond algorithm changes (need helper util for this, or read this from contract)
 
-        //     const unaccusedArchaeologist1BalAfter = await sarcoToken.balanceOf(arweaveAchaeologist.address);
-        //     const unaccusedArchaeologist2BalAfter = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
+          const unaccusedArchaeologist1BalAfter = await sarcoToken.balanceOf(arweaveAchaeologist.address);
+          const unaccusedArchaeologist2BalAfter = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
 
-        //     const cursedBond1After = await archaeologistFacet.getCursedBond(arweaveAchaeologist.address);
-        //     const cursedBond2After = await archaeologistFacet.getCursedBond(unaccusedArchaeologist.address);
+          const cursedBond1After = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
+          const cursedBond2After = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
 
-        //     // Check that unaccused archaeologists now have balances that includes the amount that should have been transferred to them
-        //     expect(unaccusedArchaeologist1BalAfter.gte(unaccusedArchaeologist1BalBefore.add(cursedBond1))).to.be.true;
-        //     expect(unaccusedArchaeologist2BalAfter.gte(unaccusedArchaeologist2BalBefore.add(cursedBond2))).to.be.true;
+          // Check that unaccused archaeologists now have balances that includes the amount that should have been transferred to them
+          expect(unaccusedArchaeologist1BalAfter.gte(unaccusedArchaeologist1BalBefore.add(cursedBond1))).to.be.true;
+          expect(unaccusedArchaeologist2BalAfter.gte(unaccusedArchaeologist2BalBefore.add(cursedBond2))).to.be.true;
 
-        //     // Check that unaccused archaeologists' cursed bonds have been un-cursed
-        //     expect(cursedBond1Before.gte(cursedBond1After)).to.be.true;
-        //     expect(cursedBond2Before.gte(cursedBond2After)).to.be.true;
-        // }
+          // Check that unaccused archaeologists' cursed bonds have been un-cursed
+          expect(cursedBond1Before.gte(cursedBond1After)).to.be.true;
+          expect(cursedBond2Before.gte(cursedBond2After)).to.be.true;
+        }
       );
 
       it(
