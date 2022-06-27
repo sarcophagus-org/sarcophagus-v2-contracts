@@ -7,6 +7,7 @@ import {LibUtils} from "../libraries/LibUtils.sol";
 import {LibEvents} from "../libraries/LibEvents.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
+import {LibRewards} from "../libraries/LibRewards.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract ArchaeologistFacet {
@@ -42,7 +43,7 @@ contract ArchaeologistFacet {
     /// @notice Withdraws froms an archaeologist's reward pool
     /// @param amount The amount to withdraw
     function withdrawReward(uint256 amount) external {
-        _decreaseRewardPool(amount);
+        LibRewards.decreaseRewardPool(msg.sender, amount);
 
         // Transfer the amount of sarcoToken to the archaeologist
         s.sarcoToken.transfer(msg.sender, amount);
@@ -112,8 +113,8 @@ contract ArchaeologistFacet {
         // Save the successful sarcophagus against the archaeologist
         s.archaeologistSuccesses[msg.sender][identifier] = true;
 
-        // Transfer the bounty and digging fee to the archaeologist
-        s.sarcoToken.transfer(
+        // Transfer the bounty and digging fee to the archaeologist's reward pool
+        LibRewards.increaseRewardPool(
             msg.sender,
             archaeologistData.bounty + archaeologistData.diggingFee
         );
@@ -227,29 +228,5 @@ contract ArchaeologistFacet {
             oldArchaeologist,
             msg.sender
         );
-    }
-
-    /// @notice Decreases the amount stored in the archaeologistRewards mapping for an
-    /// archaeologist. Reverts if the archaeologist's reward is lower than
-    /// the amount. Called on reward withdraw.
-    /// @param amount The amount to decrease the reward by
-    function _decreaseRewardPool(uint256 amount) private {
-        // Revert if the amount is greater than the current reward
-        if (amount > s.archaeologistRewards[msg.sender]) {
-            revert LibErrors.NotEnoughReward(
-                s.archaeologistRewards[msg.sender],
-                amount
-            );
-        }
-
-        // Decrease the free bond amount
-        s.archaeologistRewards[msg.sender] -= amount;
-    }
-
-    /// @notice Increases the amount stored in the archaeologistRewards mapping for an
-    /// archaeologist.
-    /// @param amount The amount to increase the reward by
-    function _increaseRewardPool(uint256 amount) private {
-        s.archaeologistRewards[msg.sender] += amount;
     }
 }
