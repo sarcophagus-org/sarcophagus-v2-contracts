@@ -622,9 +622,10 @@ describe("Contract: EmbalmerFacet", () => {
           archaeologists[1].address
         );
 
-        // TODO: Modify this when the calculateCursedBond method changes in the contract
-        const firstArchaeologistCursedBond =
-          archaeologistsFees[1].bounty + archaeologistsFees[1].diggingFee;
+        const firstArchaeologistCursedBond = calculateCursedBond(
+          BigNumber.from(archaeologistsFees[1].diggingFee),
+          BigNumber.from(archaeologistsFees[1].bounty)
+        );
 
         expect(freeBondBefore.sub(freeBondAfter)).to.equal(
           BigNumber.from(firstArchaeologistCursedBond)
