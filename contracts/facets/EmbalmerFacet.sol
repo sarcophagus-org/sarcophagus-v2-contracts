@@ -6,6 +6,7 @@ import "../libraries/LibTypes.sol";
 import "../libraries/LibEvents.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
+import {LibRewards} from "../libraries/LibRewards.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
@@ -423,8 +424,8 @@ contract EmbalmerFacet {
             LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
                 .getArchaeologist(identifier, archaeologistAddresses[i]);
 
-            // Transfer the archaeologist's digging fee allocation to the archaeologist
-            s.sarcoToken.transfer(
+            // Transfer the archaeologist's digging fee allocation to the archaeologist's reward pool
+            LibRewards.increaseRewardPool(
                 archaeologistAddresses[i],
                 archaeologistData.diggingFee
             );
@@ -438,7 +439,8 @@ contract EmbalmerFacet {
         // Add the protocol fee to the total protocol fees in storage
         s.totalProtocolFees += protocolFee;
 
-        // Transfer the new digging fees from the embalmer to the sarcophagus contract
+        // Transfer the new digging fees from the embalmer to the sarcophagus contract.
+        // Archaeologists may withdraw their due from their respective reward pools
         s.sarcoToken.transferFrom(
             msg.sender,
             address(this),
@@ -566,8 +568,8 @@ contract EmbalmerFacet {
             LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
                 .getArchaeologist(identifier, archaeologistAddresses[i]);
 
-            // Transfer the digging fees to the archaeologist
-            s.sarcoToken.transfer(
+            // Transfer the digging fees to the archaeologist's reward pool
+            LibRewards.increaseRewardPool(
                 archaeologistAddresses[i],
                 archaeologistData.diggingFee
             );
