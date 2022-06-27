@@ -42,6 +42,11 @@ library LibEvents {
         uint256 withdrawnBond
     );
 
+    event WithdrawReward(
+        address indexed archaeologist,
+        uint256 withdrawnReward
+    );
+
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
     event InitializeSarcophagus(

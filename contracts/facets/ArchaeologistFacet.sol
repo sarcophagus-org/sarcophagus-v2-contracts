@@ -39,6 +39,17 @@ contract ArchaeologistFacet {
         emit LibEvents.WithdrawFreeBond(msg.sender, amount);
     }
 
+    /// @notice Withdraws froms an archaeologist's reward pool
+    /// @param amount The amount to withdraw
+    function withdrawReward(uint256 amount) external {
+        _decreaseRewardPool(amount);
+
+        // Transfer the amount of sarcoToken to the archaeologist
+        s.sarcoToken.transfer(msg.sender, amount);
+
+        emit LibEvents.WithdrawReward(msg.sender, amount);
+    }
+
     /// @notice Unwraps the sarcophagus.
     /// @dev Verifies that the unencrypted shard matches the hashedShard stored
     /// on chain and pays the archaeologist.
@@ -216,5 +227,29 @@ contract ArchaeologistFacet {
             oldArchaeologist,
             msg.sender
         );
+    }
+
+    /// @notice Decreases the amount stored in the archaeologistRewards mapping for an
+    /// archaeologist. Reverts if the archaeologist's reward is lower than
+    /// the amount. Called on reward withdraw.
+    /// @param amount The amount to decrease the reward by
+    function _decreaseRewardPool(uint256 amount) private {
+        // Revert if the amount is greater than the current reward
+        if (amount > s.archaeologistRewards[msg.sender]) {
+            revert LibErrors.NotEnoughReward(
+                s.archaeologistRewards[msg.sender],
+                amount
+            );
+        }
+
+        // Decrease the free bond amount
+        s.archaeologistRewards[msg.sender] -= amount;
+    }
+
+    /// @notice Increases the amount stored in the archaeologistRewards mapping for an
+    /// archaeologist.
+    /// @param amount The amount to increase the reward by
+    function _increaseRewardPool(uint256 amount) private {
+        s.archaeologistRewards[msg.sender] += amount;
     }
 }

@@ -20,6 +20,9 @@ struct AppStorage {
     mapping(address => bytes32[]) archaeologistCancels;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
+    // Track how much archaeologists have made. To be credited and debited
+    // as archaeologists fulfil their duties and withdraw their rewards
+    mapping(address => uint256) archaeologistRewards;
     // sarcophaguses
     bytes32[] sarcophagusIdentifiers;
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophaguses;
