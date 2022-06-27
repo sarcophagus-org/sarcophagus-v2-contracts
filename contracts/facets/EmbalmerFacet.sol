@@ -348,9 +348,12 @@ contract EmbalmerFacet {
         // being populated indirectly designates the sarcophagus as finalized.
         s.sarcophaguses[identifier].arweaveTxIds.push(arweaveTxId);
 
-        // Transfer the storage fee to the arweave archaeologist after setting
-        // the arweave transaction id.
-        s.sarcoToken.transfer(
+        // Transfer the storage fee to the arweave archaeologist's reward pool
+        // after setting the arweave transaction id.
+        // TODO: Discuss, confirm if this is okay:
+        // Is there value in directly transferring the storage fee to the
+        // archaeologist on finalise?
+        LibRewards.increaseRewardPool(
             s.sarcophaguses[identifier].arweaveArchaeologist,
             s.sarcophaguses[identifier].storageFee
         );
