@@ -7,6 +7,7 @@ import {LibUtils} from "../libraries/LibUtils.sol";
 import {LibEvents} from "../libraries/LibEvents.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
+import {LibRewards} from "../libraries/LibRewards.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract ArchaeologistFacet {
@@ -37,6 +38,17 @@ contract ArchaeologistFacet {
 
         // Emit an event
         emit LibEvents.WithdrawFreeBond(msg.sender, amount);
+    }
+
+    /// @notice Withdraws froms an archaeologist's reward pool
+    /// @param amount The amount to withdraw
+    function withdrawReward(uint256 amount) external {
+        LibRewards.decreaseRewardPool(msg.sender, amount);
+
+        // Transfer the amount of sarcoToken to the archaeologist
+        s.sarcoToken.transfer(msg.sender, amount);
+
+        emit LibEvents.WithdrawReward(msg.sender, amount);
     }
 
     /// @notice Unwraps the sarcophagus.
@@ -101,8 +113,8 @@ contract ArchaeologistFacet {
         // Save the successful sarcophagus against the archaeologist
         s.archaeologistSuccesses[msg.sender][identifier] = true;
 
-        // Transfer the bounty and digging fee to the archaeologist
-        s.sarcoToken.transfer(
+        // Transfer the bounty and digging fee to the archaeologist's reward pool
+        LibRewards.increaseRewardPool(
             msg.sender,
             archaeologistData.bounty + archaeologistData.diggingFee
         );

@@ -31,6 +31,18 @@ contract ViewStateFacet {
         return s.freeBonds[archaeologist];
     }
 
+    /// @notice Returns the amount of rewards stored in the contract for an
+    /// archaeologist.
+    /// @param archaeologist The address of the archaeologist whose
+    /// reward is being returned
+    function getAvailableRewards(address archaeologist)
+        external
+        view
+        returns (uint256)
+    {
+        return s.archaeologistRewards[archaeologist];
+    }
+
     /// @notice Returns the amount of cursed bond stored in the contract for an
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose

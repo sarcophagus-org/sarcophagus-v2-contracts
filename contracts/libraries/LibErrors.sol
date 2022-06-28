@@ -31,6 +31,8 @@ library LibErrors {
 
     error NotEnoughFreeBond(uint256 freeBond, uint256 amount);
 
+    error NotEnoughReward(uint256 reward, uint256 amount);
+
     error ResurrectionTimeInPast(uint256 resurrectionTime);
 
     error SarcophagusAlreadyExists(bytes32 identifier);
