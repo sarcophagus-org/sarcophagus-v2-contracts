@@ -54,7 +54,11 @@ contract ThirdPartyFacet {
         uint256 totalBounty;
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
-            if (!s.archaeologistSuccesses[archAddresses[i]][identifier]) {
+            bool didNotUnwrap = s.archaeologistSuccesses[archAddresses[i]][
+                identifier
+            ] == false;
+
+            if (didNotUnwrap) {
                 LibTypes.ArchaeologistStorage memory defaulter = s
                     .sarcophagusArchaeologists[identifier][archAddresses[i]];
 
