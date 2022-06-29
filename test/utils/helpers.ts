@@ -69,8 +69,6 @@ export const setupArchaeologists = async (
   }
 };
 
-
-
 /**
  * Gets a list of archaeologist sarco balances.
  *
@@ -93,8 +91,6 @@ export const getArchaeologistSarcoBalances = async (
   return balances;
 };
 
-
-
 /**
  * Gets a list of archaeologist sarco rewards.
  *
@@ -103,11 +99,11 @@ export const getArchaeologistSarcoBalances = async (
  */
 export const getArchaeologistSarcoRewards = async (
   archaeologists: SignerWithAddress[],
-  viewStateFacet: ViewStateFacet,
+  viewStateFacet: ViewStateFacet
 ): Promise<{ address: string; reward: BigNumber }[]> => {
   const rewards: { address: string; reward: BigNumber }[] = [];
   for (const arch of archaeologists) {
-    const reward = await viewStateFacet.getAvailableRewards(arch.address)
+    const reward = await viewStateFacet.getAvailableRewards(arch.address);
     rewards.push({
       address: arch.address,
       reward: reward,
