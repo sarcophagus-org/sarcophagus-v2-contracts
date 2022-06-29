@@ -56,11 +56,10 @@ contract ArchaeologistFacet {
     /// on chain and pays the archaeologist.
     /// @param identifier The identifier of the sarcophagus
     /// @param unencryptedShard The archaeologist's corresponding unencrypted shard
-    /// @return The boolean true if the operation was successful
     function unwrapSarcophagus(
         bytes32 identifier,
         bytes memory unencryptedShard
-    ) external returns (bool) {
+    ) external {
         // Confirm that the archaeologist has not already unwrapped by checking
         // if the unencryptedShard is empty
         LibUtils.archaeologistUnwrappedCheck(identifier, msg.sender);
@@ -121,8 +120,6 @@ contract ArchaeologistFacet {
 
         // Emit an event
         emit LibEvents.UnwrapSarcophagus(identifier, unencryptedShard);
-
-        return true;
     }
 
     /// @notice Finalizes a transfer of roles and responsibilities between two
@@ -131,12 +128,11 @@ contract ArchaeologistFacet {
     /// @param arweaveTxId The id of the arweave transaction where the new shard
     /// @param oldArchSignature The signature of the old archaeologist
     /// was uploaded
-    /// @return The boolean true if the operation was successful
     function finalizeTransfer(
         bytes32 identifier,
         string memory arweaveTxId,
         LibTypes.Signature memory oldArchSignature
-    ) external returns (bool) {
+    ) external {
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=

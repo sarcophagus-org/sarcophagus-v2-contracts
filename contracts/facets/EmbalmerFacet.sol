@@ -221,13 +221,12 @@ contract EmbalmerFacet {
     /// This is archaeologist.length - 1 since the arweave archaeologist will be providing their own signature.
     /// @param arweaveArchaeologistSignature the signature of the archaeologist who uploaded to arweave
     /// @param arweaveTxId the arweave transaction id
-    /// @return The boolean true if the operation was successful
     function finalizeSarcophagus(
         bytes32 identifier,
         LibTypes.SignatureWithAccount[] memory archaeologistSignatures,
         LibTypes.Signature memory arweaveArchaeologistSignature,
         string memory arweaveTxId
-    ) external returns (bool) {
+    ) external {
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=
@@ -360,8 +359,6 @@ contract EmbalmerFacet {
 
         // Emit an event
         emit LibEvents.FinalizeSarcophagus(identifier, arweaveTxId);
-
-        return true;
     }
 
     /// @notice The embalmer may extend the life of the sarcophagus as long as
@@ -371,7 +368,6 @@ contract EmbalmerFacet {
     /// @param resurrectionTime the new resurrection time
     function rewrapSarcophagus(bytes32 identifier, uint256 resurrectionTime)
         external
-        returns (bool)
     {
         // Confirm that the sarcophagus exists
         if (
@@ -456,16 +452,13 @@ contract EmbalmerFacet {
             resurrectionTime,
             resurrectionWindow
         );
-
-        return true;
     }
 
     /// @notice Cancels a sarcophagus. An embalmer may cancel a sarcophagus after
     /// `initializeSarcophagus` but before `finalizeSarcophagus`. The embalmer's
     /// fees that were locked up will be refunded.
     /// @param identifier the identifier of the sarcophagus
-    /// @return The boolean true if the operation was successful
-    function cancelSarcophagus(bytes32 identifier) external returns (bool) {
+    function cancelSarcophagus(bytes32 identifier) external {
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=
@@ -505,8 +498,6 @@ contract EmbalmerFacet {
 
         // Emit an event
         emit LibEvents.CancelSarcophagus(identifier);
-
-        return true;
     }
 
     /// @notice Permanently closes the sarcophagus, giving it no opportunity to
@@ -516,8 +507,7 @@ contract EmbalmerFacet {
     /// @dev Extends the resurrection time into infinity so that that unwrap
     /// will never be successful.
     /// @param identifier the identifier of the sarcophagus
-    /// @return The boolean true if the operation was successful
-    function burySarcophagus(bytes32 identifier) external returns (bool) {
+    function burySarcophagus(bytes32 identifier) external {
         // Confirm that the sarcophagus exists
         if (
             s.sarcophaguses[identifier].state !=
@@ -586,7 +576,5 @@ contract EmbalmerFacet {
 
         // Emit an event
         emit LibEvents.BurySarcophagus(identifier);
-
-        return true;
     }
 }
