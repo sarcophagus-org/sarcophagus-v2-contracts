@@ -64,9 +64,7 @@ contract ArchaeologistFacet {
         LibUtils.archaeologistUnwrappedCheck(sarcoId, msg.sender);
 
         // Confirm that the sarcophagus exists
-        if (
-            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
-        ) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -78,8 +76,8 @@ contract ArchaeologistFacet {
         // Confirm that the resurrection time has passed and that the
         // resurrection window has not passed
         LibUtils.unwrapTime(
-            s.sarcophaguses[sarcoId].resurrectionTime,
-            s.sarcophaguses[sarcoId].resurrectionWindow
+            s.sarcophagi[sarcoId].resurrectionTime,
+            s.sarcophagi[sarcoId].resurrectionWindow
         );
 
         // Comfirm that the sarcophagus has been finalized
@@ -132,9 +130,7 @@ contract ArchaeologistFacet {
         LibTypes.Signature memory oldArchSignature
     ) external {
         // Confirm that the sarcophagus exists
-        if (
-            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
-        ) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -144,9 +140,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm that the resurrection time is in the future
-        LibUtils.resurrectionInFuture(
-            s.sarcophaguses[sarcoId].resurrectionTime
-        );
+        LibUtils.resurrectionInFuture(s.sarcophagi[sarcoId].resurrectionTime);
 
         // Get the address that signed the oldArchSignature
         address oldArchaeologist = LibUtils.recoverAddress(
@@ -172,14 +166,12 @@ contract ArchaeologistFacet {
         // and replace it with the sender's address.
         for (
             uint256 i = 0;
-            i < s.sarcophaguses[sarcoId].archaeologists.length;
+            i < s.sarcophagi[sarcoId].archaeologists.length;
             i++
         ) {
             // Find the archaeologist that matches the old archaeologist's address
-            if (
-                s.sarcophaguses[sarcoId].archaeologists[i] == oldArchaeologist
-            ) {
-                s.sarcophaguses[sarcoId].archaeologists[i] = msg.sender;
+            if (s.sarcophagi[sarcoId].archaeologists[i] == oldArchaeologist) {
+                s.sarcophagi[sarcoId].archaeologists[i] = msg.sender;
 
                 // Once found there is no need to continue
                 break;
@@ -209,7 +201,7 @@ contract ArchaeologistFacet {
         oldArchData.unencryptedShard = "";
 
         // Add the arweave transaction id to arweaveTxIds on the sarcophagus
-        s.sarcophaguses[sarcoId].arweaveTxIds.push(arweaveTxId);
+        s.sarcophagi[sarcoId].arweaveTxIds.push(arweaveTxId);
 
         // Curse the new archaeologist's bond
         LibBonds.curseArchaeologist(sarcoId, msg.sender);

@@ -308,7 +308,7 @@ library LibUtils {
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        return s.sarcophaguses[identifier].arweaveTxIds.length > 0;
+        return s.sarcophagi[identifier].arweaveTxIds.length > 0;
     }
 
     /// @notice Calculates the protocol fees to be taken from the embalmer.

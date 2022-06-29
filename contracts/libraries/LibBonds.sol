@@ -146,7 +146,7 @@ library LibBonds {
         }
 
         // add the storage fee to the total fees
-        totalFees += s.sarcophaguses[sarcoId].storageFee;
+        totalFees += s.sarcophagi[sarcoId].storageFee;
 
         // return the total fees
         return totalFees;

@@ -23,13 +23,13 @@ struct AppStorage {
     // Track how much archaeologists have made. To be credited and debited
     // as archaeologists fulfil their duties and withdraw their rewards
     mapping(address => uint256) archaeologistRewards;
-    // sarcophaguses
+    // sarcophagi
     bytes32[] sarcophagusIdentifiers;
-    mapping(bytes32 => LibTypes.Sarcophagus) sarcophaguses;
+    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
     // sarcophagus ownerships
-    mapping(address => bytes32[]) embalmerSarcophaguses;
-    mapping(address => bytes32[]) archaeologistSarcophaguses;
-    mapping(address => bytes32[]) recipientSarcophaguses;
+    mapping(address => bytes32[]) embalmerSarcophagi;
+    mapping(address => bytes32[]) archaeologistSarcophagi;
+    mapping(address => bytes32[]) recipientSarcophagi;
     // Mapping of unencrypted shard hashes to archaeologists who are
     // responsible for them.
     mapping(bytes32 => address) hashedShardArchaeologists;

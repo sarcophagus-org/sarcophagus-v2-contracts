@@ -426,7 +426,7 @@ describe("Contract: ArchaeologistFacet", () => {
         expect(cursedBondAmountAfter).to.equal(cursedBondAmountBefore);
       });
 
-      it("should add this sarcophagus to the archaeologist's successful sarcophaguses", async () => {
+      it("should add this sarcophagus to the archaeologist's successful sarcophagi", async () => {
         // Initialize the sarcophagusk
         const identifier = await initializeSarcophagus("shouldUpdateMetrics");
 

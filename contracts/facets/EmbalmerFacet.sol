@@ -57,7 +57,7 @@ contract EmbalmerFacet {
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
         if (
-            s.sarcophaguses[sarcoId].state !=
+            s.sarcophagi[sarcoId].state !=
             LibTypes.SarcophagusState.DoesNotExist
         ) {
             revert LibErrors.SarcophagusAlreadyExists(sarcoId);
@@ -135,8 +135,8 @@ contract EmbalmerFacet {
                 archaeologists[i].archAddress
             ] = archaeologistStorage;
 
-            // Add the sarcophagus identifier to archaeologist's list of sarcophaguses
-            s.archaeologistSarcophaguses[archaeologists[i].archAddress].push(
+            // Add the sarcophagus identifier to archaeologist's list of sarcophagi
+            s.archaeologistSarcophagi[archaeologists[i].archAddress].push(
                 sarcoId
             );
 
@@ -155,7 +155,7 @@ contract EmbalmerFacet {
         }
 
         // Create the sarcophagus object and store it in AppStorage
-        s.sarcophaguses[sarcoId] = LibTypes.Sarcophagus({
+        s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
             name: name,
             state: LibTypes.SarcophagusState.Exists,
             canBeTransferred: canBeTransferred,
@@ -172,8 +172,8 @@ contract EmbalmerFacet {
 
         // Add the identifier to the necessary data structures
         s.sarcophagusIdentifiers.push(sarcoId);
-        s.embalmerSarcophaguses[msg.sender].push(sarcoId);
-        s.recipientSarcophaguses[recipient].push(sarcoId);
+        s.embalmerSarcophagi[msg.sender].push(sarcoId);
+        s.recipientSarcophagi[recipient].push(sarcoId);
 
         // Calculate the total fees in sarco tokens that the contract will
         // receive from the embalmer
@@ -228,17 +228,15 @@ contract EmbalmerFacet {
         string memory arweaveTxId
     ) external {
         // Confirm that the sarcophagus exists
-        if (
-            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
-        ) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the embalmer is making this transaction
-        if (s.sarcophaguses[sarcoId].embalmer != msg.sender) {
+        if (s.sarcophagi[sarcoId].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
                 msg.sender,
-                s.sarcophaguses[sarcoId].embalmer
+                s.sarcophagi[sarcoId].embalmer
             );
         }
 
@@ -258,7 +256,7 @@ contract EmbalmerFacet {
         // will be providing their own signature.
         if (
             archaeologistSignatures.length !=
-            s.sarcophaguses[sarcoId].archaeologists.length - 1
+            s.sarcophagi[sarcoId].archaeologists.length - 1
         ) {
             revert LibErrors.IncorrectNumberOfArchaeologistSignatures(
                 archaeologistSignatures.length
@@ -332,19 +330,19 @@ contract EmbalmerFacet {
             arweaveArchaeologistSignature.v,
             arweaveArchaeologistSignature.r,
             arweaveArchaeologistSignature.s,
-            s.sarcophaguses[sarcoId].arweaveArchaeologist
+            s.sarcophagi[sarcoId].arweaveArchaeologist
         );
 
         // Calculates the arweave archaeologist's cursed bond and curses
         // them (locks up the free bond)
         LibBonds.curseArchaeologist(
             sarcoId,
-            s.sarcophaguses[sarcoId].arweaveArchaeologist
+            s.sarcophagi[sarcoId].arweaveArchaeologist
         );
 
         // Store the arweave transaction id to the sarcophagus. The arweaveTxId
         // being populated indirectly designates the sarcophagus as finalized.
-        s.sarcophaguses[sarcoId].arweaveTxIds.push(arweaveTxId);
+        s.sarcophagi[sarcoId].arweaveTxIds.push(arweaveTxId);
 
         // Transfer the storage fee to the arweave archaeologist's reward pool
         // after setting the arweave transaction id.
@@ -352,8 +350,8 @@ contract EmbalmerFacet {
         // Is there value in directly transferring the storage fee to the
         // archaeologist on finalise?
         LibRewards.increaseRewardPool(
-            s.sarcophaguses[sarcoId].arweaveArchaeologist,
-            s.sarcophaguses[sarcoId].storageFee
+            s.sarcophagi[sarcoId].arweaveArchaeologist,
+            s.sarcophagi[sarcoId].storageFee
         );
 
         // Emit an event
@@ -370,17 +368,16 @@ contract EmbalmerFacet {
     {
         // Confirm that the sarcophagus exists
         if (
-            s.sarcophaguses[identifier].state !=
-            LibTypes.SarcophagusState.Exists
+            s.sarcophagi[identifier].state != LibTypes.SarcophagusState.Exists
         ) {
             revert LibErrors.SarcophagusDoesNotExist(identifier);
         }
 
         // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+        if (s.sarcophagi[identifier].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
                 msg.sender,
-                s.sarcophaguses[identifier].embalmer
+                s.sarcophagi[identifier].embalmer
             );
         }
 
@@ -390,9 +387,9 @@ contract EmbalmerFacet {
         }
 
         // Confirm that the current resurrection time is in the future
-        if (s.sarcophaguses[identifier].resurrectionTime <= block.timestamp) {
+        if (s.sarcophagi[identifier].resurrectionTime <= block.timestamp) {
             revert LibErrors.NewResurrectionTimeInPast(
-                s.sarcophaguses[identifier].resurrectionTime
+                s.sarcophagi[identifier].resurrectionTime
             );
         }
 
@@ -407,12 +404,12 @@ contract EmbalmerFacet {
         uint256 resurrectionWindow = LibUtils.getGracePeriod(resurrectionTime);
 
         // Store the new resurrectionTime and resurrectionWindow
-        s.sarcophaguses[identifier].resurrectionTime = resurrectionTime;
-        s.sarcophaguses[identifier].resurrectionWindow = resurrectionWindow;
+        s.sarcophagi[identifier].resurrectionTime = resurrectionTime;
+        s.sarcophagi[identifier].resurrectionWindow = resurrectionWindow;
 
         // For each archaeologist on the sarcophagus, transfer their digging fee allocations to them
         address[] memory bondedArchaeologists = s
-            .sarcophaguses[identifier]
+            .sarcophagi[identifier]
             .archaeologists;
 
         uint256 diggingFeeSum = 0;
@@ -459,17 +456,15 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     function cancelSarcophagus(bytes32 sarcoId) external {
         // Confirm that the sarcophagus exists
-        if (
-            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
-        ) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[sarcoId].embalmer != msg.sender) {
+        if (s.sarcophagi[sarcoId].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
                 msg.sender,
-                s.sarcophaguses[sarcoId].embalmer
+                s.sarcophagi[sarcoId].embalmer
             );
         }
 
@@ -479,10 +474,10 @@ contract EmbalmerFacet {
         }
 
         // Set the sarcophagus state to done
-        s.sarcophaguses[sarcoId].state = LibTypes.SarcophagusState.Done;
+        s.sarcophagi[sarcoId].state = LibTypes.SarcophagusState.Done;
 
         address[] memory bondedArchaeologists = s
-            .sarcophaguses[sarcoId]
+            .sarcophagi[sarcoId]
             .archaeologists;
 
         // Re-calculate the total fees that the embalmer locked up in initializeSarcophagus
@@ -492,7 +487,7 @@ contract EmbalmerFacet {
         );
 
         // Transfer the total fees back to the embalmer
-        s.sarcoToken.transfer(s.sarcophaguses[sarcoId].embalmer, totalFees);
+        s.sarcoToken.transfer(s.sarcophagi[sarcoId].embalmer, totalFees);
 
         // Emit an event
         emit LibEvents.CancelSarcophagus(sarcoId);
@@ -507,17 +502,15 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
         // Confirm that the sarcophagus exists
-        if (
-            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
-        ) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[sarcoId].embalmer != msg.sender) {
+        if (s.sarcophagi[sarcoId].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
                 msg.sender,
-                s.sarcophaguses[sarcoId].embalmer
+                s.sarcophagi[sarcoId].embalmer
             );
         }
 
@@ -528,17 +521,17 @@ contract EmbalmerFacet {
         }
 
         // Confirm that the current resurrection time is in the future
-        if (s.sarcophaguses[sarcoId].resurrectionTime <= block.timestamp) {
+        if (s.sarcophagi[sarcoId].resurrectionTime <= block.timestamp) {
             revert LibErrors.ResurrectionTimeInPast(
-                s.sarcophaguses[sarcoId].resurrectionTime
+                s.sarcophagi[sarcoId].resurrectionTime
             );
         }
 
         // Set resurrection time to infinity
-        s.sarcophaguses[sarcoId].resurrectionTime = 2**256 - 1;
+        s.sarcophagi[sarcoId].resurrectionTime = 2**256 - 1;
 
         // Set sarcophagus state to done
-        s.sarcophaguses[sarcoId].state = LibTypes.SarcophagusState.Done;
+        s.sarcophagi[sarcoId].state = LibTypes.SarcophagusState.Done;
 
         // Total bounty will be added up when we loop through the
         // archaeologists. This will be sent back to the embalmer.
@@ -548,7 +541,7 @@ contract EmbalmerFacet {
         // 1. Unlock their cursed bond
         // 2. Transfer digging fees to the archaeologist.
         address[] memory bondedArchaeologists = s
-            .sarcophaguses[sarcoId]
+            .sarcophagi[sarcoId]
             .archaeologists;
 
         for (uint256 i = 0; i < bondedArchaeologists.length; i++) {

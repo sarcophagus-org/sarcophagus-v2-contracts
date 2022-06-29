@@ -30,7 +30,7 @@ contract ThirdPartyFacet {
     /// @param sarcoId The identifier of the sarcophagus to clean
     /// @param paymentAddress The address to which rewards will be sent
     function clean(bytes32 sarcoId, address paymentAddress) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
+        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
         if (sarco.state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
@@ -116,7 +116,7 @@ contract ThirdPartyFacet {
         bytes[] memory unencryptedShards,
         address paymentAddress
     ) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
+        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
         if (sarco.state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
@@ -171,7 +171,7 @@ contract ThirdPartyFacet {
 
         // At this point, we need to filter out unaccused archs in order to reimburse them.
         address[] memory bondedArchaeologists = s
-            .sarcophaguses[sarcoId]
+            .sarcophagi[sarcoId]
             .archaeologists;
 
         for (uint256 i = 0; i < bondedArchaeologists.length; i++) {

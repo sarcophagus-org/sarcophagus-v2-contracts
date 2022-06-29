@@ -91,43 +91,43 @@ contract ViewStateFacet {
         view
         returns (LibTypes.Sarcophagus memory)
     {
-        return s.sarcophaguses[sarcoId];
+        return s.sarcophagi[sarcoId];
     }
 
     /// @notice Given an embalmer's address, returns the identifiers of all
-    /// sarcophaguses that the embalmer has created.
-    /// @param embalmer The address of the embalmer whose sarcophaguses are being
+    /// sarcophagi that the embalmer has created.
+    /// @param embalmer The address of the embalmer whose sarcophagi are being
     /// returned
-    function getEmbalmerSarcophaguses(address embalmer)
+    function getEmbalmersarcophagi(address embalmer)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.embalmerSarcophaguses[embalmer];
+        return s.embalmerSarcophagi[embalmer];
     }
 
     /// @notice Given an archaeologist's address, returns the identifiers of all
-    /// sarcophaguses that the archaeologist has participated in.
-    /// @param archaeologist The address of the archaeologist whose sarcophaguses
+    /// sarcophagi that the archaeologist has participated in.
+    /// @param archaeologist The address of the archaeologist whose sarcophagi
     /// are being returned
-    function getArchaeologistSarcophaguses(address archaeologist)
+    function getArchaeologistsarcophagi(address archaeologist)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.archaeologistSarcophaguses[archaeologist];
+        return s.archaeologistSarcophagi[archaeologist];
     }
 
     /// @notice Given a recipient's address, returns the identifiers of all
-    /// sarcophaguses that the recipient has participated in.
-    /// @param recipient The address of the recipient whose sarcophaguses are being
+    /// sarcophagi that the recipient has participated in.
+    /// @param recipient The address of the recipient whose sarcophagi are being
     /// returned
-    function getRecipientSarcophaguses(address recipient)
+    function getRecipientsarcophagi(address recipient)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.recipientSarcophaguses[recipient];
+        return s.recipientSarcophagi[recipient];
     }
 
     /// @notice Returns the data stored on a sarcophagus for an archaeologist.
