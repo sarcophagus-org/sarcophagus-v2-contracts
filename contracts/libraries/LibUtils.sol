@@ -56,14 +56,12 @@ library LibUtils {
         require(bytes(newAssetId).length > 0, "assetId must not have 0 length");
     }
 
-    function archaeologistUnwrappedCheck(
-        bytes32 identifier,
-        address archaeologist
-    ) internal view {
+    function archaeologistUnwrappedCheck(bytes32 sarcoId, address archaeologist)
+        internal
+        view
+    {
         if (
-            getArchaeologist(identifier, archaeologist)
-                .unencryptedShard
-                .length > 0
+            getArchaeologist(sarcoId, archaeologist).unencryptedShard.length > 0
         ) {
             revert LibErrors.ArchaeologistAlreadyUnwrapped(archaeologist);
         }
@@ -265,50 +263,50 @@ library LibUtils {
     }
 
     /// @notice Checks if the archaeologist exists on the sarcophagus.
-    /// @param identifier the identifier of the sarcophagus
+    /// @param sarcoId the identifier of the sarcophagus
     /// @param archaeologist the address of the archaeologist
     /// @return The boolean true if the archaeologist exists on the sarcophagus
-    function archaeologistExistsOnSarc(
-        bytes32 identifier,
-        address archaeologist
-    ) internal view returns (bool) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        // If the hashedShard on an archaeologist is 0 (which is its default
-        // value), then the archaeologist doesn't exist on the sarcophagus
-        return
-            s
-            .sarcophagusArchaeologists[identifier][archaeologist].hashedShard !=
-            0;
-    }
-
-    /// @notice Gets an archaeologist given the sarcophagus identifier and the
-    /// archaeologist's address.
-    /// @param identifier the identifier of the sarcophagus
-    /// @param archaeologist the address of the archaeologist
-    /// @return The archaeologist
-    function getArchaeologist(bytes32 identifier, address archaeologist)
-        internal
-        view
-        returns (LibTypes.ArchaeologistStorage memory)
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        return s.sarcophagusArchaeologists[identifier][archaeologist];
-    }
-
-    /// @notice Checks if a sarcophagus has been finalized by checking if it
-    /// contains any arweaveTxIds.
-    /// @param identifier the identifier of the sarcophagus
-    /// @return The boolean true if the sarcophagus has been finalized
-    function isSarcophagusFinalized(bytes32 identifier)
+    function archaeologistExistsOnSarc(bytes32 sarcoId, address archaeologist)
         internal
         view
         returns (bool)
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        return s.sarcophagi[identifier].arweaveTxIds.length > 0;
+        // If the hashedShard on an archaeologist is 0 (which is its default
+        // value), then the archaeologist doesn't exist on the sarcophagus
+        return
+            s.sarcophagusArchaeologists[sarcoId][archaeologist].hashedShard !=
+            0;
+    }
+
+    /// @notice Gets an archaeologist given the sarcophagus identifier and the
+    /// archaeologist's address.
+    /// @param sarcoId the identifier of the sarcophagus
+    /// @param archaeologist the address of the archaeologist
+    /// @return The archaeologist
+    function getArchaeologist(bytes32 sarcoId, address archaeologist)
+        internal
+        view
+        returns (LibTypes.ArchaeologistStorage memory)
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        return s.sarcophagusArchaeologists[sarcoId][archaeologist];
+    }
+
+    /// @notice Checks if a sarcophagus has been finalized by checking if it
+    /// contains any arweaveTxIds.
+    /// @param sarcoId the identifier of the sarcophagus
+    /// @return The boolean true if the sarcophagus has been finalized
+    function isSarcophagusFinalized(bytes32 sarcoId)
+        internal
+        view
+        returns (bool)
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        return s.sarcophagi[sarcoId].arweaveTxIds.length > 0;
     }
 
     /// @notice Calculates the protocol fees to be taken from the embalmer.

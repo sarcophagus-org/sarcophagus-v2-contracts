@@ -361,35 +361,33 @@ contract EmbalmerFacet {
     /// @notice The embalmer may extend the life of the sarcophagus as long as
     /// the resurrection time has not passed yet.
     /// @dev The embalmer sets a new resurrection time sometime in the future.
-    /// @param identifier the identifier of the sarcophagus
+    /// @param sarcoId the identifier of the sarcophagus
     /// @param resurrectionTime the new resurrection time
-    function rewrapSarcophagus(bytes32 identifier, uint256 resurrectionTime)
+    function rewrapSarcophagus(bytes32 sarcoId, uint256 resurrectionTime)
         external
     {
         // Confirm that the sarcophagus exists
-        if (
-            s.sarcophagi[identifier].state != LibTypes.SarcophagusState.Exists
-        ) {
-            revert LibErrors.SarcophagusDoesNotExist(identifier);
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the sender is the embalmer
-        if (s.sarcophagi[identifier].embalmer != msg.sender) {
+        if (s.sarcophagi[sarcoId].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
                 msg.sender,
-                s.sarcophagi[identifier].embalmer
+                s.sarcophagi[sarcoId].embalmer
             );
         }
 
         // Confirm that the sarcophagus is finalized
-        if (!LibUtils.isSarcophagusFinalized(identifier)) {
-            revert LibErrors.SarcophagusNotFinalized(identifier);
+        if (!LibUtils.isSarcophagusFinalized(sarcoId)) {
+            revert LibErrors.SarcophagusNotFinalized(sarcoId);
         }
 
         // Confirm that the current resurrection time is in the future
-        if (s.sarcophagi[identifier].resurrectionTime <= block.timestamp) {
+        if (s.sarcophagi[sarcoId].resurrectionTime <= block.timestamp) {
             revert LibErrors.NewResurrectionTimeInPast(
-                s.sarcophagi[identifier].resurrectionTime
+                s.sarcophagi[sarcoId].resurrectionTime
             );
         }
 
@@ -404,12 +402,12 @@ contract EmbalmerFacet {
         uint256 resurrectionWindow = LibUtils.getGracePeriod(resurrectionTime);
 
         // Store the new resurrectionTime and resurrectionWindow
-        s.sarcophagi[identifier].resurrectionTime = resurrectionTime;
-        s.sarcophagi[identifier].resurrectionWindow = resurrectionWindow;
+        s.sarcophagi[sarcoId].resurrectionTime = resurrectionTime;
+        s.sarcophagi[sarcoId].resurrectionWindow = resurrectionWindow;
 
         // For each archaeologist on the sarcophagus, transfer their digging fee allocations to them
         address[] memory bondedArchaeologists = s
-            .sarcophagi[identifier]
+            .sarcophagi[sarcoId]
             .archaeologists;
 
         uint256 diggingFeeSum = 0;
@@ -417,7 +415,7 @@ contract EmbalmerFacet {
         for (uint256 i = 0; i < bondedArchaeologists.length; i++) {
             // Get the archaeolgist's fee data
             LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
-                .getArchaeologist(identifier, bondedArchaeologists[i]);
+                .getArchaeologist(sarcoId, bondedArchaeologists[i]);
 
             // Transfer the archaeologist's digging fee allocation to the archaeologist's reward pool
             LibRewards.increaseRewardPool(
@@ -444,7 +442,7 @@ contract EmbalmerFacet {
 
         // Emit an event
         emit LibEvents.RewrapSarcophagus(
-            identifier,
+            sarcoId,
             resurrectionTime,
             resurrectionWindow
         );

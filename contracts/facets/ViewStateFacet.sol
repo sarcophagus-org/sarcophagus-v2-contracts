@@ -57,9 +57,9 @@ contract ViewStateFacet {
 
     function getArchaeologistSuccessOnSarcophagus(
         address archaeologist,
-        bytes32 identifier
+        bytes32 sarcoId
     ) external view returns (bool) {
-        return s.archaeologistSuccesses[archaeologist][identifier];
+        return s.archaeologistSuccesses[archaeologist][sarcoId];
     }
 
     /// @notice Returns the number of accusations for an archaeologist.

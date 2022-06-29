@@ -25,7 +25,7 @@ library LibRewards {
             );
         }
 
-        // Decrease the free bond amount
+        // Decrease the rewards amount
         s.archaeologistRewards[archaeologist] -= amount;
     }
 

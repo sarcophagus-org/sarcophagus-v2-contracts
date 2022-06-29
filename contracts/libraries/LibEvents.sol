@@ -50,7 +50,7 @@ library LibEvents {
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
     event InitializeSarcophagus(
-        bytes32 indexed identifier,
+        bytes32 indexed sarcoId,
         string name,
         bool canBeTransferred,
         uint256 resurrectionTime,
@@ -60,29 +60,29 @@ library LibEvents {
         address[] archaeologists
     );
 
-    event FinalizeSarcophagus(bytes32 indexed identifier, string arweaveTxId);
+    event FinalizeSarcophagus(bytes32 indexed sarcoId, string arweaveTxId);
 
-    event CancelSarcophagus(bytes32 indexed identifier);
+    event CancelSarcophagus(bytes32 indexed sarcoId);
 
     event RewrapSarcophagus(
-        bytes32 indexed identifier,
+        bytes32 indexed sarcoId,
         uint256 resurrectionTime,
         uint256 resurrectionWindow
     );
 
-    event UnwrapSarcophagus(bytes32 indexed identifier, bytes unencryptedShard);
+    event UnwrapSarcophagus(bytes32 indexed sarcoId, bytes unencryptedShard);
 
-    event BurySarcophagus(bytes32 indexed identifier);
+    event BurySarcophagus(bytes32 indexed sarcoId);
 
     event CleanUpSarcophagus(
-        bytes32 indexed identifier,
+        bytes32 indexed sarcoId,
         address indexed cleaner,
         uint256 cleanerBondReward,
         uint256 embalmerBondReward
     );
 
     event FinalizeTransfer(
-        bytes32 identifier,
+        bytes32 sarcoId,
         string arweaveTxId,
         address oldArchaeologist,
         address newArchaeologist
