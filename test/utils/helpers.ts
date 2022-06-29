@@ -30,9 +30,7 @@ export async function sign(
  *
  * @param sec The number of seconds to increase the next block by
  */
-export const increaseNextBlockTimestamp = async (
-  sec: number
-): Promise<void> => {
+export const increaseNextBlockTimestamp = async (sec: number): Promise<void> => {
   await ethers.provider.send("evm_setNextBlockTimestamp", [
     (await ethers.provider.getBlock("latest")).timestamp + sec,
   ]);
@@ -55,9 +53,7 @@ export const setupArchaeologists = async (
   sarcoToken: SarcoTokenMock
 ): Promise<void> => {
   // Approve the embalmer on the sarco token so transferFrom will work
-  await sarcoToken
-    .connect(embalmer)
-    .approve(diamondAddress, ethers.constants.MaxUint256);
+  await sarcoToken.connect(embalmer).approve(diamondAddress, ethers.constants.MaxUint256);
 
   for (const archaeologist of archaeologists) {
     // Transfer 10,000 sarco tokens to each archaeologist to be put into free
@@ -65,17 +61,14 @@ export const setupArchaeologists = async (
     await sarcoToken.transfer(archaeologist.address, BigNumber.from(10_000));
 
     // Approve the archaeologist on the sarco token so transferFrom will work
-    await sarcoToken
-      .connect(archaeologist)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
+    await sarcoToken.connect(archaeologist).approve(diamondAddress, ethers.constants.MaxUint256);
 
     // Deposit some free bond to the contract so initializeSarcophagus will
     // work
-    await archaeologistFacet
-      .connect(archaeologist)
-      .depositFreeBond(BigNumber.from("5000"));
+    await archaeologistFacet.connect(archaeologist).depositFreeBond(BigNumber.from("5000"));
   }
 };
 
 // TODO: update if calculate cursed bond algorithm changes (or possibly read this from contract instead?)
-export const calculateCursedBond = (diggingFee: BigNumber, bounty: BigNumber) => diggingFee.add(bounty);
+export const calculateCursedBond = (diggingFee: BigNumber, bounty: BigNumber): BigNumber =>
+  diggingFee.add(bounty);
