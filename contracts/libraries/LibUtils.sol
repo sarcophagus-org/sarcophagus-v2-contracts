@@ -251,17 +251,6 @@ library LibUtils {
         }
     }
 
-    /**
-     * @notice Reverts if msg.sender is not equal to passed-in address
-     * @param account the account to verify is msg.sender
-     */
-    function sarcophagusUpdater(address account) public view {
-        require(
-            account == msg.sender,
-            "sarcophagus cannot be updated by account"
-        );
-    }
-
     /// @notice Checks if the archaeologist exists on the sarcophagus.
     /// @param sarcoId the identifier of the sarcophagus
     /// @param archaeologist the address of the archaeologist
