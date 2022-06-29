@@ -495,7 +495,7 @@ describe("Contract: ThirdPartyFacet", () => {
         expect(freeBond2Before.lt(freeBond2After)).to.be.true;
       });
 
-      it("Should distribute the bounties and digging fees of unaccused archaeologists back to them", async () => {
+      it("Should not actually transfer tokens (being explicit here, cz of recent refactoring)", async () => {
         const unaccusedArchaeologist1BalBefore = await sarcoToken.balanceOf(
           arweaveAchaeologist.address
         );
@@ -508,19 +508,6 @@ describe("Contract: ThirdPartyFacet", () => {
           .accuse(sarcoId, unencryptedShards.slice(0, 2), paymentAccount.address);
         await tx.wait();
 
-        // Set up amounts that should have been transferred to unaccused archaeologists
-        const arch1 = await viewStateFacet.getSarcophagusArchaeologist(
-          sarcoId,
-          arweaveAchaeologist.address
-        );
-        const arch2 = await viewStateFacet.getSarcophagusArchaeologist(
-          sarcoId,
-          unaccusedArchaeologist.address
-        );
-
-        const cursedBond1 = calculateCursedBond(arch1.diggingFee, arch1.bounty);
-        const cursedBond2 = calculateCursedBond(arch2.diggingFee, arch2.bounty);
-
         const unaccusedArchaeologist1BalAfter = await sarcoToken.balanceOf(
           arweaveAchaeologist.address
         );
@@ -528,13 +515,9 @@ describe("Contract: ThirdPartyFacet", () => {
           unaccusedArchaeologist.address
         );
 
-        // Check that unaccused archaeologists now have balances that includes the amount that should have been transferred to them
-        expect(
-          unaccusedArchaeologist1BalAfter.eq(unaccusedArchaeologist1BalBefore.add(cursedBond1))
-        ).to.be.true;
-        expect(
-          unaccusedArchaeologist2BalAfter.eq(unaccusedArchaeologist2BalBefore.add(cursedBond2))
-        ).to.be.true;
+        // Check that unaccused archaeologists balances are unaffected
+        expect(unaccusedArchaeologist1BalAfter.eq(unaccusedArchaeologist1BalBefore)).to.be.true;
+        expect(unaccusedArchaeologist2BalAfter.eq(unaccusedArchaeologist2BalBefore)).to.be.true;
       });
 
       it("Should add all accused archaeologists to archaeologistAccusals storage on successful accusal", async () => {

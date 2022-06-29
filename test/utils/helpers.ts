@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
-import { ArchaeologistFacet, SarcoTokenMock } from "../../typechain";
+import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
 
 /**
  * Signs a message as any EVM compatible type and returns the signature and the
@@ -67,6 +67,54 @@ export const setupArchaeologists = async (
     // work
     await archaeologistFacet.connect(archaeologist).depositFreeBond(BigNumber.from("5000"));
   }
+};
+
+
+
+/**
+ * Gets a list of archaeologist sarco balances.
+ *
+ * @param archaeologists A list of archaeologist signers
+ * @returns a list of archaeologist sarco balanaces
+ */
+export const getArchaeologistSarcoBalances = async (
+  archaeologists: SignerWithAddress[],
+  sarcoToken: SarcoTokenMock
+): Promise<{ address: string; balance: BigNumber }[]> => {
+  const balances: { address: string; balance: BigNumber }[] = [];
+  for (const arch of archaeologists) {
+    const balance = await sarcoToken.balanceOf(arch.address);
+    balances.push({
+      address: arch.address,
+      balance: balance,
+    });
+  }
+
+  return balances;
+};
+
+
+
+/**
+ * Gets a list of archaeologist sarco rewards.
+ *
+ * @param archaeologists A list of archaeologist signers
+ * @returns a list of archaeologist sarco rewards
+ */
+export const getArchaeologistSarcoRewards = async (
+  archaeologists: SignerWithAddress[],
+  viewStateFacet: ViewStateFacet,
+): Promise<{ address: string; reward: BigNumber }[]> => {
+  const rewards: { address: string; reward: BigNumber }[] = [];
+  for (const arch of archaeologists) {
+    const reward = await viewStateFacet.getAvailableRewards(arch.address)
+    rewards.push({
+      address: arch.address,
+      reward: reward,
+    });
+  }
+
+  return rewards;
 };
 
 // TODO: update if calculate cursed bond algorithm changes (or possibly read this from contract instead?)

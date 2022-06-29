@@ -54,7 +54,11 @@ contract ThirdPartyFacet {
         uint256 totalBounty;
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
-            if (!s.archaeologistSuccesses[archAddresses[i]][identifier]) {
+            bool didNotUnwrap = s.archaeologistSuccesses[archAddresses[i]][
+                identifier
+            ] == false;
+
+            if (didNotUnwrap) {
                 LibTypes.ArchaeologistStorage memory defaulter = s
                     .sarcophagusArchaeologists[identifier][archAddresses[i]];
 
@@ -183,9 +187,16 @@ contract ThirdPartyFacet {
                 }
             }
 
-            // If this arch address wasn't in the accused list, reimburse it
+            // If this arch address wasn't in the accused list, free it from its curse
             if (isUnaccused) {
-                _reimburseArch(sarcoId, sarcoArchsAddresses[i]);
+                // There are technically no rewards here, since the sarcophagus
+                // has been compromised, so here this effectively merely resets
+                // the state of the non-malicious archaeologists, as if they never
+                // bonded to this sarcophagus in the first place.
+                //
+                // Of course, whatever rewards they might have gained in previous
+                // rewraps remains theirs.
+                LibBonds.freeArchaeologist(sarcoId, sarcoArchsAddresses[i]);
             }
         }
 
@@ -208,45 +219,6 @@ contract ThirdPartyFacet {
             accuserBondReward,
             embalmerBondReward
         );
-    }
-
-    /**
-     * @notice Transfers the value of the cursed bond of the archaeologist back to them, and un-curses their bond.
-     * @param sarcoId The identifier of the sarcophagus for which the bonds were cursed
-     * @param arch Address of the archaeologist to reimburse
-     */
-    function _reimburseArch(bytes32 sarcoId, address arch) private {
-        LibTypes.ArchaeologistStorage storage goodArch = s
-            .sarcophagusArchaeologists[sarcoId][arch];
-
-        uint256 cursedBond = LibBonds.calculateCursedBond(
-            goodArch.diggingFee,
-            goodArch.bounty
-        );
-
-        s.sarcoToken.transfer(arch, cursedBond);
-        LibBonds.freeArchaeologist(sarcoId, arch);
-    }
-
-    /**
-     * @notice After a sarcophagus has been successfully accused, transfers the value
-     * of the cursed bonds of the archs back to them, and un-curses their bonds.
-     * @dev not using this in accuse because it'd involve yet another loop.
-     * Instead, _reimburseArch will run on each unaccused archaeologist that's found.
-     * @param sarcoId The identifier of the sarcophagus for which the bonds were cursed
-     * @param archs The archaeologists to reimburse
-     * @param amounts amounts of sarco tokens to transfer to archaeologists. Should be in same order
-     * as archs.
-     */
-    function _reimburseArchs(
-        bytes32 sarcoId,
-        address[] storage archs,
-        uint256[] memory amounts
-    ) private {
-        for (uint256 i = 0; i < archs.length; i++) {
-            s.sarcoToken.transfer(archs[i], amounts[i]);
-            LibBonds.freeArchaeologist(sarcoId, archs[i]);
-        }
     }
 
     /**
