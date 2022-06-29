@@ -1,9 +1,22 @@
 import { BigNumber, Contract, ContractReceipt } from "ethers";
 import { ethers } from "hardhat";
-import { Diamond } from "../typechain";
+import { Diamond, SarcoTokenMock } from "../typechain";
 import { DiamondCut, FacetCutAction } from "../types";
 
 const protocolFee = process.env.PROTOCOL_FEE || 0;
+
+/**
+ * Get function selectors from a contract
+ *
+ * @param contract The contract
+ * @returns An array of function selectors
+ */
+const getSelectors = (contract: Contract): string[] => {
+  const signatures = Object.keys(contract.interface.functions);
+  return signatures
+    .filter(sig => sig !== "init(bytes)")
+    .map(sig => contract.interface.getSighash(sig));
+};
 
 /**
  * Deploys the Sarcophagus facets and creates the diamond cuts needed for the
@@ -30,9 +43,7 @@ const createAppDiamondCuts = async (): Promise<DiamondCut[]> => {
   await thirdPartyFacet.deployed();
 
   // Deploy Archaeologist Facet
-  const ArchaeologistFacet = await ethers.getContractFactory(
-    "ArchaeologistFacet"
-  );
+  const ArchaeologistFacet = await ethers.getContractFactory("ArchaeologistFacet");
   const archaeologistFacet = await ArchaeologistFacet.deploy();
   await archaeologistFacet.deployed();
 
@@ -82,20 +93,13 @@ const diamondCutAsync = async (
   diamond: Diamond
 ): Promise<ContractReceipt> => {
   // Get the diamondCut interface contract
-  const diamondCutContract = await ethers.getContractAt(
-    "IDiamondCut",
-    diamond.address
-  );
+  const diamondCutContract = await ethers.getContractAt("IDiamondCut", diamond.address);
 
   // Make a diamond cut using the facets provided in cuts
-  const diamondCutTx = await diamondCutContract.diamondCut(
-    diamondCuts,
-    init,
-    calldata
-  );
+  const diamondCutTx = await diamondCutContract.diamondCut(diamondCuts, init, calldata);
 
   return new Promise((resolve, reject) => {
-    diamondCutTx.wait().then((receipt) => {
+    diamondCutTx.wait().then(receipt => {
       if (receipt.status && receipt.status === 1) {
         resolve(receipt);
       } else {
@@ -106,24 +110,14 @@ const diamondCutAsync = async (
 };
 
 /**
- * Get function selectors from a contract
- *
- * @param contract The contract
- * @returns An array of function selectors
- */
-const getSelectors = (contract: Contract): string[] => {
-  const signatures = Object.keys(contract.interface.functions);
-  return signatures
-    .filter((sig) => sig !== "init(bytes)")
-    .map((sig) => contract.interface.getSighash(sig));
-};
-
-/**
  * Deploys the diamond contract
  *
  * @returns The diamond contract address
  */
-export const deployDiamond = async () => {
+export const deployDiamond = async (): Promise<{
+  diamondAddress: string;
+  sarcoToken: SarcoTokenMock;
+}> => {
   // Get all signers (or accounts)
   const accounts = await ethers.getSigners();
 
@@ -156,16 +150,11 @@ export const deployDiamond = async () => {
 
   // Deploy the diamond
   const Diamond = await ethers.getContractFactory("Diamond");
-  const diamond = await Diamond.deploy(
-    contractOwner.address,
-    diamondCutFacet.address
-  );
+  const diamond = await Diamond.deploy(contractOwner.address, diamondCutFacet.address);
   await diamond.deployed();
 
   // DiamondLoupe Facet
-  const DiamondLoupeFacet = await ethers.getContractFactory(
-    "DiamondLoupeFacet"
-  );
+  const DiamondLoupeFacet = await ethers.getContractFactory("DiamondLoupeFacet");
   const diamondLoupeFacet = await DiamondLoupeFacet.deploy();
   await diamondLoupeFacet.deployed();
 
@@ -210,20 +199,10 @@ export const deployDiamond = async () => {
   // Make the diamond cut to create the facets provided in cuts
   try {
     // Make the diamond cuts needed for the diamond pattern to work
-    await diamondCutAsync(
-      cuts,
-      diamondInit.address,
-      diamondInitCallData,
-      diamond
-    );
+    await diamondCutAsync(cuts, diamondInit.address, diamondInitCallData, diamond);
 
     // Make the diamond cuts for sarcophagus
-    await diamondCutAsync(
-      appCuts,
-      appStorageInit.address,
-      appInitCallData,
-      diamond
-    );
+    await diamondCutAsync(appCuts, appStorageInit.address, appInitCallData, diamond);
     return { diamondAddress: diamond.address, sarcoToken: mockSarcoToken };
   } catch (error) {
     const _error = error as Error;

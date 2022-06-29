@@ -3,3 +3,4 @@ artifacts
 cache
 coverage
 .eslintrc.js
+hardhat.config.ts
