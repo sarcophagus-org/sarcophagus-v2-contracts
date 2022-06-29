@@ -27,6 +27,9 @@ jobs:
       - name: Compile contracts
         run: npx hardhat compile
 
+      - name: Run linter
+        run: npx eslint test
+
       - name: Run contract tests
         id: run-tests
         run: npx hardhat test
