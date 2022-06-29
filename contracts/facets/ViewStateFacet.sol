@@ -85,13 +85,13 @@ contract ViewStateFacet {
     }
 
     /// @notice Returns a sarcophagus.
-    /// @param identifier The identifier of the sarcophagus being returned
-    function getSarcophagus(bytes32 identifier)
+    /// @param sarcoId The identifier of the sarcophagus being returned
+    function getSarcophagus(bytes32 sarcoId)
         external
         view
         returns (LibTypes.Sarcophagus memory)
     {
-        return s.sarcophaguses[identifier];
+        return s.sarcophaguses[sarcoId];
     }
 
     /// @notice Given an embalmer's address, returns the identifiers of all
@@ -131,14 +131,15 @@ contract ViewStateFacet {
     }
 
     /// @notice Returns the data stored on a sarcophagus for an archaeologist.
-    /// @param identifier The identifier of the sarcophagus whose data is being
+    /// @param sarcoId The identifier of the sarcophagus whose data is being
     /// returned
     /// @param archaeologist The address of the archaeologist whose data is
     /// being returned
-    function getSarcophagusArchaeologist(
-        bytes32 identifier,
-        address archaeologist
-    ) external view returns (LibTypes.ArchaeologistStorage memory) {
-        return s.sarcophagusArchaeologists[identifier][archaeologist];
+    function getSarcophagusArchaeologist(bytes32 sarcoId, address archaeologist)
+        external
+        view
+        returns (LibTypes.ArchaeologistStorage memory)
+    {
+        return s.sarcophagusArchaeologists[sarcoId][archaeologist];
     }
 }

@@ -54,44 +54,42 @@ contract ArchaeologistFacet {
     /// @notice Unwraps the sarcophagus.
     /// @dev Verifies that the unencrypted shard matches the hashedShard stored
     /// on chain and pays the archaeologist.
-    /// @param identifier The identifier of the sarcophagus
+    /// @param sarcoId The identifier of the sarcophagus to unwrap
     /// @param unencryptedShard The archaeologist's corresponding unencrypted shard
-    function unwrapSarcophagus(
-        bytes32 identifier,
-        bytes memory unencryptedShard
-    ) external {
+    function unwrapSarcophagus(bytes32 sarcoId, bytes memory unencryptedShard)
+        external
+    {
         // Confirm that the archaeologist has not already unwrapped by checking
         // if the unencryptedShard is empty
-        LibUtils.archaeologistUnwrappedCheck(identifier, msg.sender);
+        LibUtils.archaeologistUnwrappedCheck(sarcoId, msg.sender);
 
         // Confirm that the sarcophagus exists
         if (
-            s.sarcophaguses[identifier].state !=
-            LibTypes.SarcophagusState.Exists
+            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
         ) {
-            revert LibErrors.SarcophagusDoesNotExist(identifier);
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the sender is an archaeologist on this sarcophagus
-        if (!LibUtils.archaeologistExistsOnSarc(identifier, msg.sender)) {
+        if (!LibUtils.archaeologistExistsOnSarc(sarcoId, msg.sender)) {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
         }
 
         // Confirm that the resurrection time has passed and that the
         // resurrection window has not passed
         LibUtils.unwrapTime(
-            s.sarcophaguses[identifier].resurrectionTime,
-            s.sarcophaguses[identifier].resurrectionWindow
+            s.sarcophaguses[sarcoId].resurrectionTime,
+            s.sarcophaguses[sarcoId].resurrectionWindow
         );
 
         // Comfirm that the sarcophagus has been finalized
-        if (!LibUtils.isSarcophagusFinalized(identifier)) {
-            revert LibErrors.SarcophagusNotFinalized(identifier);
+        if (!LibUtils.isSarcophagusFinalized(sarcoId)) {
+            revert LibErrors.SarcophagusNotFinalized(sarcoId);
         }
 
         // Get the archaeologist's data from storage
         LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
-            .getArchaeologist(identifier, msg.sender);
+            .getArchaeologist(sarcoId, msg.sender);
 
         // Confirm that the hash of the unencrypted shard matches the hashedShard in storage
         if (keccak256(unencryptedShard) != archaeologistData.hashedShard) {
@@ -103,14 +101,14 @@ contract ArchaeologistFacet {
 
         // Store the unencrypted shard in on the archaeologist object in the sarcophagus
         s
-        .sarcophagusArchaeologists[identifier][msg.sender]
+        .sarcophagusArchaeologists[sarcoId][msg.sender]
             .unencryptedShard = unencryptedShard;
 
         // Free the archaeologist's cursed bond
-        LibBonds.freeArchaeologist(identifier, msg.sender);
+        LibBonds.freeArchaeologist(sarcoId, msg.sender);
 
         // Save the successful sarcophagus against the archaeologist
-        s.archaeologistSuccesses[msg.sender][identifier] = true;
+        s.archaeologistSuccesses[msg.sender][sarcoId] = true;
 
         // Transfer the bounty and digging fee to the archaeologist's reward pool
         LibRewards.increaseRewardPool(
@@ -119,36 +117,35 @@ contract ArchaeologistFacet {
         );
 
         // Emit an event
-        emit LibEvents.UnwrapSarcophagus(identifier, unencryptedShard);
+        emit LibEvents.UnwrapSarcophagus(sarcoId, unencryptedShard);
     }
 
     /// @notice Finalizes a transfer of roles and responsibilities between two
     /// archaeologists. This is to be called by the new archaeologist.
-    /// @param identifier The identifier of the sarcophagus
+    /// @param sarcoId The identifier of the sarcophagus
     /// @param arweaveTxId The id of the arweave transaction where the new shard
     /// @param oldArchSignature The signature of the old archaeologist
     /// was uploaded
     function finalizeTransfer(
-        bytes32 identifier,
+        bytes32 sarcoId,
         string memory arweaveTxId,
         LibTypes.Signature memory oldArchSignature
     ) external {
         // Confirm that the sarcophagus exists
         if (
-            s.sarcophaguses[identifier].state !=
-            LibTypes.SarcophagusState.Exists
+            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
         ) {
-            revert LibErrors.SarcophagusDoesNotExist(identifier);
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the sarcophagus has been finalized
-        if (!LibUtils.isSarcophagusFinalized(identifier)) {
-            revert LibErrors.SarcophagusNotFinalized(identifier);
+        if (!LibUtils.isSarcophagusFinalized(sarcoId)) {
+            revert LibErrors.SarcophagusNotFinalized(sarcoId);
         }
 
         // Confirm that the resurrection time is in the future
         LibUtils.resurrectionInFuture(
-            s.sarcophaguses[identifier].resurrectionTime
+            s.sarcophaguses[sarcoId].resurrectionTime
         );
 
         // Get the address that signed the oldArchSignature
@@ -163,9 +160,9 @@ contract ArchaeologistFacet {
         // sarcophagus. Failure here means that someone besides an archaeologist
         // on the sarcophagus signed this message or that the data being signed
         // was not the provided arweaveTxId.
-        if (!LibUtils.archaeologistExistsOnSarc(identifier, oldArchaeologist)) {
+        if (!LibUtils.archaeologistExistsOnSarc(sarcoId, oldArchaeologist)) {
             revert LibErrors.SignerNotArchaeologistOnSarcophagus(
-                identifier,
+                sarcoId,
                 oldArchaeologist
             );
         }
@@ -175,15 +172,14 @@ contract ArchaeologistFacet {
         // and replace it with the sender's address.
         for (
             uint256 i = 0;
-            i < s.sarcophaguses[identifier].archaeologists.length;
+            i < s.sarcophaguses[sarcoId].archaeologists.length;
             i++
         ) {
             // Find the archaeologist that matches the old archaeologist's address
             if (
-                s.sarcophaguses[identifier].archaeologists[i] ==
-                oldArchaeologist
+                s.sarcophaguses[sarcoId].archaeologists[i] == oldArchaeologist
             ) {
-                s.sarcophaguses[identifier].archaeologists[i] = msg.sender;
+                s.sarcophaguses[sarcoId].archaeologists[i] = msg.sender;
 
                 // Once found there is no need to continue
                 break;
@@ -191,12 +187,13 @@ contract ArchaeologistFacet {
         }
 
         // Free the old archaeologist's bond
-        LibBonds.freeArchaeologist(identifier, oldArchaeologist);
+        LibBonds.freeArchaeologist(sarcoId, oldArchaeologist);
 
         LibTypes.ArchaeologistStorage storage newArchData = s
-            .sarcophagusArchaeologists[identifier][msg.sender];
+            .sarcophagusArchaeologists[sarcoId][msg.sender];
+
         LibTypes.ArchaeologistStorage storage oldArchData = s
-            .sarcophagusArchaeologists[identifier][oldArchaeologist];
+            .sarcophagusArchaeologists[sarcoId][oldArchaeologist];
 
         // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
         newArchData.diggingFee = oldArchData.diggingFee;
@@ -212,14 +209,14 @@ contract ArchaeologistFacet {
         oldArchData.unencryptedShard = "";
 
         // Add the arweave transaction id to arweaveTxIds on the sarcophagus
-        s.sarcophaguses[identifier].arweaveTxIds.push(arweaveTxId);
+        s.sarcophaguses[sarcoId].arweaveTxIds.push(arweaveTxId);
 
         // Curse the new archaeologist's bond
-        LibBonds.curseArchaeologist(identifier, msg.sender);
+        LibBonds.curseArchaeologist(sarcoId, msg.sender);
 
         // Emit an event
         emit LibEvents.FinalizeTransfer(
-            identifier,
+            sarcoId,
             arweaveTxId,
             oldArchaeologist,
             msg.sender

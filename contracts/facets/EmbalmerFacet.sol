@@ -37,17 +37,17 @@ contract EmbalmerFacet {
     /// finalizeSarcohpagus() method should be called, which is the second step.
     ///
     /// @param name the name of the sarcophagus
-    /// @param identifier the identifier of the sarcophagus
+    /// @param sarcoId the identifier of the sarcophagus
     /// @param archaeologists the data for the archaeologists
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
     /// @param recipient the address of the recipient
     /// @param resurrectionTime the resurrection time of the sarcophagus
     /// @param canBeTransferred Whether the sarcophagus can be transferred
-    /// @param minShards The minimum number of shards
+    /// @param minShards The minimum number of shards required to unwrap the sarcophagus
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
         string memory name,
-        bytes32 identifier,
+        bytes32 sarcoId,
         LibTypes.ArchaeologistMemory[] memory archaeologists,
         address arweaveArchaeologist,
         address recipient,
@@ -57,10 +57,10 @@ contract EmbalmerFacet {
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
         if (
-            s.sarcophaguses[identifier].state !=
+            s.sarcophaguses[sarcoId].state !=
             LibTypes.SarcophagusState.DoesNotExist
         ) {
-            revert LibErrors.SarcophagusAlreadyExists(identifier);
+            revert LibErrors.SarcophagusAlreadyExists(sarcoId);
         }
 
         // Confirm that the ressurection time is in the future
@@ -85,7 +85,7 @@ contract EmbalmerFacet {
 
         // Initialize a list of archaeologist addresses to be passed in to the
         // sarcophagus object
-        address[] memory archaeologistAddresses = new address[](
+        address[] memory archaeologistsToBond = new address[](
             archaeologists.length
         );
 
@@ -100,12 +100,12 @@ contract EmbalmerFacet {
             // previous iterations in this loop.
             if (
                 LibUtils.archaeologistExistsOnSarc(
-                    identifier,
+                    sarcoId,
                     archaeologists[i].archAddress
                 )
             ) {
                 revert LibErrors.ArchaeologistListNotUnique(
-                    archaeologistAddresses
+                    archaeologistsToBond
                 );
             }
 
@@ -131,18 +131,18 @@ contract EmbalmerFacet {
 
             // Stores each archaeologist's bounty, digging fees, and unencrypted
             // shard in app storage per sarcophagus
-            s.sarcophagusArchaeologists[identifier][
+            s.sarcophagusArchaeologists[sarcoId][
                 archaeologists[i].archAddress
             ] = archaeologistStorage;
 
             // Add the sarcophagus identifier to archaeologist's list of sarcophaguses
             s.archaeologistSarcophaguses[archaeologists[i].archAddress].push(
-                identifier
+                sarcoId
             );
 
             // Add the archaeologist address to the list of addresses to be
             // passed in to the sarcophagus object
-            archaeologistAddresses[i] = archaeologists[i].archAddress;
+            archaeologistsToBond[i] = archaeologists[i].archAddress;
         }
 
         // If the storage fee is 0, then the storage fee was never set since the
@@ -155,7 +155,7 @@ contract EmbalmerFacet {
         }
 
         // Create the sarcophagus object and store it in AppStorage
-        s.sarcophaguses[identifier] = LibTypes.Sarcophagus({
+        s.sarcophaguses[sarcoId] = LibTypes.Sarcophagus({
             name: name,
             state: LibTypes.SarcophagusState.Exists,
             canBeTransferred: canBeTransferred,
@@ -167,19 +167,19 @@ contract EmbalmerFacet {
             embalmer: msg.sender,
             recipientAddress: recipient,
             arweaveArchaeologist: arweaveArchaeologist,
-            archaeologists: archaeologistAddresses
+            archaeologists: archaeologistsToBond
         });
 
         // Add the identifier to the necessary data structures
-        s.sarcophagusIdentifiers.push(identifier);
-        s.embalmerSarcophaguses[msg.sender].push(identifier);
-        s.recipientSarcophaguses[recipient].push(identifier);
+        s.sarcophagusIdentifiers.push(sarcoId);
+        s.embalmerSarcophaguses[msg.sender].push(sarcoId);
+        s.recipientSarcophaguses[recipient].push(sarcoId);
 
         // Calculate the total fees in sarco tokens that the contract will
         // receive from the embalmer
         uint256 totalFees = LibBonds.calculateTotalFees(
-            identifier,
-            archaeologistAddresses
+            sarcoId,
+            archaeologistsToBond
         );
 
         // Transfer the total fees amount in sarco token from the msg.sender to this contract
@@ -187,14 +187,14 @@ contract EmbalmerFacet {
 
         // Emit the event
         emit LibEvents.InitializeSarcophagus(
-            identifier,
+            sarcoId,
             name,
             canBeTransferred,
             resurrectionTime,
             msg.sender,
             recipient,
             arweaveArchaeologist,
-            archaeologistAddresses
+            archaeologistsToBond
         );
 
         // Return the index of the sarcophagus
@@ -216,37 +216,36 @@ contract EmbalmerFacet {
     /// @dev The archaeologistSignatures must be sent in the same order that the
     /// archaeologists were sent to the initializeSarcophagus function,
     /// otherwise the transaction will revert.
-    /// @param identifier the identifier of the sarcophagus
+    /// @param sarcoId the identifier of the sarcophagus
     /// @param archaeologistSignatures the signatures of the archaeologists.
     /// This is archaeologist.length - 1 since the arweave archaeologist will be providing their own signature.
     /// @param arweaveArchaeologistSignature the signature of the archaeologist who uploaded to arweave
     /// @param arweaveTxId the arweave transaction id
     function finalizeSarcophagus(
-        bytes32 identifier,
+        bytes32 sarcoId,
         LibTypes.SignatureWithAccount[] memory archaeologistSignatures,
         LibTypes.Signature memory arweaveArchaeologistSignature,
         string memory arweaveTxId
     ) external {
         // Confirm that the sarcophagus exists
         if (
-            s.sarcophaguses[identifier].state !=
-            LibTypes.SarcophagusState.Exists
+            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
         ) {
-            revert LibErrors.SarcophagusDoesNotExist(identifier);
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the embalmer is making this transaction
-        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+        if (s.sarcophaguses[sarcoId].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
                 msg.sender,
-                s.sarcophaguses[identifier].embalmer
+                s.sarcophaguses[sarcoId].embalmer
             );
         }
 
         // Confirm that the sarcophagus is not already finalized by checking if
         // the arweaveTxId is empty
-        if (LibUtils.isSarcophagusFinalized(identifier)) {
-            revert LibErrors.SarcophagusAlreadyFinalized(identifier);
+        if (LibUtils.isSarcophagusFinalized(sarcoId)) {
+            revert LibErrors.SarcophagusAlreadyFinalized(sarcoId);
         }
 
         // Confirm that the provided arweave transaction id is not empty
@@ -259,7 +258,7 @@ contract EmbalmerFacet {
         // will be providing their own signature.
         if (
             archaeologistSignatures.length !=
-            s.sarcophaguses[identifier].archaeologists.length - 1
+            s.sarcophaguses[sarcoId].archaeologists.length - 1
         ) {
             revert LibErrors.IncorrectNumberOfArchaeologistSignatures(
                 archaeologistSignatures.length
@@ -273,7 +272,7 @@ contract EmbalmerFacet {
             // in combination with the signature length check guarantees that
             // each archaeologist gets verified and gets verified only once.
             if (
-                verifiedArchaeologists[identifier][
+                verifiedArchaeologists[sarcoId][
                     archaeologistSignatures[i].account
                 ]
             ) {
@@ -286,7 +285,7 @@ contract EmbalmerFacet {
             // there is a match. This is much more efficient.
             if (
                 !LibUtils.archaeologistExistsOnSarc(
-                    identifier,
+                    sarcoId,
                     archaeologistSignatures[i].account
                 )
             ) {
@@ -300,7 +299,7 @@ contract EmbalmerFacet {
             // approves the parameters of the sarcophagus (fees and resurrection
             // time) and is ready to work.
             LibUtils.verifyBytes32Signature(
-                identifier,
+                sarcoId,
                 archaeologistSignatures[i].v,
                 archaeologistSignatures[i].r,
                 archaeologistSignatures[i].s,
@@ -310,13 +309,13 @@ contract EmbalmerFacet {
             // Calculates the archaeologist's cursed bond and curses them (locks
             // up the free bond)
             LibBonds.curseArchaeologist(
-                identifier,
+                sarcoId,
                 archaeologistSignatures[i].account
             );
 
             // Add this archaeologist to the mapping of verified archaeologists
             // so that it can't be checked again.
-            verifiedArchaeologists[identifier][
+            verifiedArchaeologists[sarcoId][
                 archaeologistSignatures[i].account
             ] = true;
         }
@@ -333,19 +332,19 @@ contract EmbalmerFacet {
             arweaveArchaeologistSignature.v,
             arweaveArchaeologistSignature.r,
             arweaveArchaeologistSignature.s,
-            s.sarcophaguses[identifier].arweaveArchaeologist
+            s.sarcophaguses[sarcoId].arweaveArchaeologist
         );
 
         // Calculates the arweave archaeologist's cursed bond and curses
         // them (locks up the free bond)
         LibBonds.curseArchaeologist(
-            identifier,
-            s.sarcophaguses[identifier].arweaveArchaeologist
+            sarcoId,
+            s.sarcophaguses[sarcoId].arweaveArchaeologist
         );
 
         // Store the arweave transaction id to the sarcophagus. The arweaveTxId
         // being populated indirectly designates the sarcophagus as finalized.
-        s.sarcophaguses[identifier].arweaveTxIds.push(arweaveTxId);
+        s.sarcophaguses[sarcoId].arweaveTxIds.push(arweaveTxId);
 
         // Transfer the storage fee to the arweave archaeologist's reward pool
         // after setting the arweave transaction id.
@@ -353,12 +352,12 @@ contract EmbalmerFacet {
         // Is there value in directly transferring the storage fee to the
         // archaeologist on finalise?
         LibRewards.increaseRewardPool(
-            s.sarcophaguses[identifier].arweaveArchaeologist,
-            s.sarcophaguses[identifier].storageFee
+            s.sarcophaguses[sarcoId].arweaveArchaeologist,
+            s.sarcophaguses[sarcoId].storageFee
         );
 
         // Emit an event
-        emit LibEvents.FinalizeSarcophagus(identifier, arweaveTxId);
+        emit LibEvents.FinalizeSarcophagus(sarcoId, arweaveTxId);
     }
 
     /// @notice The embalmer may extend the life of the sarcophagus as long as
@@ -412,20 +411,20 @@ contract EmbalmerFacet {
         s.sarcophaguses[identifier].resurrectionWindow = resurrectionWindow;
 
         // For each archaeologist on the sarcophagus, transfer their digging fee allocations to them
-        address[] memory archaeologistAddresses = s
+        address[] memory bondedArchaeologists = s
             .sarcophaguses[identifier]
             .archaeologists;
 
         uint256 diggingFeeSum = 0;
 
-        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
+        for (uint256 i = 0; i < bondedArchaeologists.length; i++) {
             // Get the archaeolgist's fee data
             LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
-                .getArchaeologist(identifier, archaeologistAddresses[i]);
+                .getArchaeologist(identifier, bondedArchaeologists[i]);
 
             // Transfer the archaeologist's digging fee allocation to the archaeologist's reward pool
             LibRewards.increaseRewardPool(
-                archaeologistAddresses[i],
+                bondedArchaeologists[i],
                 archaeologistData.diggingFee
             );
 
@@ -457,47 +456,46 @@ contract EmbalmerFacet {
     /// @notice Cancels a sarcophagus. An embalmer may cancel a sarcophagus after
     /// `initializeSarcophagus` but before `finalizeSarcophagus`. The embalmer's
     /// fees that were locked up will be refunded.
-    /// @param identifier the identifier of the sarcophagus
-    function cancelSarcophagus(bytes32 identifier) external {
+    /// @param sarcoId the identifier of the sarcophagus
+    function cancelSarcophagus(bytes32 sarcoId) external {
         // Confirm that the sarcophagus exists
         if (
-            s.sarcophaguses[identifier].state !=
-            LibTypes.SarcophagusState.Exists
+            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
         ) {
-            revert LibErrors.SarcophagusDoesNotExist(identifier);
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+        if (s.sarcophaguses[sarcoId].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
                 msg.sender,
-                s.sarcophaguses[identifier].embalmer
+                s.sarcophaguses[sarcoId].embalmer
             );
         }
 
         // Confirm that the sarcophagus is not already finalized
-        if (LibUtils.isSarcophagusFinalized(identifier)) {
-            revert LibErrors.SarcophagusAlreadyFinalized(identifier);
+        if (LibUtils.isSarcophagusFinalized(sarcoId)) {
+            revert LibErrors.SarcophagusAlreadyFinalized(sarcoId);
         }
 
         // Set the sarcophagus state to done
-        s.sarcophaguses[identifier].state = LibTypes.SarcophagusState.Done;
+        s.sarcophaguses[sarcoId].state = LibTypes.SarcophagusState.Done;
 
-        address[] memory archaeologistAddresses = s
-            .sarcophaguses[identifier]
+        address[] memory bondedArchaeologists = s
+            .sarcophaguses[sarcoId]
             .archaeologists;
 
         // Re-calculate the total fees that the embalmer locked up in initializeSarcophagus
         uint256 totalFees = LibBonds.calculateTotalFees(
-            identifier,
-            archaeologistAddresses
+            sarcoId,
+            bondedArchaeologists
         );
 
         // Transfer the total fees back to the embalmer
-        s.sarcoToken.transfer(s.sarcophaguses[identifier].embalmer, totalFees);
+        s.sarcoToken.transfer(s.sarcophaguses[sarcoId].embalmer, totalFees);
 
         // Emit an event
-        emit LibEvents.CancelSarcophagus(identifier);
+        emit LibEvents.CancelSarcophagus(sarcoId);
     }
 
     /// @notice Permanently closes the sarcophagus, giving it no opportunity to
@@ -506,42 +504,41 @@ contract EmbalmerFacet {
     /// resurrection time has passed.
     /// @dev Extends the resurrection time into infinity so that that unwrap
     /// will never be successful.
-    /// @param identifier the identifier of the sarcophagus
-    function burySarcophagus(bytes32 identifier) external {
+    /// @param sarcoId the identifier of the sarcophagus
+    function burySarcophagus(bytes32 sarcoId) external {
         // Confirm that the sarcophagus exists
         if (
-            s.sarcophaguses[identifier].state !=
-            LibTypes.SarcophagusState.Exists
+            s.sarcophaguses[sarcoId].state != LibTypes.SarcophagusState.Exists
         ) {
-            revert LibErrors.SarcophagusDoesNotExist(identifier);
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Confirm that the sender is the embalmer
-        if (s.sarcophaguses[identifier].embalmer != msg.sender) {
+        if (s.sarcophaguses[sarcoId].embalmer != msg.sender) {
             revert LibErrors.SenderNotEmbalmer(
                 msg.sender,
-                s.sarcophaguses[identifier].embalmer
+                s.sarcophaguses[sarcoId].embalmer
             );
         }
 
         // Confirm that the sarcophagus is finalized by checking if there is an
         // arweaveTxId
-        if (!LibUtils.isSarcophagusFinalized(identifier)) {
-            revert LibErrors.SarcophagusNotFinalized(identifier);
+        if (!LibUtils.isSarcophagusFinalized(sarcoId)) {
+            revert LibErrors.SarcophagusNotFinalized(sarcoId);
         }
 
         // Confirm that the current resurrection time is in the future
-        if (s.sarcophaguses[identifier].resurrectionTime <= block.timestamp) {
+        if (s.sarcophaguses[sarcoId].resurrectionTime <= block.timestamp) {
             revert LibErrors.ResurrectionTimeInPast(
-                s.sarcophaguses[identifier].resurrectionTime
+                s.sarcophaguses[sarcoId].resurrectionTime
             );
         }
 
         // Set resurrection time to infinity
-        s.sarcophaguses[identifier].resurrectionTime = 2**256 - 1;
+        s.sarcophaguses[sarcoId].resurrectionTime = 2**256 - 1;
 
         // Set sarcophagus state to done
-        s.sarcophaguses[identifier].state = LibTypes.SarcophagusState.Done;
+        s.sarcophaguses[sarcoId].state = LibTypes.SarcophagusState.Done;
 
         // Total bounty will be added up when we loop through the
         // archaeologists. This will be sent back to the embalmer.
@@ -550,20 +547,20 @@ contract EmbalmerFacet {
         // For each archaeologist on the sarcophagus,
         // 1. Unlock their cursed bond
         // 2. Transfer digging fees to the archaeologist.
-        address[] memory archaeologistAddresses = s
-            .sarcophaguses[identifier]
+        address[] memory bondedArchaeologists = s
+            .sarcophaguses[sarcoId]
             .archaeologists;
 
-        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
+        for (uint256 i = 0; i < bondedArchaeologists.length; i++) {
             // Unlock the archaeologist's cursed bond
-            LibBonds.freeArchaeologist(identifier, archaeologistAddresses[i]);
+            LibBonds.freeArchaeologist(sarcoId, bondedArchaeologists[i]);
 
             LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
-                .getArchaeologist(identifier, archaeologistAddresses[i]);
+                .getArchaeologist(sarcoId, bondedArchaeologists[i]);
 
             // Transfer the digging fees to the archaeologist's reward pool
             LibRewards.increaseRewardPool(
-                archaeologistAddresses[i],
+                bondedArchaeologists[i],
                 archaeologistData.diggingFee
             );
 
@@ -575,6 +572,6 @@ contract EmbalmerFacet {
         s.sarcoToken.transfer(msg.sender, totalBounty);
 
         // Emit an event
-        emit LibEvents.BurySarcophagus(identifier);
+        emit LibEvents.BurySarcophagus(sarcoId);
     }
 }

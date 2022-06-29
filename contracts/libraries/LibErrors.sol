@@ -35,13 +35,13 @@ library LibErrors {
 
     error ResurrectionTimeInPast(uint256 resurrectionTime);
 
-    error SarcophagusAlreadyExists(bytes32 identifier);
+    error SarcophagusAlreadyExists(bytes32 sarcoId);
 
-    error SarcophagusAlreadyFinalized(bytes32 identifier);
+    error SarcophagusAlreadyFinalized(bytes32 sarcoId);
 
-    error SarcophagusNotFinalized(bytes32 identifier);
+    error SarcophagusNotFinalized(bytes32 sarcoId);
 
-    error SarcophagusDoesNotExist(bytes32 identifier);
+    error SarcophagusDoesNotExist(bytes32 sarcoId);
 
     error SenderNotEmbalmer(address sender, address embalmer);
 
@@ -52,10 +52,7 @@ library LibErrors {
 
     error SignatureListNotUnique();
 
-    error SignerNotArchaeologistOnSarcophagus(
-        bytes32 identifier,
-        address signer
-    );
+    error SignerNotArchaeologistOnSarcophagus(bytes32 sarcoId, address signer);
 
     // Used when an attempt is made to send an accusation after the resurrection time has already passed (so it's actually time to unwrap it)
     error SarcophagusIsUnwrappable();
