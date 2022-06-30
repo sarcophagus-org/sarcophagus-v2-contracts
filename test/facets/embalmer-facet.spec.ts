@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction, Signature } from "ethers";
-import { ethers, deployments } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import {
   ArchaeologistFacet,
   SarcoTokenMock,

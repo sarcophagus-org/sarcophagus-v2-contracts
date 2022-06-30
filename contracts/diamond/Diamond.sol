@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
+import "hardhat/console.sol";
 import {LibDiamond} from "./libraries/LibDiamond.sol";
 import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
 
 contract Diamond {
     constructor(address _contractOwner, address _diamondCutFacet) payable {
+        console.log("Diamond constructor!!!!!!!!!!!!!!!!!!!");
         LibDiamond.setContractOwner(_contractOwner);
 
         // Create an array of length 1 for facetCuts

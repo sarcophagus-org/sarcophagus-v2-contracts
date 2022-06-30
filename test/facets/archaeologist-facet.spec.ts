@@ -3,14 +3,14 @@ import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber, Signature } from "ethers";
 import { toUtf8String } from "ethers/lib/utils";
-import { ethers, deployments } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import {
   ArchaeologistFacet,
   EmbalmerFacet,
   SarcoTokenMock,
   ViewStateFacet,
 } from "../../typechain";
-import { SarcophagusState, SignatureWithAccount } from "../../types";
+import { SignatureWithAccount } from "../../types";
 import {
   increaseNextBlockTimestamp,
   setupArchaeologists,
