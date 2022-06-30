@@ -3,8 +3,7 @@ import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber, Signature } from "ethers";
 import { toUtf8String } from "ethers/lib/utils";
-import { ethers } from "hardhat";
-import { deployDiamond } from "../../scripts/deploy-diamond";
+import { ethers, deployments } from "hardhat";
 import {
   ArchaeologistFacet,
   EmbalmerFacet,
@@ -33,7 +32,9 @@ describe("Contract: ArchaeologistFacet", () => {
 
     archaeologist = signers[0];
 
-    ({ diamondAddress, sarcoToken } = await deployDiamond());
+    await deployments.fixture();
+    sarcoToken = await ethers.getContract("SarcoTokenMock");
+    diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
     // Approve the archaeologist on the sarco token so transferFrom will work
     await sarcoToken
@@ -241,7 +242,11 @@ describe("Contract: ArchaeologistFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      ({ diamondAddress, sarcoToken } = await deployDiamond());
+      await deployments.fixture();
+
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
+        .address;
 
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
@@ -751,7 +756,11 @@ describe("Contract: ArchaeologistFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      ({ diamondAddress, sarcoToken } = await deployDiamond());
+      await deployments.fixture();
+
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
+        .address;
 
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",

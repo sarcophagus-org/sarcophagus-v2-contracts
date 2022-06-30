@@ -2,8 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction, Signature } from "ethers";
-import { ethers } from "hardhat";
-import { deployDiamond } from "../../scripts/deploy-diamond";
+import { ethers, deployments } from "hardhat";
 import {
   ArchaeologistFacet,
   SarcoTokenMock,
@@ -220,8 +219,10 @@ describe("Contract: EmbalmerFacet", () => {
   describe("initializeSarcophagus()", () => {
     // Deploy the contracts
     before(async () => {
-      let diamondAddress: string;
-      ({ diamondAddress, sarcoToken } = await deployDiamond());
+      await deployments.fixture();
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      const diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
+        .address;
 
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
@@ -498,10 +499,10 @@ describe("Contract: EmbalmerFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      const { diamondAddress: _diamondAddress, sarcoToken: _sarcoToken } =
-        await deployDiamond();
-      diamondAddress = _diamondAddress;
-      sarcoToken = _sarcoToken;
+      await deployments.fixture();
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
+        .address;
 
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
@@ -982,7 +983,10 @@ describe("Contract: EmbalmerFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      ({ diamondAddress, sarcoToken } = await deployDiamond());
+      await deployments.fixture();
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
+        .address;
 
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
@@ -1354,8 +1358,10 @@ describe("Contract: EmbalmerFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      let diamondAddress: string;
-      ({ diamondAddress, sarcoToken } = await deployDiamond());
+      await deployments.fixture();
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      const diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
+        .address;
 
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
@@ -1515,8 +1521,10 @@ describe("Contract: EmbalmerFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      let diamondAddress: string;
-      ({ diamondAddress, sarcoToken } = await deployDiamond());
+      await deployments.fixture();
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      const diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
+        .address;
 
       embalmerFacet = await ethers.getContractAt(
         "EmbalmerFacet",
