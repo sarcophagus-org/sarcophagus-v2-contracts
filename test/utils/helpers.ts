@@ -1,7 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
-import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
+import {
+  ArchaeologistFacet,
+  SarcoTokenMock,
+  ViewStateFacet,
+} from "../../typechain";
 
 /**
  * Signs a message as any EVM compatible type and returns the signature and the
@@ -62,7 +66,10 @@ export const setupArchaeologists = async (
   for (const archaeologist of archaeologists) {
     // Transfer 10,000 sarco tokens to each archaeologist to be put into free
     // bond
-    await sarcoToken.transfer(archaeologist.address, BigNumber.from(10_000));
+    await sarcoToken.transfer(
+      archaeologist.address,
+      ethers.utils.parseEther("10000")
+    );
 
     // Approve the archaeologist on the sarco token so transferFrom will work
     await sarcoToken
@@ -73,7 +80,7 @@ export const setupArchaeologists = async (
     // work
     await archaeologistFacet
       .connect(archaeologist)
-      .depositFreeBond(BigNumber.from("5000"));
+      .depositFreeBond(ethers.utils.parseEther("5000"));
   }
 };
 
