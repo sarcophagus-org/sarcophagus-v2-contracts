@@ -39,7 +39,7 @@ interface TestArchaeologist {
 /// //////////////////////////////////////////
 describe("Creating a Sarcophagus", () => {
   // Set up the signers for the tests
-  before(async () => {
+  beforeEach(async () => {
     ({ diamondAddress, sarcoToken } = await deployDiamond());
     signers = await ethers.getSigners();
 
@@ -58,45 +58,54 @@ describe("Creating a Sarcophagus", () => {
   it("With 5 archaeologists", async () => {
     const { sarcoId } = await _runCreateSarcoTest({ shares: 5, threshold: 4 });
 
-    // Define a new resurrection time one week in the future
-    const newResurrectionTime = BigNumber.from(
-      Date.now() + 60 * 60 * 24 * 7 * 1000
-    );
-
-    // Rewrap the sarcophagus
-    await embalmerFacet
-      .connect(embalmer)
-      .rewrapSarcophagus(sarcoId, newResurrectionTime);
+    await _runRewrapTest(sarcoId);
   });
 
   it("With 10 archaeologists", async () => {
-    await _runCreateSarcoTest({ shares: 10, threshold: 6 });
+    const { sarcoId } = await _runCreateSarcoTest({ shares: 10, threshold: 6 });
+
+    await _runRewrapTest(sarcoId);
   });
 
   it("With 50 archaeologists", async () => {
-    await _runCreateSarcoTest({ shares: 50, threshold: 26 });
+    const { sarcoId } = await _runCreateSarcoTest({
+      shares: 50,
+      threshold: 26,
+    });
+
+    await _runRewrapTest(sarcoId);
   });
 
   it("With 100 archaeologists", async () => {
-    await _runCreateSarcoTest({ shares: 100, threshold: 80 });
+    const { sarcoId } = await _runCreateSarcoTest({
+      shares: 100,
+      threshold: 80,
+    });
+
+    await _runRewrapTest(sarcoId);
   });
 
   it("With 150 archaeologists", async () => {
-    await _runCreateSarcoTest({ shares: 150, threshold: 100 });
+    const { sarcoId } = await _runCreateSarcoTest({
+      shares: 150,
+      threshold: 100,
+    });
+
+    await _runRewrapTest(sarcoId);
   });
 });
 
 /// //////////////////////////////////////////
 /// // HELPERS                              //
 /// //////////////////////////////////////////
-const _runCreateSarcoTest = async (arg: {
+async function _runCreateSarcoTest(arg: {
   shares: number;
   threshold: number;
 }): Promise<{
   sarcoId: string;
   archaeologists: TestArchaeologist[];
   arweaveSignature: Signature;
-}> => {
+}> {
   // const publicKey =
   //   "-----BEGIN PUBLIC KEY-----\nMFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANFcUwtJSlCR65MqRqRmbJjBSuAhyxmN\nXmEV0imtcsKRiBHhHIxAAN/bw1tfzpHvAoM47iR11S7XsEfMjyW/nokCAwEAAQ==\n----- END PUBLIC KEY-----";
   const privateKey =
@@ -164,7 +173,18 @@ const _runCreateSarcoTest = async (arg: {
     .to.eq(66);
 
   return { sarcoId, archaeologists, arweaveSignature };
-};
+}
+
+async function _runRewrapTest(sarcoId: string) {
+  // Define a new resurrection time one week in the future
+  const newResurrectionTime = BigNumber.from(
+    Date.now() + 60 * 60 * 24 * 7 * 1000
+  );
+
+  await embalmerFacet
+    .connect(embalmer)
+    .rewrapSarcophagus(sarcoId, newResurrectionTime);
+}
 
 async function _sign(
   signer: SignerWithAddress,
