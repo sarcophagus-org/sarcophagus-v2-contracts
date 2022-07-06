@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction, Signature } from "ethers";
@@ -9,16 +10,15 @@ import {
   SarcoTokenMock,
   ViewStateFacet,
 } from "../../typechain";
-import { setupArchaeologists } from "../utils/helpers";
+import { setupArchaeologists, sign } from "../utils/helpers";
 import time from "../utils/time";
 import { SignatureWithAccount } from "../../types";
-import { hexlify } from "ethers/lib/utils";
+import { BytesLike } from "ethers/lib/utils";
 
 const sss = require("shamirs-secret-sharing");
 
 let embalmerFacet: EmbalmerFacet;
 let archaeologistFacet: ArchaeologistFacet;
-let viewStateFacet: ViewStateFacet;
 let embalmer: SignerWithAddress;
 let recipient: SignerWithAddress;
 let arweaveArchaeologist: SignerWithAddress;
@@ -32,12 +32,13 @@ interface TestArchaeologist {
   diggingFee: BigNumber;
   bounty: BigNumber;
   hashedShard: string;
+  unencryptedShard: BytesLike;
 }
 
 /// //////////////////////////////////////////
 /// // TESTS                                //
 /// //////////////////////////////////////////
-describe("Creating a Sarcophagus", () => {
+describe.skip("Creating a Sarcophagus", () => {
   // Set up the signers for the tests
   beforeEach(async () => {
     ({ diamondAddress, sarcoToken } = await deployDiamond());
@@ -56,48 +57,50 @@ describe("Creating a Sarcophagus", () => {
   });
 
   it("With 5 archaeologists", async () => {
-    const { sarcoId } = await _runCreateSarcoTest({ shares: 5, threshold: 4 });
-
-    await _runRewrapTest(sarcoId);
+    await _runGasReports({
+      shares: 5,
+      threshold: 4,
+    });
   });
 
   it("With 10 archaeologists", async () => {
-    const { sarcoId } = await _runCreateSarcoTest({ shares: 10, threshold: 6 });
-
-    await _runRewrapTest(sarcoId);
+    await _runGasReports({
+      shares: 10,
+      threshold: 6,
+    });
   });
 
   it("With 50 archaeologists", async () => {
-    const { sarcoId } = await _runCreateSarcoTest({
+    await _runGasReports({
       shares: 50,
       threshold: 26,
     });
-
-    await _runRewrapTest(sarcoId);
   });
 
   it("With 100 archaeologists", async () => {
-    const { sarcoId } = await _runCreateSarcoTest({
+    await _runGasReports({
       shares: 100,
       threshold: 80,
     });
-
-    await _runRewrapTest(sarcoId);
   });
 
   it("With 150 archaeologists", async () => {
-    const { sarcoId } = await _runCreateSarcoTest({
+    await _runGasReports({
       shares: 150,
       threshold: 100,
     });
-
-    await _runRewrapTest(sarcoId);
   });
 });
 
 /// //////////////////////////////////////////
 /// // HELPERS                              //
 /// //////////////////////////////////////////
+async function _runGasReports(arg: { shares: number; threshold: number }) {
+  const { sarcoId, archaeologists } = await _runCreateSarcoTest(arg);
+  await _runRewrapTest(sarcoId);
+  await _runUnwwrapTest(sarcoId, archaeologists);
+}
+
 async function _runCreateSarcoTest(arg: {
   shares: number;
   threshold: number;
@@ -150,7 +153,7 @@ async function _runCreateSarcoTest(arg: {
 
   tx.wait();
 
-  const arweaveSignature = await _sign(
+  const arweaveSignature = await sign(
     arweaveArchaeologist,
     "arweaveTxId",
     "string"
@@ -177,36 +180,25 @@ async function _runCreateSarcoTest(arg: {
 
 async function _runRewrapTest(sarcoId: string) {
   // Define a new resurrection time one week in the future
-  const newResurrectionTime = BigNumber.from(
-    Date.now() + 60 * 60 * 24 * 7 * 1000
-  );
+  const newResurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
   await embalmerFacet
     .connect(embalmer)
     .rewrapSarcophagus(sarcoId, newResurrectionTime);
 }
 
-async function _sign(
-  signer: SignerWithAddress,
-  message: string,
-  type: string
-): Promise<Signature> {
-  const dataHex = ethers.utils.defaultAbiCoder.encode([type], [message]);
-  const dataHash = ethers.utils.keccak256(dataHex);
-  const dataHashBytes = ethers.utils.arrayify(dataHash);
-  const signature = await signer.signMessage(dataHashBytes);
-  return ethers.utils.splitSignature(signature);
-}
+async function _runUnwwrapTest(
+  sarcoId: string,
+  archaeologists: TestArchaeologist[]
+) {
+  await time.increase(time.duration.weeks(1));
 
-// function _hexToBytes(hex: string, pad = false) {
-//   const byteArray = utils.arrayify(hex);
-//   if (pad) {
-//     const padByte = new Uint8Array([4]);
-//     return Buffer.from(new Uint8Array([...padByte, ...byteArray]));
-//   } else {
-//     return Buffer.from(byteArray);
-//   }
-// }
+  for await (const arch of archaeologists) {
+    await archaeologistFacet
+      .connect(arch.signer)
+      .unwrapSarcophagus(sarcoId, arch.unencryptedShard);
+  }
+}
 
 async function _spawnArchaologistsWithSignatures(
   shards: Buffer[],
@@ -218,8 +210,8 @@ async function _spawnArchaologistsWithSignatures(
   for (let i = 0; i < shards.length; i++) {
     const acc = signers[i + 2];
 
-    // todo: confirm this encryption is correct
-    const signature = await _sign(acc, sarcoId, "bytes32");
+    // todo: confirm this data is correct
+    const signature = await sign(acc, sarcoId, "bytes32");
     // const pubKey = utils.recoverPublicKey(
     //   ethers.utils.hashMessage(sarcoId),
     //   signature
@@ -227,10 +219,8 @@ async function _spawnArchaologistsWithSignatures(
 
     // const encryptedShardBuffer = await encrypt(_hexToBytes(pubKey), shards[i]);
     archs.push({
-      hashedShard: ethers.utils.solidityKeccak256(
-        ["string"],
-        [hexlify(shards[i])]
-      ),
+      hashedShard: ethers.utils.solidityKeccak256(["bytes"], [shards[i]]),
+      unencryptedShard: shards[i],
       // hashedShard: hexlify(encryptedShardBuffer),
       signer: acc,
       storageFee: ethers.utils.parseEther("20"),
