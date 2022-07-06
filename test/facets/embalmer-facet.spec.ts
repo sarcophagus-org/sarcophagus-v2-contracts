@@ -2,334 +2,116 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction, Signature } from "ethers";
-import { deployments, ethers } from "hardhat";
+import { deployments, ethers, getUnnamedAccounts } from "hardhat";
 import {
   ArchaeologistFacet,
   SarcoTokenMock,
   ViewStateFacet,
 } from "../../typechain";
 import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
-import { SarcophagusState, SignatureWithAccount } from "../../types";
+import {
+  FixtureArchaeologist,
+  SarcophagusState,
+  SignatureWithAccount,
+} from "../../types";
 import { sign } from "../utils/helpers";
+import { coreSetup } from "../fixtures/setup";
+import { solidityKeccak256 } from "ethers/lib/utils";
+import { initializeSarcophagus } from "../fixtures/initialize-sarcophagus";
+import { setupArchaeologistSignatures } from "../fixtures/setup-archaeologist-signatures";
+import { setupArweaveArchSig } from "../fixtures/setup-arweave-archaeologist-signature";
+import { getSigners } from "../fixtures/get-signers";
 
 describe("Contract: EmbalmerFacet", () => {
-  // Define a resurrrection time one week in the future
-  const resurrectionTimeInFuture = BigNumber.from(
-    Date.now() + 60 * 60 * 24 * 7
-  );
-
   let embalmerFacet: EmbalmerFacet;
   let archaeologistFacet: ArchaeologistFacet;
   let viewStateFacet: ViewStateFacet;
   let embalmer: SignerWithAddress;
-  let archaeologists: SignerWithAddress[];
+  let archaeologists: FixtureArchaeologist[];
   let recipient: SignerWithAddress;
   let arweaveArchaeologist: SignerWithAddress;
   let sarcoToken: SarcoTokenMock;
   let signers: SignerWithAddress[];
 
-  // Define an arcaeologist fees object to be used in any test that needs it
-  const archaeologistsFees = [
-    {
-      storageFee: 20,
-      diggingFee: 10,
-      bounty: 100,
-    },
-    {
-      storageFee: 25,
-      diggingFee: 8,
-      bounty: 112,
-    },
-    {
-      storageFee: 21,
-      diggingFee: 9,
-      bounty: 105,
-    },
-  ];
-
-  // Set up the signers for the tests
-  before(async () => {
-    signers = await ethers.getSigners();
-
-    // Set some roles to be used in the tests
-    embalmer = signers[0];
-    archaeologists = [signers[1], signers[2], signers[3]];
-    arweaveArchaeologist = signers[1];
-    recipient = signers[4];
+  beforeEach(async () => {
+    ({ embalmer, archaeologists } = await coreSetup());
   });
 
-  /**
-   * Creates a sarcophagus. This is helpful in several places
-   * throughout the tests where a sarcophagus should be initialized
-   * successfully.
-   */
-  const initializeSarcophagus = async (
-    name: string,
-    resurrectionTime: BigNumber,
-    identifier: string,
-    archaeologists: any[],
-    minShards?: number
-  ): Promise<ContractTransaction> => {
-    // Define archaeologist objects to be passed into the sarcophagus
-    const archaeologistObjects = archaeologists.map((a, i) => ({
-      archAddress: a.address,
-      storageFee: BigNumber.from(archaeologistsFees[i].storageFee),
-      diggingFee: BigNumber.from(archaeologistsFees[i].diggingFee),
-      bounty: BigNumber.from(archaeologistsFees[i].bounty),
-      hashedShard: ethers.utils.solidityKeccak256(["string"], [a.address]),
-    }));
-
-    const canBeTransferred = true;
-
-    // Create a sarcophagus as the embalmer
-    const tx = await embalmerFacet
-      .connect(embalmer)
-      .initializeSarcophagus(
-        name,
-        identifier,
-        archaeologistObjects,
-        arweaveArchaeologist.address,
-        recipient.address,
-        resurrectionTime,
-        canBeTransferred,
-        minShards === 0 ? 0 : minShards || 3
-      );
-
-    return tx;
-  };
-
-  const setupArchaeologists = async (
-    archaeologistFacet: ArchaeologistFacet,
-    archaeologists: SignerWithAddress[],
-    diamondAddress: string,
-    embalmer: SignerWithAddress,
-    sarcoToken: SarcoTokenMock
-  ): Promise<void> => {
-    // Approve the embalmer on the sarco token so transferFrom will work
-    await sarcoToken
-      .connect(embalmer)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
-
-    for (const archaeologist of archaeologists) {
-      // Transfer 10,000 sarco tokens to each archaeologist to be put into free
-      // bond
-      await sarcoToken.transfer(archaeologist.address, BigNumber.from(10_000));
-
-      // Approve the archaeologist on the sarco token so transferFrom will work
-      await sarcoToken
-        .connect(archaeologist)
-        .approve(diamondAddress, ethers.constants.MaxUint256);
-
-      // Deposit some free bond to the contract so initializeSarcophagus will
-      // work
-      await archaeologistFacet
-        .connect(archaeologist)
-        .depositFreeBond(BigNumber.from("5000"));
-    }
-  };
-
-  /**
-   * Gets a list of archaeologist signatures for the given list of accounts.
-   *
-   * @param archaeologists The list of accounts that will be used to sign the
-   * sarcophagus
-   * @returns
-   */
-  const getArchaeologistSignatures = async (
-    archaeologists: SignerWithAddress[],
-    arweaveArchaeologist: SignerWithAddress,
-    identifier: string
-  ): Promise<SignatureWithAccount[]> => {
-    const signatures: SignatureWithAccount[] = [];
-
-    for (const archaeologist of archaeologists) {
-      // Sign a message and add to signatures. Only sign if the archaeologist
-      // is not the arweave archaeologist
-      if (archaeologist.address !== arweaveArchaeologist.address) {
-        const signature = await sign(archaeologist, identifier, "bytes32");
-
-        signatures.push(
-          Object.assign(signature, { account: archaeologist.address })
-        );
-      }
-    }
-
-    return signatures;
-  };
-
-  /**
-   * Creates a new sarcophagus and signatures for the cancelSarcophaguse tests
-   * @param unhashedIdentifier
-   * @param archaeologists
-   * @returns
-   */
-  const createSarcophagusAndSignatures = async (
-    unhashedIdentifier: string,
-    archaeologists: any[]
-  ): Promise<{
-    identifier: string;
-    signatures: SignatureWithAccount[];
-  }> => {
-    // Create a new identifier
-    const newIdentifier = ethers.utils.solidityKeccak256(
-      ["string"],
-      [unhashedIdentifier]
-    );
-
-    // Initialize the sarcophagus with the new identifier
-    await initializeSarcophagus(
-      "New Test Sarcophagus",
-      resurrectionTimeInFuture,
-      newIdentifier,
-      archaeologists
-    );
-
-    // Get new signatures from the archaeologists of the new identifier
-    const newSignatures = await getArchaeologistSignatures(
-      archaeologists,
-      arweaveArchaeologist,
-      newIdentifier
-    );
-
-    return { identifier: newIdentifier, signatures: newSignatures };
-  };
-
-  /**
-   * Gets a list of archaeologist sarco balances.
-   *
-   * @param archaeologists A list of archaeologist signers
-   * @returns a list of archaeologist sarco balanaces
-   */
-  const getArchaeologistSarcoBalances = async (
-    archaeologists: SignerWithAddress[],
-    sarcoToken: SarcoTokenMock
-  ): Promise<{ address: string; balance: BigNumber }[]> => {
-    const balances: { address: string; balance: BigNumber }[] = [];
-    for (const arch of archaeologists) {
-      const balance = await sarcoToken.balanceOf(arch.address);
-      balances.push({
-        address: arch.address,
-        balance: balance,
-      });
-    }
-
-    return balances;
-  };
-
-  describe("initializeSarcophagus()", () => {
-    // Deploy the contracts
-    before(async () => {
-      await deployments.fixture();
-      sarcoToken = await ethers.getContract("SarcoTokenMock");
-      const diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
-        .address;
-
-      embalmerFacet = await ethers.getContractAt(
-        "EmbalmerFacet",
-        diamondAddress
-      );
-
-      // Get the archaeologistFacet so we can add some free bond for the archaeologists
-      archaeologistFacet = await ethers.getContractAt(
-        "ArchaeologistFacet",
-        diamondAddress
-      );
-
-      viewStateFacet = await ethers.getContractAt(
-        "ViewStateFacet",
-        diamondAddress
-      );
-
-      await setupArchaeologists(
-        archaeologistFacet,
-        archaeologists,
-        diamondAddress,
-        embalmer,
-        sarcoToken
-      );
-    });
-
-    before(async () => {
-      // Give the embalmer some sarco tokens
-      await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
-    });
-
+  describe.only("initializeSarcophagus()", () => {
     context("Successful initialization", () => {
-      it("should successfully initialize sarcophagus", async () => {
-        const identifier = ethers.utils.solidityKeccak256(
+      let tx: ContractTransaction;
+      let embalmerBalance: BigNumber;
+
+      // Load the embalmer's balance
+      before(async () => {
+        // Get the embalmer's sarco token balance
+        embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
+      });
+
+      // Initialize the sarcophagus
+      before(async () => {
+        const name = "Test Sarcophagus";
+        const identifier = solidityKeccak256(
           ["string"],
-          ["successfulInitializeSarcophagus"]
+          ["unhashedIdentifier"]
         );
+        const arweaveArchaeologist = archaeologists[0];
+        const canBeTransferred = true;
+        // 1 week
+        const resurrectionTime = BigNumber.from(
+          Date.now() / 1000 + 60 * 60 * 24 * 7
+        );
+        const minShards = 2;
 
-        const tx = await initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists
-        );
+        // Create a sarcophagus as the embalmer
+        tx = await embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            name,
+            identifier,
+            archaeologists,
+            arweaveArchaeologist.account,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            minShards
+          );
+      });
+
+      it("should successfully initialize sarcophagus", async () => {
         const receipt = await tx.wait();
-
         expect(receipt.status).to.equal(1);
       });
 
       it("should transfer fees in sarco token from the embalmer to the contract", async () => {
-        // Get the embalmer's sarco token balance before and after, then compare
-        const embalmerBalanceBefore = await sarcoToken.balanceOf(
-          embalmer.address
-        );
-
-        const identifier = ethers.utils.solidityKeccak256(
-          ["string"],
-          ["shouldTransferFees"]
-        );
-
-        await initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists
-        );
-
         const embalmerBalanceAfter = await sarcoToken.balanceOf(
           embalmer.address
         );
 
         // Find the arweave archaeologist and get their storage fee amount
         const arweaveArchaeologistIndex = archaeologists.findIndex(
-          (a) => a.address === arweaveArchaeologist.address
+          (a) => a.account === arweaveArchaeologist.address
         );
         const arweaveArchaeologistStorageFee = BigNumber.from(
-          archaeologistsFees[arweaveArchaeologistIndex].storageFee
+          archaeologists[arweaveArchaeologistIndex].storageFee
         );
-        const arweaveArchaeologistStorageFeeInt =
-          arweaveArchaeologistStorageFee.toNumber();
 
         // Calculate the total fees:
         // The arweaver archaeologist's storage fee + all bounties + all digging
         // fees
-        const totalFees =
-          archaeologistsFees.reduce(
-            (acc, fee) => acc + fee.bounty + fee.diggingFee,
-            0
-          ) + arweaveArchaeologistStorageFeeInt;
+        const totalFees = archaeologists
+          .reduce(
+            (acc, arch) => acc.add(arch.bounty).add(arch.diggingFee),
+            BigNumber.from("0")
+          )
+          .add(arweaveArchaeologistStorageFee);
 
-        expect(embalmerBalanceBefore.sub(embalmerBalanceAfter)).to.equal(
+        expect(embalmerBalance.sub(embalmerBalanceAfter)).to.equal(
           BigNumber.from(totalFees)
         );
       });
 
       it("should emit an event on initialize", async () => {
-        const identifier = ethers.utils.solidityKeccak256(
-          ["string"],
-          ["shouldEmitEvent"]
-        );
-
-        const tx = await initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists
-        );
         const receipt = await tx.wait();
 
         const events = receipt.events!;
@@ -344,57 +126,106 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("Failed initialization", () => {
       it("should revert when creating a sarcophagus that already exists", async () => {
-        const identifier = ethers.utils.solidityKeccak256(
+        const name = "Test Sarcophagus";
+        const identifier = solidityKeccak256(
           ["string"],
-          ["sarcophagusAlreadyExists"]
+          ["unhashedIdentifier"]
         );
+        const arweaveArchaeologist = archaeologists[0];
+        const canBeTransferred = true;
+        // 1 week
+        const resurrectionTime = BigNumber.from(
+          Date.now() / 1000 + 60 * 60 * 24 * 7
+        );
+        const minShards = 2;
 
-        await initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists
-        );
+        // Create a sarcophagus as the embalmer
+        await embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            name,
+            identifier,
+            archaeologists,
+            arweaveArchaeologist.account,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            minShards
+          );
 
-        const tx = initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists
-        );
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            name,
+            identifier,
+            archaeologists,
+            arweaveArchaeologist.account,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            minShards
+          );
 
         // Try to create the same sarcophagus again
         await expect(tx).to.be.revertedWith("SarcophagusAlreadyExists");
       });
 
       it("should revert if the resurrection time is not in the future", async () => {
-        const identifier = ethers.utils.solidityKeccak256(
+        const name = "Test Sarcophagus";
+        const identifier = solidityKeccak256(
           ["string"],
-          ["notInFuture"]
+          ["unhashedIdentifier"]
         );
+        const arweaveArchaeologist = archaeologists[0];
+        const canBeTransferred = true;
+        // Set resurrection time to 1 second in the past
+        const resurrectionTime = BigNumber.from(Date.now() / 1000 - 1);
+        const minShards = 2;
 
-        const tx = initializeSarcophagus(
-          "Test Sarcophagus",
-          BigNumber.from((Date.now() / 1000).toFixed(0)),
-          identifier,
-          archaeologists
-        );
+        // Create a sarcophagus as the embalmer
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            name,
+            identifier,
+            archaeologists,
+            arweaveArchaeologist.account,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            minShards
+          );
 
         await expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
       });
 
       it("should revert if no archaeologists are provided", async () => {
-        const identifier = ethers.utils.solidityKeccak256(
+        const name = "Test Sarcophagus";
+        const identifier = solidityKeccak256(
           ["string"],
-          ["noArchaeologistsProvided"]
+          ["unhashedIdentifier"]
         );
+        const arweaveArchaeologist = archaeologists[0];
+        const canBeTransferred = true;
+        // 1 week
+        const resurrectionTime = BigNumber.from(
+          Date.now() / 1000 + 60 * 60 * 24 * 7
+        );
+        const minShards = 2;
 
-        const tx = initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          []
-        );
+        // Create a sarcophagus as the embalmer
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            name,
+            identifier,
+            [],
+            arweaveArchaeologist.account,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            minShards
+          );
 
         await expect(tx).to.be.revertedWith("NoArchaeologistsProvided");
       });
@@ -405,34 +236,63 @@ describe("Contract: EmbalmerFacet", () => {
         const firstArchaeologist = archaeologists[0];
         nonUniqueArchaeologists.push(firstArchaeologist);
 
-        const identifier = ethers.utils.solidityKeccak256(
+        const name = "Test Sarcophagus";
+        const identifier = solidityKeccak256(
           ["string"],
-          ["notUniqueArchaeologists"]
+          ["unhashedIdentifier"]
         );
+        const arweaveArchaeologist = archaeologists[0];
+        const canBeTransferred = true;
+        // 1 week
+        const resurrectionTime = BigNumber.from(
+          Date.now() / 1000 + 60 * 60 * 24 * 7
+        );
+        const minShards = 2;
 
-        const tx = initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          nonUniqueArchaeologists
-        );
+        // Create a sarcophagus as the embalmer
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            name,
+            identifier,
+            nonUniqueArchaeologists,
+            arweaveArchaeologist.account,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            minShards
+          );
 
         await expect(tx).to.be.revertedWith("ArchaeologistListNotUnique");
       });
 
       it("should revert if minShards is greater than the number of archaeologists", async () => {
-        const identifier = ethers.utils.solidityKeccak256(
+        const name = "Test Sarcophagus";
+        const identifier = solidityKeccak256(
           ["string"],
-          ["notUniqueArchaeologists"]
+          ["unhashedIdentifier"]
         );
+        const arweaveArchaeologist = archaeologists[0];
+        const canBeTransferred = true;
+        // 1 week
+        const resurrectionTime = BigNumber.from(
+          Date.now() / 1000 + 60 * 60 * 24 * 7
+        );
+        const minShards = 2;
 
-        const tx = initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists,
-          10
-        );
+        // Create a sarcophagus as the embalmer
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            name,
+            identifier,
+            archaeologists,
+            arweaveArchaeologist.account,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            10
+          );
 
         await expect(tx).to.be.revertedWith(
           "MinShardsGreaterThanArchaeologists"
@@ -440,50 +300,64 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if minShards is 0", async () => {
-        const identifier = ethers.utils.solidityKeccak256(
+        const name = "Test Sarcophagus";
+        const identifier = solidityKeccak256(
           ["string"],
-          ["shardsIsZero"]
+          ["unhashedIdentifier"]
         );
+        const arweaveArchaeologist = archaeologists[0];
+        const canBeTransferred = true;
+        // 1 week
+        const resurrectionTime = BigNumber.from(
+          Date.now() / 1000 + 60 * 60 * 24 * 7
+        );
+        const minShards = 2;
 
-        const tx = initializeSarcophagus(
-          "Test Sarcophagus",
-          resurrectionTimeInFuture,
-          identifier,
-          archaeologists,
-          0
-        );
+        // Create a sarcophagus as the embalmer
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            name,
+            identifier,
+            archaeologists,
+            arweaveArchaeologist.account,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            0
+          );
 
         await expect(tx).to.be.revertedWith("MinShardsZero");
       });
 
       it("should revert if the arweave archaeologist is not included in the list of archaeologists", async () => {
-        const identifier = ethers.utils.solidityKeccak256(
+        const unnamedAccounts = await getUnnamedAccounts();
+
+        const name = "Test Sarcophagus";
+        const identifier = solidityKeccak256(
           ["string"],
-          ["arweaveArchNotInList"]
+          ["unhashedIdentifier"]
         );
-
-        const archaeologistObjects = archaeologists.map((a, i) => ({
-          archAddress: a.address,
-          storageFee: BigNumber.from(archaeologistsFees[i].storageFee),
-          diggingFee: BigNumber.from(archaeologistsFees[i].diggingFee),
-          bounty: BigNumber.from(archaeologistsFees[i].bounty),
-          hashedShard: ethers.utils.solidityKeccak256(["string"], [a.address]),
-        }));
-
+        const arweaveArchaeologist = unnamedAccounts[9];
         const canBeTransferred = true;
+        // 1 week
+        const resurrectionTime = BigNumber.from(
+          Date.now() / 1000 + 60 * 60 * 24 * 7
+        );
+        const minShards = 2;
 
-        // Create a sarcophagus where the arweave archaeologist is not included in the list of archaeologists
+        // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
           .connect(embalmer)
           .initializeSarcophagus(
-            "Sarcophagus Test",
+            name,
             identifier,
-            archaeologistObjects,
-            signers[8].address,
+            archaeologists,
+            arweaveArchaeologist,
             recipient.address,
-            resurrectionTimeInFuture,
+            resurrectionTime,
             canBeTransferred,
-            3
+            0
           );
 
         await expect(tx).to.be.revertedWith("ArweaveArchaeologistNotInList");
