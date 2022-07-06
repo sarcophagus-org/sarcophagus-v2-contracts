@@ -39,40 +39,23 @@ export const increaseNextBlockTimestamp = async (
 };
 
 /**
- * Sets up the archaeologists for the tests
+ * Gets a list of archaeologist sarco balances.
  *
- * @param archaeologistFacet The archaeologist facet
- * @param archaeologists The list of archaeologists
- * @param diamondAddress The address of the diamond
- * @param embalmer The embalmer
- * @param sarcoToken The sarco token
+ * @param archaeologists A list of archaeologist signers
+ * @returns a list of archaeologist sarco balanaces
  */
-export const setupArchaeologists = async (
-  archaeologistFacet: ArchaeologistFacet,
+export const getArchaeologistSarcoBalances = async (
   archaeologists: SignerWithAddress[],
-  diamondAddress: string,
-  embalmer: SignerWithAddress,
   sarcoToken: SarcoTokenMock
-): Promise<void> => {
-  // Approve the embalmer on the sarco token so transferFrom will work
-  await sarcoToken
-    .connect(embalmer)
-    .approve(diamondAddress, ethers.constants.MaxUint256);
-
-  for (const archaeologist of archaeologists) {
-    // Transfer 10,000 sarco tokens to each archaeologist to be put into free
-    // bond
-    await sarcoToken.transfer(archaeologist.address, BigNumber.from(10_000));
-
-    // Approve the archaeologist on the sarco token so transferFrom will work
-    await sarcoToken
-      .connect(archaeologist)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
-
-    // Deposit some free bond to the contract so initializeSarcophagus will
-    // work
-    await archaeologistFacet
-      .connect(archaeologist)
-      .depositFreeBond(BigNumber.from("5000"));
+): Promise<{ address: string; balance: BigNumber }[]> => {
+  const balances: { address: string; balance: BigNumber }[] = [];
+  for (const arch of archaeologists) {
+    const balance = await sarcoToken.balanceOf(arch.address);
+    balances.push({
+      address: arch.address,
+      balance: balance,
+    });
   }
+
+  return balances;
 };
