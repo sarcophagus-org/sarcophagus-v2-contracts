@@ -8,7 +8,7 @@ import {
   ArchaeologistFacet,
   EmbalmerFacet,
   SarcoTokenMock,
-  ViewStateFacet,
+  ThirdPartyFacet,
 } from "../../typechain";
 import { setupArchaeologists, sign } from "../utils/helpers";
 import time from "../utils/time";
@@ -19,8 +19,10 @@ const sss = require("shamirs-secret-sharing");
 
 let embalmerFacet: EmbalmerFacet;
 let archaeologistFacet: ArchaeologistFacet;
+let thirdPartyFacet: ThirdPartyFacet;
 let embalmer: SignerWithAddress;
 let recipient: SignerWithAddress;
+let thirdParty: SignerWithAddress;
 let arweaveArchaeologist: SignerWithAddress;
 let diamondAddress: string;
 let sarcoToken: SarcoTokenMock;
@@ -38,7 +40,7 @@ interface TestArchaeologist {
 /// //////////////////////////////////////////
 /// // TESTS                                //
 /// //////////////////////////////////////////
-describe.skip("Creating a Sarcophagus", () => {
+describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
   // Set up the signers for the tests
   beforeEach(async () => {
     ({ diamondAddress, sarcoToken } = await deployDiamond());
@@ -88,6 +90,149 @@ describe.skip("Creating a Sarcophagus", () => {
     await _runGasReports({
       shares: 150,
       threshold: 100,
+    });
+  });
+});
+
+describe.skip("Third party functions", () => {
+  // Set up the signers for the tests
+  beforeEach(async () => {
+    ({ diamondAddress, sarcoToken } = await deployDiamond());
+    signers = await ethers.getSigners();
+
+    // Set some roles to be used in the tests
+    embalmer = signers[0];
+    recipient = signers[1];
+    thirdParty = signers[signers.length - 1];
+
+    embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
+    thirdPartyFacet = await ethers.getContractAt(
+      "ThirdPartyFacet",
+      diamondAddress
+    );
+
+    archaeologistFacet = await ethers.getContractAt(
+      "ArchaeologistFacet",
+      diamondAddress
+    );
+  });
+
+  context("Clean", () => {
+    it("With 5 archaeologists", async () => {
+      const { sarcoId } = await _runCreateSarcoTest({
+        shares: 5,
+        threshold: 4,
+      });
+
+      await time.increase(time.duration.years(1));
+      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
+    });
+
+    it("With 10 archaeologists", async () => {
+      const { sarcoId } = await _runCreateSarcoTest({
+        shares: 10,
+        threshold: 6,
+      });
+
+      await time.increase(time.duration.years(1));
+      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
+    });
+
+    it("With 50 archaeologists", async () => {
+      const { sarcoId } = await _runCreateSarcoTest({
+        shares: 50,
+        threshold: 26,
+      });
+
+      await time.increase(time.duration.years(1));
+      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
+    });
+
+    it("With 100 archaeologists", async () => {
+      const { sarcoId } = await _runCreateSarcoTest({
+        shares: 100,
+        threshold: 80,
+      });
+
+      await time.increase(time.duration.years(1));
+      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
+    });
+
+    it("With 150 archaeologists", async () => {
+      const { sarcoId } = await _runCreateSarcoTest({
+        shares: 150,
+        threshold: 100,
+      });
+
+      await time.increase(time.duration.years(1));
+      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
+    });
+  });
+
+  context("Accuse", () => {
+    it("With 5 archaeologists", async () => {
+      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+        shares: 5,
+        threshold: 4,
+      });
+
+      await thirdPartyFacet.accuse(
+        sarcoId,
+        archaeologists.map((arch) => arch.unencryptedShard),
+        thirdParty.address
+      );
+    });
+
+    it("With 10 archaeologists", async () => {
+      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+        shares: 10,
+        threshold: 6,
+      });
+
+      await thirdPartyFacet.accuse(
+        sarcoId,
+        archaeologists.map((arch) => arch.unencryptedShard),
+        thirdParty.address
+      );
+    });
+
+    it("With 50 archaeologists", async () => {
+      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+        shares: 50,
+        threshold: 26,
+      });
+
+      await thirdPartyFacet.accuse(
+        sarcoId,
+        archaeologists.map((arch) => arch.unencryptedShard),
+        thirdParty.address
+      );
+    });
+
+    it("With 100 archaeologists", async () => {
+      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+        shares: 100,
+        threshold: 80,
+      });
+
+      await thirdPartyFacet.accuse(
+        sarcoId,
+        archaeologists.map((arch) => arch.unencryptedShard),
+        thirdParty.address
+      );
+    });
+
+    it("With 150 archaeologists", async () => {
+      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+        shares: 150,
+        threshold: 100,
+      });
+
+      await thirdPartyFacet.accuse(
+        sarcoId,
+        archaeologists.map((arch) => arch.unencryptedShard),
+        thirdParty.address
+      );
     });
   });
 });
