@@ -24,7 +24,7 @@ export const coreSetup = deployments.createFixture(
     for (const archaeologist of archaeologists) {
       // Transfer 10,000 sarco tokens to each archaeologist to be put into free
       // bond
-      await sarcoToken.transfer(archaeologist.address, BigNumber.from(10_000));
+      await sarcoToken.transfer(archaeologist.account, BigNumber.from(10_000));
 
       // Approve the archaeologist on the sarco token so transferFrom will work
       await sarcoToken

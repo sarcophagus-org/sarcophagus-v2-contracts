@@ -1,4 +1,5 @@
-import { BigNumber, Signature } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber, Contract, Signature } from "ethers";
 
 export enum FacetCutAction {
   Add,
@@ -26,6 +27,13 @@ export interface Archaeologist {
 
 export interface SignatureWithAccount extends Signature {
   account: string;
+}
+
+export interface DeployedContracts {
+  diamond: Contract;
+  sarcoToken: Contract;
+  embalmerFacet: Contract;
+  archaeologistFacet: Contract;
 }
 
 export interface FixtureArchaeologist {

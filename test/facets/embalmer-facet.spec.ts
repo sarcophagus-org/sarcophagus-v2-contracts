@@ -2,6 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction, Signature } from "ethers";
+import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments, ethers, getUnnamedAccounts } from "hardhat";
 import {
   ArchaeologistFacet,
@@ -9,18 +10,12 @@ import {
   ViewStateFacet,
 } from "../../typechain";
 import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
-import {
-  FixtureArchaeologist,
-  SarcophagusState,
-  SignatureWithAccount,
-} from "../../types";
-import { sign } from "../utils/helpers";
-import { coreSetup } from "../fixtures/setup";
-import { solidityKeccak256 } from "ethers/lib/utils";
+import { FixtureArchaeologist, SarcophagusState } from "../../types";
 import { initializeSarcophagus } from "../fixtures/initialize-sarcophagus";
+import { coreSetup } from "../fixtures/setup";
 import { setupArchaeologistSignatures } from "../fixtures/setup-archaeologist-signatures";
 import { setupArweaveArchSig } from "../fixtures/setup-arweave-archaeologist-signature";
-import { getSigners } from "../fixtures/get-signers";
+import { sign } from "../utils/helpers";
 
 describe("Contract: EmbalmerFacet", () => {
   let embalmerFacet: EmbalmerFacet;
@@ -29,15 +24,18 @@ describe("Contract: EmbalmerFacet", () => {
   let embalmer: SignerWithAddress;
   let archaeologists: FixtureArchaeologist[];
   let recipient: SignerWithAddress;
-  let arweaveArchaeologist: SignerWithAddress;
+  let arweaveArchaeologist: FixtureArchaeologist;
+  let randomArchaeologist: FixtureArchaeologist;
   let sarcoToken: SarcoTokenMock;
   let signers: SignerWithAddress[];
 
   beforeEach(async () => {
     ({ embalmer, archaeologists } = await coreSetup());
+    arweaveArchaeologist = archaeologists[0];
+    randomArchaeologist = archaeologists[1];
   });
 
-  describe.only("initializeSarcophagus()", () => {
+  describe("initializeSarcophagus()", () => {
     context("Successful initialization", () => {
       let tx: ContractTransaction;
       let embalmerBalance: BigNumber;
@@ -55,7 +53,6 @@ describe("Contract: EmbalmerFacet", () => {
           ["string"],
           ["unhashedIdentifier"]
         );
-        const arweaveArchaeologist = archaeologists[0];
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
@@ -90,7 +87,7 @@ describe("Contract: EmbalmerFacet", () => {
 
         // Find the arweave archaeologist and get their storage fee amount
         const arweaveArchaeologistIndex = archaeologists.findIndex(
-          (a) => a.account === arweaveArchaeologist.address
+          (a) => a.account === arweaveArchaeologist.account
         );
         const arweaveArchaeologistStorageFee = BigNumber.from(
           archaeologists[arweaveArchaeologistIndex].storageFee
@@ -131,7 +128,6 @@ describe("Contract: EmbalmerFacet", () => {
           ["string"],
           ["unhashedIdentifier"]
         );
-        const arweaveArchaeologist = archaeologists[0];
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
@@ -176,7 +172,6 @@ describe("Contract: EmbalmerFacet", () => {
           ["string"],
           ["unhashedIdentifier"]
         );
-        const arweaveArchaeologist = archaeologists[0];
         const canBeTransferred = true;
         // Set resurrection time to 1 second in the past
         const resurrectionTime = BigNumber.from(Date.now() / 1000 - 1);
@@ -205,7 +200,6 @@ describe("Contract: EmbalmerFacet", () => {
           ["string"],
           ["unhashedIdentifier"]
         );
-        const arweaveArchaeologist = archaeologists[0];
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
@@ -241,7 +235,6 @@ describe("Contract: EmbalmerFacet", () => {
           ["string"],
           ["unhashedIdentifier"]
         );
-        const arweaveArchaeologist = archaeologists[0];
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
@@ -272,7 +265,6 @@ describe("Contract: EmbalmerFacet", () => {
           ["string"],
           ["unhashedIdentifier"]
         );
-        const arweaveArchaeologist = archaeologists[0];
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
@@ -305,7 +297,6 @@ describe("Contract: EmbalmerFacet", () => {
           ["string"],
           ["unhashedIdentifier"]
         );
-        const arweaveArchaeologist = archaeologists[0];
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
@@ -338,7 +329,6 @@ describe("Contract: EmbalmerFacet", () => {
           ["string"],
           ["unhashedIdentifier"]
         );
-        const arweaveArchaeologist = unnamedAccounts[9];
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
@@ -353,7 +343,7 @@ describe("Contract: EmbalmerFacet", () => {
             name,
             identifier,
             archaeologists,
-            arweaveArchaeologist,
+            arweaveArchaeologist.account,
             recipient.address,
             resurrectionTime,
             canBeTransferred,
@@ -366,228 +356,134 @@ describe("Contract: EmbalmerFacet", () => {
   });
 
   describe("finalizeSarcophagus()", () => {
-    const arweaveTxId: string = "arweaveTransactionId";
-
-    let diamondAddress: string;
-    let arweaveSignature: Signature;
-
-    // Deploy the contracts
-    before(async () => {
-      await deployments.fixture();
-      sarcoToken = await ethers.getContract("SarcoTokenMock");
-      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
-        .address;
-
-      embalmerFacet = await ethers.getContractAt(
-        "EmbalmerFacet",
-        diamondAddress
-      );
-
-      // Get the archaeologistFacet so we can add some free bond for the archaeologists
-      archaeologistFacet = await ethers.getContractAt(
-        "ArchaeologistFacet",
-        diamondAddress
-      );
-
-      viewStateFacet = await ethers.getContractAt(
-        "ViewStateFacet",
-        diamondAddress
-      );
-    });
-
-    // Set up the archaeologists
-    before(async () => {
-      await setupArchaeologists(
-        archaeologistFacet,
-        archaeologists,
-        diamondAddress,
-        embalmer,
-        sarcoToken
-      );
-
-      // For the arweave archaeologist, sign the arweave transaction id
-      arweaveSignature = await sign(
-        arweaveArchaeologist,
-        arweaveTxId,
-        "string"
-      );
-    });
-
     context("Successful finalization", () => {
-      it("should finalize the sarcophagus successfully", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "successfulFinalize",
-          archaeologists
+      let identifier: string;
+      let arweaveTxId: string;
+      let tx: ContractTransaction;
+      let archaeologistFreeBond: BigNumber;
+      let archaeologistCursedBond: BigNumber;
+      let arweaveArchBalance: BigNumber;
+      let arweaveArchFreeBond: BigNumber;
+      let arweaveArchCursedBond: BigNumber;
+
+      // Get the arweave archaeologist's balances
+      before(async () => {
+        // Get the arweave archaeologist's sarco balance
+        arweaveArchBalance = await sarcoToken.balanceOf(
+          arweaveArchaeologist.account
         );
 
-        const tx = await embalmerFacet.finalizeSarcophagus(
+        // Get the arweave archaeologist's free bond
+        arweaveArchFreeBond = await viewStateFacet.getFreeBond(
+          arweaveArchaeologist.account
+        );
+
+        // Get the arweave archaeologist's cursed bond
+        arweaveArchCursedBond = await viewStateFacet.getCursedBond(
+          arweaveArchaeologist.account
+        );
+      });
+
+      // Get a random archaeologist's free and cursed bonds
+      before(async () => {
+        // Get the archaeologist's free bond
+        archaeologistFreeBond = await viewStateFacet.getFreeBond(
+          randomArchaeologist.account
+        );
+
+        // Get the archaeologist's cursed bond
+        archaeologistCursedBond = await viewStateFacet.getCursedBond(
+          randomArchaeologist.account
+        );
+      });
+
+      // Initialize and finalize the sarcophagus
+      before(async () => {
+        identifier = await initializeSarcophagus();
+        const signatures = await setupArchaeologistSignatures();
+        const {
+          arweaveTxId: _arweaveTxId,
+          signatureWithAccount: arweaveArchSig,
+        } = await setupArweaveArchSig();
+        arweaveTxId = _arweaveTxId;
+
+        tx = await embalmerFacet.finalizeSarcophagus(
           identifier,
           signatures,
-          arweaveSignature,
+          arweaveArchSig,
           arweaveTxId
         );
+      });
 
+      it("should finalize the sarcophagus successfully", async () => {
         const receipt = await tx.wait();
         expect(receipt.status).to.equal(1);
       });
 
       it("should store the arweave transaction id", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldStoreArweaveTxId",
-          archaeologists
-        );
-
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
         const sarcophagusStored = await viewStateFacet.getSarcophagus(
           identifier
         );
-
         expect(sarcophagusStored.arweaveTxIds).to.contain(arweaveTxId);
       });
 
       it("should transfer the storage fee to the arweave archaeologist", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldTransferStorageFee",
-          archaeologists
-        );
-
-        // Get the arweave archaeologist's sarco token balance before finalization
-        const arweaveArchaeologistSarcoTokenBalanceBefore =
-          await sarcoToken.balanceOf(arweaveArchaeologist.address);
-
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
-        // Get the storage fee of the arweave archaeologist
-        const arweaveArchaeologistIndex = archaeologists.findIndex(
-          (a) => a.address === arweaveArchaeologist.address
-        );
-        const arweaveArchaeologistStorageFee = BigNumber.from(
-          archaeologistsFees[arweaveArchaeologistIndex].storageFee
-        );
-
         // Get the arweave archaeologist's sarco token balance after finalization
-        const arweaveArchSarcoBalanceAfter = await sarcoToken.balanceOf(
-          arweaveArchaeologist.address
+        const arweaveArchBalanceBefore = await sarcoToken.balanceOf(
+          arweaveArchaeologist.account
         );
 
-        // Check that the arweave archaeologist's
-        // sarco token balance after - sarco token balance before = storage fee
-        expect(
-          arweaveArchSarcoBalanceAfter.sub(
-            arweaveArchaeologistSarcoTokenBalanceBefore
-          )
-        ).to.equal(arweaveArchaeologistStorageFee);
+        expect(arweaveArchBalanceBefore.sub(arweaveArchBalance)).to.equal(
+          arweaveArchaeologist.storageFee
+        );
       });
 
       it("should lock up an archaeologist's free bond", async () => {
-        // Get the free and cursed bond before and after, then compare them
-        const freeBondBefore = await viewStateFacet.getFreeBond(
-          archaeologists[1].address
-        );
-        const cursedBondBefore = await viewStateFacet.getCursedBond(
-          archaeologists[1].address
+        // Calculate the free bond of an archaeologist
+        const bondAmount = randomArchaeologist.diggingFee.add(
+          randomArchaeologist.bounty
         );
 
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldLockUpFreeBond",
-          archaeologists
+        const archaeologistFreeBondAfter = await viewStateFacet.getFreeBond(
+          randomArchaeologist.account
         );
 
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
+        const archaeologistCursedBondAfter = await viewStateFacet.getCursedBond(
+          randomArchaeologist.account
         );
 
-        const freeBondAfter = await viewStateFacet.getFreeBond(
-          archaeologists[1].address
-        );
-        const cursedBondAfter = await viewStateFacet.getCursedBond(
-          archaeologists[1].address
+        // Check that the archaeologist's free bond afterward has descreased by the bond amount
+        expect(archaeologistFreeBond.sub(bondAmount)).to.equal(
+          archaeologistFreeBondAfter
         );
 
-        // TODO: Modify this when the calculateCursedBond method changes in the contract
-        const firstArchaeologistCursedBond =
-          archaeologistsFees[1].bounty + archaeologistsFees[1].diggingFee;
-
-        expect(freeBondBefore.sub(freeBondAfter)).to.equal(
-          BigNumber.from(firstArchaeologistCursedBond)
-        );
-        expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(
-          BigNumber.from(firstArchaeologistCursedBond)
+        // Check that the archaeologist's cursed bond has increased by the bond amount
+        expect(archaeologistCursedBond.add(bondAmount)).to.equal(
+          archaeologistCursedBondAfter
         );
       });
 
       it("should lock up the arweave archaeologist's free bond", async () => {
-        // Get the free and cursed bond before and after, then compare them
-        const freeBondBefore = await viewStateFacet.getFreeBond(
-          arweaveArchaeologist.address
-        );
-        const cursedBondBefore = await viewStateFacet.getCursedBond(
-          arweaveArchaeologist.address
+        const arweaveArchFreeBondAfter = await viewStateFacet.getFreeBond(
+          arweaveArchaeologist.account
         );
 
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldLockUpArweaveFreeBond",
-          archaeologists
+        const arweaveArchCursedBondAfter = await viewStateFacet.getCursedBond(
+          arweaveArchaeologist.account
         );
 
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
+        // Check that the arweave archaeologist's free bond has decreased by the bond amount
+        expect(
+          arweaveArchFreeBond.sub(arweaveArchaeologist.diggingFee)
+        ).to.equal(arweaveArchFreeBondAfter);
 
-        const freeBondAfter = await viewStateFacet.getFreeBond(
-          arweaveArchaeologist.address
-        );
-        const cursedBondAfter = await viewStateFacet.getCursedBond(
-          arweaveArchaeologist.address
-        );
-
-        // Get the archaeologist fee data for the arweave archaeologist
-        const arweaveArchaeologistIndex = archaeologists.findIndex(
-          (a) => a.address === arweaveArchaeologist.address
-        );
-
-        // TODO: Modify this when the calculateCursedBond method changes in the contract
-        const firstArchaeologistCursedBond =
-          archaeologistsFees[arweaveArchaeologistIndex].bounty +
-          archaeologistsFees[arweaveArchaeologistIndex].diggingFee;
-
-        expect(freeBondBefore.sub(freeBondAfter)).to.equal(
-          BigNumber.from(firstArchaeologistCursedBond)
-        );
-        expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(
-          BigNumber.from(firstArchaeologistCursedBond)
+        // Check that the arweave archaeologist's cursed bond has increased by the bond amount
+        expect(arweaveArchCursedBond.add(arweaveArchaeologist.bounty)).to.equal(
+          arweaveArchCursedBondAfter
         );
       });
 
       it("should emit an event", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldEmitEvent",
-          archaeologists
-        );
-
-        const tx = await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
         const receipt = await tx.wait();
 
         const events = receipt.events!;
