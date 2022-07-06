@@ -13,9 +13,8 @@ import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
 import { FixtureArchaeologist, SarcophagusState } from "../../types";
 import { initializeSarcophagus } from "../fixtures/initialize-sarcophagus";
 import { coreSetup } from "../fixtures/setup";
-import { setupArchaeologistSignatures } from "../fixtures/setup-archaeologist-signatures";
 import { setupArweaveArchSig } from "../fixtures/setup-arweave-archaeologist-signature";
-import { sign } from "../utils/helpers";
+import { sign, signMultiple } from "../utils/helpers";
 
 describe("Contract: EmbalmerFacet", () => {
   let embalmerFacet: EmbalmerFacet;
@@ -356,57 +355,61 @@ describe("Contract: EmbalmerFacet", () => {
   });
 
   describe("finalizeSarcophagus()", () => {
+    let identifier: string;
+    let arweaveTxId: string;
+    let tx: ContractTransaction;
+    let archaeologistFreeBond: BigNumber;
+    let archaeologistCursedBond: BigNumber;
+    let arweaveArchBalance: BigNumber;
+    let arweaveArchFreeBond: BigNumber;
+    let arweaveArchCursedBond: BigNumber;
+
+    // Get the arweave archaeologist's balances
+    before(async () => {
+      // Get the arweave archaeologist's sarco balance
+      arweaveArchBalance = await sarcoToken.balanceOf(
+        arweaveArchaeologist.account
+      );
+
+      // Get the arweave archaeologist's free bond
+      arweaveArchFreeBond = await viewStateFacet.getFreeBond(
+        arweaveArchaeologist.account
+      );
+
+      // Get the arweave archaeologist's cursed bond
+      arweaveArchCursedBond = await viewStateFacet.getCursedBond(
+        arweaveArchaeologist.account
+      );
+    });
+
+    // Get a random archaeologist's free and cursed bonds
+    before(async () => {
+      // Get the archaeologist's free bond
+      archaeologistFreeBond = await viewStateFacet.getFreeBond(
+        randomArchaeologist.account
+      );
+
+      // Get the archaeologist's cursed bond
+      archaeologistCursedBond = await viewStateFacet.getCursedBond(
+        randomArchaeologist.account
+      );
+    });
+
     context("Successful finalization", () => {
-      let identifier: string;
-      let arweaveTxId: string;
-      let tx: ContractTransaction;
-      let archaeologistFreeBond: BigNumber;
-      let archaeologistCursedBond: BigNumber;
-      let arweaveArchBalance: BigNumber;
-      let arweaveArchFreeBond: BigNumber;
-      let arweaveArchCursedBond: BigNumber;
-
-      // Get the arweave archaeologist's balances
-      before(async () => {
-        // Get the arweave archaeologist's sarco balance
-        arweaveArchBalance = await sarcoToken.balanceOf(
-          arweaveArchaeologist.account
-        );
-
-        // Get the arweave archaeologist's free bond
-        arweaveArchFreeBond = await viewStateFacet.getFreeBond(
-          arweaveArchaeologist.account
-        );
-
-        // Get the arweave archaeologist's cursed bond
-        arweaveArchCursedBond = await viewStateFacet.getCursedBond(
-          arweaveArchaeologist.account
-        );
-      });
-
-      // Get a random archaeologist's free and cursed bonds
-      before(async () => {
-        // Get the archaeologist's free bond
-        archaeologistFreeBond = await viewStateFacet.getFreeBond(
-          randomArchaeologist.account
-        );
-
-        // Get the archaeologist's cursed bond
-        archaeologistCursedBond = await viewStateFacet.getCursedBond(
-          randomArchaeologist.account
-        );
-      });
-
       // Initialize and finalize the sarcophagus
       before(async () => {
         identifier = await initializeSarcophagus();
-        const signatures = await setupArchaeologistSignatures();
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
+        );
+
         const {
           arweaveTxId: _arweaveTxId,
           signatureWithAccount: arweaveArchSig,
         } = await setupArweaveArchSig();
-        arweaveTxId = _arweaveTxId;
 
+        arweaveTxId = _arweaveTxId;
         tx = await embalmerFacet.finalizeSarcophagus(
           identifier,
           signatures,
@@ -498,24 +501,28 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("General reverts", () => {
       it("should revert if the sarcophagus does not exist", async () => {
-        const fakeIdentifier = ethers.utils.solidityKeccak256(
+        // Make a fake identifier
+        const identifier = solidityKeccak256(
           ["string"],
-          ["someFakeIdentifier"]
+          ["SomeFakeIdentifier"]
         );
 
-        // Get new signatures from the archaeologists of the new identifier
-        const signatures = await getArchaeologistSignatures(
-          archaeologists,
-          arweaveArchaeologist,
-          fakeIdentifier
+        // Each archaeologist signs the fake identifier
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
-        const tx = embalmerFacet
+        // Set up the arweave archaeologist's signature
+        const { arweaveTxId, signatureWithAccount: arweaveArchSig } =
+          await setupArweaveArchSig();
+
+        const tx = await embalmerFacet
           .connect(embalmer)
           .finalizeSarcophagus(
-            fakeIdentifier,
+            identifier,
             signatures,
-            arweaveSignature,
+            arweaveArchSig,
             arweaveTxId
           );
 
@@ -523,17 +530,25 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the embalmer is not making the transaction", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "senderNotEmbalmer",
-          archaeologists
+        // Initialize the sarcophagus
+        const identifier = await initializeSarcophagus();
+
+        // Each archaeologist signs the identifier
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
+        // Set up the arweave archaeologist's signature
+        const { arweaveTxId, signatureWithAccount: arweaveArchSig } =
+          await setupArweaveArchSig();
+
         const tx = embalmerFacet
-          .connect(archaeologists[0])
+          .connect(signers[9])
           .finalizeSarcophagus(
             identifier,
             signatures,
-            arweaveSignature,
+            arweaveArchSig,
             arweaveTxId
           );
 
@@ -541,43 +556,62 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the sarcophagus has already been finalized", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "alreadyFinalized",
-          archaeologists
+        // Initialize the sarcophagus
+        const identifier = await initializeSarcophagus();
+
+        // Each archaeologist signs the identifier
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
-        // Finalize the sarcophagus with the new identifier
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
+        // Set up the arweave archaeologist's signature
+        const { arweaveTxId, signatureWithAccount: arweaveArchSig } =
+          await setupArweaveArchSig();
 
-        // Finalize the sarcophagus with the new identifier again and expect revert
-        const tx = embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
+        await embalmerFacet
+          .connect(embalmer)
+          .finalizeSarcophagus(
+            identifier,
+            signatures,
+            arweaveArchSig,
+            arweaveTxId
+          );
+
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .finalizeSarcophagus(
+            identifier,
+            signatures,
+            arweaveArchSig,
+            arweaveTxId
+          );
 
         await expect(tx).to.be.revertedWith("SarcophagusAlreadyFinalized");
       });
 
       it("should revert if the provided arweave transaction id is empty", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "transactionIdEmpty",
-          archaeologists
+        // Initialize the sarcophagus
+        const identifier = await initializeSarcophagus();
+
+        // Each archaeologist signs the identifier
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
-        // Finalize the sarcophagus with the new identifier
-        const tx = embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          ""
-        );
+        // Set up the arweave archaeologist's signature
+        const { arweaveTxId, signatureWithAccount: arweaveArchSig } =
+          await setupArweaveArchSig();
+
+        const tx = embalmerFacet
+          .connect(embalmer)
+          .finalizeSarcophagus(
+            identifier,
+            signatures,
+            arweaveArchSig,
+            arweaveTxId
+          );
 
         await expect(tx).to.be.revertedWith("ArweaveTxIdEmpty");
       });
@@ -585,16 +619,22 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("Signature reverts", () => {
       it("should revert if the incorrect number of archaeologists' signatures were provided", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "incorrectNumberOfSignatures",
-          archaeologists
+        const identifier = await initializeSarcophagus();
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
-        // Finalize the sarcophagus with the new identifier
-        const tx = embalmerFacet.finalizeSarcophagus(
+        const {
+          arweaveTxId: _arweaveTxId,
+          signatureWithAccount: arweaveArchSig,
+        } = await setupArweaveArchSig();
+
+        const arweaveTxId = _arweaveTxId;
+        const tx = await embalmerFacet.finalizeSarcophagus(
           identifier,
-          signatures.slice(1),
-          arweaveSignature,
+          signatures,
+          arweaveArchSig,
           arweaveTxId
         );
 
@@ -604,49 +644,51 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if there are duplicate signatures", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "duplicateSignatures",
-          archaeologists
+        const identifier = await initializeSarcophagus();
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
-        const signaturesAllSame = signatures.map((_) => signatures[0]);
+        // Make the second signature the same as the first
+        const newSignatures = signatures.slice();
+        newSignatures[1] = newSignatures[0];
 
-        const tx = embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signaturesAllSame,
-          arweaveSignature,
-          arweaveTxId
-        );
+        const { arweaveTxId, signatureWithAccount: arweaveArchSig } =
+          await setupArweaveArchSig();
+
+        const tx = await embalmerFacet
+          .connect(embalmer)
+          .finalizeSarcophagus(
+            identifier,
+            newSignatures,
+            arweaveArchSig,
+            arweaveTxId
+          );
 
         await expect(tx).to.be.revertedWith("SignatureListNotUnique");
       });
 
       it("should revert if any signature provided by a regular archaeologist is from the wrong archaeologist", async () => {
-        const { identifier } = await createSarcophagusAndSignatures(
-          "sigFromWrongArchaeologist",
-          archaeologists
-        );
+        const identifier = await initializeSarcophagus();
 
-        // Get a false archaeologist
-        const falseArchaeologist = signers[6];
+        // Get a false signer
+        const falseSigner = signers[9];
 
-        // Replace the last archaeologist in the list of archaeologists with
-        // falseArchaeologist
-        const newArchaeologists = archaeologists.slice();
-        newArchaeologists[newArchaeologists.length - 1] = falseArchaeologist;
+        // Replace the last signer in the list of signers with falseSigner
+        const newSigners = archaeologists.map((x) => x.signer).slice();
+        newSigners[newSigners.length - 1] = falseSigner;
 
-        // Get new signatures from the archaeologists where one of them is false
-        const newSignatures = await getArchaeologistSignatures(
-          newArchaeologists,
-          arweaveArchaeologist,
-          identifier
-        );
+        const signatures = await signMultiple(newSigners, identifier);
+
+        const { arweaveTxId, signatureWithAccount: arweaveArchSig } =
+          await setupArweaveArchSig();
 
         // Finalize the sarcophagus with the new identifier
         const tx = embalmerFacet.finalizeSarcophagus(
           identifier,
-          newSignatures,
-          arweaveSignature,
+          signatures,
+          arweaveArchSig,
           arweaveTxId
         );
 
@@ -654,10 +696,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if any signature provided by a regular archaeologist is not of the sarcophagus identifier", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "incorrectSignatures",
-          archaeologists
-        );
+        const identifier = await initializeSarcophagus();
 
         // Create a false identifier
         const falseIdentifier = ethers.utils.solidityKeccak256(
@@ -667,24 +706,32 @@ describe("Contract: EmbalmerFacet", () => {
 
         // Use the correct archaeologist to sign a false identifier
         const falseSignature = await sign(
-          archaeologists[0],
+          archaeologists[0].signer,
           falseIdentifier,
           "bytes32"
         );
 
         // Add the correct archaeologist account
         const falseSigWithAccount = Object.assign(falseSignature, {
-          account: archaeologists[0].address,
+          account: archaeologists[0].account,
         });
+
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
+        );
 
         // Replace the first signature in the list of newSignatures with the false signature
         signatures[0] = falseSigWithAccount;
+
+        const { arweaveTxId, signatureWithAccount: arweaveArchSig } =
+          await setupArweaveArchSig();
 
         // Finalize the sarcophagus with the new identifier where one of the signatures is incorrect
         const tx = embalmerFacet.finalizeSarcophagus(
           identifier,
           signatures,
-          arweaveSignature,
+          arweaveArchSig,
           arweaveTxId
         );
 
@@ -692,10 +739,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the arweave archaeologist's signature is from the wrong archaeologist", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "sigFromWrongArweaveArchaeologist",
-          archaeologists
-        );
+        const identifier = await initializeSarcophagus();
 
         // Sign the arweaveTxId with the wrong archaeologist
         const falseArweaveArch = signers[6];
@@ -703,6 +747,11 @@ describe("Contract: EmbalmerFacet", () => {
           falseArweaveArch,
           arweaveTxId,
           "string"
+        );
+
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
         // Finalize the sarcophagus where the arweaveSignature is signed by the wrong signer
@@ -717,14 +766,16 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the arweave archaeologist's signature is not a signature of the arweave transaction id", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "arweaveSigNotOfArweaveTxId",
-          archaeologists
+        const identifier = await initializeSarcophagus();
+
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
         // Use the correct arweave archaeologist to sign a false arweaveTxId
         const falseArweaveSignature = await sign(
-          arweaveArchaeologist,
+          arweaveArchaeologist.signer,
           "falseArweaveTxId",
           "string"
         );
