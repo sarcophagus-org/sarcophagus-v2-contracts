@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
-import "../libraries/LibEvents.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibRewards} from "../libraries/LibRewards.sol";
@@ -13,6 +12,29 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract EmbalmerFacet {
     // IMPORTANT: AppStorage must be the first state variable in the facet.
     AppStorage internal s;
+
+    event InitializeSarcophagus(
+        bytes32 indexed sarcoId,
+        string name,
+        bool canBeTransferred,
+        uint256 resurrectionTime,
+        address embalmer,
+        address recipientAddress,
+        address arweaveArchaeologist,
+        address[] archaeologists
+    );
+
+    event FinalizeSarcophagus(bytes32 indexed sarcoId, string arweaveTxId);
+
+    event RewrapSarcophagus(
+        bytes32 indexed sarcoId,
+        uint256 resurrectionTime,
+        uint256 resurrectionWindow
+    );
+
+    event CancelSarcophagus(bytes32 indexed sarcoId);
+
+    event BurySarcophagus(bytes32 indexed sarcoId);
 
     // Archaeologist's addresses are added to this mapping per sarcophagus to
     // verify that the same archaeologist signature is not used more than once.
@@ -186,7 +208,7 @@ contract EmbalmerFacet {
         s.sarcoToken.transferFrom(msg.sender, address(this), totalFees);
 
         // Emit the event
-        emit LibEvents.InitializeSarcophagus(
+        emit InitializeSarcophagus(
             sarcoId,
             name,
             canBeTransferred,
@@ -355,7 +377,7 @@ contract EmbalmerFacet {
         );
 
         // Emit an event
-        emit LibEvents.FinalizeSarcophagus(sarcoId, arweaveTxId);
+        emit FinalizeSarcophagus(sarcoId, arweaveTxId);
     }
 
     /// @notice The embalmer may extend the life of the sarcophagus as long as
@@ -441,11 +463,7 @@ contract EmbalmerFacet {
         );
 
         // Emit an event
-        emit LibEvents.RewrapSarcophagus(
-            sarcoId,
-            resurrectionTime,
-            resurrectionWindow
-        );
+        emit RewrapSarcophagus(sarcoId, resurrectionTime, resurrectionWindow);
     }
 
     /// @notice Cancels a sarcophagus. An embalmer may cancel a sarcophagus after
@@ -488,7 +506,7 @@ contract EmbalmerFacet {
         s.sarcoToken.transfer(s.sarcophagi[sarcoId].embalmer, totalFees);
 
         // Emit an event
-        emit LibEvents.CancelSarcophagus(sarcoId);
+        emit CancelSarcophagus(sarcoId);
     }
 
     /// @notice Permanently closes the sarcophagus, giving it no opportunity to
@@ -563,6 +581,6 @@ contract EmbalmerFacet {
         s.sarcoToken.transfer(msg.sender, totalBounty);
 
         // Emit an event
-        emit LibEvents.BurySarcophagus(sarcoId);
+        emit BurySarcophagus(sarcoId);
     }
 }
