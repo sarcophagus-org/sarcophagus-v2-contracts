@@ -52,10 +52,7 @@ describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
 
     embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
 
-    archaeologistFacet = await ethers.getContractAt(
-      "ArchaeologistFacet",
-      diamondAddress
-    );
+    archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamondAddress);
   });
 
   it("With 5 archaeologists", async () => {
@@ -106,15 +103,9 @@ describe.skip("Third party functions", () => {
     thirdParty = signers[signers.length - 1];
 
     embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
-    thirdPartyFacet = await ethers.getContractAt(
-      "ThirdPartyFacet",
-      diamondAddress
-    );
+    thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamondAddress);
 
-    archaeologistFacet = await ethers.getContractAt(
-      "ArchaeologistFacet",
-      diamondAddress
-    );
+    archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamondAddress);
   });
 
   context("Clean", () => {
@@ -178,7 +169,7 @@ describe.skip("Third party functions", () => {
 
       await thirdPartyFacet.accuse(
         sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
+        archaeologists.map(arch => arch.unencryptedShard),
         thirdParty.address
       );
     });
@@ -191,7 +182,7 @@ describe.skip("Third party functions", () => {
 
       await thirdPartyFacet.accuse(
         sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
+        archaeologists.map(arch => arch.unencryptedShard),
         thirdParty.address
       );
     });
@@ -204,7 +195,7 @@ describe.skip("Third party functions", () => {
 
       await thirdPartyFacet.accuse(
         sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
+        archaeologists.map(arch => arch.unencryptedShard),
         thirdParty.address
       );
     });
@@ -217,7 +208,7 @@ describe.skip("Third party functions", () => {
 
       await thirdPartyFacet.accuse(
         sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
+        archaeologists.map(arch => arch.unencryptedShard),
         thirdParty.address
       );
     });
@@ -230,7 +221,7 @@ describe.skip("Third party functions", () => {
 
       await thirdPartyFacet.accuse(
         sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
+        archaeologists.map(arch => arch.unencryptedShard),
         thirdParty.address
       );
     });
@@ -246,10 +237,7 @@ async function _runGasReports(arg: { shares: number; threshold: number }) {
   await _runUnwwrapTest(sarcoId, archaeologists);
 }
 
-async function _runCreateSarcoTest(arg: {
-  shares: number;
-  threshold: number;
-}): Promise<{
+async function _runCreateSarcoTest(arg: { shares: number; threshold: number }): Promise<{
   sarcoId: string;
   archaeologists: TestArchaeologist[];
   arweaveSignature: Signature;
@@ -268,17 +256,13 @@ async function _runCreateSarcoTest(arg: {
   const sarcoName = `Init sarco (${arg.shares})`;
   const sarcoId = ethers.utils.solidityKeccak256(["string"], [sarcoName]);
 
-  const resurrectionTimeInFuture =
-    (await time.latest()) + time.duration.weeks(1);
+  const resurrectionTimeInFuture = (await time.latest()) + time.duration.weeks(1);
 
-  const [archaeologists, signatures] = await _spawnArchaologistsWithSignatures(
-    shards,
-    sarcoId
-  );
+  const [archaeologists, signatures] = await _spawnArchaologistsWithSignatures(shards, sarcoId);
 
   await setupArchaeologists(
     archaeologistFacet,
-    archaeologists.map((a) => a.signer),
+    archaeologists.map(a => a.signer),
     diamondAddress,
     embalmer,
     sarcoToken
@@ -298,11 +282,7 @@ async function _runCreateSarcoTest(arg: {
 
   tx.wait();
 
-  const arweaveSignature = await sign(
-    arweaveArchaeologist,
-    "arweaveTxId",
-    "string"
-  );
+  const arweaveSignature = await sign(arweaveArchaeologist, "arweaveTxId", "string");
 
   const finTx = await embalmerFacet.finalizeSarcophagus(
     sarcoId,
@@ -327,21 +307,14 @@ async function _runRewrapTest(sarcoId: string) {
   // Define a new resurrection time one week in the future
   const newResurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
-  await embalmerFacet
-    .connect(embalmer)
-    .rewrapSarcophagus(sarcoId, newResurrectionTime);
+  await embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, newResurrectionTime);
 }
 
-async function _runUnwwrapTest(
-  sarcoId: string,
-  archaeologists: TestArchaeologist[]
-) {
+async function _runUnwwrapTest(sarcoId: string, archaeologists: TestArchaeologist[]) {
   await time.increase(time.duration.weeks(1));
 
   for await (const arch of archaeologists) {
-    await archaeologistFacet
-      .connect(arch.signer)
-      .unwrapSarcophagus(sarcoId, arch.unencryptedShard);
+    await archaeologistFacet.connect(arch.signer).unwrapSarcophagus(sarcoId, arch.unencryptedShard);
   }
 }
 
@@ -393,7 +366,7 @@ const _initializeSarcophagus = async (
   const tx = await embalmerFacet.connect(embalmer).initializeSarcophagus(
     name,
     identifier,
-    archaeologists.map((a) => ({
+    archaeologists.map(a => ({
       archAddress: a.signer.address,
       storageFee: a.storageFee,
       diggingFee: a.diggingFee,
