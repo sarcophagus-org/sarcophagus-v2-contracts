@@ -2,7 +2,13 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { getContractFactory } from "@nomiclabs/hardhat-ethers/types";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
-import { BigNumber, Contract, ContractTransaction, Signature } from "ethers";
+import {
+  BigNumber,
+  Contract,
+  ContractReceipt,
+  ContractTransaction,
+  Signature,
+} from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments, ethers, getUnnamedAccounts } from "hardhat";
 import {
@@ -1024,97 +1030,45 @@ describe("Contract: EmbalmerFacet", () => {
 
   describe("cancelSarcophagus()", () => {
     let sarcoToken: SarcoTokenMock;
-
-    // Deploy the contracts
-    before(async () => {
-      await deployments.fixture();
-      sarcoToken = await ethers.getContract("SarcoTokenMock");
-      const diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
-        .address;
-
-      embalmerFacet = await ethers.getContractAt(
-        "EmbalmerFacet",
-        diamondAddress
-      );
-
-      // Get the archaeologistFacet so we can add some free bond for the archaeologists
-      archaeologistFacet = await ethers.getContractAt(
-        "ArchaeologistFacet",
-        diamondAddress
-      );
-
-      viewStateFacet = await ethers.getContractAt(
-        "ViewStateFacet",
-        diamondAddress
-      );
-
-      await setupArchaeologists(
-        archaeologistFacet,
-        archaeologists,
-        diamondAddress,
-        embalmer,
-        sarcoToken
-      );
-    });
+    let identifier: string;
+    let tx: ContractTransaction;
+    let embalmerSarcoBalance: BigNumber;
 
     context("Successful cancel", () => {
-      it("should cancel the sarcophagus successfully", async () => {
-        const { identifier } = await createSarcophagusAndSignatures(
-          "successfulCancelSarcophagus",
-          archaeologists
-        );
+      // Get balances before rewrap
+      before(async () => {
+        embalmerSarcoBalance = await sarcoToken.balanceOf(embalmer.address);
+      });
 
-        const tx = await embalmerFacet
+      // Cancel the sarcophagus
+      before(async () => {
+        const identifier = await initializeSarcophagus();
+
+        tx = await embalmerFacet
           .connect(embalmer)
           .cancelSarcophagus(identifier);
+      });
 
+      it("should cancel the sarcophagus successfully", async () => {
         const receipt = await tx.wait();
 
         expect(receipt.status).to.equal(1);
       });
 
       it("should set the sarcophagus state to done", async () => {
-        const { identifier } = await createSarcophagusAndSignatures(
-          "shouldSetSarcophagusStateToDone",
-          archaeologists
-        );
-
-        await embalmerFacet.connect(embalmer).cancelSarcophagus(identifier);
-
         const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
 
         expect(sarcophagus.state).to.equal(SarcophagusState.Done);
       });
 
       it("should transfer total fees back to the embalmer", async () => {
-        // Get the sarco balance of the embalmer before canceling the sarcophagus
-        const sarcoBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
-
-        const { identifier } = await createSarcophagusAndSignatures(
-          "shouldTransferBackFees",
-          archaeologists
-        );
-
-        embalmerFacet.connect(embalmer).cancelSarcophagus(identifier);
-
         // Get the sarco balance of the embalmer after canceling the sarcophagus
         const sarcoBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
 
-        expect(sarcoBalanceBefore.toString()).to.equal(
-          sarcoBalanceAfter.toString()
-        );
+        expect(embalmerSarcoBalance).to.equal(sarcoBalanceAfter);
       });
 
       it("should emit an event", async () => {
-        const { identifier } = await createSarcophagusAndSignatures(
-          "shouldEmitEvent",
-          archaeologists
-        );
-
-        const tx = await embalmerFacet
-          .connect(embalmer)
-          .cancelSarcophagus(identifier);
-
         const receipt = await tx.wait();
 
         const events = receipt.events!;
