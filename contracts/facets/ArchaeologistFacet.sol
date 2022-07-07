@@ -4,7 +4,6 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
-import {LibEvents} from "../libraries/LibEvents.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibRewards} from "../libraries/LibRewards.sol";
@@ -12,6 +11,27 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract ArchaeologistFacet {
     AppStorage internal s;
+
+    event FinalizeTransfer(
+        bytes32 sarcoId,
+        string arweaveTxId,
+        address oldArchaeologist,
+        address newArchaeologist
+    );
+
+    event UnwrapSarcophagus(bytes32 indexed sarcoId, bytes unencryptedShard);
+
+    event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
+
+    event WithdrawFreeBond(
+        address indexed archaeologist,
+        uint256 withdrawnBond
+    );
+
+    event WithdrawReward(
+        address indexed archaeologist,
+        uint256 withdrawnReward
+    );
 
     /// @notice Deposits an archaeologist's free bond to the contract.
     /// @param amount The amount to deposit
@@ -23,7 +43,7 @@ contract ArchaeologistFacet {
         s.sarcoToken.transferFrom(msg.sender, address(this), amount);
 
         // Emit an event
-        emit LibEvents.DepositFreeBond(msg.sender, amount);
+        emit DepositFreeBond(msg.sender, amount);
     }
 
     /// @notice Withdraws an archaeologist's free bond from the contract.
@@ -37,7 +57,7 @@ contract ArchaeologistFacet {
         s.sarcoToken.transfer(msg.sender, amount);
 
         // Emit an event
-        emit LibEvents.WithdrawFreeBond(msg.sender, amount);
+        emit WithdrawFreeBond(msg.sender, amount);
     }
 
     /// @notice Withdraws froms an archaeologist's reward pool
@@ -48,7 +68,7 @@ contract ArchaeologistFacet {
         // Transfer the amount of sarcoToken to the archaeologist
         s.sarcoToken.transfer(msg.sender, amount);
 
-        emit LibEvents.WithdrawReward(msg.sender, amount);
+        emit WithdrawReward(msg.sender, amount);
     }
 
     /// @notice Unwraps the sarcophagus.
@@ -115,7 +135,7 @@ contract ArchaeologistFacet {
         );
 
         // Emit an event
-        emit LibEvents.UnwrapSarcophagus(sarcoId, unencryptedShard);
+        emit UnwrapSarcophagus(sarcoId, unencryptedShard);
     }
 
     /// @notice Finalizes a transfer of roles and responsibilities between two
@@ -207,7 +227,7 @@ contract ArchaeologistFacet {
         LibBonds.curseArchaeologist(sarcoId, msg.sender);
 
         // Emit an event
-        emit LibEvents.FinalizeTransfer(
+        emit FinalizeTransfer(
             sarcoId,
             arweaveTxId,
             oldArchaeologist,
