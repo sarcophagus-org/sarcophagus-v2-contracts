@@ -1169,7 +1169,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       // Bury the sarcophagus
       before(async () => {
-        await embalmerFacet.burySarcophagus(identifier);
+        await embalmerFacet.connect(embalmer).burySarcophagus(identifier);
       });
 
       it("should set resurrection time to inifinity", async () => {
@@ -1242,24 +1242,7 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("Failed bury", () => {
       it("should revert if sender is not the embalmer", async () => {
-        // Initialize a sarcophagus
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "senderIsNotEmbalmer",
-          archaeologists
-        );
-
-        // Finalize the sarcophagus
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
-        // Bury the sarcophagus
-        const tx = embalmerFacet
-          .connect(signers[8])
-          .burySarcophagus(identifier);
+        await embalmerFacet.connect(signers[9]).burySarcophagus(identifier);
 
         await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
       });
@@ -1277,10 +1260,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should revert if the sarcophagus is not finalized", async () => {
         // Initialize a sarcophagus
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "sarcophagusNotFinalized",
-          archaeologists
-        );
+        const identifier = await initializeSarcophagus();
 
         // Bury the sarcophagus
         const tx = embalmerFacet.burySarcophagus(identifier);
