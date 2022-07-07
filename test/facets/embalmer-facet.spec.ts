@@ -1034,6 +1034,11 @@ describe("Contract: EmbalmerFacet", () => {
     let tx: ContractTransaction;
     let embalmerSarcoBalance: BigNumber;
 
+    // Initialize the sarcophagus
+    before(async () => {
+      identifier = await initializeSarcophagus();
+    });
+
     context("Successful cancel", () => {
       // Get balances before rewrap
       before(async () => {
@@ -1042,8 +1047,6 @@ describe("Contract: EmbalmerFacet", () => {
 
       // Cancel the sarcophagus
       before(async () => {
-        const identifier = await initializeSarcophagus();
-
         tx = await embalmerFacet
           .connect(embalmer)
           .cancelSarcophagus(identifier);
@@ -1083,13 +1086,10 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("Failed cancel", () => {
       it("should revert if the sender is not the embalmer", async () => {
-        const { identifier } = await createSarcophagusAndSignatures(
-          "senderIsNotEmbalmer",
-          archaeologists
-        );
+        const identifier = await initializeSarcophagus();
 
         const tx = embalmerFacet
-          .connect(archaeologists[0])
+          .connect(archaeologists[0].signer)
           .cancelSarcophagus(identifier);
 
         await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
@@ -1109,25 +1109,23 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the sarcohaphagus is already finalized", async () => {
-        const arweaveTxId = "someArweaveTxId";
-        const arweaveSignature = await sign(
-          arweaveArchaeologist,
-          arweaveTxId,
-          "string"
+        const signatures = await signMultiple(
+          archaeologists.map((x) => x.signer),
+          identifier
         );
 
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "sarcophagusAlraedyFinalized",
-          archaeologists
-        );
+        const { arweaveTxId, signatureWithAccount: arweaveSignature } =
+          await setupArweaveArchSig();
 
         // finalize the sarcophagus
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
+        await embalmerFacet
+          .connect(embalmer)
+          .finalizeSarcophagus(
+            identifier,
+            signatures,
+            arweaveSignature,
+            arweaveTxId
+          );
 
         const tx = embalmerFacet.cancelSarcophagus(identifier);
 
