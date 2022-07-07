@@ -58,14 +58,16 @@ export const setupArchaeologists = async (
   for (const archaeologist of archaeologists) {
     // Transfer 10,000 sarco tokens to each archaeologist to be put into free
     // bond
-    await sarcoToken.transfer(archaeologist.address, BigNumber.from(10_000));
+    await sarcoToken.transfer(archaeologist.address, ethers.utils.parseEther("10000"));
 
     // Approve the archaeologist on the sarco token so transferFrom will work
     await sarcoToken.connect(archaeologist).approve(diamondAddress, ethers.constants.MaxUint256);
 
     // Deposit some free bond to the contract so initializeSarcophagus will
     // work
-    await archaeologistFacet.connect(archaeologist).depositFreeBond(BigNumber.from("5000"));
+    await archaeologistFacet
+      .connect(archaeologist)
+      .depositFreeBond(ethers.utils.parseEther("5000"));
   }
 };
 

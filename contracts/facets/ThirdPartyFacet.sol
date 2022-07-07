@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
-import "../libraries/LibEvents.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
@@ -13,27 +12,27 @@ contract ThirdPartyFacet {
     AppStorage internal s;
 
     event AccuseArchaeologist(
-        bytes32 indexed identifier,
+        bytes32 indexed sarcoId,
         address indexed accuser,
         uint256 accuserBondReward,
         uint256 embalmerBondReward
     );
 
     event CleanUpSarcophagus(
-        bytes32 indexed identifier,
+        bytes32 indexed sarcoId,
         address indexed cleaner,
         uint256 cleanerBondReward,
         uint256 embalmerBondReward
     );
 
     /// @notice Close a sarcophagus that has not been unwrapped before its resurrection window is passed
-    /// @param identifier The sarcophagus ID
+    /// @param sarcoId The identifier of the sarcophagus to clean
     /// @param paymentAddress The address to which rewards will be sent
-    function clean(bytes32 identifier, address paymentAddress) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophaguses[identifier];
+    function clean(bytes32 sarcoId, address paymentAddress) external {
+        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
         if (sarco.state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(identifier);
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
         // Make sure the sarco is cleanable
@@ -55,12 +54,12 @@ contract ThirdPartyFacet {
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
             bool didNotUnwrap = s.archaeologistSuccesses[archAddresses[i]][
-                identifier
+                sarcoId
             ] == false;
 
             if (didNotUnwrap) {
                 LibTypes.ArchaeologistStorage memory defaulter = s
-                    .sarcophagusArchaeologists[identifier][archAddresses[i]];
+                    .sarcophagusArchaeologists[sarcoId][archAddresses[i]];
 
                 totalBounty += defaulter.bounty;
                 totalDiggingFee += defaulter.diggingFee;
@@ -76,7 +75,7 @@ contract ThirdPartyFacet {
                 LibBonds.decreaseCursedBond(archAddresses[i], cursedBond);
 
                 // Save the failure to unwrap against the archaeologist
-                s.archaeologistCleanups[archAddresses[i]].push(identifier);
+                s.archaeologistCleanups[archAddresses[i]].push(sarcoId);
             }
         }
 
@@ -94,7 +93,7 @@ contract ThirdPartyFacet {
         sarco.state = LibTypes.SarcophagusState.Done;
 
         emit CleanUpSarcophagus(
-            identifier,
+            sarcoId,
             msg.sender,
             cleanerBondReward,
             embalmerBondReward
@@ -116,7 +115,7 @@ contract ThirdPartyFacet {
         bytes[] memory unencryptedShards,
         address paymentAddress
     ) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophaguses[sarcoId];
+        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
         if (sarco.state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
@@ -170,18 +169,18 @@ contract ThirdPartyFacet {
         }
 
         // At this point, we need to filter out unaccused archs in order to reimburse them.
-        address[] memory sarcoArchsAddresses = s
-            .sarcophaguses[sarcoId]
+        address[] memory bondedArchaeologists = s
+            .sarcophagi[sarcoId]
             .archaeologists;
 
-        for (uint256 i = 0; i < sarcoArchsAddresses.length; i++) {
+        for (uint256 i = 0; i < bondedArchaeologists.length; i++) {
             // Need to check each archaeologist address on the sarcophagus
             bool isUnaccused = true;
 
             for (uint256 j = 0; j < accusedArchAddresses.length; j++) {
                 // For each arch address, if found in accusedArchAddresses,
                 // then don't add to unaccusedArchsAddresses
-                if (sarcoArchsAddresses[i] == accusedArchAddresses[j]) {
+                if (bondedArchaeologists[i] == accusedArchAddresses[j]) {
                     isUnaccused = false;
                     break;
                 }
@@ -196,7 +195,7 @@ contract ThirdPartyFacet {
                 //
                 // Of course, whatever rewards they might have gained in previous
                 // rewraps remains theirs.
-                LibBonds.freeArchaeologist(sarcoId, sarcoArchsAddresses[i]);
+                LibBonds.freeArchaeologist(sarcoId, bondedArchaeologists[i]);
             }
         }
 
