@@ -817,7 +817,7 @@ describe("Contract: EmbalmerFacet", () => {
       let totalProtocolFees: BigNumber;
       const archaeologistSarcoBalances: BigNumber[] = [];
 
-      // Get balances before rewrap
+      // Get state before rewrap
       before(async () => {
         for (const archaeologist of archaeologists) {
           archaeologistSarcoBalances.push(
@@ -832,16 +832,16 @@ describe("Contract: EmbalmerFacet", () => {
         contractBalance = await sarcoToken.balanceOf(diamond.address);
 
         totalProtocolFees = await viewStateFacet.getTotalProtocolFees();
-      });
 
-      // Rewrap the sarcophagus successfully
-      before(async () => {
         // Save the resurrection window before
         const sarcophagusStoredBefore = await viewStateFacet.getSarcophagus(
           identifier
         );
         resurrectionWindow = sarcophagusStoredBefore.resurrectionWindow;
+      });
 
+      // Rewrap the sarcophagus successfully
+      before(async () => {
         // Define a new resurrection time one week in the future
         newResurrectionTime = BigNumber.from(
           Date.now() + 60 * 60 * 24 * 7 * 1000
@@ -955,18 +955,6 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("Failed rewrap", () => {
       it("should revert if the sender is not embalmer", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "senderIsNotEmbalmer",
-          archaeologists
-        );
-
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
         // Define a new resurrection time one week in the future
         const newResurrectionTime = BigNumber.from(
           Date.now() + 60 * 60 * 24 * 7 * 1000
@@ -1000,10 +988,8 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the sarcophagus is not finalized", async () => {
-        const { identifier } = await createSarcophagusAndSignatures(
-          "sarcophagusIsNotFinalized",
-          archaeologists
-        );
+        // Only initialize, skip finalize
+        const identifier = await initializeSarcophagus();
 
         // Define a new resurrection time one week in the future
         const newResurrectionTime = BigNumber.from(
@@ -1020,18 +1006,6 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the new resurrection time is not in the future", async () => {
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "newResTimeNotInFuture",
-          archaeologists
-        );
-
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
         // Define a new resurrection time not in the future
         const newResurrectionTime = BigNumber.from(
           (Date.now() / 1000).toFixed(0)
