@@ -1135,68 +1135,44 @@ describe("Contract: EmbalmerFacet", () => {
   });
 
   describe("burySarcophagus()", () => {
+    let tx: ContractTransaction;
     let sarcoToken: SarcoTokenMock;
     let arweaveSignature: Signature;
+    let identifier: string;
+    let randomArchaeologist: FixtureArchaeologist;
+    let randomArchaeologistBalance: BigNumber;
+    let randomArchaeologistFreeBond: BigNumber;
+    let randomArchaeologistCursedBond: BigNumber;
+    let embalmerBalance: BigNumber;
 
-    const arweaveTxId = "someArweaveTxId";
-
-    // Deploy the contracts
+    // Finalize the sarcophagus
     before(async () => {
-      await deployments.fixture();
-      sarcoToken = await ethers.getContract("SarcoTokenMock");
-      const diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
-        .address;
-
-      embalmerFacet = await ethers.getContractAt(
-        "EmbalmerFacet",
-        diamondAddress
-      );
-
-      // Get the archaeologistFacet so we can add some free bond for the archaeologists
-      archaeologistFacet = await ethers.getContractAt(
-        "ArchaeologistFacet",
-        diamondAddress
-      );
-
-      viewStateFacet = await ethers.getContractAt(
-        "ViewStateFacet",
-        diamondAddress
-      );
-
-      await setupArchaeologists(
-        archaeologistFacet,
-        archaeologists,
-        diamondAddress,
-        embalmer,
-        sarcoToken
-      );
-
-      arweaveSignature = await sign(
-        arweaveArchaeologist,
-        arweaveTxId,
-        "string"
-      );
+      identifier = await finalizeSarcohpagus();
     });
 
     context("Successful bury", () => {
-      it("should set resurrection time to inifinity", async () => {
-        // Initialize a sarcophagus
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldSetResurrectionTimeToInfinity",
-          archaeologists
+      // Get balances before bury
+      before(async () => {
+        randomArchaeologist = archaeologists[1];
+        randomArchaeologistBalance = await sarcoToken.balanceOf(
+          randomArchaeologist.account
         );
 
-        // Finalize the sarcophagus
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
+        randomArchaeologistFreeBond = await viewStateFacet.getFreeBond(
+          randomArchaeologist.account
         );
+        randomArchaeologistCursedBond = await viewStateFacet.getCursedBond(
+          randomArchaeologist.account
+        );
+        embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
+      });
 
-        // Bury the sarcophagus
+      // Bury the sarcophagus
+      before(async () => {
         await embalmerFacet.burySarcophagus(identifier);
+      });
 
+      it("should set resurrection time to inifinity", async () => {
         const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
 
         expect(sarcophagus.resurrectionTime).to.equal(
@@ -1205,160 +1181,53 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should set the sarcophagus state to done", async () => {
-        // Initialize a sarcophagus
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldSetStateToDone",
-          archaeologists
-        );
-
-        // Finalize the sarcophagus
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
-        // Bury the sarcophagus
-        await embalmerFacet.burySarcophagus(identifier);
-
         const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
 
         expect(sarcophagus.state).to.equal(SarcophagusState.Done);
       });
 
-      it("should free the archaeologist's bond", async () => {
-        // Get the free and cursed bond before
-        const freeBondBefore = await viewStateFacet.getFreeBond(
-          archaeologists[0].address
-        );
-        const cursedBondBefore = await viewStateFacet.getCursedBond(
-          archaeologists[0].address
-        );
-
-        // Initialize a sarcophagus
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldFreeArchBond",
-          archaeologists
-        );
-
-        // Finalize the sarcophagus
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
-        // Bury the sarcophagus
-        await embalmerFacet.burySarcophagus(identifier);
-
+      it("should free an archaeologist's bond", async () => {
         // Get the free and cursed bond after bury
         const freeBondAfter = await viewStateFacet.getFreeBond(
-          archaeologists[0].address
+          randomArchaeologist.account
         );
         const cursedBondAfter = await viewStateFacet.getCursedBond(
-          archaeologists[0].address
+          randomArchaeologist.account
         );
 
-        expect(freeBondAfter.toString()).to.equal(freeBondBefore.toString());
-
-        expect(cursedBondAfter.toString()).to.equal(
-          cursedBondBefore.toString()
-        );
+        expect(freeBondAfter).to.equal(randomArchaeologistFreeBond);
+        expect(cursedBondAfter).to.equal(randomArchaeologistCursedBond);
       });
 
       it("should transfer digging fees to each archaeologist", async () => {
-        // Initialize a sarcophagus
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldTransferDigginFees",
-          archaeologists
-        );
-
-        // Finalize the sarcophagus
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
-        // Get the archaeologist's sarco balance before bury
-        const sarcoBalanceBefore = await sarcoToken.balanceOf(
-          archaeologists[0].address
-        );
-
-        // Bury the sarcophagus
-        await embalmerFacet.burySarcophagus(identifier);
-
         // Get the archaeologist sarco balance after bury
         const sarcoBalanceAfter = await sarcoToken.balanceOf(
-          archaeologists[0].address
+          randomArchaeologist.account
         );
 
         // Get the archaeologist's digging fees with the archaeologist address
-        const diggingFee = archaeologistsFees[0].diggingFee;
 
         // Check that the difference in balances is equal to the digging fee
-        expect(sarcoBalanceAfter.sub(sarcoBalanceBefore).toString()).to.equal(
-          diggingFee.toString()
+        expect(sarcoBalanceAfter.sub(randomArchaeologistBalance)).to.equal(
+          randomArchaeologist.diggingFee
         );
       });
 
       it("should transfer the bounty back to the embalmer", async () => {
-        // Initialize a sarcophagus
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldTransferBountyToEmbalmer",
-          archaeologists
-        );
-
-        // Finalize the sarcophagus
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
-        // Get the archaeologist's sarco balance before bury
-        const sarcoBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
-
-        // Bury the sarcophagus
-        await embalmerFacet.burySarcophagus(identifier);
-
         // Get the archaeologist sarco balance after bury
         const sarcoBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
 
         // Add the bounties in archaeologist fees
-        const totalBounty = archaeologistsFees.reduce(
-          (acc, cur) => acc.add(cur.bounty),
+        const totalBounty = archaeologists.reduce(
+          (acc, arch) => acc.add(arch.bounty),
           ethers.constants.Zero
         );
 
         // Check that the difference in balances is equal to the total bounty
-        expect(sarcoBalanceAfter.sub(sarcoBalanceBefore).toString()).to.equal(
-          totalBounty.toString()
-        );
+        expect(sarcoBalanceAfter.sub(embalmerBalance)).to.equal(totalBounty);
       });
 
       it("should emit an event", async () => {
-        // Initialize a sarcophagus
-        const { identifier, signatures } = await createSarcophagusAndSignatures(
-          "shouldEmitEvent",
-          archaeologists
-        );
-
-        // Finalize the sarcophagus
-        await embalmerFacet.finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
-
-        // Bury the sarcophagus
-        const tx = await embalmerFacet.burySarcophagus(identifier);
-
         const receipt = await tx.wait();
 
         const events = receipt.events!;
@@ -1370,6 +1239,7 @@ describe("Contract: EmbalmerFacet", () => {
           .to.be.true;
       });
     });
+
     context("Failed bury", () => {
       it("should revert if sender is not the embalmer", async () => {
         // Initialize a sarcophagus
