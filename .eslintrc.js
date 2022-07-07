@@ -46,10 +46,11 @@ module.exports = {
       },
     ],
     // var rules
-    "no-use-before-define": "warn",
+    "no-use-before-define": "off",
     "@typescript-eslint/comma-dangle": "off",
-    "@typescript-eslint/no-use-before-define": "error",
+    "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-var-requires": "off",
   },
   overrides: [
     {
