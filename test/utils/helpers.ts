@@ -1,7 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
-import { ArchaeologistFacet, SarcoTokenMock } from "../../typechain";
+import { SarcoTokenMock } from "../../typechain";
+import { SignatureWithAccount } from "../../types";
 
 /**
  * Signs a message as any EVM compatible type and returns the signature and the
@@ -23,6 +24,30 @@ export async function sign(
   const dataHashBytes = ethers.utils.arrayify(dataHash);
   const signature = await signer.signMessage(dataHashBytes);
   return ethers.utils.splitSignature(signature);
+}
+
+/**
+ * Signs a message given an array of signers and a single message
+ *
+ * @param signers An array of signers
+ * @param message The message
+ * @returns The signatures with the accounts that signed them
+ */
+export async function signMultiple(
+  signers: SignerWithAddress[],
+  message: string
+): Promise<SignatureWithAccount[]> {
+  const signatures: SignatureWithAccount[] = [];
+
+  for (const signer of signers) {
+    // Sign a message and add to signatures. Only sign if the archaeologist
+    // is not the arweave archaeologist
+    const signature = await sign(signer, message, "bytes32");
+
+    signatures.push(Object.assign(signature, { account: signer.address }));
+  }
+
+  return signatures;
 }
 
 /**
