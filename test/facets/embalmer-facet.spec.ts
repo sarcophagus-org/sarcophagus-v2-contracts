@@ -1,22 +1,10 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { getContractFactory } from "@nomiclabs/hardhat-ethers/types";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
-import {
-  BigNumber,
-  Contract,
-  ContractReceipt,
-  ContractTransaction,
-  Signature,
-} from "ethers";
+import { BigNumber, Contract, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
-import { deployments, ethers, getUnnamedAccounts } from "hardhat";
-import {
-  ArchaeologistFacet,
-  SarcoTokenMock,
-  ViewStateFacet,
-} from "../../typechain";
-import { EmbalmerFacet } from "../../typechain/EmbalmerFacet";
+import { ethers } from "hardhat";
+import { ViewStateFacet } from "../../typechain";
 import { FixtureArchaeologist, SarcophagusState } from "../../types";
 import { finalizeSarcohpagus } from "../fixtures/finalize-sarcophagus";
 import { getDeployedContracts } from "../fixtures/get-deployed-contracts";
@@ -25,22 +13,40 @@ import { coreSetup } from "../fixtures/setup";
 import { setupArweaveArchSig } from "../fixtures/setup-arweave-archaeologist-signature";
 import { sign, signMultiple } from "../utils/helpers";
 
-describe("Contract: EmbalmerFacet", () => {
-  let embalmerFacet: EmbalmerFacet;
-  let archaeologistFacet: ArchaeologistFacet;
+describe.only("Contract: EmbalmerFacet", () => {
+  let embalmerFacet: Contract;
+  let diamond: Contract;
   let viewStateFacet: ViewStateFacet;
   let embalmer: SignerWithAddress;
   let archaeologists: FixtureArchaeologist[];
   let recipient: SignerWithAddress;
   let arweaveArchaeologist: FixtureArchaeologist;
   let randomArchaeologist: FixtureArchaeologist;
-  let sarcoToken: SarcoTokenMock;
+  let sarcoToken: Contract;
   let signers: SignerWithAddress[];
 
+  // before(async () => {
+  //   ({ embalmer, archaeologists, recipient } = await coreSetup());
+  //   arweaveArchaeologist = archaeologists[0];
+  //   randomArchaeologist = archaeologists[1];
+  //   ({ diamond, sarcoToken, embalmerFacet } = await getDeployedContracts());
+
+  // });
+
   beforeEach(async () => {
-    ({ embalmer, archaeologists } = await coreSetup());
-    arweaveArchaeologist = archaeologists[0];
-    randomArchaeologist = archaeologists[1];
+    signers = await ethers.getSigners();
+
+    ({ embalmer, archaeologists, recipient, arweaveArchaeologist } =
+      await coreSetup());
+    ({ diamond, sarcoToken, embalmerFacet } = await getDeployedContracts());
+    // Transfer 10,000 sarco tokens to each archaeologist to be put into free
+    // bond
+    await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
+
+    // Approve the archaeologist on the sarco token so transferFrom will work
+    await sarcoToken
+      .connect(embalmer)
+      .approve(diamond.address, ethers.constants.MaxUint256);
   });
 
   describe("initializeSarcophagus()", () => {
@@ -49,56 +55,15 @@ describe("Contract: EmbalmerFacet", () => {
       let embalmerBalance: BigNumber;
 
       // Load the embalmer's balance
-      before(async () => {
+      beforeEach(async () => {
         // Get the embalmer's sarco token balance
         embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
-      });
-
-      // Initialize the sarcophagus
-      before(async () => {
-        const name = "Test Sarcophagus";
-        const identifier = solidityKeccak256(
-          ["string"],
-          ["unhashedIdentifier"]
-        );
-        const canBeTransferred = true;
-        // 1 week
-        const resurrectionTime = BigNumber.from(
-          Date.now() / 1000 + 60 * 60 * 24 * 7
-        );
-        const minShards = 2;
-
-        // Create a sarcophagus as the embalmer
-        tx = await embalmerFacet
-          .connect(embalmer)
-          .initializeSarcophagus(
-            name,
-            identifier,
-            archaeologists,
-            arweaveArchaeologist.account,
-            recipient.address,
-            resurrectionTime,
-            canBeTransferred,
-            minShards
-          );
-      });
-
-      it("should successfully initialize sarcophagus", async () => {
-        const receipt = await tx.wait();
-        expect(receipt.status).to.equal(1);
+        ({ tx } = await initializeSarcophagus());
       });
 
       it("should transfer fees in sarco token from the embalmer to the contract", async () => {
         const embalmerBalanceAfter = await sarcoToken.balanceOf(
           embalmer.address
-        );
-
-        // Find the arweave archaeologist and get their storage fee amount
-        const arweaveArchaeologistIndex = archaeologists.findIndex(
-          (a) => a.account === arweaveArchaeologist.account
-        );
-        const arweaveArchaeologistStorageFee = BigNumber.from(
-          archaeologists[arweaveArchaeologistIndex].storageFee
         );
 
         // Calculate the total fees:
@@ -109,7 +74,7 @@ describe("Contract: EmbalmerFacet", () => {
             (acc, arch) => acc.add(arch.bounty).add(arch.diggingFee),
             BigNumber.from("0")
           )
-          .add(arweaveArchaeologistStorageFee);
+          .add(arweaveArchaeologist.storageFee);
 
         expect(embalmerBalance.sub(embalmerBalanceAfter)).to.equal(
           BigNumber.from(totalFees)
@@ -139,7 +104,7 @@ describe("Contract: EmbalmerFacet", () => {
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
-          Date.now() / 1000 + 60 * 60 * 24 * 7
+          Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
         );
         const minShards = 2;
 
@@ -182,7 +147,9 @@ describe("Contract: EmbalmerFacet", () => {
         );
         const canBeTransferred = true;
         // Set resurrection time to 1 second in the past
-        const resurrectionTime = BigNumber.from(Date.now() / 1000 - 1);
+        const resurrectionTime = BigNumber.from(
+          Math.floor(Date.now() / 1000) - 1
+        );
         const minShards = 2;
 
         // Create a sarcophagus as the embalmer
@@ -211,7 +178,7 @@ describe("Contract: EmbalmerFacet", () => {
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
-          Date.now() / 1000 + 60 * 60 * 24 * 7
+          Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
         );
         const minShards = 2;
 
@@ -246,7 +213,7 @@ describe("Contract: EmbalmerFacet", () => {
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
-          Date.now() / 1000 + 60 * 60 * 24 * 7
+          Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
         );
         const minShards = 2;
 
@@ -276,9 +243,8 @@ describe("Contract: EmbalmerFacet", () => {
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
-          Date.now() / 1000 + 60 * 60 * 24 * 7
+          Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
         );
-        const minShards = 2;
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -308,9 +274,8 @@ describe("Contract: EmbalmerFacet", () => {
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
-          Date.now() / 1000 + 60 * 60 * 24 * 7
+          Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
         );
-        const minShards = 2;
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -330,8 +295,6 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the arweave archaeologist is not included in the list of archaeologists", async () => {
-        const unnamedAccounts = await getUnnamedAccounts();
-
         const name = "Test Sarcophagus";
         const identifier = solidityKeccak256(
           ["string"],
@@ -340,7 +303,7 @@ describe("Contract: EmbalmerFacet", () => {
         const canBeTransferred = true;
         // 1 week
         const resurrectionTime = BigNumber.from(
-          Date.now() / 1000 + 60 * 60 * 24 * 7
+          Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
         );
         const minShards = 2;
 
@@ -351,11 +314,11 @@ describe("Contract: EmbalmerFacet", () => {
             name,
             identifier,
             archaeologists,
-            arweaveArchaeologist.account,
+            signers[9].address,
             recipient.address,
             resurrectionTime,
             canBeTransferred,
-            0
+            minShards
           );
 
         await expect(tx).to.be.revertedWith("ArweaveArchaeologistNotInList");
@@ -407,7 +370,7 @@ describe("Contract: EmbalmerFacet", () => {
     context("Successful finalization", () => {
       // Initialize and finalize the sarcophagus
       before(async () => {
-        identifier = await initializeSarcophagus();
+        ({ identifier } = await initializeSarcophagus());
         const signatures = await signMultiple(
           archaeologists.map((x) => x.signer),
           identifier
@@ -540,7 +503,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should revert if the embalmer is not making the transaction", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
 
         // Each archaeologist signs the identifier
         const signatures = await signMultiple(
@@ -566,7 +529,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should revert if the sarcophagus has already been finalized", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
 
         // Each archaeologist signs the identifier
         const signatures = await signMultiple(
@@ -601,7 +564,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should revert if the provided arweave transaction id is empty", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
 
         // Each archaeologist signs the identifier
         const signatures = await signMultiple(
@@ -628,7 +591,7 @@ describe("Contract: EmbalmerFacet", () => {
 
     context("Signature reverts", () => {
       it("should revert if the incorrect number of archaeologists' signatures were provided", async () => {
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
         const signatures = await signMultiple(
           archaeologists.map((x) => x.signer),
           identifier
@@ -653,7 +616,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if there are duplicate signatures", async () => {
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
         const signatures = await signMultiple(
           archaeologists.map((x) => x.signer),
           identifier
@@ -679,7 +642,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if any signature provided by a regular archaeologist is from the wrong archaeologist", async () => {
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
 
         // Get a false signer
         const falseSigner = signers[9];
@@ -705,7 +668,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if any signature provided by a regular archaeologist is not of the sarcophagus identifier", async () => {
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
 
         // Create a false identifier
         const falseIdentifier = ethers.utils.solidityKeccak256(
@@ -748,7 +711,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the arweave archaeologist's signature is from the wrong archaeologist", async () => {
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
 
         // Sign the arweaveTxId with the wrong archaeologist
         const falseArweaveArch = signers[6];
@@ -775,7 +738,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the arweave archaeologist's signature is not a signature of the arweave transaction id", async () => {
-        const identifier = await initializeSarcophagus();
+        const { identifier } = await initializeSarcophagus();
 
         const signatures = await signMultiple(
           archaeologists.map((x) => x.signer),
@@ -805,7 +768,6 @@ describe("Contract: EmbalmerFacet", () => {
   });
 
   describe("rewrapSarcophagus()", () => {
-    let sarcoToken: SarcoTokenMock;
     let identifier: string;
     let tx: ContractTransaction;
 
@@ -1029,14 +991,13 @@ describe("Contract: EmbalmerFacet", () => {
   });
 
   describe("cancelSarcophagus()", () => {
-    let sarcoToken: SarcoTokenMock;
     let identifier: string;
     let tx: ContractTransaction;
     let embalmerSarcoBalance: BigNumber;
 
     // Initialize the sarcophagus
     before(async () => {
-      identifier = await initializeSarcophagus();
+      ({ identifier } = await initializeSarcophagus());
     });
 
     context("Successful cancel", () => {
@@ -1136,8 +1097,6 @@ describe("Contract: EmbalmerFacet", () => {
 
   describe("burySarcophagus()", () => {
     let tx: ContractTransaction;
-    let sarcoToken: SarcoTokenMock;
-    let arweaveSignature: Signature;
     let identifier: string;
     let randomArchaeologist: FixtureArchaeologist;
     let randomArchaeologistBalance: BigNumber;

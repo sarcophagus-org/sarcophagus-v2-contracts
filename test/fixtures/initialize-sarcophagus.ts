@@ -1,4 +1,5 @@
-import { BigNumber } from "ethers";
+import { getContractFactory } from "@nomiclabs/hardhat-ethers/types";
+import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments } from "hardhat";
 import { getDeployedContracts } from "./get-deployed-contracts";
@@ -16,12 +17,24 @@ export const initializeSarcophagus = deployments.createFixture(
     getNamedAccounts,
     getUnnamedAccounts,
     ethers,
-  }): Promise<string> => {
+  }): Promise<{ identifier: string; tx: ContractTransaction }> => {
     // Deploy contracts
     await deployments.fixture();
 
     // Get the entities interacting with the contracts
     const { embalmer, recipient } = await getSigners();
+
+    const diamond = await ethers.getContract("Diamond_DiamondProxy");
+    const sarcoToken = await ethers.getContract("SarcoTokenMock");
+
+    // Transfer 10,000 sarco tokens to each archaeologist to be put into free
+    // bond
+    await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
+
+    // Approve the archaeologist on the sarco token so transferFrom will work
+    await sarcoToken
+      .connect(embalmer)
+      .approve(diamond.address, ethers.constants.MaxUint256);
 
     // Get the embalmer facet
     const { embalmerFacet } = await getDeployedContracts();
@@ -34,12 +47,12 @@ export const initializeSarcophagus = deployments.createFixture(
     const canBeTransferred = true;
     // 1 week
     const resurrectionTime = BigNumber.from(
-      Date.now() / 1000 + 60 * 60 * 24 * 7
+      Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
     );
     const minShards = 2;
 
     // Create a sarcophagus as the embalmer
-    await embalmerFacet
+    const tx = await embalmerFacet
       .connect(embalmer)
       .initializeSarcophagus(
         name,
@@ -52,6 +65,6 @@ export const initializeSarcophagus = deployments.createFixture(
         minShards
       );
 
-    return identifier;
+    return { identifier, tx };
   }
 );

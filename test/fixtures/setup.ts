@@ -16,11 +16,6 @@ export const coreSetup = deployments.createFixture(
     // Set up the archaeologists
     const archaeologists = await setupArchaeologists();
 
-    // Approve the embalmer on the sarco token so transferFrom will work
-    await sarcoToken
-      .connect(embalmer)
-      .approve(diamond.address, ethers.constants.MaxUint256);
-
     for (const archaeologist of archaeologists) {
       // Transfer 10,000 sarco tokens to each archaeologist to be put into free
       // bond
@@ -38,10 +33,13 @@ export const coreSetup = deployments.createFixture(
         .depositFreeBond(BigNumber.from("1000"));
     }
 
+    const arweaveArchaeologist = archaeologists[0];
+
     return {
       embalmer,
       recipient,
       archaeologists,
+      arweaveArchaeologist,
     };
   }
 );

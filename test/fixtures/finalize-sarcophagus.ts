@@ -22,7 +22,7 @@ export const finalizeSarcohpagus = deployments.createFixture(
 
     // Set up the archaeologists and initialize the sarcophagus
     const archaeologists = await setupArchaeologists();
-    const identifier = await initializeSarcophagus();
+    const { identifier } = await initializeSarcophagus();
 
     const { arweaveTxId, signatureWithAccount: arweaveArchSig } =
       await setupArweaveArchSig();
