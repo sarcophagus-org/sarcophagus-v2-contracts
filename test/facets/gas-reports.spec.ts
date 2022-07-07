@@ -250,9 +250,6 @@ async function _runCreateSarcoTest(arg: { shares: number; threshold: number }): 
   const secret = Buffer.from(privateKey);
   const shards: Buffer[] = sss.split(secret, arg);
 
-  // const recovered = sss.combine(shards.slice(0, 2));
-  // console.log(recovered.toString());
-
   const sarcoName = `Init sarco (${arg.shares})`;
   const sarcoId = ethers.utils.solidityKeccak256(["string"], [sarcoName]);
 
@@ -328,18 +325,11 @@ async function _spawnArchaologistsWithSignatures(
   for (let i = 0; i < shards.length; i++) {
     const acc = signers[i + 2];
 
-    // todo: confirm this data is correct
     const signature = await sign(acc, sarcoId, "bytes32");
-    // const pubKey = utils.recoverPublicKey(
-    //   ethers.utils.hashMessage(sarcoId),
-    //   signature
-    // );
 
-    // const encryptedShardBuffer = await encrypt(_hexToBytes(pubKey), shards[i]);
     archs.push({
       hashedShard: ethers.utils.solidityKeccak256(["bytes"], [shards[i]]),
       unencryptedShard: shards[i],
-      // hashedShard: hexlify(encryptedShardBuffer),
       signer: acc,
       storageFee: ethers.utils.parseEther("20"),
       diggingFee: ethers.utils.parseEther("10"),
