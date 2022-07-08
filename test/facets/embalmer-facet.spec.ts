@@ -4,12 +4,14 @@ import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import { FixtureArchaeologist, SarcophagusState } from "../../types";
+import { failingCancelFixture } from "../fixtures/failing-cancel-fixture";
 import { failingFinalizeSarcohpagusFixture } from "../fixtures/failing-finalize-sarcophagus-fixture";
 import { failingInitializeSarcophagusFixture } from "../fixtures/failing-initialize-sarcophagus-fixture";
 import { failingRewrapFixture } from "../fixtures/failing-rewrap-fixture";
 import { finalizeSarcohpagus } from "../fixtures/finalize-sarcophagus";
 import { initializeSarcophagus } from "../fixtures/initialize-sarcophagus";
 import { setupArweaveArchSig } from "../fixtures/setup-arweave-archaeologist-signature";
+import { successfulCancelFixture } from "../fixtures/successful-cancel-fixture";
 import { successfulFinalizeSarcohpagusFixture } from "../fixtures/successful-finalize-sarcophagus-fixture";
 import { successfulInitializeSarcophagusFixture } from "../fixtures/successful-initialize-sarcophagus-fixture";
 import { successfulRewrapFixture } from "../fixtures/successful-rewrap-fixture";
@@ -890,48 +892,26 @@ describe.only("Contract: EmbalmerFacet", () => {
   });
 
   describe("cancelSarcophagus()", () => {
-    let identifier: string;
-    let tx: ContractTransaction;
-    let embalmerSarcoBalance: BigNumber;
-
-    // Initialize the sarcophagus
-    before(async () => {
-      ({ identifier } = await initializeSarcophagus());
-    });
-
     context("Successful cancel", () => {
-      // Get balances before rewrap
-      before(async () => {
-        embalmerSarcoBalance = await sarcoToken.balanceOf(embalmer.address);
-      });
-
-      // Cancel the sarcophagus
-      before(async () => {
-        tx = await embalmerFacet
-          .connect(embalmer)
-          .cancelSarcophagus(identifier);
-      });
-
-      it("should cancel the sarcophagus successfully", async () => {
-        const receipt = await tx.wait();
-
-        expect(receipt.status).to.equal(1);
-      });
-
       it("should set the sarcophagus state to done", async () => {
+        const { viewStateFacet, identifier } = await successfulCancelFixture();
         const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
 
         expect(sarcophagus.state).to.equal(SarcophagusState.Done);
       });
 
       it("should transfer total fees back to the embalmer", async () => {
+        const { sarcoToken, embalmer, embalmerBalance } =
+          await successfulCancelFixture();
         // Get the sarco balance of the embalmer after canceling the sarcophagus
         const sarcoBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
 
-        expect(embalmerSarcoBalance).to.equal(sarcoBalanceAfter);
+        expect(embalmerBalance).to.equal(sarcoBalanceAfter);
       });
 
       it("should emit an event", async () => {
+        const { tx, embalmerFacet } = await successfulCancelFixture();
+
         const receipt = await tx.wait();
 
         const events = receipt.events!;
@@ -946,6 +926,7 @@ describe.only("Contract: EmbalmerFacet", () => {
 
     context("Failed cancel", () => {
       it("should revert if the sender is not the embalmer", async () => {
+        const { embalmerFacet, archaeologists } = await failingCancelFixture();
         const identifier = await initializeSarcophagus();
 
         const tx = embalmerFacet
@@ -956,6 +937,7 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the sarcophagus does not exist", async () => {
+        const { embalmerFacet, embalmer } = await failingCancelFixture();
         const falseIdentifier = ethers.utils.solidityKeccak256(
           ["string"],
           ["falseIdentifier"]
@@ -969,13 +951,14 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the sarcohaphagus is already finalized", async () => {
-        const signatures = await signMultiple(
-          archaeologists.map((x) => x.signer),
-          identifier
-        );
-
-        const { arweaveTxId, signatureWithAccount: arweaveSignature } =
-          await setupArweaveArchSig();
+        const {
+          embalmerFacet,
+          embalmer,
+          identifier,
+          arweaveArchSig,
+          arweaveTxId,
+          signatures,
+        } = await failingCancelFixture();
 
         // finalize the sarcophagus
         await embalmerFacet
@@ -983,7 +966,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           .finalizeSarcophagus(
             identifier,
             signatures,
-            arweaveSignature,
+            arweaveArchSig,
             arweaveTxId
           );
 
