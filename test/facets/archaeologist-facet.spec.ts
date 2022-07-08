@@ -11,11 +11,8 @@ import {
   ViewStateFacet,
 } from "../../typechain";
 import { SignatureWithAccount } from "../../types";
-import {
-  increaseNextBlockTimestamp,
-  setupArchaeologists,
-  sign,
-} from "../utils/helpers";
+import { setupArchaeologists } from "../fixtures/setup-archaeologists";
+import { increaseNextBlockTimestamp, sign } from "../utils/helpers";
 
 describe("Contract: ArchaeologistFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
@@ -264,13 +261,7 @@ describe("Contract: ArchaeologistFacet", () => {
         diamondAddress
       );
 
-      await setupArchaeologists(
-        archaeologistFacet,
-        archaeologists,
-        diamondAddress,
-        embalmer,
-        sarcoToken
-      );
+      await setupArchaeologists();
 
       arweaveSignature = await sign(
         arweaveArchaeologist,
@@ -778,13 +769,7 @@ describe("Contract: ArchaeologistFacet", () => {
         diamondAddress
       );
 
-      await setupArchaeologists(
-        archaeologistFacet,
-        archaeologists,
-        diamondAddress,
-        embalmer,
-        sarcoToken
-      );
+      await setupArchaeologists();
 
       arweaveSignature = await sign(
         arweaveArchaeologist,
