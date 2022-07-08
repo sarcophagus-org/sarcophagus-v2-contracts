@@ -6,13 +6,13 @@ import { ethers } from "hardhat";
 import { SarcophagusState } from "../../types";
 import { failingBuryFixture } from "../fixtures/failing-bury-fixture";
 import { failingCancelFixture } from "../fixtures/failing-cancel-fixture";
-import { failingFinalizeSarcohpagusFixture } from "../fixtures/failing-finalize-sarcophagus-fixture";
-import { failingInitializeSarcophagusFixture } from "../fixtures/failing-initialize-sarcophagus-fixture";
+import { failingFinalizeFixture } from "../fixtures/failing-finalize-fixture";
+import { failingInitializeFixture } from "../fixtures/failing-initialize-fixture";
 import { failingRewrapFixture } from "../fixtures/failing-rewrap-fixture";
 import { successfulBuryFixture } from "../fixtures/successful-bury-fixture";
 import { successfulCancelFixture } from "../fixtures/successful-cancel-fixture";
-import { successfulFinalizeSarcohpagusFixture } from "../fixtures/successful-finalize-sarcophagus-fixture";
-import { successfulInitializeSarcophagusFixture } from "../fixtures/successful-initialize-sarcophagus-fixture";
+import { successfulFinalizeFixture } from "../fixtures/successful-finalize-fixture";
+import { successfulInitializeFixture } from "../fixtures/successful-initialize-fixture";
 import { successfulRewrapFixture } from "../fixtures/successful-rewrap-fixture";
 import { sign, signMultiple } from "../utils/helpers";
 
@@ -26,7 +26,7 @@ describe("Contract: EmbalmerFacet", () => {
           archaeologists,
           arweaveArchaeologist,
           embalmerBalance,
-        } = await successfulInitializeSarcophagusFixture();
+        } = await successfulInitializeFixture();
 
         const embalmerBalanceAfter = await sarcoToken.balanceOf(
           embalmer.address
@@ -48,8 +48,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should emit an event on initialize", async () => {
-        const { tx, embalmerFacet } =
-          await successfulInitializeSarcophagusFixture();
+        const { tx, embalmerFacet } = await successfulInitializeFixture();
 
         const receipt = await tx.wait();
 
@@ -76,7 +75,7 @@ describe("Contract: EmbalmerFacet", () => {
           name,
           canBeTransferred,
           minShards,
-        } = await failingInitializeSarcophagusFixture();
+        } = await failingInitializeFixture();
 
         // Create a sarcophagus as the embalmer
         await embalmerFacet
@@ -120,7 +119,7 @@ describe("Contract: EmbalmerFacet", () => {
           name,
           canBeTransferred,
           minShards,
-        } = await failingInitializeSarcophagusFixture();
+        } = await failingInitializeFixture();
 
         const resurrectionTime = BigNumber.from(
           Math.floor(Date.now() / 1000) - 1
@@ -154,7 +153,7 @@ describe("Contract: EmbalmerFacet", () => {
           canBeTransferred,
           minShards,
           resurrectionTime,
-        } = await failingInitializeSarcophagusFixture();
+        } = await failingInitializeFixture();
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -185,7 +184,7 @@ describe("Contract: EmbalmerFacet", () => {
           minShards,
           resurrectionTime,
           archaeologists,
-        } = await failingInitializeSarcophagusFixture();
+        } = await failingInitializeFixture();
 
         const nonUniqueArchaeologists = archaeologists.slice();
         nonUniqueArchaeologists.pop();
@@ -220,7 +219,7 @@ describe("Contract: EmbalmerFacet", () => {
           canBeTransferred,
           resurrectionTime,
           archaeologists,
-        } = await failingInitializeSarcophagusFixture();
+        } = await failingInitializeFixture();
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -252,7 +251,7 @@ describe("Contract: EmbalmerFacet", () => {
           canBeTransferred,
           resurrectionTime,
           archaeologists,
-        } = await failingInitializeSarcophagusFixture();
+        } = await failingInitializeFixture();
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -282,7 +281,7 @@ describe("Contract: EmbalmerFacet", () => {
           resurrectionTime,
           archaeologists,
           minShards,
-        } = await failingInitializeSarcophagusFixture();
+        } = await failingInitializeFixture();
 
         const signers = await ethers.getSigners();
 
@@ -309,7 +308,7 @@ describe("Contract: EmbalmerFacet", () => {
     context("Successful finalization", () => {
       it("should store the arweave transaction id", async () => {
         const { identifier, viewStateFacet, arweaveTxId } =
-          await successfulFinalizeSarcohpagusFixture();
+          await successfulFinalizeFixture();
 
         const sarcophagusStored = await viewStateFacet.getSarcophagus(
           identifier
@@ -323,7 +322,7 @@ describe("Contract: EmbalmerFacet", () => {
           regularArchaeologist,
           regularArchaeologistFreeBond,
           regularArchaeologistCursedBond,
-        } = await successfulFinalizeSarcohpagusFixture();
+        } = await successfulFinalizeFixture();
 
         const bondAmount = regularArchaeologist.diggingFee.add(
           regularArchaeologist.bounty
@@ -354,7 +353,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveArchaeologist,
           arweaveArchaeologistFreeBond,
           arweaveArchaeologistCursedBond,
-        } = await successfulFinalizeSarcohpagusFixture();
+        } = await successfulFinalizeFixture();
 
         const arweaveArchFreeBondAfter = await viewStateFacet.getFreeBond(
           arweaveArchaeologist.account
@@ -380,8 +379,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should emit an event", async () => {
-        const { tx, embalmerFacet } =
-          await successfulFinalizeSarcohpagusFixture();
+        const { tx, embalmerFacet } = await successfulFinalizeFixture();
 
         const receipt = await tx.wait();
 
@@ -403,7 +401,7 @@ describe("Contract: EmbalmerFacet", () => {
           embalmer,
           arweaveArchaeologistSignature,
           arweaveTxId,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         // Make a fake identifier
         const identifier = solidityKeccak256(
@@ -436,7 +434,7 @@ describe("Contract: EmbalmerFacet", () => {
           embalmerFacet,
           arweaveArchaeologistSignature,
           arweaveTxId,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         const signers = await ethers.getSigners();
 
@@ -460,7 +458,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveArchaeologistSignature,
           arweaveTxId,
           embalmer,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         await embalmerFacet
           .connect(embalmer)
@@ -490,7 +488,7 @@ describe("Contract: EmbalmerFacet", () => {
           embalmerFacet,
           arweaveArchaeologistSignature,
           embalmer,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         const tx = embalmerFacet
           .connect(embalmer)
@@ -514,7 +512,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveArchaeologistSignature,
           arweaveTxId,
           embalmer,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         const newSignatures = signatures.slice();
         newSignatures.push(signatures[0]);
@@ -541,7 +539,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveArchaeologistSignature,
           arweaveTxId,
           embalmer,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         // Make the second signature the same as the first
         const newSignatures = signatures.slice();
@@ -568,7 +566,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxId,
           embalmer,
           arweaveArchaeologist,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         const signers = await ethers.getSigners();
 
@@ -606,7 +604,7 @@ describe("Contract: EmbalmerFacet", () => {
           signatures,
           arweaveTxId,
           embalmer,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         // Create a false identifier
         const falseIdentifier = ethers.utils.solidityKeccak256(
@@ -648,7 +646,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should revert if the arweave archaeologist's signature is from the wrong archaeologist", async () => {
         const { identifier, embalmerFacet, signatures, arweaveTxId, embalmer } =
-          await failingFinalizeSarcohpagusFixture();
+          await failingFinalizeFixture();
 
         const signers = await ethers.getSigners();
 
@@ -681,7 +679,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxId,
           arweaveArchaeologist,
           embalmer,
-        } = await failingFinalizeSarcohpagusFixture();
+        } = await failingFinalizeFixture();
 
         // Use the correct arweave archaeologist to sign a false arweaveTxId
         const falseArweaveSignature = await sign(
@@ -828,7 +826,7 @@ describe("Contract: EmbalmerFacet", () => {
         // Use the fixture for initializeSarcophagus just this once so we can
         // properly initialize the sarcophagus
         const { embalmerFacet, identifier, embalmer } =
-          await successfulInitializeSarcophagusFixture();
+          await successfulInitializeFixture();
 
         // Define a new resurrection time one week in the future
         const newResurrectionTime = BigNumber.from(
@@ -1054,7 +1052,7 @@ describe("Contract: EmbalmerFacet", () => {
         // Use the initializeSarcophagus fixture in this case to create a
         // sarcophagus
         const { embalmerFacet, embalmer, identifier } =
-          await successfulInitializeSarcophagusFixture();
+          await successfulInitializeFixture();
 
         // Bury the sarcophagus
         const tx = embalmerFacet.connect(embalmer).burySarcophagus(identifier);

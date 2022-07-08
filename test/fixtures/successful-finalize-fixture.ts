@@ -9,7 +9,7 @@ import { setupArchaeologists } from "./setup-archaeologists";
  * requires a successful initialization and finalization. Not intended to be
  * used for the actual finalizeSarcophagus tests.
  */
-export const successfulFinalizeSarcohpagusFixture = deployments.createFixture(
+export const successfulFinalizeFixture = deployments.createFixture(
   async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {
     // Deploy contracts
     await deployments.fixture();

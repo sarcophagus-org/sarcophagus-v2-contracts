@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments } from "hardhat";
 import { setupArchaeologists } from "./setup-archaeologists";
@@ -8,7 +8,7 @@ import { setupArchaeologists } from "./setup-archaeologists";
  * successful initialization. Not intended to be used for the actual
  * intializeSarcophagus tests.
  */
-export const failingInitializeSarcophagusFixture = deployments.createFixture(
+export const successfulInitializeFixture = deployments.createFixture(
   async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {
     // Deploy contracts
     await deployments.fixture();
@@ -48,19 +48,29 @@ export const failingInitializeSarcophagusFixture = deployments.createFixture(
 
     const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
 
+    // Create a sarcophagus as the embalmer
+    const tx: ContractTransaction = await embalmerFacet
+      .connect(embalmer)
+      .initializeSarcophagus(
+        name,
+        identifier,
+        archaeologists,
+        arweaveArchaeologist.account,
+        recipient.address,
+        resurrectionTime,
+        canBeTransferred,
+        minShards
+      );
+
     return {
       identifier,
+      tx,
       sarcoToken,
       embalmer,
       archaeologists,
       arweaveArchaeologist,
       embalmerBalance,
       embalmerFacet,
-      recipient,
-      resurrectionTime,
-      name,
-      canBeTransferred,
-      minShards,
     };
   }
 );
