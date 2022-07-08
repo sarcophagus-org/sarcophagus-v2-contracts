@@ -12,6 +12,8 @@ struct AppStorage {
     uint256 protocolFee;
     // The amount of protocol fees currently stored on the contract
     uint256 totalProtocolFees;
+    // sarcophagi
+    bytes32[] sarcophagusIdentifiers;
     // Each archaeologist's total free and cursed bonds
     mapping(address => uint256) freeBonds;
     mapping(address => uint256) cursedBonds;
@@ -20,22 +22,25 @@ struct AppStorage {
     mapping(address => bytes32[]) archaeologistCancels;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
-    // sarcophaguses
-    bytes32[] sarcophagusIdentifiers;
-    mapping(bytes32 => LibTypes.Sarcophagus) sarcophaguses;
+    // Track how much archaeologists have made. To be credited and debited
+    // as archaeologists fulfil their duties and withdraw their rewards
+    mapping(address => uint256) archaeologistRewards;
+    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
     // sarcophagus ownerships
-    mapping(address => bytes32[]) embalmerSarcophaguses;
-    mapping(address => bytes32[]) archaeologistSarcophaguses;
-    mapping(address => bytes32[]) recipientSarcophaguses;
+    mapping(address => bytes32[]) embalmerSarcophagi;
+    mapping(address => bytes32[]) archaeologistSarcophagi;
+    mapping(address => bytes32[]) recipientSarcophagi;
     // Mapping of unencrypted shard hashes to archaeologists who are
-    // responsible for them.
+    // responsible for them. Needed to optimise Accuse algo - unencrypted shard is
+    // hashed and used as a constant O(1) lookup here
     mapping(bytes32 => address) hashedShardArchaeologists;
     // A mapping used to store an archaeologist's data on a sarcophagus.
     // Bounty, digging fees, storage fees, and the hashed shards of the
     // archaeologists all need to be stored per sarcophagus. This mapping of a
     // mapping stores the archaeologist's data we need per sarcophagus.
-    // Example usage:
-    //     uint256 bounty = sarcophagusArchaeologists[identifier][archAddress];
+    // Example usage (to retrieve the bounty an archaeologist may claim on some sarcophagus):
+    //   LibTypes.ArchaeologistStorage bondedArchaeologist = sarcophagusArchaeologists[sarcoId][archAddress];
+    //   uint256 bounty = bondedArchaeologist.bounty;
     mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;
 }
 

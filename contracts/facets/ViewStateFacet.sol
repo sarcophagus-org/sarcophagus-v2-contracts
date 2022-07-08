@@ -31,6 +31,18 @@ contract ViewStateFacet {
         return s.freeBonds[archaeologist];
     }
 
+    /// @notice Returns the amount of rewards stored in the contract for an
+    /// archaeologist.
+    /// @param archaeologist The address of the archaeologist whose
+    /// reward is being returned
+    function getAvailableRewards(address archaeologist)
+        external
+        view
+        returns (uint256)
+    {
+        return s.archaeologistRewards[archaeologist];
+    }
+
     /// @notice Returns the amount of cursed bond stored in the contract for an
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose
@@ -45,9 +57,9 @@ contract ViewStateFacet {
 
     function getArchaeologistSuccessOnSarcophagus(
         address archaeologist,
-        bytes32 identifier
+        bytes32 sarcoId
     ) external view returns (bool) {
-        return s.archaeologistSuccesses[archaeologist][identifier];
+        return s.archaeologistSuccesses[archaeologist][sarcoId];
     }
 
     /// @notice Returns the number of accusations for an archaeologist.
@@ -73,60 +85,61 @@ contract ViewStateFacet {
     }
 
     /// @notice Returns a sarcophagus.
-    /// @param identifier The identifier of the sarcophagus being returned
-    function getSarcophagus(bytes32 identifier)
+    /// @param sarcoId The identifier of the sarcophagus being returned
+    function getSarcophagus(bytes32 sarcoId)
         external
         view
         returns (LibTypes.Sarcophagus memory)
     {
-        return s.sarcophaguses[identifier];
+        return s.sarcophagi[sarcoId];
     }
 
     /// @notice Given an embalmer's address, returns the identifiers of all
-    /// sarcophaguses that the embalmer has created.
-    /// @param embalmer The address of the embalmer whose sarcophaguses are being
+    /// sarcophagi that the embalmer has created.
+    /// @param embalmer The address of the embalmer whose sarcophagi are being
     /// returned
-    function getEmbalmerSarcophaguses(address embalmer)
+    function getEmbalmersarcophagi(address embalmer)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.embalmerSarcophaguses[embalmer];
+        return s.embalmerSarcophagi[embalmer];
     }
 
     /// @notice Given an archaeologist's address, returns the identifiers of all
-    /// sarcophaguses that the archaeologist has participated in.
-    /// @param archaeologist The address of the archaeologist whose sarcophaguses
+    /// sarcophagi that the archaeologist has participated in.
+    /// @param archaeologist The address of the archaeologist whose sarcophagi
     /// are being returned
-    function getArchaeologistSarcophaguses(address archaeologist)
+    function getArchaeologistsarcophagi(address archaeologist)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.archaeologistSarcophaguses[archaeologist];
+        return s.archaeologistSarcophagi[archaeologist];
     }
 
     /// @notice Given a recipient's address, returns the identifiers of all
-    /// sarcophaguses that the recipient has participated in.
-    /// @param recipient The address of the recipient whose sarcophaguses are being
+    /// sarcophagi that the recipient has participated in.
+    /// @param recipient The address of the recipient whose sarcophagi are being
     /// returned
-    function getRecipientSarcophaguses(address recipient)
+    function getRecipientsarcophagi(address recipient)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.recipientSarcophaguses[recipient];
+        return s.recipientSarcophagi[recipient];
     }
 
     /// @notice Returns the data stored on a sarcophagus for an archaeologist.
-    /// @param identifier The identifier of the sarcophagus whose data is being
+    /// @param sarcoId The identifier of the sarcophagus whose data is being
     /// returned
     /// @param archaeologist The address of the archaeologist whose data is
     /// being returned
-    function getSarcophagusArchaeologist(
-        bytes32 identifier,
-        address archaeologist
-    ) external view returns (LibTypes.ArchaeologistStorage memory) {
-        return s.sarcophagusArchaeologists[identifier][archaeologist];
+    function getSarcophagusArchaeologist(bytes32 sarcoId, address archaeologist)
+        external
+        view
+        returns (LibTypes.ArchaeologistStorage memory)
+    {
+        return s.sarcophagusArchaeologists[sarcoId][archaeologist];
     }
 }

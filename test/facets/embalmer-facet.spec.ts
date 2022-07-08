@@ -317,20 +317,6 @@ describe("Contract: EmbalmerFacet", () => {
         expect(sarcophagusStored.arweaveTxIds).to.contain(arweaveTxId);
       });
 
-      it("should transfer the storage fee to the arweave archaeologist", async () => {
-        const { sarcoToken, arweaveArchaeologist, arweaveArchBalance } =
-          await successfulFinalizeSarcohpagusFixture();
-
-        // Get the arweave archaeologist's sarco token balance after finalization
-        const arweaveArchBalanceAfter = await sarcoToken.balanceOf(
-          arweaveArchaeologist.account
-        );
-
-        expect(arweaveArchBalanceAfter.sub(arweaveArchBalance)).to.equal(
-          arweaveArchaeologist.storageFee
-        );
-      });
-
       it("should lock up an archaeologist's free bond", async () => {
         const {
           viewStateFacet,
@@ -774,13 +760,8 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should collect protocol fees", async () => {
-        const {
-          viewStateFacet,
-          sarcoToken,
-          diamond,
-          totalProtocolFees,
-          contractBalance,
-        } = await successfulRewrapFixture();
+        const { viewStateFacet, totalProtocolFees } =
+          await successfulRewrapFixture();
 
         // Get the protocol fee amount
         const protocolFee = await viewStateFacet.getProtocolFeeAmount();
@@ -789,19 +770,9 @@ describe("Contract: EmbalmerFacet", () => {
         const totalProtocolFeesAfter =
           await viewStateFacet.getTotalProtocolFees();
 
-        // Get the balance of the contract after rewrap
-        const contractBalanceAfter = await sarcoToken.balanceOf(
-          diamond.address
-        );
-
         // Check that the difference in total protocol fees is equal to the protocol fee amount
         expect(totalProtocolFeesAfter.sub(totalProtocolFees)).to.equal(
           protocolFee
-        );
-
-        // Check that the difference in contract balance is equal to the protocol fee amount
-        expect(contractBalanceAfter.sub(contractBalance).toString()).to.equal(
-          protocolFee.toString()
         );
       });
 
@@ -1018,26 +989,6 @@ describe("Contract: EmbalmerFacet", () => {
 
         expect(freeBondAfter).to.equal(regularArchaeologistFreeBond);
         expect(cursedBondAfter).to.equal(regularArchaeologistCursedBond);
-      });
-
-      it("should transfer digging fees to each archaeologist", async () => {
-        const {
-          sarcoToken,
-          regularArchaeologist,
-          regularArchaeologistBalance,
-        } = await successfulBuryFixture();
-
-        // Get the archaeologist sarco balance after bury
-        const sarcoBalanceAfter = await sarcoToken.balanceOf(
-          regularArchaeologist.account
-        );
-
-        // Get the archaeologist's digging fees with the archaeologist address
-
-        // Check that the difference in balances is equal to the digging fee
-        expect(sarcoBalanceAfter.sub(regularArchaeologistBalance)).to.equal(
-          regularArchaeologist.diggingFee
-        );
       });
 
       it("should transfer the bounty back to the embalmer", async () => {

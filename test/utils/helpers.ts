@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
-import { SarcoTokenMock } from "../../typechain";
+import { SarcoTokenMock, ViewStateFacet } from "../../typechain";
 import { SignatureWithAccount } from "../../types";
 
 /**
@@ -84,3 +84,29 @@ export const getArchaeologistSarcoBalances = async (
 
   return balances;
 };
+
+/**
+ * Gets a list of archaeologist sarco rewards.
+ *
+ * @param archaeologists A list of archaeologist signers
+ * @returns a list of archaeologist sarco rewards
+ */
+export const getArchaeologistSarcoRewards = async (
+  archaeologists: SignerWithAddress[],
+  viewStateFacet: ViewStateFacet
+): Promise<{ address: string; reward: BigNumber }[]> => {
+  const rewards: { address: string; reward: BigNumber }[] = [];
+  for (const arch of archaeologists) {
+    const reward = await viewStateFacet.getAvailableRewards(arch.address);
+    rewards.push({
+      address: arch.address,
+      reward: reward,
+    });
+  }
+
+  return rewards;
+};
+
+// TODO: update if calculate cursed bond algorithm changes (or possibly read this from contract instead?)
+export const calculateCursedBond = (diggingFee: BigNumber, bounty: BigNumber) =>
+  diggingFee.add(bounty);

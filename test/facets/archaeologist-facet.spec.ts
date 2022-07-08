@@ -453,7 +453,7 @@ describe("Contract: ArchaeologistFacet", () => {
         expect(cursedBondAmountAfter).to.equal(cursedBondAmountBefore);
       });
 
-      it("should add this sarcophagus to the archaeologist's successful sarcophaguses", async () => {
+      it("should add this sarcophagus to the archaeologist's successful sarcophagi", async () => {
         // Initialize the sarcophagusk
         const identifier = await initializeSarcophagus("shouldUpdateMetrics");
 
@@ -484,7 +484,7 @@ describe("Contract: ArchaeologistFacet", () => {
         expect(isSuccessfulSarcophagus).to.be.true;
       });
 
-      it("should transfer the digging fee and bounty to the archaeologist", async () => {
+      it("should transfer the digging fee and bounty to the archaeologist's reward pool without transferring tokens", async () => {
         // Initialize the sarcophagus
         const identifier = await initializeSarcophagus(
           "shouldTransferFeesToArch"
@@ -503,8 +503,12 @@ describe("Contract: ArchaeologistFacet", () => {
         const totalFees = BigNumber.from(
           archaeologistsFees[0].diggingFee + archaeologistsFees[0].bounty
         );
+
         // Get the sarco balance of the first archaeologist before unwrap
         const sarcoBalanceBefore = await sarcoToken.balanceOf(
+          archaeologists[0].address
+        );
+        const archRewardsBefore = await viewStateFacet.getAvailableRewards(
           archaeologists[0].address
         );
 
@@ -521,10 +525,18 @@ describe("Contract: ArchaeologistFacet", () => {
         const sarcoBalanceAfter = await sarcoToken.balanceOf(
           archaeologists[0].address
         );
+        const archRewardsAfter = await viewStateFacet.getAvailableRewards(
+          archaeologists[0].address
+        );
 
-        // Check that the difference between the before and after balances is
-        // equal to the total fees
-        expect(sarcoBalanceAfter.sub(sarcoBalanceBefore)).to.equal(totalFees);
+        // Check that the difference between the before and after rewards is
+        // equal to the total fees, and actual token balance is unchanged
+        expect(sarcoBalanceAfter.toString()).to.equal(
+          sarcoBalanceBefore.toString()
+        );
+        expect(archRewardsAfter.toString()).to.equal(
+          archRewardsBefore.add(totalFees).toString()
+        );
       });
 
       it("should emit an event", async () => {

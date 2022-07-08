@@ -42,7 +42,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     execute: {
       contract: "AppStorageInit",
       methodName: "init",
-      args: [sarcoTokenAddress, process.env.PROTOCOL_FEE || "5"],
+      args: [sarcoTokenAddress, process.env.PROTOCOL_FEE || "0"],
     },
     log: true,
   });
