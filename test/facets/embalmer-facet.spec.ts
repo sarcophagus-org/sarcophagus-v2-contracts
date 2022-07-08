@@ -16,7 +16,7 @@ import { successfulInitializeSarcophagusFixture } from "../fixtures/successful-i
 import { successfulRewrapFixture } from "../fixtures/successful-rewrap-fixture";
 import { sign, signMultiple } from "../utils/helpers";
 
-describe.only("Contract: EmbalmerFacet", () => {
+describe("Contract: EmbalmerFacet", () => {
   describe("initializeSarcophagus()", () => {
     context("Successful initialization", () => {
       it("should transfer fees in sarco token from the embalmer to the contract", async () => {

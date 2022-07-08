@@ -279,6 +279,12 @@ describe("Contract: ArchaeologistFacet", () => {
         [unhashedId]
       );
 
+      // Approve the embalmer on the sarco token
+      const diamond = await ethers.getContract("Diamond_DiamondProxy");
+      await sarcoToken
+        .connect(embalmer)
+        .approve(diamond.address, ethers.constants.MaxUint256);
+
       // Define archaeologist objects to be passed into the sarcophagus.
       // Since the contract doesn't care what the value of the shard is, just
       // hash the archaeologist's address. In practice we would not be hashing
@@ -317,6 +323,7 @@ describe("Contract: ArchaeologistFacet", () => {
     };
 
     const finalizeSarcophagus = async (identifier: string) => {
+      const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const signatures: SignatureWithAccount[] = [];
 
       for (const archaeologist of archaeologists) {
@@ -328,8 +335,34 @@ describe("Contract: ArchaeologistFacet", () => {
           signatures.push(
             Object.assign(signature, { account: archaeologist.address })
           );
+
+          await sarcoToken
+            .connect(archaeologist)
+            .approve(diamond.address, ethers.constants.MaxUint256);
+
+          await sarcoToken.transfer(
+            archaeologist.address,
+            BigNumber.from("10000")
+          );
+
+          await archaeologistFacet
+            .connect(archaeologist)
+            .depositFreeBond(BigNumber.from("1000"));
         }
       }
+
+      await sarcoToken
+        .connect(arweaveArchaeologist)
+        .approve(diamond.address, ethers.constants.MaxUint256);
+
+      await sarcoToken.transfer(
+        arweaveArchaeologist.address,
+        BigNumber.from("10000")
+      );
+
+      await archaeologistFacet
+        .connect(arweaveArchaeologist)
+        .depositFreeBond(BigNumber.from("1000"));
 
       const arweaveSignature = await sign(
         arweaveArchaeologist,
@@ -803,6 +836,12 @@ describe("Contract: ArchaeologistFacet", () => {
         [unhashedId]
       );
 
+      // Approve the embalmer on the sarco token
+      const diamond = await ethers.getContract("Diamond_DiamondProxy");
+      await sarcoToken
+        .connect(embalmer)
+        .approve(diamond.address, ethers.constants.MaxUint256);
+
       // Define archaeologist objects to be passed into the sarcophagus.
       // Since the contract doesn't care what the value of the shard is, just
       // hash the archaeologist's address. In practice we would not be hashing
@@ -841,6 +880,7 @@ describe("Contract: ArchaeologistFacet", () => {
     };
 
     const finalizeSarcophagus = async (identifier: string) => {
+      const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const signatures: SignatureWithAccount[] = [];
 
       for (const archaeologist of archaeologists) {
@@ -853,7 +893,33 @@ describe("Contract: ArchaeologistFacet", () => {
             Object.assign(signature, { account: archaeologist.address })
           );
         }
+
+        await sarcoToken
+          .connect(archaeologist)
+          .approve(diamond.address, ethers.constants.MaxUint256);
+
+        await sarcoToken.transfer(
+          archaeologist.address,
+          BigNumber.from("10000")
+        );
+
+        await archaeologistFacet
+          .connect(archaeologist)
+          .depositFreeBond(BigNumber.from("1000"));
       }
+
+      await sarcoToken
+        .connect(arweaveArchaeologist)
+        .approve(diamond.address, ethers.constants.MaxUint256);
+
+      await sarcoToken.transfer(
+        arweaveArchaeologist.address,
+        BigNumber.from("10000")
+      );
+
+      await archaeologistFacet
+        .connect(arweaveArchaeologist)
+        .depositFreeBond(BigNumber.from("1000"));
 
       const arweaveSignature = await sign(
         arweaveArchaeologist,
