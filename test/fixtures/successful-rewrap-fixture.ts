@@ -21,7 +21,6 @@ export const successfulRewrapFixture = deployments.createFixture(
     // Set up the archaeologists and initialize the sarcophagus
     const archaeologists = await setupArchaeologists();
     const arweaveArchaeologist = archaeologists[0];
-    const regularArchaeologist = archaeologists[1];
 
     const diamond = await ethers.getContract("Diamond_DiamondProxy");
     const sarcoToken = await ethers.getContract("SarcoTokenMock");
@@ -103,26 +102,17 @@ export const successfulRewrapFixture = deployments.createFixture(
         .depositFreeBond(BigNumber.from("1000"));
     }
 
-    // Get the balance of the arweave archaeologist
-    const arweaveArchBalance = await sarcoToken.balanceOf(
-      arweaveArchaeologist.account
+    // Calculate the sarco balances for each archaeologist
+    const sarcoBalances = await Promise.all(
+      archaeologists.map(
+        async (archaeologist) =>
+          await sarcoToken.balanceOf(archaeologist.account)
+      )
     );
 
-    const regularArchaeologistFreeBond = await viewStateFacet.getFreeBond(
-      regularArchaeologist.account
-    );
-
-    const regularArchaeologistCursedBond = await viewStateFacet.getCursedBond(
-      regularArchaeologist.account
-    );
-
-    const arweaveArchaeologistFreeBond = await viewStateFacet.getFreeBond(
-      arweaveArchaeologist.account
-    );
-
-    const arweaveArchaeologistCursedBond = await viewStateFacet.getCursedBond(
-      arweaveArchaeologist.account
-    );
+    const oldResurrectionWindow = (
+      await viewStateFacet.getSarcophagus(identifier)
+    ).resurrectionWindow;
 
     // Finalize the sarcophagus
     await embalmerFacet
@@ -134,23 +124,33 @@ export const successfulRewrapFixture = deployments.createFixture(
       Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 * 2
     );
 
+    // Get the embalmer's balance before rewrap
+    const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
+
+    // Get the total protocol fees on the contract before rewrap
+    const totalProtocolFees = await viewStateFacet.getProtocolFees();
+
+    // Get the contract's sarco balance before rewrap
+    const contractBalance = await sarcoToken.balanceOf(diamond.address);
+
     const tx: ContractTransaction = await embalmerFacet
       .connect(embalmer)
       .rewrapSarcophagus(identifier, newResurrectionTime);
 
     return {
-      identifier,
-      tx,
       viewStateFacet,
-      arweaveTxId,
+      identifier,
+      newResurrectionTime,
+      oldResurrectionWindow,
+      archaeologists,
       sarcoToken,
-      arweaveArchaeologist,
-      arweaveArchBalance,
-      regularArchaeologist,
-      regularArchaeologistFreeBond,
-      regularArchaeologistCursedBond,
-      arweaveArchaeologistFreeBond,
-      arweaveArchaeologistCursedBond,
+      sarcoBalances,
+      embalmer,
+      embalmerBalance,
+      diamond,
+      totalProtocolFees,
+      contractBalance,
+      tx,
       embalmerFacet,
     };
   }

@@ -21,7 +21,6 @@ export const failingRewrapFixture = deployments.createFixture(
     // Set up the archaeologists and initialize the sarcophagus
     const archaeologists = await setupArchaeologists();
     const arweaveArchaeologist = archaeologists[0];
-    const regularArchaeologist = archaeologists[1];
 
     const diamond = await ethers.getContract("Diamond_DiamondProxy");
     const sarcoToken = await ethers.getContract("SarcoTokenMock");
@@ -31,11 +30,6 @@ export const failingRewrapFixture = deployments.createFixture(
     );
     const archaeologistFacet = await ethers.getContractAt(
       "ArchaeologistFacet",
-      diamond.address
-    );
-
-    const viewStateFacet = await ethers.getContractAt(
-      "ViewStateFacet",
       diamond.address
     );
 
@@ -103,27 +97,6 @@ export const failingRewrapFixture = deployments.createFixture(
         .depositFreeBond(BigNumber.from("1000"));
     }
 
-    // Get the balance of the arweave archaeologist
-    const arweaveArchBalance = await sarcoToken.balanceOf(
-      arweaveArchaeologist.account
-    );
-
-    const regularArchaeologistFreeBond = await viewStateFacet.getFreeBond(
-      regularArchaeologist.account
-    );
-
-    const regularArchaeologistCursedBond = await viewStateFacet.getCursedBond(
-      regularArchaeologist.account
-    );
-
-    const arweaveArchaeologistFreeBond = await viewStateFacet.getFreeBond(
-      arweaveArchaeologist.account
-    );
-
-    const arweaveArchaeologistCursedBond = await viewStateFacet.getCursedBond(
-      arweaveArchaeologist.account
-    );
-
     // Finalize the sarcophagus
     await embalmerFacet
       .connect(embalmer)
@@ -135,18 +108,9 @@ export const failingRewrapFixture = deployments.createFixture(
     );
 
     return {
-      identifier,
-      viewStateFacet,
-      arweaveTxId,
-      sarcoToken,
-      arweaveArchaeologist,
-      arweaveArchBalance,
-      regularArchaeologist,
-      regularArchaeologistFreeBond,
-      regularArchaeologistCursedBond,
-      arweaveArchaeologistFreeBond,
-      arweaveArchaeologistCursedBond,
       embalmerFacet,
+      identifier,
+      embalmer,
       newResurrectionTime,
     };
   }

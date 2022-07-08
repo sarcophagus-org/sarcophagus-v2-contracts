@@ -1,20 +1,19 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
-import { BigNumber, Contract, ContractTransaction } from "ethers";
+import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import { FixtureArchaeologist, SarcophagusState } from "../../types";
-import { finalizeSarcohpagus } from "../fixtures/finalize-sarcophagus";
-import { successfulFinalizeSarcohpagusFixture } from "../fixtures/successful-finalize-sarcophagus-fixture";
-import { getDeployedContracts } from "../fixtures/get-deployed-contracts";
-import { initializeFailingSarcophagusFixture } from "../fixtures/initialize-failing-sarcophagus-fixture";
-import { initializeSarcophagus } from "../fixtures/initialize-sarcophagus";
-import { initializeSuccessfulSarcophagusFixture } from "../fixtures/initialize-successful-sarcophagus-fixture";
-import { coreSetup } from "../fixtures/setup";
-import { setupArweaveArchSig } from "../fixtures/setup-arweave-archaeologist-signature";
-import { sign, signMultiple } from "../utils/helpers";
 import { failingFinalizeSarcohpagusFixture } from "../fixtures/failing-finalize-sarcophagus-fixture";
+import { failingInitializeSarcophagusFixture } from "../fixtures/failing-initialize-sarcophagus-fixture";
+import { failingRewrapFixture } from "../fixtures/failing-rewrap-fixture";
+import { finalizeSarcohpagus } from "../fixtures/finalize-sarcophagus";
+import { initializeSarcophagus } from "../fixtures/initialize-sarcophagus";
+import { setupArweaveArchSig } from "../fixtures/setup-arweave-archaeologist-signature";
+import { successfulFinalizeSarcohpagusFixture } from "../fixtures/successful-finalize-sarcophagus-fixture";
+import { successfulInitializeSarcophagusFixture } from "../fixtures/successful-initialize-sarcophagus-fixture";
+import { successfulRewrapFixture } from "../fixtures/successful-rewrap-fixture";
+import { sign, signMultiple } from "../utils/helpers";
 
 describe.only("Contract: EmbalmerFacet", () => {
   describe("initializeSarcophagus()", () => {
@@ -26,7 +25,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           archaeologists,
           arweaveArchaeologist,
           embalmerBalance,
-        } = await initializeSuccessfulSarcophagusFixture();
+        } = await successfulInitializeSarcophagusFixture();
 
         const embalmerBalanceAfter = await sarcoToken.balanceOf(
           embalmer.address
@@ -49,7 +48,7 @@ describe.only("Contract: EmbalmerFacet", () => {
 
       it("should emit an event on initialize", async () => {
         const { tx, embalmerFacet } =
-          await initializeSuccessfulSarcophagusFixture();
+          await successfulInitializeSarcophagusFixture();
 
         const receipt = await tx.wait();
 
@@ -76,7 +75,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           name,
           canBeTransferred,
           minShards,
-        } = await initializeFailingSarcophagusFixture();
+        } = await failingInitializeSarcophagusFixture();
 
         // Create a sarcophagus as the embalmer
         await embalmerFacet
@@ -120,7 +119,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           name,
           canBeTransferred,
           minShards,
-        } = await initializeFailingSarcophagusFixture();
+        } = await failingInitializeSarcophagusFixture();
 
         const resurrectionTime = BigNumber.from(
           Math.floor(Date.now() / 1000) - 1
@@ -154,7 +153,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           canBeTransferred,
           minShards,
           resurrectionTime,
-        } = await initializeFailingSarcophagusFixture();
+        } = await failingInitializeSarcophagusFixture();
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -185,7 +184,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           minShards,
           resurrectionTime,
           archaeologists,
-        } = await initializeFailingSarcophagusFixture();
+        } = await failingInitializeSarcophagusFixture();
 
         const nonUniqueArchaeologists = archaeologists.slice();
         nonUniqueArchaeologists.pop();
@@ -220,7 +219,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           canBeTransferred,
           resurrectionTime,
           archaeologists,
-        } = await initializeFailingSarcophagusFixture();
+        } = await failingInitializeSarcophagusFixture();
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -252,7 +251,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           canBeTransferred,
           resurrectionTime,
           archaeologists,
-        } = await initializeFailingSarcophagusFixture();
+        } = await failingInitializeSarcophagusFixture();
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -282,7 +281,7 @@ describe.only("Contract: EmbalmerFacet", () => {
           resurrectionTime,
           archaeologists,
           minShards,
-        } = await initializeFailingSarcophagusFixture();
+        } = await failingInitializeSarcophagusFixture();
 
         const signers = await ethers.getSigners();
 
@@ -695,61 +694,10 @@ describe.only("Contract: EmbalmerFacet", () => {
   });
 
   describe("rewrapSarcophagus()", () => {
-    let identifier: string;
-    let tx: ContractTransaction;
-
-    // Finalize the sarcophagus
-    before(async () => {
-      ({ identifier } = await finalizeSarcohpagus());
-    });
-
     context("Successful rewrap", () => {
-      let newResurrectionTime: BigNumber;
-      let resurrectionWindow: BigNumber;
-      let embalmerSarcoBalance: BigNumber;
-      let diamond: Contract;
-      let contractBalance: BigNumber;
-      let totalProtocolFees: BigNumber;
-      const archaeologistSarcoBalances: BigNumber[] = [];
-
-      // Get state before rewrap
-      before(async () => {
-        for (const archaeologist of archaeologists) {
-          archaeologistSarcoBalances.push(
-            await sarcoToken.balanceOf(archaeologist.account)
-          );
-        }
-
-        embalmerSarcoBalance = await sarcoToken.balanceOf(embalmer.address);
-
-        // Get the balance of the contract before rewrap
-        ({ diamond } = await getDeployedContracts());
-        contractBalance = await sarcoToken.balanceOf(diamond.address);
-
-        totalProtocolFees = await viewStateFacet.getTotalProtocolFees();
-
-        // Save the resurrection window before
-        const sarcophagusStoredBefore = await viewStateFacet.getSarcophagus(
-          identifier
-        );
-        resurrectionWindow = sarcophagusStoredBefore.resurrectionWindow;
-      });
-
-      // Rewrap the sarcophagus successfully
-      before(async () => {
-        // Define a new resurrection time one week in the future
-        newResurrectionTime = BigNumber.from(
-          Date.now() + 60 * 60 * 24 * 7 * 1000
-        );
-
-        // Rewrap the sarcophagus
-        tx = await embalmerFacet.rewrapSarcophagus(
-          identifier,
-          newResurrectionTime
-        );
-      });
-
       it("should store the new resurrection time", async () => {
+        const { viewStateFacet, identifier, newResurrectionTime } =
+          await successfulRewrapFixture();
         const sarcophagusStored = await viewStateFacet.getSarcophagus(
           identifier
         );
@@ -760,16 +708,22 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should store the new resurrection window", async () => {
+        const { viewStateFacet, identifier, oldResurrectionWindow } =
+          await successfulRewrapFixture();
+
         const sarcophagusStoredAfter = await viewStateFacet.getSarcophagus(
           identifier
         );
 
         expect(sarcophagusStoredAfter.resurrectionWindow).to.not.equal(
-          resurrectionWindow
+          oldResurrectionWindow
         );
       });
 
       it("should transfer the digging fees to the archaeologists", async () => {
+        const { archaeologists, sarcoToken, sarcoBalances } =
+          await successfulRewrapFixture();
+
         const archaeologistBalancesAfter: BigNumber[] = [];
 
         for (const archaeologist of archaeologists) {
@@ -782,14 +736,15 @@ describe.only("Contract: EmbalmerFacet", () => {
         for (let i = 0; i < archaeologists.length; i++) {
           const diggingFee = archaeologists[i].diggingFee;
           expect(
-            archaeologistBalancesAfter[i]
-              .sub(archaeologistSarcoBalances[i])
-              .toString()
+            archaeologistBalancesAfter[i].sub(sarcoBalances[i]).toString()
           ).to.equal(diggingFee.toString());
         }
       });
 
       it("should transfer the digging fee sum plus the protocol fee from the embalmer to the contract", async () => {
+        const { archaeologists, sarcoToken, embalmer, embalmerBalance } =
+          await successfulRewrapFixture();
+
         // Get the embalmer's sarco balance after rewrap
         const embalmerSarcoBalanceAfter = await sarcoToken.balanceOf(
           embalmer.address
@@ -806,12 +761,20 @@ describe.only("Contract: EmbalmerFacet", () => {
         const expectedFees = diggingFeeSum.add(BigNumber.from(protocolFee));
 
         // Check that the difference in balances is equal to the sum of digging fees
-        expect(embalmerSarcoBalance.sub(embalmerSarcoBalanceAfter)).to.equal(
+        expect(embalmerBalance.sub(embalmerSarcoBalanceAfter)).to.equal(
           expectedFees
         );
       });
 
       it("should collect protocol fees", async () => {
+        const {
+          viewStateFacet,
+          sarcoToken,
+          diamond,
+          totalProtocolFees,
+          contractBalance,
+        } = await successfulRewrapFixture();
+
         // Get the protocol fee amount
         const protocolFee = await viewStateFacet.getProtocolFeeAmount();
 
@@ -836,6 +799,7 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should emit an event", async () => {
+        const { tx, embalmerFacet } = await successfulRewrapFixture();
         const receipt = await tx.wait();
 
         const events = receipt.events!;
@@ -850,6 +814,9 @@ describe.only("Contract: EmbalmerFacet", () => {
 
     context("Failed rewrap", () => {
       it("should revert if the sender is not embalmer", async () => {
+        const { embalmerFacet, identifier } = await failingRewrapFixture();
+
+        const signers = await ethers.getSigners();
         // Define a new resurrection time one week in the future
         const newResurrectionTime = BigNumber.from(
           Date.now() + 60 * 60 * 24 * 7 * 1000
@@ -864,14 +831,11 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the sarcophagus does not exist", async () => {
+        const { embalmerFacet, embalmer, newResurrectionTime } =
+          await failingRewrapFixture();
         const falseIdentifier = ethers.utils.solidityKeccak256(
           ["string"],
           ["falseIdentifier"]
-        );
-
-        // Define a new resurrection time one week in the future
-        const newResurrectionTime = BigNumber.from(
-          Date.now() + 60 * 60 * 24 * 7 * 1000
         );
 
         // Rewrap the sarcophagus
@@ -883,6 +847,12 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the sarcophagus is not finalized", async () => {
+        const diamond = await ethers.getContract("Diamond_DiamondProxy");
+        const embalmerFacet = await ethers.getContractAt(
+          "EmbalmerFacet",
+          diamond.address
+        );
+
         // Only initialize, skip finalize
         const identifier = await initializeSarcophagus();
 
@@ -901,6 +871,8 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the new resurrection time is not in the future", async () => {
+        const { embalmerFacet, identifier } = await failingRewrapFixture();
+
         // Define a new resurrection time not in the future
         const newResurrectionTime = BigNumber.from(
           (Date.now() / 1000).toFixed(0)
