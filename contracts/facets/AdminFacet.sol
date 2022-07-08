@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {LibDiamond} from "../diamond/libraries/LibDiamond.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract AdminFacet {
@@ -10,7 +9,7 @@ contract AdminFacet {
     /// @notice Withdraws the total protocol fee amount from the contract.
     /// @dev Can only be called by the owner.
     function withdrawProtocolFees() external {
-        LibDiamond.enforceIsContractOwner();
+        // TODO: confirm that sender is owner
 
         // Get the total protocol fees from storage
         uint256 totalProtocolFees = s.totalProtocolFees;
