@@ -57,6 +57,33 @@ export const successfulBuryFixture = deployments.createFixture(
     );
     const minShards = 2;
 
+    for (const archaeologist of archaeologists) {
+      // Transfer 10,000 sarco tokens to each archaeologist to be put into free
+      // bond
+      await sarcoToken.transfer(archaeologist.account, BigNumber.from(10_000));
+
+      // Approve the archaeologist on the sarco token so transferFrom will work
+      await sarcoToken
+        .connect(archaeologist.signer)
+        .approve(diamond.address, ethers.constants.MaxUint256);
+
+      // Deposit some free bond to the contract so initializeSarcophagus will
+      // work
+      await archaeologistFacet
+        .connect(archaeologist.signer)
+        .depositFreeBond(BigNumber.from("1000"));
+    }
+
+    // Get the regular archaeologist's free bond before bury
+    const regularArchaeologistFreeBond = await viewStateFacet.getFreeBond(
+      regularArchaeologist.account
+    );
+
+    // Get the regular archaeologist's cursed bond before bury
+    const regularArchaeologistCursedBond = await viewStateFacet.getCursedBond(
+      regularArchaeologist.account
+    );
+
     // Create a sarcophagus as the embalmer
     await embalmerFacet
       .connect(embalmer)
@@ -86,23 +113,6 @@ export const successfulBuryFixture = deployments.createFixture(
       identifier
     );
 
-    for (const archaeologist of archaeologists) {
-      // Transfer 10,000 sarco tokens to each archaeologist to be put into free
-      // bond
-      await sarcoToken.transfer(archaeologist.account, BigNumber.from(10_000));
-
-      // Approve the archaeologist on the sarco token so transferFrom will work
-      await sarcoToken
-        .connect(archaeologist.signer)
-        .approve(diamond.address, ethers.constants.MaxUint256);
-
-      // Deposit some free bond to the contract so initializeSarcophagus will
-      // work
-      await archaeologistFacet
-        .connect(archaeologist.signer)
-        .depositFreeBond(BigNumber.from("1000"));
-    }
-
     // Finalize the sarcophagus
     await embalmerFacet
       .connect(embalmer)
@@ -111,16 +121,6 @@ export const successfulBuryFixture = deployments.createFixture(
     // Get the embalmer's balance before rewrap
     const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
 
-    // Get the regular archaeologist's free bond before bury
-    const regularArchaeologistFreeBond = await viewStateFacet.getFreeBond(
-      regularArchaeologist.account
-    );
-
-    // Get the regular archaeologist's cursed bond before bury
-    const regularArchaeologistCursedBond = await viewStateFacet.getCursedBond(
-      regularArchaeologist.account
-    );
-
     // Get the sarco balance of the regular archaeologist before bury
     const regularArchaeologistBalance = await sarcoToken.balanceOf(
       regularArchaeologist.account
@@ -128,7 +128,7 @@ export const successfulBuryFixture = deployments.createFixture(
 
     const tx: ContractTransaction = await embalmerFacet
       .connect(embalmer)
-      .bury(identifier);
+      .burySarcophagus(identifier);
 
     return {
       viewStateFacet,

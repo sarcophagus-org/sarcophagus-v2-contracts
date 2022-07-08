@@ -55,6 +55,9 @@ export const successfulCancelFixture = deployments.createFixture(
     );
     const minShards = 2;
 
+    // Get sarco balance of the embalmer before initialize
+    const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
+
     // Create a sarcophagus as the embalmer
     await embalmerFacet
       .connect(embalmer)
@@ -85,9 +88,6 @@ export const successfulCancelFixture = deployments.createFixture(
         .connect(archaeologist.signer)
         .depositFreeBond(BigNumber.from("1000"));
     }
-
-    // Get sarco balance of the embalmer before cancel
-    const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
 
     const tx: ContractTransaction = await embalmerFacet
       .connect(embalmer)

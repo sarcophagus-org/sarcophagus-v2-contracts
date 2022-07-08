@@ -105,6 +105,7 @@ export const failingBuryFixture = deployments.createFixture(
     return {
       embalmerFacet,
       identifier,
+      embalmer,
     };
   }
 );

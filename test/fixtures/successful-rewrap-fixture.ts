@@ -128,7 +128,7 @@ export const successfulRewrapFixture = deployments.createFixture(
     const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
 
     // Get the total protocol fees on the contract before rewrap
-    const totalProtocolFees = await viewStateFacet.getProtocolFees();
+    const totalProtocolFees = await viewStateFacet.getTotalProtocolFees();
 
     // Get the contract's sarco balance before rewrap
     const contractBalance = await sarcoToken.balanceOf(diamond.address);
