@@ -1,9 +1,6 @@
-import { getContractFactory } from "@nomiclabs/hardhat-ethers/types";
 import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments } from "hardhat";
-import { getDeployedContracts } from "./get-deployed-contracts";
-import { getSigners } from "./get-signers";
 import { setupArchaeologists } from "./setup-archaeologists";
 
 /**

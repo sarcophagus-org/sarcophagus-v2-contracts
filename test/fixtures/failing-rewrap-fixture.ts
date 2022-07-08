@@ -1,4 +1,4 @@
-import { BigNumber, ContractTransaction } from "ethers";
+import { BigNumber } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments } from "hardhat";
 import { sign, signMultiple } from "../utils/helpers";
