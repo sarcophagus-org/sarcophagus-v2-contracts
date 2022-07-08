@@ -13,7 +13,7 @@ import {
 import { setupArchaeologists, sign } from "../utils/helpers";
 import time from "../utils/time";
 import { SignatureWithAccount } from "../../types";
-import { BytesLike } from "ethers/lib/utils";
+import { BytesLike, solidityKeccak256 } from "ethers/lib/utils";
 
 const sss = require("shamirs-secret-sharing");
 
@@ -59,35 +59,35 @@ describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
   });
 
   it("With 5 archaeologists", async () => {
-    await _runGasReports({
+    await _runGeneralGasReports({
       shares: 5,
       threshold: 4,
     });
   });
 
   it("With 10 archaeologists", async () => {
-    await _runGasReports({
+    await _runGeneralGasReports({
       shares: 10,
       threshold: 6,
     });
   });
 
   it("With 50 archaeologists", async () => {
-    await _runGasReports({
+    await _runGeneralGasReports({
       shares: 50,
       threshold: 26,
     });
   });
 
   it("With 100 archaeologists", async () => {
-    await _runGasReports({
+    await _runGeneralGasReports({
       shares: 100,
       threshold: 80,
     });
   });
 
   it("With 150 archaeologists", async () => {
-    await _runGasReports({
+    await _runGeneralGasReports({
       shares: 150,
       threshold: 100,
     });
@@ -118,132 +118,115 @@ describe.skip("Third party functions", () => {
   });
 
   context("Clean", () => {
-    it("With 5 archaeologists", async () => {
-      const { sarcoId } = await _runCreateSarcoTest({
+    it("With 5 archaeologists", async () =>
+      await _runCleanGasReporst({
         shares: 5,
         threshold: 4,
-      });
+      }));
 
-      await time.increase(time.duration.years(1));
-      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
-    });
-
-    it("With 10 archaeologists", async () => {
-      const { sarcoId } = await _runCreateSarcoTest({
+    it("With 10 archaeologists", async () =>
+      await _runCleanGasReporst({
         shares: 10,
         threshold: 6,
-      });
+      }));
 
-      await time.increase(time.duration.years(1));
-      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
-    });
-
-    it("With 50 archaeologists", async () => {
-      const { sarcoId } = await _runCreateSarcoTest({
+    it("With 50 archaeologists", async () =>
+      await _runCleanGasReporst({
         shares: 50,
         threshold: 26,
-      });
+      }));
 
-      await time.increase(time.duration.years(1));
-      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
-    });
-
-    it("With 100 archaeologists", async () => {
-      const { sarcoId } = await _runCreateSarcoTest({
+    it("With 100 archaeologists", async () =>
+      await _runCleanGasReporst({
         shares: 100,
         threshold: 80,
-      });
+      }));
 
-      await time.increase(time.duration.years(1));
-      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
-    });
-
-    it("With 150 archaeologists", async () => {
-      const { sarcoId } = await _runCreateSarcoTest({
+    it("With 150 archaeologists", async () =>
+      await _runCleanGasReporst({
         shares: 150,
         threshold: 100,
-      });
-
-      await time.increase(time.duration.years(1));
-      await thirdPartyFacet.clean(sarcoId, thirdParty.address);
-    });
+      }));
   });
 
   context("Accuse", () => {
-    it("With 5 archaeologists", async () => {
-      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+    it("With 5 archaeologists", async () =>
+      await _runAccuseGasReporst({
         shares: 5,
         threshold: 4,
-      });
+      }));
 
-      await thirdPartyFacet.accuse(
-        sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
-        thirdParty.address
-      );
-    });
-
-    it("With 10 archaeologists", async () => {
-      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+    it("With 10 archaeologists", async () =>
+      await _runAccuseGasReporst({
         shares: 10,
-        threshold: 6,
-      });
+        threshold: 13,
+      }));
 
-      await thirdPartyFacet.accuse(
-        sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
-        thirdParty.address
-      );
-    });
-
-    it("With 50 archaeologists", async () => {
-      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+    it("With 50 archaeologists", async () =>
+      await _runAccuseGasReporst({
         shares: 50,
-        threshold: 26,
-      });
+        threshold: 80,
+      }));
 
-      await thirdPartyFacet.accuse(
-        sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
-        thirdParty.address
-      );
-    });
-
-    it("With 100 archaeologists", async () => {
-      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+    it("With 100 archaeologists", async () =>
+      await _runAccuseGasReporst({
         shares: 100,
         threshold: 80,
-      });
+      }));
 
-      await thirdPartyFacet.accuse(
-        sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
-        thirdParty.address
-      );
-    });
-
-    it("With 150 archaeologists", async () => {
-      const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+    it("With 150 archaeologists", async () =>
+      await _runAccuseGasReporst({
         shares: 150,
         threshold: 100,
-      });
-
-      await thirdPartyFacet.accuse(
-        sarcoId,
-        archaeologists.map((arch) => arch.unencryptedShard),
-        thirdParty.address
-      );
-    });
+      }));
   });
 });
 
 /// //////////////////////////////////////////
 /// // HELPERS                              //
 /// //////////////////////////////////////////
-async function _runGasReports(arg: { shares: number; threshold: number }) {
+async function _runGeneralGasReports(arg: {
+  shares: number;
+  threshold: number;
+}) {
   const { sarcoId, archaeologists } = await _runCreateSarcoTest(arg);
   await _runRewrapTest(sarcoId);
   await _runUnwwrapTest(sarcoId, archaeologists);
+}
+
+async function _runCleanGasReporst(arg: { shares: number; threshold: number }) {
+  const { sarcoId } = await _runCreateSarcoTest({
+    shares: arg.shares,
+    threshold: arg.threshold,
+  });
+
+  await time.increase(time.duration.years(1));
+  await thirdPartyFacet.clean(sarcoId, thirdParty.address);
+}
+
+async function _runAccuseGasReporst(arg: {
+  shares: number;
+  threshold: number;
+}) {
+  const { sarcoId, archaeologists } = await _runCreateSarcoTest({
+    shares: arg.shares,
+    threshold: arg.threshold,
+  });
+
+  await _runAccuseTest(sarcoId, archaeologists);
+}
+
+async function _runAccuseTest(
+  sarcoId: string,
+  archaeologists: TestArchaeologist[]
+) {
+  await thirdPartyFacet.accuse(
+    sarcoId,
+    archaeologists.map((arch) =>
+      solidityKeccak256(["bytes"], [arch.unencryptedShard])
+    ),
+    thirdParty.address
+  );
 }
 
 async function _runCreateSarcoTest(arg: {
