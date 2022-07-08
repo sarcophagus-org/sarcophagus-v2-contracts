@@ -1,16 +1,16 @@
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
-import { BigNumber, ContractTransaction } from "ethers";
+import { BigNumber } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { ethers } from "hardhat";
-import { FixtureArchaeologist, SarcophagusState } from "../../types";
+import { SarcophagusState } from "../../types";
+import { failingBuryFixture } from "../fixtures/failing-bury-fixture";
 import { failingCancelFixture } from "../fixtures/failing-cancel-fixture";
 import { failingFinalizeSarcohpagusFixture } from "../fixtures/failing-finalize-sarcophagus-fixture";
 import { failingInitializeSarcophagusFixture } from "../fixtures/failing-initialize-sarcophagus-fixture";
 import { failingRewrapFixture } from "../fixtures/failing-rewrap-fixture";
-import { finalizeSarcohpagus } from "../fixtures/finalize-sarcophagus";
 import { initializeSarcophagus } from "../fixtures/initialize-sarcophagus";
-import { setupArweaveArchSig } from "../fixtures/setup-arweave-archaeologist-signature";
+import { successfulBuryFixture } from "../fixtures/successful-bury-fixture";
 import { successfulCancelFixture } from "../fixtures/successful-cancel-fixture";
 import { successfulFinalizeSarcohpagusFixture } from "../fixtures/successful-finalize-sarcophagus-fixture";
 import { successfulInitializeSarcophagusFixture } from "../fixtures/successful-initialize-sarcophagus-fixture";
@@ -978,42 +978,9 @@ describe.only("Contract: EmbalmerFacet", () => {
   });
 
   describe("burySarcophagus()", () => {
-    let tx: ContractTransaction;
-    let identifier: string;
-    let randomArchaeologist: FixtureArchaeologist;
-    let randomArchaeologistBalance: BigNumber;
-    let randomArchaeologistFreeBond: BigNumber;
-    let randomArchaeologistCursedBond: BigNumber;
-    let embalmerBalance: BigNumber;
-
-    // Finalize the sarcophagus
-    before(async () => {
-      ({ identifier } = await finalizeSarcohpagus());
-    });
-
     context("Successful bury", () => {
-      // Get balances before bury
-      before(async () => {
-        randomArchaeologist = archaeologists[1];
-        randomArchaeologistBalance = await sarcoToken.balanceOf(
-          randomArchaeologist.account
-        );
-
-        randomArchaeologistFreeBond = await viewStateFacet.getFreeBond(
-          randomArchaeologist.account
-        );
-        randomArchaeologistCursedBond = await viewStateFacet.getCursedBond(
-          randomArchaeologist.account
-        );
-        embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
-      });
-
-      // Bury the sarcophagus
-      before(async () => {
-        await embalmerFacet.connect(embalmer).burySarcophagus(identifier);
-      });
-
       it("should set resurrection time to inifinity", async () => {
+        const { viewStateFacet, identifier } = await successfulBuryFixture();
         const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
 
         expect(sarcophagus.resurrectionTime).to.equal(
@@ -1022,39 +989,57 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should set the sarcophagus state to done", async () => {
+        const { viewStateFacet, identifier } = await successfulBuryFixture();
+
         const sarcophagus = await viewStateFacet.getSarcophagus(identifier);
 
         expect(sarcophagus.state).to.equal(SarcophagusState.Done);
       });
 
       it("should free an archaeologist's bond", async () => {
+        const {
+          viewStateFacet,
+          regularArchaeologist,
+          regularArchaeologistFreeBond,
+          regularArchaeologistCursedBond,
+        } = await successfulBuryFixture();
+
         // Get the free and cursed bond after bury
         const freeBondAfter = await viewStateFacet.getFreeBond(
-          randomArchaeologist.account
+          regularArchaeologist.account
         );
         const cursedBondAfter = await viewStateFacet.getCursedBond(
-          randomArchaeologist.account
+          regularArchaeologist.account
         );
 
-        expect(freeBondAfter).to.equal(randomArchaeologistFreeBond);
-        expect(cursedBondAfter).to.equal(randomArchaeologistCursedBond);
+        expect(freeBondAfter).to.equal(regularArchaeologistFreeBond);
+        expect(cursedBondAfter).to.equal(regularArchaeologistCursedBond);
       });
 
       it("should transfer digging fees to each archaeologist", async () => {
+        const {
+          sarcoToken,
+          regularArchaeologist,
+          regularArchaeologistBalance,
+        } = await successfulBuryFixture();
+
         // Get the archaeologist sarco balance after bury
         const sarcoBalanceAfter = await sarcoToken.balanceOf(
-          randomArchaeologist.account
+          regularArchaeologist.account
         );
 
         // Get the archaeologist's digging fees with the archaeologist address
 
         // Check that the difference in balances is equal to the digging fee
-        expect(sarcoBalanceAfter.sub(randomArchaeologistBalance)).to.equal(
-          randomArchaeologist.diggingFee
+        expect(sarcoBalanceAfter.sub(regularArchaeologistBalance)).to.equal(
+          regularArchaeologist.diggingFee
         );
       });
 
       it("should transfer the bounty back to the embalmer", async () => {
+        const { sarcoToken, embalmer, archaeologists, embalmerBalance } =
+          await successfulBuryFixture();
+
         // Get the archaeologist sarco balance after bury
         const sarcoBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
 
@@ -1069,6 +1054,8 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should emit an event", async () => {
+        const { tx, embalmerFacet } = await successfulBuryFixture();
+
         const receipt = await tx.wait();
 
         const events = receipt.events!;
@@ -1083,12 +1070,23 @@ describe.only("Contract: EmbalmerFacet", () => {
 
     context("Failed bury", () => {
       it("should revert if sender is not the embalmer", async () => {
-        await embalmerFacet.connect(signers[9]).burySarcophagus(identifier);
+        const { embalmerFacet, identifier } = await failingBuryFixture();
+        const signers = await ethers.getSigners();
+
+        const tx = embalmerFacet
+          .connect(signers[9])
+          .burySarcophagus(identifier);
 
         await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
       });
 
       it("should revert if the sarcophagus does not exist", async () => {
+        const diamond = await ethers.getContract("Diamond_DiamondProxy");
+        const embalmerFacet = await ethers.getContractAt(
+          "EmbalmerFacet",
+          diamond.address
+        );
+
         const falseIdentifier = ethers.utils.solidityKeccak256(
           ["string"],
           ["falseIdentifier"]
@@ -1100,6 +1098,12 @@ describe.only("Contract: EmbalmerFacet", () => {
       });
 
       it("should revert if the sarcophagus is not finalized", async () => {
+        const diamond = await ethers.getContract("Diamond_DiamondProxy");
+        const embalmerFacet = await ethers.getContractAt(
+          "EmbalmerFacet",
+          diamond.address
+        );
+
         // Initialize a sarcophagus
         const identifier = await initializeSarcophagus();
 
