@@ -30,10 +30,10 @@ struct AppStorage {
     mapping(address => bytes32[]) embalmerSarcophagi;
     mapping(address => bytes32[]) archaeologistSarcophagi;
     mapping(address => bytes32[]) recipientSarcophagi;
-    // Mapping of unencrypted shard hashes to archaeologists who are
+    // Mapping of unencrypted shard double hashes to archaeologists who are
     // responsible for them. Needed to optimise Accuse algo - unencrypted shard is
-    // hashed and used as a constant O(1) lookup here
-    mapping(bytes32 => address) hashedShardArchaeologists;
+    // double hashed and used as a constant O(1) lookup here
+    mapping(bytes32 => address) doubleHashedShardArchaeologists;
     // A mapping used to store an archaeologist's data on a sarcophagus.
     // Bounty, digging fees, storage fees, and the hashed shards of the
     // archaeologists all need to be stored per sarcophagus. This mapping of a
