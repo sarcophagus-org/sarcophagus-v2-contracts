@@ -213,13 +213,6 @@ async function _runAccuseGasReporst(arg: {
     threshold: arg.threshold,
   });
 
-  await _runAccuseTest(sarcoId, archaeologists);
-}
-
-async function _runAccuseTest(
-  sarcoId: string,
-  archaeologists: TestArchaeologist[]
-) {
   await thirdPartyFacet.accuse(
     sarcoId,
     archaeologists.map((arch) =>
