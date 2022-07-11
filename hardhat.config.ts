@@ -3,9 +3,11 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import "hardhat-deploy";
 import "@nomiclabs/hardhat-solhint";
 import "hardhat-contract-sizer";
 
@@ -26,9 +28,21 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 const config: HardhatUserConfig = {
   solidity: "0.8.13",
+  namedAccounts: {
+    deployer: {
+      default: 0,
+      mainnet: `privatekey://${process.env.MAINNET_DEPLOYER_PRIVATE_KEY}`,
+      goerli: `privatekey://${process.env.GOERLI_DEPLOYER_PRIVATE_KEY}`,
+    },
+  },
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    goerli: {
+      url: process.env.GOERLI_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },

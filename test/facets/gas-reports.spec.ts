@@ -2,18 +2,17 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, ContractTransaction, Signature } from "ethers";
-import { ethers } from "hardhat";
-import { deployDiamond } from "../../scripts/deploy-diamond";
+import { deployments, ethers } from "hardhat";
 import {
   ArchaeologistFacet,
   EmbalmerFacet,
-  SarcoTokenMock,
   ThirdPartyFacet,
 } from "../../typechain";
-import { setupArchaeologists, sign } from "../utils/helpers";
+import { sign } from "../utils/helpers";
 import time from "../utils/time";
 import { SignatureWithAccount } from "../../types";
 import { BytesLike, solidityKeccak256 } from "ethers/lib/utils";
+import { setupArchaeologists } from "../fixtures/setup-archaeologists";
 
 const sss = require("shamirs-secret-sharing");
 
@@ -25,7 +24,6 @@ let recipient: SignerWithAddress;
 let thirdParty: SignerWithAddress;
 let arweaveArchaeologist: SignerWithAddress;
 let diamondAddress: string;
-let sarcoToken: SarcoTokenMock;
 let signers: SignerWithAddress[];
 
 interface TestArchaeologist {
@@ -43,7 +41,8 @@ interface TestArchaeologist {
 describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
   // Set up the signers for the tests
   beforeEach(async () => {
-    ({ diamondAddress, sarcoToken } = await deployDiamond());
+    await deployments.fixture();
+    diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
     signers = await ethers.getSigners();
 
     // Set some roles to be used in the tests
@@ -97,7 +96,8 @@ describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
 describe.skip("Third party functions", () => {
   // Set up the signers for the tests
   beforeEach(async () => {
-    ({ diamondAddress, sarcoToken } = await deployDiamond());
+    await deployments.fixture();
+    diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
     signers = await ethers.getSigners();
 
     // Set some roles to be used in the tests
@@ -252,13 +252,7 @@ async function _runCreateSarcoTest(arg: {
     sarcoId
   );
 
-  await setupArchaeologists(
-    archaeologistFacet,
-    archaeologists.map((a) => a.signer),
-    diamondAddress,
-    embalmer,
-    sarcoToken
-  );
+  await setupArchaeologists();
 
   // Choose arweave archaeologist.
   arweaveArchaeologist = archaeologists[0].signer;

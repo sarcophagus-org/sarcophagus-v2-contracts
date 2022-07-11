@@ -4,7 +4,6 @@ pragma solidity ^0.8.13;
 import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
-import {LibDiamond} from "../diamond/libraries/LibDiamond.sol";
 
 /**
  * @title Utility functions used within the Sarcophagus system
