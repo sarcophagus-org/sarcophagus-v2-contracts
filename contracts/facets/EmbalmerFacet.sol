@@ -21,7 +21,8 @@ contract EmbalmerFacet {
         address embalmer,
         address recipientAddress,
         address arweaveArchaeologist,
-        address[] archaeologists
+        address[] archaeologists,
+        uint256 totalFees
     );
 
     event FinalizeSarcophagus(bytes32 indexed sarcoId, string arweaveTxId);
@@ -219,7 +220,8 @@ contract EmbalmerFacet {
             msg.sender,
             recipient,
             arweaveArchaeologist,
-            archaeologistsToBond
+            archaeologistsToBond,
+            totalFees
         );
 
         // Return the index of the sarcophagus
