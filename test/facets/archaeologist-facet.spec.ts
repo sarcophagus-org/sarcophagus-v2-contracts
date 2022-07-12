@@ -3,11 +3,11 @@ import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { toUtf8String } from "ethers/lib/utils";
-import { ethers } from "hardhat";
-import { deployDiamond } from "../../scripts/deploy-diamond";
+import { deployments, ethers } from "hardhat";
 import { ArchaeologistFacet, EmbalmerFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
 import { SignatureWithAccount } from "../../types";
-import { increaseNextBlockTimestamp, setupArchaeologists, sign } from "../utils/helpers";
+import { setupArchaeologists } from "../fixtures/setup-archaeologists";
+import { increaseNextBlockTimestamp, sign } from "../utils/helpers";
 
 describe("Contract: ArchaeologistFacet", () => {
   let archaeologistFacet: ArchaeologistFacet;
@@ -24,7 +24,9 @@ describe("Contract: ArchaeologistFacet", () => {
 
     archaeologist = signers[0];
 
-    ({ diamondAddress, sarcoToken } = await deployDiamond());
+    await deployments.fixture();
+    sarcoToken = await ethers.getContract("SarcoTokenMock");
+    diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
     // Approve the archaeologist on the sarco token so transferFrom will work
     await sarcoToken.connect(archaeologist).approve(diamondAddress, ethers.constants.MaxUint256);
@@ -204,7 +206,10 @@ describe("Contract: ArchaeologistFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      ({ diamondAddress, sarcoToken } = await deployDiamond());
+      await deployments.fixture();
+
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
       embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
 
@@ -213,13 +218,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
       viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamondAddress);
 
-      await setupArchaeologists(
-        archaeologistFacet,
-        archaeologists,
-        diamondAddress,
-        embalmer,
-        sarcoToken
-      );
+      await setupArchaeologists();
 
       // arweaveSignature = await sign(arweaveArchaeologist, arweaveTxId, "string");
     });
@@ -227,6 +226,10 @@ describe("Contract: ArchaeologistFacet", () => {
     const initializeSarcophagus = async (unhashedId: string): Promise<string> => {
       const name = "New Sarcophagus";
       const identifier = ethers.utils.solidityKeccak256(["string"], [unhashedId]);
+
+      // Approve the embalmer on the sarco token
+      const diamond = await ethers.getContract("Diamond_DiamondProxy");
+      await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
       // Define archaeologist objects to be passed into the sarcophagus.
       // Since the contract doesn't care what the value of the shard is, just
@@ -265,6 +268,7 @@ describe("Contract: ArchaeologistFacet", () => {
     };
 
     const finalizeSarcophagus = async (identifier: string) => {
+      const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const signatures: SignatureWithAccount[] = [];
 
       for (const archaeologist of archaeologists) {
@@ -274,8 +278,26 @@ describe("Contract: ArchaeologistFacet", () => {
           const signature = await sign(archaeologist, identifier, "bytes32");
 
           signatures.push(Object.assign(signature, { account: archaeologist.address }));
+
+          await sarcoToken
+            .connect(archaeologist)
+            .approve(diamond.address, ethers.constants.MaxUint256);
+
+          await sarcoToken.transfer(archaeologist.address, BigNumber.from("10000"));
+
+          await archaeologistFacet.connect(archaeologist).depositFreeBond(BigNumber.from("1000"));
         }
       }
+
+      await sarcoToken
+        .connect(arweaveArchaeologist)
+        .approve(diamond.address, ethers.constants.MaxUint256);
+
+      await sarcoToken.transfer(arweaveArchaeologist.address, BigNumber.from("10000"));
+
+      await archaeologistFacet
+        .connect(arweaveArchaeologist)
+        .depositFreeBond(BigNumber.from("1000"));
 
       const arweaveSignature = await sign(arweaveArchaeologist, arweaveTxId, "string");
 
@@ -672,7 +694,10 @@ describe("Contract: ArchaeologistFacet", () => {
 
     // Deploy the contracts
     before(async () => {
-      ({ diamondAddress, sarcoToken } = await deployDiamond());
+      await deployments.fixture();
+
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
       embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
 
@@ -681,13 +706,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
       viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamondAddress);
 
-      await setupArchaeologists(
-        archaeologistFacet,
-        archaeologists,
-        diamondAddress,
-        embalmer,
-        sarcoToken
-      );
+      await setupArchaeologists();
 
       // arweaveSignature = await sign(arweaveArchaeologist, arweaveTxId, "string");
     });
@@ -706,6 +725,10 @@ describe("Contract: ArchaeologistFacet", () => {
     const initializeSarcophagus = async (unhashedId: string): Promise<string> => {
       const name = "New Sarcophagus";
       const identifier = ethers.utils.solidityKeccak256(["string"], [unhashedId]);
+
+      // Approve the embalmer on the sarco token
+      const diamond = await ethers.getContract("Diamond_DiamondProxy");
+      await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
       // Define archaeologist objects to be passed into the sarcophagus.
       // Since the contract doesn't care what the value of the shard is, just
@@ -744,6 +767,7 @@ describe("Contract: ArchaeologistFacet", () => {
     };
 
     const finalizeSarcophagus = async (identifier: string) => {
+      const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const signatures: SignatureWithAccount[] = [];
 
       for (const archaeologist of archaeologists) {
@@ -754,7 +778,25 @@ describe("Contract: ArchaeologistFacet", () => {
 
           signatures.push(Object.assign(signature, { account: archaeologist.address }));
         }
+
+        await sarcoToken
+          .connect(archaeologist)
+          .approve(diamond.address, ethers.constants.MaxUint256);
+
+        await sarcoToken.transfer(archaeologist.address, BigNumber.from("10000"));
+
+        await archaeologistFacet.connect(archaeologist).depositFreeBond(BigNumber.from("1000"));
       }
+
+      await sarcoToken
+        .connect(arweaveArchaeologist)
+        .approve(diamond.address, ethers.constants.MaxUint256);
+
+      await sarcoToken.transfer(arweaveArchaeologist.address, BigNumber.from("10000"));
+
+      await archaeologistFacet
+        .connect(arweaveArchaeologist)
+        .depositFreeBond(BigNumber.from("1000"));
 
       const arweaveSignature = await sign(arweaveArchaeologist, arweaveTxId, "string");
 
@@ -806,7 +848,7 @@ describe("Contract: ArchaeologistFacet", () => {
           identifier,
           newArchaeologist.address
         );
-        expect(newArchaeologistData.hashedShard).to.not.equal(ethers.constants.HashZero);
+        expect(newArchaeologistData.doubleHashedShard).to.not.equal(ethers.constants.HashZero);
 
         // Check that the old archaeologist's values are reset to default values
         const oldArchaeologistData = await viewStateFacet.getSarcophagusArchaeologist(
@@ -814,7 +856,7 @@ describe("Contract: ArchaeologistFacet", () => {
           oldArchaeologist.address
         );
 
-        expect(oldArchaeologistData.hashedShard).to.equal(ethers.constants.HashZero);
+        expect(oldArchaeologistData.doubleHashedShard).to.equal(ethers.constants.HashZero);
         expect(oldArchaeologistData.diggingFee).to.equal("0");
         expect(oldArchaeologistData.bounty).to.equal("0");
       });

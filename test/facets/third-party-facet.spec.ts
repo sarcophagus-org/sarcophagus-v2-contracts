@@ -2,8 +2,7 @@ import "@nomiclabs/hardhat-waffle";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { BigNumber, BigNumberish } from "ethers";
-import { ethers } from "hardhat";
-import { deployDiamond } from "../../scripts/deploy-diamond";
+import { ethers, deployments } from "hardhat";
 import {
   ThirdPartyFacet,
   SarcoTokenMock,
@@ -174,7 +173,9 @@ describe("Contract: ThirdPartyFacet", () => {
     receiverAddress = signers[6];
     unaccusedArchaeologist = signers[7];
 
-    ({ diamondAddress, sarcoToken } = await deployDiamond());
+    await deployments.fixture();
+    sarcoToken = await ethers.getContract("SarcoTokenMock");
+    diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
     await _distributeTokens();
 

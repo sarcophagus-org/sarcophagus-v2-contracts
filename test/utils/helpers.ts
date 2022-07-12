@@ -1,7 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
-import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
+import { SarcoTokenMock, ViewStateFacet } from "../../typechain";
+import { SignatureWithAccount } from "../../types";
 
 /**
  * Signs a message as any EVM compatible type and returns the signature and the
@@ -26,6 +27,30 @@ export async function sign(
 }
 
 /**
+ * Signs a message given an array of signers and a single message
+ *
+ * @param signers An array of signers
+ * @param message The message
+ * @returns The signatures with the accounts that signed them
+ */
+export async function signMultiple(
+  signers: SignerWithAddress[],
+  message: string
+): Promise<SignatureWithAccount[]> {
+  const signatures: SignatureWithAccount[] = [];
+
+  for (const signer of signers) {
+    // Sign a message and add to signatures. Only sign if the archaeologist
+    // is not the arweave archaeologist
+    const signature = await sign(signer, message, "bytes32");
+
+    signatures.push(Object.assign(signature, { account: signer.address }));
+  }
+
+  return signatures;
+}
+
+/**
  * Increase the timestamp of the next block by a given number of seconds.
  *
  * @param sec The number of seconds to increase the next block by
@@ -34,41 +59,6 @@ export const increaseNextBlockTimestamp = async (sec: number): Promise<void> => 
   await ethers.provider.send("evm_setNextBlockTimestamp", [
     (await ethers.provider.getBlock("latest")).timestamp + sec,
   ]);
-};
-
-/**
- * Sets up the archaeologists for the tests
- *
- * @param archaeologistFacet The archaeologist facet
- * @param archaeologists The list of archaeologists
- * @param diamondAddress The address of the diamond
- * @param embalmer The embalmer
- * @param sarcoToken The sarco token
- */
-export const setupArchaeologists = async (
-  archaeologistFacet: ArchaeologistFacet,
-  archaeologists: SignerWithAddress[],
-  diamondAddress: string,
-  embalmer: SignerWithAddress,
-  sarcoToken: SarcoTokenMock
-): Promise<void> => {
-  // Approve the embalmer on the sarco token so transferFrom will work
-  await sarcoToken.connect(embalmer).approve(diamondAddress, ethers.constants.MaxUint256);
-
-  for (const archaeologist of archaeologists) {
-    // Transfer 10,000 sarco tokens to each archaeologist to be put into free
-    // bond
-    await sarcoToken.transfer(archaeologist.address, ethers.utils.parseEther("10000"));
-
-    // Approve the archaeologist on the sarco token so transferFrom will work
-    await sarcoToken.connect(archaeologist).approve(diamondAddress, ethers.constants.MaxUint256);
-
-    // Deposit some free bond to the contract so initializeSarcophagus will
-    // work
-    await archaeologistFacet
-      .connect(archaeologist)
-      .depositFreeBond(ethers.utils.parseEther("5000"));
-  }
 };
 
 /**

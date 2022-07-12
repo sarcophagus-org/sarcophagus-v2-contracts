@@ -13,9 +13,12 @@
   "include": [
     "./scripts",
     "./test",
-    "./typechain"
+    "./typechain",
+    "./deploy",
+    "./types"
   ],
   "files": [
-    "./hardhat.config.ts"
+    "./hardhat.config.ts",
+    "./test/fixtures/DeployedContracts.ts"
   ],
 }
