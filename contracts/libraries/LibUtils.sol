@@ -261,11 +261,11 @@ library LibUtils {
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // If the hashedShard on an archaeologist is 0 (which is its default
-        // value), then the archaeologist doesn't exist on the sarcophagus
+        // If the doubleHashedShard on an archaeologist is 0 (which is its default value),
+        // then the archaeologist doesn't exist on the sarcophagus
         return
-            s.sarcophagusArchaeologists[sarcoId][archaeologist].hashedShard !=
-            0;
+            s.sarcophagusArchaeologists[sarcoId][archaeologist]
+                .doubleHashedShard != 0;
     }
 
     /// @notice Gets an archaeologist given the sarcophagus identifier and the

@@ -1006,7 +1006,7 @@ describe("Contract: ArchaeologistFacet", () => {
             identifier,
             newArchaeologist.address
           );
-        expect(newArchaeologistData.hashedShard).to.not.equal(
+        expect(newArchaeologistData.doubleHashedShard).to.not.equal(
           ethers.constants.HashZero
         );
 
@@ -1017,7 +1017,7 @@ describe("Contract: ArchaeologistFacet", () => {
             oldArchaeologist.address
           );
 
-        expect(oldArchaeologistData.hashedShard).to.equal(
+        expect(oldArchaeologistData.doubleHashedShard).to.equal(
           ethers.constants.HashZero
         );
         expect(oldArchaeologistData.diggingFee).to.equal("0");
