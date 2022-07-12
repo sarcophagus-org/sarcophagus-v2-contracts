@@ -699,6 +699,9 @@ describe("Contract: ArchaeologistFacet", () => {
       sarcoToken = await ethers.getContract("SarcoTokenMock");
       diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
+
       embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
 
       // Get the archaeologistFacet so we can add some free bond for the archaeologists
@@ -848,6 +851,7 @@ describe("Contract: ArchaeologistFacet", () => {
           identifier,
           newArchaeologist.address
         );
+        expect(newArchaeologistData.doubleHashedShard).to.not.equal(ethers.constants.HashZero);
         expect(newArchaeologistData.hashedShard).to.not.equal(ethers.constants.HashZero);
 
         // Check that the old archaeologist's values are reset to default values
@@ -855,6 +859,8 @@ describe("Contract: ArchaeologistFacet", () => {
           identifier,
           oldArchaeologist.address
         );
+
+        expect(oldArchaeologistData.doubleHashedShard).to.equal(ethers.constants.HashZero);
 
         expect(oldArchaeologistData.hashedShard).to.equal(ethers.constants.HashZero);
         expect(oldArchaeologistData.diggingFee).to.equal("0");

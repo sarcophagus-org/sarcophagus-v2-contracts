@@ -21,7 +21,8 @@ contract EmbalmerFacet {
         address embalmer,
         address recipientAddress,
         address arweaveArchaeologist,
-        address[] archaeologists
+        address[] archaeologists,
+        uint256 totalFees
     );
 
     event FinalizeSarcophagus(bytes32 indexed sarcoId, string arweaveTxId);
@@ -138,17 +139,20 @@ contract EmbalmerFacet {
             }
 
             // Define an archaeologist storage object to be stored on the sarcophagus.
+            bytes32 doubleHashedShard = keccak256(
+                abi.encode(archaeologists[i].hashedShard)
+            );
             LibTypes.ArchaeologistStorage memory archaeologistStorage = LibTypes
                 .ArchaeologistStorage({
                     diggingFee: archaeologists[i].diggingFee,
                     bounty: archaeologists[i].bounty,
-                    hashedShard: archaeologists[i].hashedShard,
+                    doubleHashedShard: doubleHashedShard,
                     unencryptedShard: ""
                 });
 
             // Map the hashed shared to this archaeologist's address for easier referencing on accuse
-            s.hashedShardArchaeologists[
-                archaeologists[i].hashedShard
+            s.doubleHashedShardArchaeologists[
+                doubleHashedShard
             ] = archaeologists[i].archAddress;
 
             // Stores each archaeologist's bounty, digging fees, and unencrypted
@@ -216,7 +220,8 @@ contract EmbalmerFacet {
             msg.sender,
             recipient,
             arweaveArchaeologist,
-            archaeologistsToBond
+            archaeologistsToBond,
+            totalFees
         );
 
         // Return the index of the sarcophagus

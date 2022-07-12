@@ -73,6 +73,6 @@ library LibErrors {
 
     error UnencryptedShardHashMismatch(
         bytes unencryptedShard,
-        bytes32 hashedShard
+        bytes32 doubleHashedShard
     );
 }

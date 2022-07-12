@@ -107,12 +107,12 @@ contract ThirdPartyFacet {
      * a successful accusal.
      * of the cursed bonds of the archs back to them, and un-curses their bonds.
      * @param sarcoId The identifier of the sarcophagus having leaked shards
-     * @param unencryptedShards At least 'm' unencrypted shards as proof of bad behaviour
+     * @param unencryptedShardHashes At least 'm' unencrypted shard hashes as proof of bad behaviour
      * @param paymentAddress the address to which rewards should be sent if successful
      */
     function accuse(
         bytes32 sarcoId,
-        bytes[] memory unencryptedShards,
+        bytes32[] memory unencryptedShardHashes,
         address paymentAddress
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
@@ -125,29 +125,33 @@ contract ThirdPartyFacet {
             revert LibErrors.SarcophagusIsUnwrappable();
         }
 
-        if (unencryptedShards.length < sarco.minShards) {
+        if (unencryptedShardHashes.length < sarco.minShards) {
             revert LibErrors.NotEnoughProof();
         }
 
         address[] memory accusedArchAddresses = new address[](
-            unencryptedShards.length
+            unencryptedShardHashes.length
         );
 
-        // For each provided shard, check if its hash matches one on storage. If so, flag that
+        // For each provided shard hash, check if its hash matches one on storage. If so, flag that
         // archaeologist as accusable
         uint256 diggingFeesToBeDistributed = 0;
         uint256 bountyToBeDistributed = 0;
         uint256 totalCursedBond = 0;
         uint256 pos = 0;
-        for (uint256 i = 0; i < unencryptedShards.length; i++) {
-            bytes32 shardHash = _hashHelper(unencryptedShards[i]);
+        for (uint256 i = 0; i < unencryptedShardHashes.length; i++) {
+            bytes32 shardDoubleHash = keccak256(
+                abi.encode(unencryptedShardHashes[i])
+            );
 
-            address matchingArchAddr = s.hashedShardArchaeologists[shardHash];
+            address matchingArchAddr = s.doubleHashedShardArchaeologists[
+                shardDoubleHash
+            ];
 
             LibTypes.ArchaeologistStorage storage badArch = s
                 .sarcophagusArchaeologists[sarcoId][matchingArchAddr];
 
-            if (badArch.hashedShard == shardHash) {
+            if (badArch.doubleHashedShard == shardDoubleHash) {
                 accusedArchAddresses[pos++] = matchingArchAddr;
 
                 uint256 cursedBond = LibBonds.calculateCursedBond(

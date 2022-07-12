@@ -22,11 +22,10 @@ export const successfulInitializeFixture = deployments.createFixture(
     const sarcoToken = await ethers.getContract("SarcoTokenMock");
     const embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamond.address);
 
-    // Transfer 10,000 sarco tokens to each archaeologist to be put into free
-    // bond
+    // Transfer 10,000 sarco tokens to embalmer
     await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
 
-    // Approve the archaeologist on the sarco token so transferFrom will work
+    // Approve the embalmer on the sarco token so transferFrom will work
     await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
     // Set up the data for the sarcophagus
