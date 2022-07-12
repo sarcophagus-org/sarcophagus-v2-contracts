@@ -12,11 +12,10 @@ module.exports = {
     "node"
   ],
   extends: [
-    "standard",
+    // "standard",
     "plugin:prettier/recommended",
     "plugin:node/recommended",
-    "plugin:import/recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
+    // "plugin:import/recommended",
     "plugin:@typescript-eslint/recommended",
   ],
   parser: "@typescript-eslint/parser",
@@ -28,8 +27,9 @@ module.exports = {
       "error",
       { ignores: ["modules"] }
     ],
+    "node/no-unpublished-require": 0,
+    "node/no-unpublished-import": 0,
     "comma-dangle": "off",
-    indent: "off",
     "@typescript-eslint/indent": "off",
     // prettier config
     "prettier/prettier": [

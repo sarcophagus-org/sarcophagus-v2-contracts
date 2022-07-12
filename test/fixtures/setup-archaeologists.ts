@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 import { ethers, getUnnamedAccounts } from "hardhat";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const setupArchaeologists = async () => {
   const unnamedAccounts = await getUnnamedAccounts();
 
