@@ -63,9 +63,12 @@ module.exports = {
   settings: {
     // resolves imports without file extensions for listed extensions
     "import/resolver": {
-      typescript: {},
+      typescript: {
+        extensions: [".js", ".ts", ".d.ts"],
+
+      },
       node: {
-        extensions: [".ts", ".d.ts"],
+        extensions: [".js", ".ts", ".d.ts"],
       },
     },
     node: {

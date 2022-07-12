@@ -24,31 +24,21 @@ export const failingBuryFixture = deployments.createFixture(
 
     const diamond = await ethers.getContract("Diamond_DiamondProxy");
     const sarcoToken = await ethers.getContract("SarcoTokenMock");
-    const embalmerFacet = await ethers.getContractAt(
-      "EmbalmerFacet",
-      diamond.address
-    );
-    const archaeologistFacet = await ethers.getContractAt(
-      "ArchaeologistFacet",
-      diamond.address
-    );
+    const embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamond.address);
+    const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
 
     // Transfer 10,000 sarco tokens to the embalmer to be put into free bond
     await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
 
     // Approve the embalmer on the sarco token so transferFrom will work
-    await sarcoToken
-      .connect(embalmer)
-      .approve(diamond.address, ethers.constants.MaxUint256);
+    await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
     // Set up the data for the sarcophagus
     const name = "Test Sarcophagus";
     const identifier = solidityKeccak256(["string"], ["unhashedIdentifier"]);
     const canBeTransferred = true;
     // 1 week
-    const resurrectionTime = BigNumber.from(
-      Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
-    );
+    const resurrectionTime = BigNumber.from(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7);
     const minShards = 2;
 
     // Create a sarcophagus as the embalmer
@@ -66,17 +56,11 @@ export const failingBuryFixture = deployments.createFixture(
       );
 
     const arweaveTxId = "arweaveTxId";
-    const arweaveArchSig = await sign(
-      arweaveArchaeologist.signer,
-      arweaveTxId,
-      "string"
-    );
+    const arweaveArchSig = await sign(arweaveArchaeologist.signer, arweaveTxId, "string");
 
     // Get signatures of the identifier from each archaeologist
     const signatures = await signMultiple(
-      archaeologists
-        .filter((x) => x.account !== arweaveArchaeologist.account)
-        .map((x) => x.signer),
+      archaeologists.filter(x => x.account !== arweaveArchaeologist.account).map(x => x.signer),
       identifier
     );
 
