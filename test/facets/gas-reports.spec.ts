@@ -179,7 +179,7 @@ async function _runCreateSarcoTest(arg: { shares: number; threshold: number }) {
   finTx.wait();
 
   // check shard lengths
-  expect(shards[0].length).to.eq(shards[1].length).to.eq(1058);
+  expect(shards[0].length).to.eq(shards[1].length).to.eq(146);
 
   // check hashed shard lengths
   expect(archaeologists[0].hashedShard.length)
