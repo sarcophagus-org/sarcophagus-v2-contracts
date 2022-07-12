@@ -52,10 +52,10 @@ export const initializeSarcoFixture = (
         diamond.address
       );
 
-      // Transfer 10,000 sarco tokens to each embalmer
+      // Transfer 100,000 sarco tokens to each embalmer
       await sarcoToken.transfer(
         embalmer.address,
-        ethers.utils.parseEther("10000")
+        ethers.utils.parseEther("100000")
       );
 
       // Approve the embalmer on the sarco token

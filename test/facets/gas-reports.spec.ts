@@ -91,13 +91,13 @@ describe.skip("Third party functions", () => {
     it("With 10 archaeologists", async () =>
       await _runAccuseGasReports({
         shares: 10,
-        threshold: 13,
+        threshold: 5,
       }));
 
     it("With 50 archaeologists", async () =>
       await _runAccuseGasReports({
         shares: 50,
-        threshold: 80,
+        threshold: 40,
       }));
 
     it("With 100 archaeologists", async () =>
