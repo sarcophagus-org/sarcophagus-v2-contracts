@@ -59,14 +59,10 @@ export async function spawnArchaologistsWithSignatures(
     // bond, and approve spending
     await sarcoToken.transfer(acc.address, ethers.utils.parseEther("10000"));
 
-    await sarcoToken
-      .connect(acc)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
+    await sarcoToken.connect(acc).approve(diamondAddress, ethers.constants.MaxUint256);
 
     // Deposit 5000 tokens for each archaeologist so they're ready to be bonded
-    await archaeologistFacet
-      .connect(acc)
-      .depositFreeBond(ethers.utils.parseEther("5000"));
+    await archaeologistFacet.connect(acc).depositFreeBond(ethers.utils.parseEther("5000"));
 
     signatures.push({ ...signature, account: acc.address });
   }

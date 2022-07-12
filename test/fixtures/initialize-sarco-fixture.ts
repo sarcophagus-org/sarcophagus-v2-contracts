@@ -1,11 +1,6 @@
 import { ContractTransaction } from "ethers";
 import { deployments } from "hardhat";
-import {
-  ArchaeologistFacet,
-  EmbalmerFacet,
-  IERC20,
-  ThirdPartyFacet,
-} from "../../typechain";
+import { ArchaeologistFacet, EmbalmerFacet, IERC20, ThirdPartyFacet } from "../../typechain";
 import { sign } from "../utils/helpers";
 import time from "../utils/time";
 import { spawnArchaologistsWithSignatures } from "./spawn-archaeologists";
@@ -20,6 +15,7 @@ const sss = require("shamirs-secret-sharing");
  *
  * Arweave archaeologist is set to the first in the returned list of archaeologists.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const initializeSarcoFixture = (
   config: {
     shares: number;
@@ -39,29 +35,15 @@ export const initializeSarcoFixture = (
 
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const sarcoToken = await ethers.getContract("SarcoTokenMock");
-      const embalmerFacet = await ethers.getContractAt(
-        "EmbalmerFacet",
-        diamond.address
-      );
-      const archaeologistFacet = await ethers.getContractAt(
-        "ArchaeologistFacet",
-        diamond.address
-      );
-      const thirdPartyFacet = await ethers.getContractAt(
-        "ThirdPartyFacet",
-        diamond.address
-      );
+      const embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamond.address);
+      const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
+      const thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamond.address);
 
       // Transfer 100,000 sarco tokens to each embalmer
-      await sarcoToken.transfer(
-        embalmer.address,
-        ethers.utils.parseEther("100000")
-      );
+      await sarcoToken.transfer(embalmer.address, ethers.utils.parseEther("100000"));
 
       // Approve the embalmer on the sarco token
-      await sarcoToken
-        .connect(embalmer)
-        .approve(diamond.address, ethers.constants.MaxUint256);
+      await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
       // Set up the data for the sarcophagus
       // const publicKey =
@@ -76,14 +58,13 @@ export const initializeSarcoFixture = (
       const namedAccounts = await getNamedAccounts();
       const deployer = await ethers.getSigner(namedAccounts.deployer);
 
-      const [archaeologists, signatures] =
-        await spawnArchaologistsWithSignatures(
-          shards,
-          sarcoId,
-          archaeologistFacet as ArchaeologistFacet,
-          (sarcoToken as IERC20).connect(deployer),
-          diamond.address
-        );
+      const [archaeologists, signatures] = await spawnArchaologistsWithSignatures(
+        shards,
+        sarcoId,
+        archaeologistFacet as ArchaeologistFacet,
+        (sarcoToken as IERC20).connect(deployer),
+        diamond.address
+      );
 
       const arweaveArchaeologist = archaeologists[0];
       const canBeTransferred = true;
@@ -107,11 +88,7 @@ export const initializeSarcoFixture = (
 
       const arweaveTxId = "arweaveTxId";
 
-      const arweaveSignature = await sign(
-        arweaveArchaeologist.signer,
-        arweaveTxId,
-        "string"
-      );
+      const arweaveSignature = await sign(arweaveArchaeologist.signer, arweaveTxId, "string");
 
       return {
         sarcoId,
