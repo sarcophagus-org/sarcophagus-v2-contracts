@@ -9,7 +9,10 @@ import {
 } from "../../typechain";
 import { sign } from "../utils/helpers";
 import time from "../utils/time";
-import { spawnArchaologistsWithSignatures } from "./spawn-archaeologists";
+import {
+  spawnArchaologistsWithSignatures,
+  TestArchaeologist,
+} from "./spawn-archaeologists";
 
 const sss = require("shamirs-secret-sharing");
 
@@ -25,6 +28,8 @@ export const createSarcoFixture = (
   config: {
     shares: number;
     threshold: number;
+    skipFinalize?: boolean;
+    addUnbondedArchs?: number;
   },
   sarcoName: string
 ) =>
@@ -91,6 +96,44 @@ export const createSarcoFixture = (
           diamond.address
         );
 
+      const unbondedArchaeologists: TestArchaeologist[] = [];
+
+      if (config.addUnbondedArchs !== undefined) {
+        // use indices from tail-end of unnamed accounts that have not been
+        // taken by archaeologists initialization above
+        // (in spawnArchaologistsWithSignatures).
+        const startI = unnamedAccounts.length - archaeologists.length - 1;
+        const endI = startI - config.addUnbondedArchs;
+
+        for (let i = startI; i > endI; i--) {
+          const acc = await ethers.getSigner(unnamedAccounts[i]);
+
+          unbondedArchaeologists.push({
+            archAddress: acc.address,
+            hashedShard: "",
+            unencryptedShard: [],
+            signer: acc,
+            storageFee: ethers.utils.parseEther("20"),
+            diggingFee: ethers.utils.parseEther("10"),
+            bounty: ethers.utils.parseEther("100"),
+          });
+
+          // Transfer 10,000 sarco tokens to each archaeologist to be put into free
+          // bond, and approve spending
+          await (sarcoToken as IERC20)
+            .connect(deployer)
+            .transfer(acc.address, ethers.utils.parseEther("10000"));
+
+          await sarcoToken
+            .connect(acc)
+            .approve(diamond.address, ethers.constants.MaxUint256);
+
+          await archaeologistFacet
+            .connect(acc)
+            .depositFreeBond(ethers.utils.parseEther("5000"));
+        }
+      }
+
       const arweaveArchaeologist = archaeologists[0];
       const canBeTransferred = true;
 
@@ -121,14 +164,16 @@ export const createSarcoFixture = (
       );
 
       // Finalize the sarcophagus
-      await embalmerFacet
-        .connect(embalmer)
-        .finalizeSarcophagus(
-          sarcoId,
-          signatures.slice(1),
-          arweaveSignature,
-          arweaveTxId
-        );
+      if (config.skipFinalize !== true) {
+        await embalmerFacet
+          .connect(embalmer)
+          .finalizeSarcophagus(
+            sarcoId,
+            signatures.slice(1),
+            arweaveSignature,
+            arweaveTxId
+          );
+      }
 
       return {
         sarcoId,
@@ -137,6 +182,7 @@ export const createSarcoFixture = (
         recipient,
         thirdParty,
         archaeologists,
+        unbondedArchaeologists,
         signatures,
         arweaveSignature,
         arweaveArchaeologist,

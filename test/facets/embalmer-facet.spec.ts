@@ -825,7 +825,7 @@ describe("Contract: EmbalmerFacet", () => {
       it("should revert if the sarcophagus is not finalized", async () => {
         // Use the fixture for initializeSarcophagus just this once so we can
         // properly initialize the sarcophagus
-        const { embalmerFacet, identifier, embalmer } =
+        const { embalmerFacet, sarcoId, embalmer } =
           await successfulInitializeFixture();
 
         // Define a new resurrection time one week in the future
@@ -836,7 +836,7 @@ describe("Contract: EmbalmerFacet", () => {
         // Rewrap the sarcophagus
         const tx = embalmerFacet
           .connect(embalmer)
-          .rewrapSarcophagus(identifier, newResurrectionTime);
+          .rewrapSarcophagus(sarcoId, newResurrectionTime);
 
         await expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
       });
@@ -1051,11 +1051,11 @@ describe("Contract: EmbalmerFacet", () => {
       it("should revert if the sarcophagus is not finalized", async () => {
         // Use the initializeSarcophagus fixture in this case to create a
         // sarcophagus
-        const { embalmerFacet, embalmer, identifier } =
+        const { embalmerFacet, embalmer, sarcoId } =
           await successfulInitializeFixture();
 
         // Bury the sarcophagus
-        const tx = embalmerFacet.connect(embalmer).burySarcophagus(identifier);
+        const tx = embalmerFacet.connect(embalmer).burySarcophagus(sarcoId);
 
         await expect(tx).to.be.revertedWith("SarcophagusNotFinalized");
       });
