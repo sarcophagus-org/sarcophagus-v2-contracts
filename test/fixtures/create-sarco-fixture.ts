@@ -21,7 +21,7 @@ const sss = require("shamirs-secret-sharing");
  *
  * Arweave archaeologist is set to the first in the returned list of archaeologists.
  */
-export const initializeSarcoFixture = (
+export const createSarcoFixture = (
   config: {
     shares: number;
     threshold: number;
@@ -119,6 +119,16 @@ export const initializeSarcoFixture = (
         arweaveTxId,
         "string"
       );
+
+      // Finalize the sarcophagus
+      await embalmerFacet
+        .connect(embalmer)
+        .finalizeSarcophagus(
+          sarcoId,
+          signatures.slice(1),
+          arweaveSignature,
+          arweaveTxId
+        );
 
       return {
         sarcoId,
