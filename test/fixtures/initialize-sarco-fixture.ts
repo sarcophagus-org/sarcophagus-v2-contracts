@@ -5,6 +5,7 @@ import {
   EmbalmerFacet,
   IERC20,
   ThirdPartyFacet,
+  ViewStateFacet,
 } from "../../typechain";
 import { sign } from "../utils/helpers";
 import time from "../utils/time";
@@ -14,9 +15,9 @@ const sss = require("shamirs-secret-sharing");
 
 /**
  * A fixture to set up a test that reqiures a successful initialization on a
- * sarcophagus. Deploys all contracts required for the system, and initializes
- * a sarcophagus with given config and name, with archaeologists created and
- * pre-configured for it.
+ * transferrable sarcophagus. Deploys all contracts required for the system,
+ * and initializes a sarcophagus with given config and name, with archaeologists
+ * created and pre-configured for it. Ressurection time is set to 1 week.
  *
  * Arweave archaeologist is set to the first in the returned list of archaeologists.
  */
@@ -36,6 +37,7 @@ export const initializeSarcoFixture = (
       const unnamedAccounts = await getUnnamedAccounts();
       const embalmer = await ethers.getSigner(unnamedAccounts[0]);
       const recipient = await ethers.getSigner(unnamedAccounts[1]);
+      const thirdParty = await ethers.getSigner(unnamedAccounts[2]);
 
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const sarcoToken = await ethers.getContract("SarcoTokenMock");
@@ -49,6 +51,10 @@ export const initializeSarcoFixture = (
       );
       const thirdPartyFacet = await ethers.getContractAt(
         "ThirdPartyFacet",
+        diamond.address
+      );
+      const viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
         diamond.address
       );
 
@@ -87,6 +93,7 @@ export const initializeSarcoFixture = (
 
       const arweaveArchaeologist = archaeologists[0];
       const canBeTransferred = true;
+
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
       const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
@@ -116,18 +123,21 @@ export const initializeSarcoFixture = (
       return {
         sarcoId,
         tx,
-        sarcoToken: sarcoToken as IERC20,
         embalmer,
+        recipient,
+        thirdParty,
         archaeologists,
         signatures,
         arweaveSignature,
         arweaveArchaeologist,
         arweaveTxId,
         embalmerBalance,
-        embalmerFacet: embalmerFacet as EmbalmerFacet,
         shards,
+        sarcoToken: sarcoToken as IERC20,
+        embalmerFacet: embalmerFacet as EmbalmerFacet,
         archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
         thirdPartyFacet: thirdPartyFacet as ThirdPartyFacet,
+        viewStateFacet: viewStateFacet as ViewStateFacet,
       };
     }
   )();
