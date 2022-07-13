@@ -1,6 +1,7 @@
 import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments } from "hardhat";
+import { ArchaeologistFacet } from "../../typechain";
 import { setupArchaeologists } from "./setup-archaeologists";
 
 /**
@@ -24,6 +25,10 @@ export const successfulInitializeFixture = deployments.createFixture(
       "EmbalmerFacet",
       diamond.address
     );
+    const archaeologistFacet = await ethers.getContractAt(
+      "ArchaeologistFacet",
+      diamond.address
+    );
 
     // Transfer 10,000 sarco tokens to embalmer
     await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
@@ -35,7 +40,7 @@ export const successfulInitializeFixture = deployments.createFixture(
 
     // Set up the data for the sarcophagus
     const name = "Test Sarcophagus";
-    const identifier = solidityKeccak256(["string"], ["unhashedIdentifier"]);
+    const sarcoId = solidityKeccak256(["string"], ["unhashedIdentifier"]);
     const archaeologists = await setupArchaeologists();
     const arweaveArchaeologist = archaeologists[0];
     const canBeTransferred = true;
@@ -52,7 +57,7 @@ export const successfulInitializeFixture = deployments.createFixture(
       .connect(embalmer)
       .initializeSarcophagus(
         name,
-        identifier,
+        sarcoId,
         archaeologists,
         arweaveArchaeologist.account,
         recipient.address,
@@ -62,7 +67,7 @@ export const successfulInitializeFixture = deployments.createFixture(
       );
 
     return {
-      identifier,
+      sarcoId,
       tx,
       sarcoToken,
       embalmer,
@@ -70,6 +75,7 @@ export const successfulInitializeFixture = deployments.createFixture(
       arweaveArchaeologist,
       embalmerBalance,
       embalmerFacet,
+      archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
     };
   }
 );
