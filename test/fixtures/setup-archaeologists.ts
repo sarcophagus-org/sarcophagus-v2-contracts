@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 import { ethers, getUnnamedAccounts } from "hardhat";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const setupArchaeologists = async () => {
   const unnamedAccounts = await getUnnamedAccounts();
 
@@ -12,10 +13,7 @@ export const setupArchaeologists = async () => {
       bounty: BigNumber.from("100"),
       diggingFee: BigNumber.from("5"),
       storageFee: BigNumber.from("10"),
-      hashedShard: ethers.utils.solidityKeccak256(
-        ["string"],
-        [unnamedAccounts[1]]
-      ),
+      hashedShard: ethers.utils.solidityKeccak256(["string"], [unnamedAccounts[1]]),
     },
     {
       account: unnamedAccounts[2],
@@ -24,10 +22,7 @@ export const setupArchaeologists = async () => {
       bounty: BigNumber.from("120"),
       diggingFee: BigNumber.from("6"),
       storageFee: BigNumber.from("13"),
-      hashedShard: ethers.utils.solidityKeccak256(
-        ["string"],
-        [unnamedAccounts[2]]
-      ),
+      hashedShard: ethers.utils.solidityKeccak256(["string"], [unnamedAccounts[2]]),
     },
     {
       account: unnamedAccounts[3],
@@ -36,10 +31,7 @@ export const setupArchaeologists = async () => {
       bounty: BigNumber.from("130"),
       diggingFee: BigNumber.from("4"),
       storageFee: BigNumber.from("9"),
-      hashedShard: ethers.utils.solidityKeccak256(
-        ["string"],
-        [unnamedAccounts[3]]
-      ),
+      hashedShard: ethers.utils.solidityKeccak256(["string"], [unnamedAccounts[3]]),
     },
   ];
 };

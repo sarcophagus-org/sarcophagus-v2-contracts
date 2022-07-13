@@ -1,15 +1,10 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
-import { BigNumber, Signature } from "ethers";
+import { BigNumber } from "ethers";
 import { toUtf8String } from "ethers/lib/utils";
 import { deployments, ethers } from "hardhat";
-import {
-  ArchaeologistFacet,
-  EmbalmerFacet,
-  SarcoTokenMock,
-  ViewStateFacet,
-} from "../../typechain";
+import { ArchaeologistFacet, EmbalmerFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
 import { SignatureWithAccount } from "../../types";
 import { setupArchaeologists } from "../fixtures/setup-archaeologists";
 import { increaseNextBlockTimestamp, sign } from "../utils/helpers";
@@ -34,25 +29,15 @@ describe("Contract: ArchaeologistFacet", () => {
     diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
     // Approve the archaeologist on the sarco token so transferFrom will work
-    await sarcoToken
-      .connect(archaeologist)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
+    await sarcoToken.connect(archaeologist).approve(diamondAddress, ethers.constants.MaxUint256);
 
-    archaeologistFacet = await ethers.getContractAt(
-      "ArchaeologistFacet",
-      diamondAddress
-    );
+    archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamondAddress);
 
-    viewStateFacet = await ethers.getContractAt(
-      "ViewStateFacet",
-      diamondAddress
-    );
+    viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamondAddress);
 
     // Get the archaeologist's sarco token balance. This is used throughout the
     // tests.
-    archaeologistSarcBalance = await sarcoToken.balanceOf(
-      archaeologist.address
-    );
+    archaeologistSarcBalance = await sarcoToken.balanceOf(archaeologist.address);
   };
 
   describe("depositFreeBond()", () => {
@@ -68,48 +53,40 @@ describe("Contract: ArchaeologistFacet", () => {
       const freeBond = await viewStateFacet.getFreeBond(archaeologist.address);
       expect(freeBond.toString()).to.equal("100");
 
-      const sarcoTokenBalance = await sarcoToken.balanceOf(
-        archaeologist.address
-      );
+      const sarcoTokenBalance = await sarcoToken.balanceOf(archaeologist.address);
       expect(sarcoTokenBalance.toString()).to.equal(
         archaeologistSarcBalance.sub(BigNumber.from(100)).toString()
       );
 
-      const contractSarcBalance = await sarcoToken.balanceOf(
-        archaeologistFacet.address
-      );
+      const contractSarcBalance = await sarcoToken.balanceOf(archaeologistFacet.address);
       expect(contractSarcBalance.toString()).to.equal("100");
     });
 
     it("should emit an event when the free bond is deposited", async () => {
       const tx = await archaeologistFacet.depositFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
-      const events = receipt.events!;
+      const events = receipt.events;
       expect(events).to.not.be.undefined;
 
       // Check that the list of events includes an event that has an address
       // matching the archaeologistFacet address
-      expect(
-        events.some((event) => event.address === archaeologistFacet.address)
-      ).to.be.true;
+      expect(events?.some(event => event.address === archaeologistFacet.address)).to.be.true;
     });
 
     it("should emit a transfer event when the sarco token is transfered", async () => {
       const tx = await archaeologistFacet.depositFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
-      const events = receipt.events!;
+      const events = receipt.events;
       expect(events).to.not.be.undefined;
 
       // Check that the list of events includes an event that has an address
       // matching the archaeologistFacet address
-      expect(events.some((event) => event.address === sarcoToken.address)).to.be
-        .true;
+      expect(events?.some(event => event.address === sarcoToken.address)).to.be.true;
     });
 
     it("should revert if amount is negative", async () => {
       // Try to deposit a negative amount
-      await expect(archaeologistFacet.depositFreeBond(BigNumber.from(-1))).to.be
-        .reverted;
+      await expect(archaeologistFacet.depositFreeBond(BigNumber.from(-1))).to.be.reverted;
     });
   });
 
@@ -130,16 +107,10 @@ describe("Contract: ArchaeologistFacet", () => {
       const freeBond = await viewStateFacet.getFreeBond(archaeologist.address);
       expect(freeBond.toString()).to.equal("0");
 
-      const sarcoTokenBalance = await sarcoToken.balanceOf(
-        archaeologist.address
-      );
-      expect(sarcoTokenBalance.toString()).to.equal(
-        archaeologistSarcBalance.toString()
-      );
+      const sarcoTokenBalance = await sarcoToken.balanceOf(archaeologist.address);
+      expect(sarcoTokenBalance.toString()).to.equal(archaeologistSarcBalance.toString());
 
-      const contractSarcBalance = await sarcoToken.balanceOf(
-        archaeologistFacet.address
-      );
+      const contractSarcBalance = await sarcoToken.balanceOf(archaeologistFacet.address);
       expect(contractSarcBalance.toString()).to.equal("0");
     });
 
@@ -150,14 +121,12 @@ describe("Contract: ArchaeologistFacet", () => {
       // Withdraw free bond
       const tx = await archaeologistFacet.withdrawFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
-      const events = receipt.events!;
+      const events = receipt.events;
       expect(events).to.not.be.undefined;
 
       // Check that the list of events includes an event that has an address
       // matching the archaeologistFacet address
-      expect(
-        events.some((event) => event.address === archaeologistFacet.address)
-      ).to.be.true;
+      expect(events?.some(event => event.address === archaeologistFacet.address)).to.be.true;
     });
 
     it("should emit a transfer event when the sarco token is transfered", async () => {
@@ -167,19 +136,17 @@ describe("Contract: ArchaeologistFacet", () => {
       // Withdraw free bond
       const tx = await archaeologistFacet.withdrawFreeBond(BigNumber.from(100));
       const receipt = await tx.wait();
-      const events = receipt.events!;
+      const events = receipt.events;
       expect(events).to.not.be.undefined;
 
       // Check that the list of events includes an event that has an address
       // matching the archaeologistFacet address
-      expect(events.some((event) => event.address === sarcoToken.address)).to.be
-        .true;
+      expect(events?.some(event => event.address === sarcoToken.address)).to.be.true;
     });
 
     it("should revert if amount is negative", async () => {
       // Try to withdraw a negative amount
-      await expect(archaeologistFacet.withdrawFreeBond(BigNumber.from(-1))).to
-        .be.reverted;
+      await expect(archaeologistFacet.withdrawFreeBond(BigNumber.from(-1))).to.be.reverted;
     });
 
     it("should revert on attempt to withdraw more than free bond", async () => {
@@ -188,15 +155,15 @@ describe("Contract: ArchaeologistFacet", () => {
       await tx.wait();
 
       // Try to withdraw with a non-archaeologist address
-      await expect(
-        archaeologistFacet.withdrawFreeBond(BigNumber.from(101))
-      ).to.be.revertedWith("NotEnoughFreeBond");
+      await expect(archaeologistFacet.withdrawFreeBond(BigNumber.from(101))).to.be.revertedWith(
+        "NotEnoughFreeBond"
+      );
     });
   });
 
   describe("unwrapSarcophagus()", () => {
     let sarcoToken: SarcoTokenMock;
-    let arweaveSignature: Signature;
+    // let arweaveSignature: Signature;
     let diamondAddress: string;
     let archaeologists: SignerWithAddress[];
     let signers: SignerWithAddress[];
@@ -242,48 +209,27 @@ describe("Contract: ArchaeologistFacet", () => {
       await deployments.fixture();
 
       sarcoToken = await ethers.getContract("SarcoTokenMock");
-      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
-        .address;
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
-      embalmerFacet = await ethers.getContractAt(
-        "EmbalmerFacet",
-        diamondAddress
-      );
+      embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
 
       // Get the archaeologistFacet so we can add some free bond for the archaeologists
-      archaeologistFacet = await ethers.getContractAt(
-        "ArchaeologistFacet",
-        diamondAddress
-      );
+      archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamondAddress);
 
-      viewStateFacet = await ethers.getContractAt(
-        "ViewStateFacet",
-        diamondAddress
-      );
+      viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamondAddress);
 
       await setupArchaeologists();
 
-      arweaveSignature = await sign(
-        arweaveArchaeologist,
-        arweaveTxId,
-        "string"
-      );
+      // arweaveSignature = await sign(arweaveArchaeologist, arweaveTxId, "string");
     });
 
-    const initializeSarcophagus = async (
-      unhashedId: string
-    ): Promise<string> => {
+    const initializeSarcophagus = async (unhashedId: string): Promise<string> => {
       const name = "New Sarcophagus";
-      const identifier = ethers.utils.solidityKeccak256(
-        ["string"],
-        [unhashedId]
-      );
+      const identifier = ethers.utils.solidityKeccak256(["string"], [unhashedId]);
 
       // Approve the embalmer on the sarco token
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
-      await sarcoToken
-        .connect(embalmer)
-        .approve(diamond.address, ethers.constants.MaxUint256);
+      await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
       // Define archaeologist objects to be passed into the sarcophagus.
       // Since the contract doesn't care what the value of the shard is, just
@@ -300,8 +246,7 @@ describe("Contract: ArchaeologistFacet", () => {
       const canBeTransferred = true;
 
       // Set a resurrection time 1 week in the future
-      const resurrectionTime =
-        (await ethers.provider.getBlock("latest")).timestamp + 604800;
+      const resurrectionTime = (await ethers.provider.getBlock("latest")).timestamp + 604800;
 
       const minShards = 3;
 
@@ -332,22 +277,15 @@ describe("Contract: ArchaeologistFacet", () => {
         if (archaeologist.address !== arweaveArchaeologist.address) {
           const signature = await sign(archaeologist, identifier, "bytes32");
 
-          signatures.push(
-            Object.assign(signature, { account: archaeologist.address })
-          );
+          signatures.push(Object.assign(signature, { account: archaeologist.address }));
 
           await sarcoToken
             .connect(archaeologist)
             .approve(diamond.address, ethers.constants.MaxUint256);
 
-          await sarcoToken.transfer(
-            archaeologist.address,
-            BigNumber.from("10000")
-          );
+          await sarcoToken.transfer(archaeologist.address, BigNumber.from("10000"));
 
-          await archaeologistFacet
-            .connect(archaeologist)
-            .depositFreeBond(BigNumber.from("1000"));
+          await archaeologistFacet.connect(archaeologist).depositFreeBond(BigNumber.from("1000"));
         }
       }
 
@@ -355,30 +293,18 @@ describe("Contract: ArchaeologistFacet", () => {
         .connect(arweaveArchaeologist)
         .approve(diamond.address, ethers.constants.MaxUint256);
 
-      await sarcoToken.transfer(
-        arweaveArchaeologist.address,
-        BigNumber.from("10000")
-      );
+      await sarcoToken.transfer(arweaveArchaeologist.address, BigNumber.from("10000"));
 
       await archaeologistFacet
         .connect(arweaveArchaeologist)
         .depositFreeBond(BigNumber.from("1000"));
 
-      const arweaveSignature = await sign(
-        arweaveArchaeologist,
-        arweaveTxId,
-        "string"
-      );
+      const arweaveSignature = await sign(arweaveArchaeologist, arweaveTxId, "string");
 
       // Finalize the sarcophagus
       await embalmerFacet
         .connect(embalmer)
-        .finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
+        .finalizeSarcophagus(identifier, signatures, arweaveSignature, arweaveTxId);
     };
 
     context("Successful unwrap", () => {
@@ -410,9 +336,7 @@ describe("Contract: ArchaeologistFacet", () => {
           archaeologists[0].address
         );
 
-        expect(toUtf8String(archaeologist.unencryptedShard)).to.equal(
-          unencryptedShard
-        );
+        expect(toUtf8String(archaeologist.unencryptedShard)).to.equal(unencryptedShard);
       });
 
       it("should free up the archaeologist's cursed bond", async () => {
@@ -422,9 +346,7 @@ describe("Contract: ArchaeologistFacet", () => {
         );
 
         // Initialize the sarcophagusk
-        const identifier = await initializeSarcophagus(
-          "shouldFreeUpArchsCursedBond"
-        );
+        const identifier = await initializeSarcophagus("shouldFreeUpArchsCursedBond");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
@@ -445,9 +367,7 @@ describe("Contract: ArchaeologistFacet", () => {
           .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
 
         // Get the cursed bond amount of the first archaeologist after unwrapping
-        const cursedBondAmountAfter = await viewStateFacet.getCursedBond(
-          archaeologists[0].address
-        );
+        const cursedBondAmountAfter = await viewStateFacet.getCursedBond(archaeologists[0].address);
 
         // Check that the cursed bond amount before intialize and after unwrap are the same amount.
         expect(cursedBondAmountAfter).to.equal(cursedBondAmountBefore);
@@ -475,20 +395,17 @@ describe("Contract: ArchaeologistFacet", () => {
           .connect(archaeologists[0])
           .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
 
-        const isSuccessfulSarcophagus =
-          await viewStateFacet.getArchaeologistSuccessOnSarcophagus(
-            archaeologists[0].address,
-            identifier
-          );
+        const isSuccessfulSarcophagus = await viewStateFacet.getArchaeologistSuccessOnSarcophagus(
+          archaeologists[0].address,
+          identifier
+        );
 
         expect(isSuccessfulSarcophagus).to.be.true;
       });
 
       it("should transfer the digging fee and bounty to the archaeologist's reward pool without transferring tokens", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "shouldTransferFeesToArch"
-        );
+        const identifier = await initializeSarcophagus("shouldTransferFeesToArch");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
@@ -505,9 +422,7 @@ describe("Contract: ArchaeologistFacet", () => {
         );
 
         // Get the sarco balance of the first archaeologist before unwrap
-        const sarcoBalanceBefore = await sarcoToken.balanceOf(
-          archaeologists[0].address
-        );
+        const sarcoBalanceBefore = await sarcoToken.balanceOf(archaeologists[0].address);
         const archRewardsBefore = await viewStateFacet.getAvailableRewards(
           archaeologists[0].address
         );
@@ -522,21 +437,15 @@ describe("Contract: ArchaeologistFacet", () => {
           .unwrapSarcophagus(identifier, Buffer.from(unencryptedShard));
 
         // Get the sarco balance of the first archaeologist after unwrap
-        const sarcoBalanceAfter = await sarcoToken.balanceOf(
-          archaeologists[0].address
-        );
+        const sarcoBalanceAfter = await sarcoToken.balanceOf(archaeologists[0].address);
         const archRewardsAfter = await viewStateFacet.getAvailableRewards(
           archaeologists[0].address
         );
 
         // Check that the difference between the before and after rewards is
         // equal to the total fees, and actual token balance is unchanged
-        expect(sarcoBalanceAfter.toString()).to.equal(
-          sarcoBalanceBefore.toString()
-        );
-        expect(archRewardsAfter.toString()).to.equal(
-          archRewardsBefore.add(totalFees).toString()
-        );
+        expect(sarcoBalanceAfter.toString()).to.equal(sarcoBalanceBefore.toString());
+        expect(archRewardsAfter.toString()).to.equal(archRewardsBefore.add(totalFees).toString());
       });
 
       it("should emit an event", async () => {
@@ -563,23 +472,18 @@ describe("Contract: ArchaeologistFacet", () => {
 
         const receipt = await tx.wait();
 
-        const events = receipt.events!;
+        const events = receipt.events;
         expect(events).to.not.be.undefined;
 
         // Check that the list of events includes an event that has an address
         // matching the embalmerFacet address
-        expect(
-          events.some((event) => event.address === archaeologistFacet.address)
-        ).to.be.true;
+        expect(events?.some(event => event.address === archaeologistFacet.address)).to.be.true;
       });
     });
 
     context("Failed unwrap", () => {
       it("should revert if the sarcophagus does not exist", async () => {
-        const falseIdentifier = ethers.utils.solidityKeccak256(
-          ["string"],
-          ["falseIdentifier"]
-        );
+        const falseIdentifier = ethers.utils.solidityKeccak256(["string"], ["falseIdentifier"]);
 
         // Earlier during initialize we used each archaeologist's address as the
         // unencrypted shard. In practice this will obviously not be the
@@ -601,9 +505,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
       it("should revert if the sender is not an archaeologist on this sarcophagus", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "senderNotArchaeologist"
-        );
+        const identifier = await initializeSarcophagus("senderNotArchaeologist");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
@@ -745,7 +647,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
   describe("finalizeTransfer()", () => {
     let sarcoToken: SarcoTokenMock;
-    let arweaveSignature: Signature;
+    // let arweaveSignature: Signature;
     let diamondAddress: string;
     let archaeologists: SignerWithAddress[];
     let signers: SignerWithAddress[];
@@ -795,32 +697,21 @@ describe("Contract: ArchaeologistFacet", () => {
       await deployments.fixture();
 
       sarcoToken = await ethers.getContract("SarcoTokenMock");
-      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy"))
-        .address;
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
 
-      embalmerFacet = await ethers.getContractAt(
-        "EmbalmerFacet",
-        diamondAddress
-      );
+      sarcoToken = await ethers.getContract("SarcoTokenMock");
+      diamondAddress = (await ethers.getContract("Diamond_DiamondProxy")).address;
+
+      embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamondAddress);
 
       // Get the archaeologistFacet so we can add some free bond for the archaeologists
-      archaeologistFacet = await ethers.getContractAt(
-        "ArchaeologistFacet",
-        diamondAddress
-      );
+      archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamondAddress);
 
-      viewStateFacet = await ethers.getContractAt(
-        "ViewStateFacet",
-        diamondAddress
-      );
+      viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamondAddress);
 
       await setupArchaeologists();
 
-      arweaveSignature = await sign(
-        arweaveArchaeologist,
-        arweaveTxId,
-        "string"
-      );
+      // arweaveSignature = await sign(arweaveArchaeologist, arweaveTxId, "string");
     });
 
     // Set up the new archaeologist
@@ -829,30 +720,18 @@ describe("Contract: ArchaeologistFacet", () => {
         .connect(newArchaeologist)
         .approve(diamondAddress, ethers.constants.MaxUint256);
 
-      await sarcoToken.transfer(
-        newArchaeologist.address,
-        BigNumber.from(10_000)
-      );
+      await sarcoToken.transfer(newArchaeologist.address, BigNumber.from(10_000));
 
-      await archaeologistFacet
-        .connect(newArchaeologist)
-        .depositFreeBond(BigNumber.from("5000"));
+      await archaeologistFacet.connect(newArchaeologist).depositFreeBond(BigNumber.from("5000"));
     });
 
-    const initializeSarcophagus = async (
-      unhashedId: string
-    ): Promise<string> => {
+    const initializeSarcophagus = async (unhashedId: string): Promise<string> => {
       const name = "New Sarcophagus";
-      const identifier = ethers.utils.solidityKeccak256(
-        ["string"],
-        [unhashedId]
-      );
+      const identifier = ethers.utils.solidityKeccak256(["string"], [unhashedId]);
 
       // Approve the embalmer on the sarco token
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
-      await sarcoToken
-        .connect(embalmer)
-        .approve(diamond.address, ethers.constants.MaxUint256);
+      await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
       // Define archaeologist objects to be passed into the sarcophagus.
       // Since the contract doesn't care what the value of the shard is, just
@@ -869,8 +748,7 @@ describe("Contract: ArchaeologistFacet", () => {
       const canBeTransferred = true;
 
       // Set a resurrection time 1 week in the future
-      const resurrectionTime =
-        (await ethers.provider.getBlock("latest")).timestamp + 604800;
+      const resurrectionTime = (await ethers.provider.getBlock("latest")).timestamp + 604800;
 
       const minShards = 3;
 
@@ -901,79 +779,53 @@ describe("Contract: ArchaeologistFacet", () => {
         if (archaeologist.address !== arweaveArchaeologist.address) {
           const signature = await sign(archaeologist, identifier, "bytes32");
 
-          signatures.push(
-            Object.assign(signature, { account: archaeologist.address })
-          );
+          signatures.push(Object.assign(signature, { account: archaeologist.address }));
         }
 
         await sarcoToken
           .connect(archaeologist)
           .approve(diamond.address, ethers.constants.MaxUint256);
 
-        await sarcoToken.transfer(
-          archaeologist.address,
-          BigNumber.from("10000")
-        );
+        await sarcoToken.transfer(archaeologist.address, BigNumber.from("10000"));
 
-        await archaeologistFacet
-          .connect(archaeologist)
-          .depositFreeBond(BigNumber.from("1000"));
+        await archaeologistFacet.connect(archaeologist).depositFreeBond(BigNumber.from("1000"));
       }
 
       await sarcoToken
         .connect(arweaveArchaeologist)
         .approve(diamond.address, ethers.constants.MaxUint256);
 
-      await sarcoToken.transfer(
-        arweaveArchaeologist.address,
-        BigNumber.from("10000")
-      );
+      await sarcoToken.transfer(arweaveArchaeologist.address, BigNumber.from("10000"));
 
       await archaeologistFacet
         .connect(arweaveArchaeologist)
         .depositFreeBond(BigNumber.from("1000"));
 
-      const arweaveSignature = await sign(
-        arweaveArchaeologist,
-        arweaveTxId,
-        "string"
-      );
+      const arweaveSignature = await sign(arweaveArchaeologist, arweaveTxId, "string");
 
       // Finalize the sarcophagus
       await embalmerFacet
         .connect(embalmer)
-        .finalizeSarcophagus(
-          identifier,
-          signatures,
-          arweaveSignature,
-          arweaveTxId
-        );
+        .finalizeSarcophagus(identifier, signatures, arweaveSignature, arweaveTxId);
     };
 
     context("Successful transfer", () => {
       it("should update the list of archaeologists on a sarcophagus", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "shouldUpdateArchaeologists"
-        );
+        const identifier = await initializeSarcophagus("shouldUpdateArchaeologists");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         await archaeologistFacet
           .connect(newArchaeologist)
           .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
-        const archaeologistAddresses = (
-          await viewStateFacet.getSarcophagus(identifier)
-        ).archaeologists;
+        const archaeologistAddresses = (await viewStateFacet.getSarcophagus(identifier))
+          .archaeologists;
 
         expect(archaeologistAddresses).to.have.lengthOf(3);
         expect(archaeologistAddresses).to.contain(newArchaeologist.address);
@@ -982,70 +834,54 @@ describe("Contract: ArchaeologistFacet", () => {
 
       it("should update the data in the sarcophagusArchaeologists mapping", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "shouldUpdateArchaeologistsMapping"
-        );
+        const identifier = await initializeSarcophagus("shouldUpdateArchaeologistsMapping");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         await archaeologistFacet
           .connect(newArchaeologist)
           .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         // Check that new archaeologist has some legitimate data
-        const newArchaeologistData =
-          await viewStateFacet.getSarcophagusArchaeologist(
-            identifier,
-            newArchaeologist.address
-          );
-        expect(newArchaeologistData.doubleHashedShard).to.not.equal(
-          ethers.constants.HashZero
+        const newArchaeologistData = await viewStateFacet.getSarcophagusArchaeologist(
+          identifier,
+          newArchaeologist.address
         );
+        expect(newArchaeologistData.doubleHashedShard).to.not.equal(ethers.constants.HashZero);
+        expect(newArchaeologistData.doubleHashedShard).to.not.equal(ethers.constants.HashZero);
 
         // Check that the old archaeologist's values are reset to default values
-        const oldArchaeologistData =
-          await viewStateFacet.getSarcophagusArchaeologist(
-            identifier,
-            oldArchaeologist.address
-          );
-
-        expect(oldArchaeologistData.doubleHashedShard).to.equal(
-          ethers.constants.HashZero
+        const oldArchaeologistData = await viewStateFacet.getSarcophagusArchaeologist(
+          identifier,
+          oldArchaeologist.address
         );
+
+        expect(oldArchaeologistData.doubleHashedShard).to.equal(ethers.constants.HashZero);
+
+        expect(oldArchaeologistData.doubleHashedShard).to.equal(ethers.constants.HashZero);
         expect(oldArchaeologistData.diggingFee).to.equal("0");
         expect(oldArchaeologistData.bounty).to.equal("0");
       });
 
       it("should add the arweave transaction id to the list of arweaveTxIds on the sarcophagus", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "shouldAddArweaveTxIdToSarcophagus"
-        );
+        const identifier = await initializeSarcophagus("shouldAddArweaveTxIdToSarcophagus");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         await archaeologistFacet
           .connect(newArchaeologist)
           .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
-        const arweaveTxIds = (await viewStateFacet.getSarcophagus(identifier))
-          .arweaveTxIds;
+        const arweaveTxIds = (await viewStateFacet.getSarcophagus(identifier)).arweaveTxIds;
 
         expect(arweaveTxIds).to.have.lengthOf(2);
         expect(arweaveTxIds).to.contain(arweaveTxId);
@@ -1053,9 +889,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
       it("should free the old archaeologists bond", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "shouldFreeOldArchaeologistBond"
-        );
+        const identifier = await initializeSarcophagus("shouldFreeOldArchaeologistBond");
 
         const oldArchaeologistFees = archaeologistsFees[0];
 
@@ -1063,15 +897,12 @@ describe("Contract: ArchaeologistFacet", () => {
         await finalizeSarcophagus(identifier);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         // Get the old archaeologist's cursed bond before transfer
-        const oldArchaeologistCursedBondBefore =
-          await viewStateFacet.getCursedBond(oldArchaeologist.address);
+        const oldArchaeologistCursedBondBefore = await viewStateFacet.getCursedBond(
+          oldArchaeologist.address
+        );
 
         // Get the old archaeologist's free bond before transfer
         const oldArchaeologistFreeBondBefore = await viewStateFacet.getFreeBond(
@@ -1083,8 +914,9 @@ describe("Contract: ArchaeologistFacet", () => {
           .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         // Get the old archaeologist's cursed bond after transfer
-        const oldArchaeologistCursedBondAfter =
-          await viewStateFacet.getCursedBond(oldArchaeologist.address);
+        const oldArchaeologistCursedBondAfter = await viewStateFacet.getCursedBond(
+          oldArchaeologist.address
+        );
 
         // Get the old archaeologist's free bond after transfer
         const oldArchaeologistFreeBondAfter = await viewStateFacet.getFreeBond(
@@ -1092,27 +924,24 @@ describe("Contract: ArchaeologistFacet", () => {
         );
 
         // Calculate the bond amount
-        const bondAmount =
-          oldArchaeologistFees.bounty + oldArchaeologistFees.diggingFee;
+        const bondAmount = oldArchaeologistFees.bounty + oldArchaeologistFees.diggingFee;
 
         // Check that the difference betwwen the old and new cursed bonds is equal to
         // the bond amount
-        expect(
-          oldArchaeologistCursedBondBefore.sub(oldArchaeologistCursedBondAfter)
-        ).to.equal(bondAmount.toString());
+        expect(oldArchaeologistCursedBondBefore.sub(oldArchaeologistCursedBondAfter)).to.equal(
+          bondAmount.toString()
+        );
 
         // Check that the difference betwwen the old and new free bonds is equal to
         // the bond amount
-        expect(
-          oldArchaeologistFreeBondAfter.sub(oldArchaeologistFreeBondBefore)
-        ).to.equal(bondAmount.toString());
+        expect(oldArchaeologistFreeBondAfter.sub(oldArchaeologistFreeBondBefore)).to.equal(
+          bondAmount.toString()
+        );
       });
 
       it("should curse the new archaeologists bond", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "shouldCurseNewArchaeologistBond"
-        );
+        const identifier = await initializeSarcophagus("shouldCurseNewArchaeologistBond");
 
         const oldArchaeologistFees = archaeologistsFees[0];
 
@@ -1120,15 +949,12 @@ describe("Contract: ArchaeologistFacet", () => {
         await finalizeSarcophagus(identifier);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         // Get the new archaeologist's cursed bond before transfer
-        const newArchaeologistCursedBondBefore =
-          await viewStateFacet.getCursedBond(newArchaeologist.address);
+        const newArchaeologistCursedBondBefore = await viewStateFacet.getCursedBond(
+          newArchaeologist.address
+        );
 
         // Get the new archaeologist's free bond before transfer
         const newArchaeologistFreeBondBefore = await viewStateFacet.getFreeBond(
@@ -1140,8 +966,9 @@ describe("Contract: ArchaeologistFacet", () => {
           .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         // Get the new archaeologist's cursed bond after transfer
-        const newArchaeologistCursedBondAfter =
-          await viewStateFacet.getCursedBond(newArchaeologist.address);
+        const newArchaeologistCursedBondAfter = await viewStateFacet.getCursedBond(
+          newArchaeologist.address
+        );
 
         // Get the new archaeologist's free bond after transfer
         const newArchaeologistFreeBondAfter = await viewStateFacet.getFreeBond(
@@ -1149,20 +976,19 @@ describe("Contract: ArchaeologistFacet", () => {
         );
 
         // Calculate the bond amount
-        const bondAmount =
-          oldArchaeologistFees.bounty + oldArchaeologistFees.diggingFee;
+        const bondAmount = oldArchaeologistFees.bounty + oldArchaeologistFees.diggingFee;
 
         // Check that the difference betwwen the old and new cursed bonds is equal to
         // the bond amount
-        expect(
-          newArchaeologistCursedBondAfter.sub(newArchaeologistCursedBondBefore)
-        ).to.equal(bondAmount.toString());
+        expect(newArchaeologistCursedBondAfter.sub(newArchaeologistCursedBondBefore)).to.equal(
+          bondAmount.toString()
+        );
 
         // Check that the difference betwwen the new and new free bonds is equal to
         // the bond amount
-        expect(
-          newArchaeologistFreeBondBefore.sub(newArchaeologistFreeBondAfter)
-        ).to.equal(bondAmount.toString());
+        expect(newArchaeologistFreeBondBefore.sub(newArchaeologistFreeBondAfter)).to.equal(
+          bondAmount.toString()
+        );
       });
 
       it("should emit an event", async () => {
@@ -1173,67 +999,44 @@ describe("Contract: ArchaeologistFacet", () => {
         await finalizeSarcophagus(identifier);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         const tx = await archaeologistFacet
           .connect(newArchaeologist)
           .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
         const receipt = await tx.wait();
-        const events = receipt.events!;
+        const events = receipt.events;
         expect(events).to.not.be.undefined;
 
         // Check that the list of events includes an event that has an address
         // matching the archaeologistFacet address
-        expect(
-          events.some((event) => event.address === archaeologistFacet.address)
-        ).to.be.true;
+        expect(events?.some(event => event.address === archaeologistFacet.address)).to.be.true;
       });
     });
 
     context("Failed transfer", () => {
       it("should revert if the sarcophagus does not exist", async () => {
-        const falseIdentifier = ethers.utils.solidityKeccak256(
-          ["string"],
-          ["falseIdentifier"]
-        );
+        const falseIdentifier = ethers.utils.solidityKeccak256(["string"], ["falseIdentifier"]);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
-          .finalizeTransfer(
-            falseIdentifier,
-            arweaveTxId,
-            oldArchaeologistSignature
-          );
+          .finalizeTransfer(falseIdentifier, arweaveTxId, oldArchaeologistSignature);
 
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
       it("should revert if the sarcophagus has not been finalized", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "sarcophagusNotFinalized"
-        );
+        const identifier = await initializeSarcophagus("sarcophagusNotFinalized");
 
         // Skip the finalization step
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
@@ -1244,19 +1047,13 @@ describe("Contract: ArchaeologistFacet", () => {
 
       it("should revert if the resurrection time has passed", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "resurrectionTimePassed"
-        );
+        const identifier = await initializeSarcophagus("resurrectionTimePassed");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
         await increaseNextBlockTimestamp(604800 * 2);
 
@@ -1269,34 +1066,24 @@ describe("Contract: ArchaeologistFacet", () => {
 
       it("should revert if the provided signature is not from an archaeologist on the sarcophagus", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "signatureNotFromArchaeologist"
-        );
+        const identifier = await initializeSarcophagus("signatureNotFromArchaeologist");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          signers[9],
-          arweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(signers[9], arweaveTxId, "string");
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
           .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
-        await expect(tx).to.be.revertedWith(
-          "SignerNotArchaeologistOnSarcophagus"
-        );
+        await expect(tx).to.be.revertedWith("SignerNotArchaeologistOnSarcophagus");
       });
 
       it("should revert if the provided signature is not a signature of the arweave transaction id", async () => {
         // Initialize the sarcophagus
-        const identifier = await initializeSarcophagus(
-          "SignatureNotOfArweaveTxId"
-        );
+        const identifier = await initializeSarcophagus("SignatureNotOfArweaveTxId");
 
         // Finalize the sarcophagus
         await finalizeSarcophagus(identifier);
@@ -1305,19 +1092,13 @@ describe("Contract: ArchaeologistFacet", () => {
           "somethingelsethatisnotthearweavetxidliksomerandomstringlikethisoneitcouldbedogbreedsorcarnameslikeschnauzerorporsche";
 
         // Use the old archaeologist to sign the arweaveTxId
-        const oldArchaeologistSignature = await sign(
-          oldArchaeologist,
-          fakeArweaveTxId,
-          "string"
-        );
+        const oldArchaeologistSignature = await sign(oldArchaeologist, fakeArweaveTxId, "string");
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
           .finalizeTransfer(identifier, arweaveTxId, oldArchaeologistSignature);
 
-        await expect(tx).to.be.revertedWith(
-          "SignerNotArchaeologistOnSarcophagus"
-        );
+        await expect(tx).to.be.revertedWith("SignerNotArchaeologistOnSarcophagus");
       });
     });
   });

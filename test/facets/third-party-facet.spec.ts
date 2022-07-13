@@ -61,18 +61,10 @@ describe("Contract: ThirdPartyFacet", () => {
   };
 
   const _approveSpending = async () => {
-    await sarcoToken
-      .connect(thirdParty)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
-    await sarcoToken
-      .connect(embalmer)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
-    await sarcoToken
-      .connect(archaeologist1)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
-    await sarcoToken
-      .connect(archaeologist2)
-      .approve(diamondAddress, ethers.constants.MaxUint256);
+    await sarcoToken.connect(thirdParty).approve(diamondAddress, ethers.constants.MaxUint256);
+    await sarcoToken.connect(embalmer).approve(diamondAddress, ethers.constants.MaxUint256);
+    await sarcoToken.connect(archaeologist1).approve(diamondAddress, ethers.constants.MaxUint256);
+    await sarcoToken.connect(archaeologist2).approve(diamondAddress, ethers.constants.MaxUint256);
     await sarcoToken
       .connect(arweaveAchaeologist)
       .approve(diamondAddress, ethers.constants.MaxUint256);
@@ -82,23 +74,12 @@ describe("Contract: ThirdPartyFacet", () => {
   };
 
   const _setupArcheologists = async () => {
-    archaeologistFacet = await ethers.getContractAt(
-      "ArchaeologistFacet",
-      diamondAddress
-    );
+    archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamondAddress);
 
-    await archaeologistFacet
-      .connect(archaeologist1)
-      .depositFreeBond(freeBond.add(486));
-    await archaeologistFacet
-      .connect(archaeologist2)
-      .depositFreeBond(freeBond.add(978));
-    await archaeologistFacet
-      .connect(arweaveAchaeologist)
-      .depositFreeBond(freeBond.add(2332));
-    await archaeologistFacet
-      .connect(unaccusedArchaeologist)
-      .depositFreeBond(freeBond.add(859));
+    await archaeologistFacet.connect(archaeologist1).depositFreeBond(freeBond.add(486));
+    await archaeologistFacet.connect(archaeologist2).depositFreeBond(freeBond.add(978));
+    await archaeologistFacet.connect(arweaveAchaeologist).depositFreeBond(freeBond.add(2332));
+    await archaeologistFacet.connect(unaccusedArchaeologist).depositFreeBond(freeBond.add(859));
   };
 
   const _setupTestSarcophagus = async () => {
@@ -108,7 +89,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
     unencryptedShardHashes = [];
 
-    unencryptedShards.forEach((shard) => {
+    unencryptedShards.forEach(shard => {
       unencryptedShardHashes.push(ethers.utils.solidityKeccak256(["bytes32"], [shard]));
     });
 
@@ -143,8 +124,7 @@ describe("Contract: ThirdPartyFacet", () => {
       },
     ];
 
-    const tomorrow =
-      (await time.latest()) + time.duration.days(sarcoResurrectionTimeInDays);
+    const tomorrow = (await time.latest()) + time.duration.days(sarcoResurrectionTimeInDays);
 
     resurrectionTime = BigNumber.from(tomorrow);
 
@@ -167,11 +147,7 @@ describe("Contract: ThirdPartyFacet", () => {
     const signature1 = await sign(archaeologist1, sarcoId, "bytes32");
     const signature2 = await sign(archaeologist2, sarcoId, "bytes32");
     const signature3 = await sign(unaccusedArchaeologist, sarcoId, "bytes32");
-    const arweaveArchSig = await sign(
-      arweaveAchaeologist,
-      arweavetxId,
-      "string"
-    );
+    const arweaveArchSig = await sign(arweaveAchaeologist, arweavetxId, "string");
 
     await embalmerFacet.connect(embalmer).finalizeSarcophagus(
       sarcoId,
@@ -206,15 +182,9 @@ describe("Contract: ThirdPartyFacet", () => {
     // Approve signers on the sarco token so transferFrom will work
     await _approveSpending();
 
-    thirdPartyFacet = await ethers.getContractAt(
-      "ThirdPartyFacet",
-      diamondAddress
-    );
+    thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamondAddress);
 
-    viewStateFacet = await ethers.getContractAt(
-      "ViewStateFacet",
-      diamondAddress
-    );
+    viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamondAddress);
 
     // Setup archaeologists - add free bonds to their accounts
     await _setupArcheologists();
@@ -232,30 +202,26 @@ describe("Contract: ThirdPartyFacet", () => {
         await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
 
         // unaccusedArchaeologist will fulfil their duty
-        archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3])
+        archaeologistFacet
+          .connect(unaccusedArchaeologist)
+          .unwrapSarcophagus(sarcoId, unencryptedShards[3]);
 
         // Increasing by this much so that the sarco is definitely expired
         await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
         const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
-        const paymentAccountBalanceBefore = await sarcoToken.balanceOf(
-          paymentAccount.address
-        );
+        const paymentAccountBalanceBefore = await sarcoToken.balanceOf(paymentAccount.address);
 
         // before cleaning...
         expect(paymentAccountBalanceBefore).to.eq(0);
 
-        const tx = await thirdPartyFacet
-          .connect(thirdParty)
-          .clean(sarcoId, paymentAccount.address);
+        const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
         const receipt = await tx.wait();
 
         expect(receipt.status).to.equal(1);
 
         const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-        const paymentAccountBalanceAfter = await sarcoToken.balanceOf(
-          paymentAccount.address
-        );
+        const paymentAccountBalanceAfter = await sarcoToken.balanceOf(paymentAccount.address);
 
         // after cleaning, calculate sum, and verify on exact amounts instead
         // Set up amounts that should have been transferred to accuser and embalmer
@@ -272,13 +238,9 @@ describe("Contract: ThirdPartyFacet", () => {
           arweaveAchaeologist.address
         );
 
-        const totalDiggingFees = arch1.diggingFee
-          .add(arch2.diggingFee)
-          .add(arch3.diggingFee);
+        const totalDiggingFees = arch1.diggingFee.add(arch2.diggingFee).add(arch3.diggingFee);
 
-        const totalBounty = arch1.bounty
-          .add(arch2.bounty)
-          .add(arch3.bounty);
+        const totalBounty = arch1.bounty.add(arch2.bounty).add(arch3.bounty);
 
         const cursedBond = calculateCursedBond(totalDiggingFees, totalBounty);
         const toEmbalmer = cursedBond.div(2);
@@ -286,13 +248,9 @@ describe("Contract: ThirdPartyFacet", () => {
 
         // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
         const embalmerReward = toEmbalmer.add(totalBounty.add(totalDiggingFees)); // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
-        expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward)))
-          .to.be.true;
-        expect(
-          paymentAccountBalanceAfter.eq(
-            paymentAccountBalanceBefore.add(toCleaner)
-          )
-        ).to.be.true;
+        expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
+        expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toCleaner))).to.be
+          .true;
       });
 
       it("Should reduce cursed bonds on storage of archaeologists after distributing their value, without increasing free bond of bad-acting ones", async () => {
@@ -300,7 +258,9 @@ describe("Contract: ThirdPartyFacet", () => {
         const cursedBond1Before = await viewStateFacet.getCursedBond(archaeologist1.address);
         const cursedBond2Before = await viewStateFacet.getCursedBond(archaeologist2.address);
         const cursedBond3Before = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
-        const cursedBondGoodBefore = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
+        const cursedBondGoodBefore = await viewStateFacet.getCursedBond(
+          unaccusedArchaeologist.address
+        );
 
         const freeBond1Before = await viewStateFacet.getFreeBond(archaeologist1.address);
         const freeBond2Before = await viewStateFacet.getFreeBond(archaeologist2.address);
@@ -311,7 +271,9 @@ describe("Contract: ThirdPartyFacet", () => {
         await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
 
         // Have one arch actually do the unwrapping
-        const unwrapTx = await archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3]);
+        const unwrapTx = await archaeologistFacet
+          .connect(unaccusedArchaeologist)
+          .unwrapSarcophagus(sarcoId, unencryptedShards[3]);
         await unwrapTx.wait();
 
         // Increasing by this much so that the sarco is definitely expired
@@ -324,7 +286,9 @@ describe("Contract: ThirdPartyFacet", () => {
         const cursedBond1After = await viewStateFacet.getCursedBond(archaeologist1.address);
         const cursedBond2After = await viewStateFacet.getCursedBond(archaeologist2.address);
         const cursedBond3After = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
-        const cursedBondGoodAfter = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
+        const cursedBondGoodAfter = await viewStateFacet.getCursedBond(
+          unaccusedArchaeologist.address
+        );
 
         const freeBond1After = await viewStateFacet.getFreeBond(archaeologist1.address);
         const freeBond2After = await viewStateFacet.getFreeBond(archaeologist2.address);
@@ -350,9 +314,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // Increasing by this much so that the sarco is definitely expired
         await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
-        const tx = thirdPartyFacet
-          .connect(thirdParty)
-          .clean(sarcoId, paymentAccount.address);
+        const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
 
         await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus");
       });
@@ -360,7 +322,9 @@ describe("Contract: ThirdPartyFacet", () => {
       it("Should add all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
         // Have one arch actually do the unwrapping
         await time.increase(time.duration.days(sarcoResurrectionTimeInDays));
-        await archaeologistFacet.connect(unaccusedArchaeologist).unwrapSarcophagus(sarcoId, unencryptedShards[3]);
+        await archaeologistFacet
+          .connect(unaccusedArchaeologist)
+          .unwrapSarcophagus(sarcoId, unencryptedShards[3]);
 
         // Increasing by this much so that the sarco is definitely expired
         await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
@@ -370,8 +334,12 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const arch1Cleanups = await viewStateFacet.getArchaeologistCleanups(archaeologist1.address);
         const arch2Cleanups = await viewStateFacet.getArchaeologistCleanups(archaeologist2.address);
-        const arch3Cleanups = await viewStateFacet.getArchaeologistCleanups(arweaveAchaeologist.address);
-        const goodArchCleanups = await viewStateFacet.getArchaeologistCleanups(unaccusedArchaeologist.address);
+        const arch3Cleanups = await viewStateFacet.getArchaeologistCleanups(
+          arweaveAchaeologist.address
+        );
+        const goodArchCleanups = await viewStateFacet.getArchaeologistCleanups(
+          unaccusedArchaeologist.address
+        );
 
         expect(arch1Cleanups).contains(sarcoId);
         expect(arch2Cleanups).contains(sarcoId);
@@ -383,9 +351,7 @@ describe("Contract: ThirdPartyFacet", () => {
     context("Reverts", () => {
       it("Should revert if cleaning is attempted before sacro can be unwrapped, or attempted within its resurrection grace period", async () => {
         // No time advancement before clean attempt
-        const cleanTx = thirdPartyFacet
-          .connect(thirdParty)
-          .clean(sarcoId, paymentAccount.address);
+        const cleanTx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
         await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
 
         // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
@@ -394,9 +360,7 @@ describe("Contract: ThirdPartyFacet", () => {
         const cleanTxAgain = thirdPartyFacet
           .connect(thirdParty)
           .clean(sarcoId, paymentAccount.address);
-        await expect(cleanTxAgain).to.be.revertedWith(
-          "SarcophagusNotCleanable()"
-        );
+        await expect(cleanTxAgain).to.be.revertedWith("SarcophagusNotCleanable()");
       });
 
       it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
@@ -410,15 +374,9 @@ describe("Contract: ThirdPartyFacet", () => {
         // Increasing time up to so sarco is cleanable
         await time.increase(time.duration.years(sarcoResurrectionTimeInDays));
 
-        (
-          await thirdPartyFacet
-            .connect(thirdParty)
-            .clean(sarcoId, paymentAccount.address)
-        ).wait();
+        (await thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address)).wait();
 
-        const tx = thirdPartyFacet
-          .connect(thirdParty)
-          .clean(sarcoId, paymentAccount.address);
+        const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, paymentAccount.address);
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
     });
@@ -431,11 +389,7 @@ describe("Contract: ThirdPartyFacet", () => {
       it("Should emit AccuseArchaeologist", async () => {
         const tx = thirdPartyFacet
           .connect(thirdParty)
-          .accuse(
-            sarcoId,
-            unencryptedShardHashes.slice(0, 2),
-            paymentAccount.address
-          );
+          .accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
         await expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist");
       });
 
@@ -445,11 +399,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet
           .connect(thirdParty)
-          .accuse(
-            sarcoId,
-            unencryptedShardHashes.slice(0, 2),
-            paymentAccount.address
-          );
+          .accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
         await tx.wait();
 
         sarco = await viewStateFacet.getSarcophagus(sarcoId);
@@ -457,22 +407,14 @@ describe("Contract: ThirdPartyFacet", () => {
       });
 
       it("Should distribute half the sum of the accused archaeologists' bounties and digging fees to accuser, and other half to embalmer", async () => {
-        const embalmerBalanceBefore = await sarcoToken.balanceOf(
-          embalmer.address
-        );
-        const paymentAccountBalanceBefore = await sarcoToken.balanceOf(
-          paymentAccount.address
-        );
+        const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
+        const paymentAccountBalanceBefore = await sarcoToken.balanceOf(paymentAccount.address);
 
         expect(paymentAccountBalanceBefore.eq(0)).to.be.true;
 
         const tx = await thirdPartyFacet
           .connect(thirdParty)
-          .accuse(
-            sarcoId,
-            unencryptedShardHashes.slice(0, 2),
-            paymentAccount.address
-          );
+          .accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
         await tx.wait();
 
         // Set up amounts that should have been transferred to accuser and embalmer
@@ -492,25 +434,14 @@ describe("Contract: ThirdPartyFacet", () => {
         const toEmbalmer = cursedBond.div(2);
         const toAccuser = cursedBond.sub(toEmbalmer);
 
-        const embalmerBalanceAfter = await sarcoToken.balanceOf(
-          embalmer.address
-        );
-        const paymentAccountBalanceAfter = await sarcoToken.balanceOf(
-          paymentAccount.address
-        );
+        const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
+        const paymentAccountBalanceAfter = await sarcoToken.balanceOf(paymentAccount.address);
 
         // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
-        const embalmerReward = toEmbalmer.add(
-          totalBounty.add(totalDiggingFees)
-        ); // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
-        expect(
-          embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))
-        ).to.be.true;
-        expect(
-          paymentAccountBalanceAfter.eq(
-            paymentAccountBalanceBefore.add(toAccuser)
-          )
-        ).to.be.true;
+        const embalmerReward = toEmbalmer.add(totalBounty.add(totalDiggingFees)); // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
+        expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
+        expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toAccuser))).to.be
+          .true;
       });
 
       it("Should reduce cursed bond on storage of accused archaeologists after distributing their value, without increasing their free bond", async () => {
@@ -519,7 +450,9 @@ describe("Contract: ThirdPartyFacet", () => {
         const freeBond1Before = await viewStateFacet.getFreeBond(archaeologist1.address);
         const freeBond2Before = await viewStateFacet.getFreeBond(archaeologist2.address);
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
+        const tx = await thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
         await tx.wait();
 
         const cursedBond1After = await viewStateFacet.getCursedBond(archaeologist1.address);
@@ -538,11 +471,15 @@ describe("Contract: ThirdPartyFacet", () => {
 
       it("Should un-curse the bond (on storage) of unaccused archaeologists", async () => {
         const cursedBond1Before = await viewStateFacet.getCursedBond(arweaveAchaeologist.address);
-        const cursedBond2Before = await viewStateFacet.getCursedBond(unaccusedArchaeologist.address);
+        const cursedBond2Before = await viewStateFacet.getCursedBond(
+          unaccusedArchaeologist.address
+        );
         const freeBond1Before = await viewStateFacet.getFreeBond(arweaveAchaeologist.address);
         const freeBond2Before = await viewStateFacet.getFreeBond(unaccusedArchaeologist.address);
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
+        const tx = await thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
         await tx.wait();
 
         const cursedBond1After = await viewStateFacet.getCursedBond(archaeologist1.address);
@@ -560,14 +497,24 @@ describe("Contract: ThirdPartyFacet", () => {
       });
 
       it("Should not actually transfer tokens (being explicit here, cz of recent refactoring)", async () => {
-        const unaccusedArchaeologist1BalBefore = await sarcoToken.balanceOf(arweaveAchaeologist.address);
-        const unaccusedArchaeologist2BalBefore = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
+        const unaccusedArchaeologist1BalBefore = await sarcoToken.balanceOf(
+          arweaveAchaeologist.address
+        );
+        const unaccusedArchaeologist2BalBefore = await sarcoToken.balanceOf(
+          unaccusedArchaeologist.address
+        );
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
+        const tx = await thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
         await tx.wait();
 
-        const unaccusedArchaeologist1BalAfter = await sarcoToken.balanceOf(arweaveAchaeologist.address);
-        const unaccusedArchaeologist2BalAfter = await sarcoToken.balanceOf(unaccusedArchaeologist.address);
+        const unaccusedArchaeologist1BalAfter = await sarcoToken.balanceOf(
+          arweaveAchaeologist.address
+        );
+        const unaccusedArchaeologist2BalAfter = await sarcoToken.balanceOf(
+          unaccusedArchaeologist.address
+        );
 
         // Check that unaccused archaeologists balances are unaffected
         expect(unaccusedArchaeologist1BalAfter.eq(unaccusedArchaeologist1BalBefore)).to.be.true;
@@ -575,13 +522,19 @@ describe("Contract: ThirdPartyFacet", () => {
       });
 
       it("Should add all accused archaeologists to archaeologistAccusals storage on successful accusal", async () => {
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
+        const tx = await thirdPartyFacet
+          .connect(thirdParty)
+          .accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address);
         await tx.wait();
 
         const arch1Accusals = await viewStateFacet.getArchaeologistAccusals(archaeologist1.address);
         const arch2Accusals = await viewStateFacet.getArchaeologistAccusals(archaeologist2.address);
-        const arch3Accusals = await viewStateFacet.getArchaeologistAccusals(arweaveAchaeologist.address);
-        const goodArchAccusals = await viewStateFacet.getArchaeologistAccusals(unaccusedArchaeologist.address);
+        const arch3Accusals = await viewStateFacet.getArchaeologistAccusals(
+          arweaveAchaeologist.address
+        );
+        const goodArchAccusals = await viewStateFacet.getArchaeologistAccusals(
+          unaccusedArchaeologist.address
+        );
 
         expect(arch1Accusals).contains(sarcoId);
         expect(arch2Accusals).contains(sarcoId);
@@ -602,9 +555,7 @@ describe("Contract: ThirdPartyFacet", () => {
       });
 
       it("Should revert with NotEnoughProof() if less than m unencrypted shards are provided", async () => {
-        const tx = thirdPartyFacet
-          .connect(thirdParty)
-          .accuse(sarcoId, [], paymentAccount.address);
+        const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [], paymentAccount.address);
         await expect(tx).to.be.revertedWith("NotEnoughProof()");
 
         const tx2 = thirdPartyFacet
@@ -639,11 +590,7 @@ describe("Contract: ThirdPartyFacet", () => {
         (
           await thirdPartyFacet
             .connect(thirdParty)
-            .accuse(
-              sarcoId,
-              unencryptedShardHashes.slice(0, 2),
-              paymentAccount.address
-            )
+            .accuse(sarcoId, unencryptedShardHashes.slice(0, 2), paymentAccount.address)
         ).wait();
 
         const tx = thirdPartyFacet

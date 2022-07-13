@@ -23,36 +23,23 @@ export const successfulCancelFixture = deployments.createFixture(
 
     const diamond = await ethers.getContract("Diamond_DiamondProxy");
     const sarcoToken = await ethers.getContract("SarcoTokenMock");
-    const embalmerFacet = await ethers.getContractAt(
-      "EmbalmerFacet",
-      diamond.address
-    );
-    const archaeologistFacet = await ethers.getContractAt(
-      "ArchaeologistFacet",
-      diamond.address
-    );
+    const embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamond.address);
+    const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
 
-    const viewStateFacet = await ethers.getContractAt(
-      "ViewStateFacet",
-      diamond.address
-    );
+    const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
 
     // Transfer 10,000 sarco tokens to the embalmer to be put into free bond
     await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
 
     // Approve the embalmer on the sarco token so transferFrom will work
-    await sarcoToken
-      .connect(embalmer)
-      .approve(diamond.address, ethers.constants.MaxUint256);
+    await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
     // Set up the data for the sarcophagus
     const name = "Test Sarcophagus";
     const identifier = solidityKeccak256(["string"], ["unhashedIdentifier"]);
     const canBeTransferred = true;
     // 1 week
-    const resurrectionTime = BigNumber.from(
-      Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7
-    );
+    const resurrectionTime = BigNumber.from(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7);
     const minShards = 2;
 
     // Get sarco balance of the embalmer before initialize
