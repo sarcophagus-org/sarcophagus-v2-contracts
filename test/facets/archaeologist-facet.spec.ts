@@ -9,7 +9,7 @@ import { finalizeTransferFixture } from "../fixtures/finalize-transfer-fixture";
 import { calculateCursedBond, sign } from "../utils/helpers";
 import time from "../utils/time";
 
-describe.only("Contract: ArchaeologistFacet", () => {
+describe("Contract: ArchaeologistFacet", () => {
   describe("depositFreeBond()", () => {
     context("Successful deposit", () => {
       it("should deposit free bond to the contract", async () => {
