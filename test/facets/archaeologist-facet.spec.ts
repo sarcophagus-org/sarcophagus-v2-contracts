@@ -21,13 +21,8 @@ describe("Contract: ArchaeologistFacet", () => {
         const archaeologistSarcoBalanceBefore = await sarcoToken.balanceOf(
           archaeologist.archAddress
         );
-        const tx = await archaeologistFacet
-          .connect(archaeologist.signer)
-          .depositFreeBond(BigNumber.from(100));
-        const receipt = await tx.wait();
 
-        // Check that the transaction succeeded
-        expect(receipt.status).to.equal(1);
+        await archaeologistFacet.connect(archaeologist.signer).depositFreeBond(BigNumber.from(100));
 
         const freeBond = await viewStateFacet.getFreeBond(archaeologist.archAddress);
         expect(freeBond.toString()).to.equal("100");
@@ -87,13 +82,9 @@ describe("Contract: ArchaeologistFacet", () => {
           .depositFreeBond(BigNumber.from(100));
 
         // Withdraw free bond
-        const tx = await archaeologistFacet
+        await archaeologistFacet
           .connect(contextArchaeologist.signer)
           .withdrawFreeBond(BigNumber.from(100));
-        const receipt = await tx.wait();
-
-        // Check that the transaction succeeded
-        expect(receipt.status).to.equal(1);
 
         const freeBond = await viewStateFacet.getFreeBond(contextArchaeologist.archAddress);
         expect(freeBond.toString()).to.equal("0");

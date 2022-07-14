@@ -43,10 +43,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // before cleaning...
         expect(paymentAccountBalanceBefore).to.eq(0);
 
-        const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-        const receipt = await tx.wait();
-
-        expect(receipt.status).to.equal(1);
+        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
         const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
         const paymentAccountBalanceAfter = await sarcoToken.balanceOf(thirdParty.address);
