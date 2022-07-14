@@ -109,6 +109,7 @@ describe("Contract: EmbalmerFacet", () => {
           minShards,
         } = await failingInitializeFixture();
 
+        // Use a resurrection time 1 second in the past
         const resurrectionTime = (await time.latest()) - 1;
 
         // Create a sarcophagus as the embalmer
