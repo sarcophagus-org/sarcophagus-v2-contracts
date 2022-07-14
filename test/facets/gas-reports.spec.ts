@@ -10,7 +10,7 @@ import { ArchaeologistFacet, EmbalmerFacet } from "../../typechain";
 /// //////////////////////////////////////////
 /// // TESTS                                //
 /// //////////////////////////////////////////
-describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
+describe.skip("Gas Reports: Create, Rewrap, Unwrap a Sarcophagus", () => {
   // Set up the signers for the tests
   it("With 5 archaeologists", async () => {
     await _runGeneralGasReports({
@@ -48,7 +48,7 @@ describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
   });
 });
 
-describe.skip("Third party functions", () => {
+describe.skip("Gas Reports: Third party functions", () => {
   context("Clean", () => {
     it("With 5 archaeologists", async () =>
       await _runCleanGasReports({
