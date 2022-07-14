@@ -15,6 +15,7 @@ import { successfulFinalizeFixture } from "../fixtures/successful-finalize-fixtu
 import { successfulInitializeFixture } from "../fixtures/successful-initialize-fixture";
 import { successfulRewrapFixture } from "../fixtures/successful-rewrap-fixture";
 import { sign, signMultiple } from "../utils/helpers";
+import time from "../utils/time";
 
 describe("Contract: EmbalmerFacet", () => {
   describe("initializeSarcophagus()", () => {
@@ -108,7 +109,7 @@ describe("Contract: EmbalmerFacet", () => {
           minShards,
         } = await failingInitializeFixture();
 
-        const resurrectionTime = BigNumber.from(Math.floor(Date.now() / 1000) - 1);
+        const resurrectionTime = (await time.latest()) - 1;
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
@@ -688,8 +689,9 @@ describe("Contract: EmbalmerFacet", () => {
         const { embalmerFacet, identifier } = await failingRewrapFixture();
 
         const signers = await ethers.getSigners();
+
         // Define a new resurrection time one week in the future
-        const newResurrectionTime = BigNumber.from(Date.now() + 60 * 60 * 24 * 7 * 1000);
+        const newResurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
         // Rewrap the sarcophagus
         const tx = embalmerFacet
@@ -717,7 +719,7 @@ describe("Contract: EmbalmerFacet", () => {
         const { embalmerFacet, sarcoId, embalmer } = await successfulInitializeFixture();
 
         // Define a new resurrection time one week in the future
-        const newResurrectionTime = BigNumber.from(Date.now() + 60 * 60 * 24 * 7 * 1000);
+        const newResurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
         // Rewrap the sarcophagus
         const tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, newResurrectionTime);
@@ -729,7 +731,7 @@ describe("Contract: EmbalmerFacet", () => {
         const { embalmerFacet, identifier, embalmer } = await failingRewrapFixture();
 
         // Define a new resurrection time not in the future
-        const newResurrectionTime = BigNumber.from((Date.now() / 1000).toFixed(0));
+        const newResurrectionTime = (await time.latest()) - 1;
 
         // Rewrap the sarcophagus
         const tx = embalmerFacet

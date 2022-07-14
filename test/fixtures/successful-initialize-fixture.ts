@@ -2,6 +2,7 @@ import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments } from "hardhat";
 import { ArchaeologistFacet } from "../../typechain";
+import time from "../utils/time";
 import { setupArchaeologists } from "./setup-archaeologists";
 
 /**
@@ -36,8 +37,9 @@ export const successfulInitializeFixture = deployments.createFixture(
     const archaeologists = await setupArchaeologists();
     const arweaveArchaeologist = archaeologists[0];
     const canBeTransferred = true;
+
     // 1 week
-    const resurrectionTime = BigNumber.from(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7);
+    const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
     const minShards = 2;
 
     const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
