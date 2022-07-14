@@ -154,29 +154,15 @@ async function _runAccuseGasReports(arg: { shares: number; threshold: number }) 
 async function _runCreateSarcoTest(arg: { shares: number; threshold: number }) {
   const sarcoName = `Init sarco (${arg.shares})`;
   const {
-    tx,
     archaeologists,
     sarcoId,
-    signatures,
     arweaveSignature,
-    arweaveTxId,
     embalmer,
     embalmerFacet,
     shards,
     archaeologistFacet,
     thirdPartyFacet,
   } = await createSarcoFixture(arg, sarcoName);
-
-  tx.wait();
-
-  const finTx = await embalmerFacet.connect(embalmer).finalizeSarcophagus(
-    sarcoId,
-    signatures.slice(1, signatures.length), // first signer is arweave archaeologist. Exclude their signature
-    arweaveSignature,
-    arweaveTxId
-  );
-
-  finTx.wait();
 
   // check shard lengths
   expect(shards[0].length).to.eq(shards[1].length).to.eq(146);
