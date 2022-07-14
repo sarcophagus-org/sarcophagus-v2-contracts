@@ -6,6 +6,7 @@ import { TestArchaeologist } from "./spawn-archaeologists";
  * A fixture to simply deploy contracts and return a set number of
  * archaeologists with balances and approvals.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const archeologistsFixture = (count: number) =>
   deployments.createFixture(
     async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {
@@ -18,22 +19,12 @@ export const archeologistsFixture = (count: number) =>
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const sarcoToken = await ethers.getContract("SarcoTokenMock");
 
-      const archaeologistFacet = await ethers.getContractAt(
-        "ArchaeologistFacet",
-        diamond.address
-      );
-      const viewStateFacet = await ethers.getContractAt(
-        "ViewStateFacet",
-        diamond.address
-      );
+      const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
+      const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
 
       const archaeologists: TestArchaeologist[] = [];
 
-      for (
-        let i = unnamedAccounts.length - 1;
-        i >= unnamedAccounts.length - count;
-        i--
-      ) {
+      for (let i = unnamedAccounts.length - 1; i >= unnamedAccounts.length - count; i--) {
         const acc = await ethers.getSigner(unnamedAccounts[i]);
 
         archaeologists.push({
@@ -48,14 +39,9 @@ export const archeologistsFixture = (count: number) =>
 
         // Transfer 10,000 sarco tokens to each archaeologist to be put into free
         // bond, and approve spending
-        await sarcoToken.transfer(
-          acc.address,
-          ethers.utils.parseEther("10000")
-        );
+        await sarcoToken.transfer(acc.address, ethers.utils.parseEther("10000"));
 
-        await sarcoToken
-          .connect(acc)
-          .approve(diamond.address, ethers.constants.MaxUint256);
+        await sarcoToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
       }
 
       return {

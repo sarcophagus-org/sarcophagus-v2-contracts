@@ -133,7 +133,7 @@ contract ThirdPartyFacet {
             unencryptedShardHashes.length
         );
 
-        // For each provided shard, check if its hash matches one on storage. If so, flag that
+        // For each provided shard hash, check if its hash matches one on storage. If so, flag that
         // archaeologist as accusable
         uint256 diggingFeesToBeDistributed = 0;
         uint256 bountyToBeDistributed = 0;

@@ -55,9 +55,7 @@ export async function signMultiple(
  *
  * @param sec The number of seconds to increase the next block by
  */
-export const increaseNextBlockTimestamp = async (
-  sec: number
-): Promise<void> => {
+export const increaseNextBlockTimestamp = async (sec: number): Promise<void> => {
   await ethers.provider.send("evm_setNextBlockTimestamp", [
     (await ethers.provider.getBlock("latest")).timestamp + sec,
   ]);
@@ -108,5 +106,5 @@ export const getArchaeologistSarcoRewards = async (
 };
 
 // TODO: update if calculate cursed bond algorithm changes (or possibly read this from contract instead?)
-export const calculateCursedBond = (diggingFee: BigNumber, bounty: BigNumber) =>
+export const calculateCursedBond = (diggingFee: BigNumber, bounty: BigNumber): BigNumber =>
   diggingFee.add(bounty);
