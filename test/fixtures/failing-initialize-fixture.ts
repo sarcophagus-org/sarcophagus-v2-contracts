@@ -5,8 +5,7 @@ import { setupArchaeologists } from "./setup-archaeologists";
 
 /**
  * A fixture to initialize the sarcophagus to set up a test that reqiures a
- * successful initialization. Not intended to be used for the actual
- * intializeSarcophagus tests.
+ * failing initialization. Does not initialize a sarcophagus.
  */
 export const failingInitializeFixture = deployments.createFixture(
   async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {

@@ -15,6 +15,7 @@ import { successfulFinalizeFixture } from "../fixtures/successful-finalize-fixtu
 import { successfulInitializeFixture } from "../fixtures/successful-initialize-fixture";
 import { successfulRewrapFixture } from "../fixtures/successful-rewrap-fixture";
 import { sign, signMultiple } from "../utils/helpers";
+import time from "../utils/time";
 
 describe("Contract: EmbalmerFacet", () => {
   describe("initializeSarcophagus()", () => {
@@ -108,7 +109,8 @@ describe("Contract: EmbalmerFacet", () => {
           minShards,
         } = await failingInitializeFixture();
 
-        const resurrectionTime = BigNumber.from(Math.floor(Date.now() / 1000) - 1);
+        // Use a resurrection time 1 second in the past
+        const resurrectionTime = (await time.latest()) - 1;
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet
