@@ -3,14 +3,14 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import time from "../utils/time";
 import { TestArchaeologist } from "../fixtures/spawn-archaeologists";
-import { initializeSarcoFixture } from "../fixtures/initialize-sarco-fixture";
+import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ArchaeologistFacet, EmbalmerFacet } from "../../typechain";
 
 /// //////////////////////////////////////////
 /// // TESTS                                //
 /// //////////////////////////////////////////
-describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
+describe.skip("Gas Reports: Create, Rewrap, Unwrap a Sarcophagus", () => {
   // Set up the signers for the tests
   it("With 5 archaeologists", async () => {
     await _runGeneralGasReports({
@@ -48,7 +48,7 @@ describe.skip("Create, Rewrap, Unwrap a Sarcophagus", () => {
   });
 });
 
-describe.skip("Third party functions", () => {
+describe.skip("Gas Reports: Third party functions", () => {
   context("Clean", () => {
     it("With 5 archaeologists", async () =>
       await _runCleanGasReports({
@@ -165,7 +165,7 @@ async function _runCreateSarcoTest(arg: { shares: number; threshold: number }) {
     shards,
     archaeologistFacet,
     thirdPartyFacet,
-  } = await initializeSarcoFixture(arg, sarcoName);
+  } = await createSarcoFixture(arg, sarcoName);
 
   tx.wait();
 

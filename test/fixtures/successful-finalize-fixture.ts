@@ -2,6 +2,7 @@ import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments } from "hardhat";
 import { sign, signMultiple } from "../utils/helpers";
+import time from "../utils/time";
 import { setupArchaeologists } from "./setup-archaeologists";
 
 /**
@@ -40,8 +41,9 @@ export const successfulFinalizeFixture = deployments.createFixture(
     const name = "Test Sarcophagus";
     const identifier = solidityKeccak256(["string"], ["unhashedIdentifier"]);
     const canBeTransferred = true;
+
     // 1 week
-    const resurrectionTime = BigNumber.from(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7);
+    const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
     const minShards = 2;
 
     // Create a sarcophagus as the embalmer

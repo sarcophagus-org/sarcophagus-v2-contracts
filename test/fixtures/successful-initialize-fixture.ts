@@ -1,6 +1,8 @@
 import { BigNumber, ContractTransaction } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
 import { deployments } from "hardhat";
+import { ArchaeologistFacet } from "../../typechain";
+import time from "../utils/time";
 import { setupArchaeologists } from "./setup-archaeologists";
 
 /**
@@ -21,6 +23,7 @@ export const successfulInitializeFixture = deployments.createFixture(
     const diamond = await ethers.getContract("Diamond_DiamondProxy");
     const sarcoToken = await ethers.getContract("SarcoTokenMock");
     const embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamond.address);
+    const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
 
     // Transfer 10,000 sarco tokens to embalmer
     await sarcoToken.transfer(embalmer.address, BigNumber.from(10_000));
@@ -30,12 +33,13 @@ export const successfulInitializeFixture = deployments.createFixture(
 
     // Set up the data for the sarcophagus
     const name = "Test Sarcophagus";
-    const identifier = solidityKeccak256(["string"], ["unhashedIdentifier"]);
+    const sarcoId = solidityKeccak256(["string"], ["unhashedIdentifier"]);
     const archaeologists = await setupArchaeologists();
     const arweaveArchaeologist = archaeologists[0];
     const canBeTransferred = true;
+
     // 1 week
-    const resurrectionTime = BigNumber.from(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7);
+    const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
     const minShards = 2;
 
     const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
@@ -45,7 +49,7 @@ export const successfulInitializeFixture = deployments.createFixture(
       .connect(embalmer)
       .initializeSarcophagus(
         name,
-        identifier,
+        sarcoId,
         archaeologists,
         arweaveArchaeologist.account,
         recipient.address,
@@ -55,7 +59,7 @@ export const successfulInitializeFixture = deployments.createFixture(
       );
 
     return {
-      identifier,
+      sarcoId,
       tx,
       sarcoToken,
       embalmer,
@@ -63,6 +67,7 @@ export const successfulInitializeFixture = deployments.createFixture(
       arweaveArchaeologist,
       embalmerBalance,
       embalmerFacet,
+      archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
     };
   }
 );
