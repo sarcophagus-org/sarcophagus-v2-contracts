@@ -1,13 +1,11 @@
-import { BigNumber, ContractTransaction } from "ethers";
-import { solidityKeccak256 } from "ethers/lib/utils";
-import { deployments } from "hardhat";
-import time from "../utils/time";
+import { ContractTransaction } from "ethers";
 import { createSarcoFixture } from "./create-sarco-fixture";
-import { setupArchaeologists } from "./setup-archaeologists";
 
 /**
  * A fixture to intialize a sarcophagus to set up a test that
- * requires a cancellation.
+ * requires a cancellation. config has optional flags for skipping the cancel
+ * contract call, skipping finalising the sarcophagus, and not awaiting
+ * the transaction Promise.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const cancelSarcoFixture = async (

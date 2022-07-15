@@ -676,21 +676,6 @@ describe("Contract: EmbalmerFacet", () => {
 
         await expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
       });
-
-      it.skip("should revert if the new resurrection time is before old resurrection time", async () => {
-        const { embalmerFacet, sarcoId, embalmer, oldResurrectionTime } = await rewrapFixture(
-          { shares, threshold, skipRewrap: true },
-          sarcoName
-        );
-
-        // Define a new resurrection time not in the future
-        const newResurrectionTime = oldResurrectionTime - 1;
-
-        // Rewrap the sarcophagus
-        const tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, newResurrectionTime);
-
-        await expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
-      });
     });
   });
 
@@ -765,20 +750,14 @@ describe("Contract: EmbalmerFacet", () => {
   describe("burySarcophagus()", () => {
     context("Successful bury", () => {
       it("should set resurrection time to inifinity", async () => {
-        const { viewStateFacet, sarcoId } = await buryFixture(
-          { shares, threshold },
-          sarcoName
-        );
+        const { viewStateFacet, sarcoId } = await buryFixture({ shares, threshold }, sarcoName);
         const sarcophagus = await viewStateFacet.getSarcophagus(sarcoId);
 
         expect(sarcophagus.resurrectionTime).to.equal(ethers.constants.MaxUint256);
       });
 
       it("should set the sarcophagus state to done", async () => {
-        const { viewStateFacet, sarcoId } = await buryFixture(
-          { shares, threshold },
-          sarcoName
-        );
+        const { viewStateFacet, sarcoId } = await buryFixture({ shares, threshold }, sarcoName);
 
         const sarcophagus = await viewStateFacet.getSarcophagus(sarcoId);
 
@@ -830,10 +809,7 @@ describe("Contract: EmbalmerFacet", () => {
       });
 
       it("should emit BurySarcophagus()", async () => {
-        const { tx, embalmerFacet, sarcoId } = await buryFixture(
-          { shares, threshold },
-          sarcoName
-        );
+        const { tx, embalmerFacet, sarcoId } = await buryFixture({ shares, threshold }, sarcoName);
         expect(tx).to.emit(embalmerFacet, "BurySarcophagus").withArgs(sarcoId);
       });
     });

@@ -1,4 +1,3 @@
-/* eslint-disable node/no-unsupported-features/es-syntax */
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import time from "../utils/time";

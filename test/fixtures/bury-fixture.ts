@@ -3,8 +3,9 @@ import { createSarcoFixture } from "./create-sarco-fixture";
 
 /**
  * A fixture to intialize and finalize a sarcophagus to set up a test that
- * requires a successful initialization and finalization. Not intended to be
- * used for the actual finalizeSarcophagus tests.
+ * performs a sarcophagus bury. config has optional flags for skipping the bury
+ * contract call, skipping finalising the sarcophagus, and not awaiting
+ * the transaction Promise.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const buryFixture = async (

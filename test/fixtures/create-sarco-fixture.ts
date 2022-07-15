@@ -20,7 +20,8 @@ const sss = require("shamirs-secret-sharing");
  * created and pre-configured for it. Ressurection time is set to 1 week.
  * Optionally, initialising and finalising may be skipped. It's also possible to
  * indicate to return a specified number of archaeologists not bonded to the
- * sarcophagus that is setup.
+ * sarcophagus that is setup, and not await the initialise and/or finalise
+ * transaction Promises.
  *
  * Arweave archaeologist is set to the first in the returned list of archaeologists.
  */

@@ -1,4 +1,3 @@
-/* eslint-disable node/no-unsupported-features/es-syntax */
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import time from "../utils/time";
