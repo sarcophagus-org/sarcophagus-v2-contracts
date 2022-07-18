@@ -140,7 +140,7 @@ export const createSarcoFixture = (
             arweaveArchaeologist.signer.address,
             recipient.address,
             resurrectionTime,
-            maxResurrectionInterval || time.duration.weeks(1),
+            maxResurrectionInterval ?? time.duration.weeks(1),
             canBeTransferred,
             config.threshold
           );
