@@ -439,6 +439,9 @@ contract EmbalmerFacet {
         // Add the protocol fee to the total protocol fees in storage
         s.totalProtocolFees += protocolFee;
 
+        // Set resurrection time to infinity
+        s.sarcophagi[sarcoId].resurrectionTime = resurrectionTime;
+
         // Transfer the new digging fees from the embalmer to the sarcophagus contract.
         // Archaeologists may withdraw their due from their respective reward pools
         s.sarcoToken.transferFrom(
