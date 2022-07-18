@@ -396,11 +396,9 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusNotFinalized(sarcoId);
         }
 
-        // Confirm that the current resurrection time is in the future
+        // Confirm that the current resurrection time is in the future, and thus rewrappable
         if (s.sarcophagi[sarcoId].resurrectionTime <= block.timestamp) {
-            revert LibErrors.NewResurrectionTimeInPast(
-                s.sarcophagi[sarcoId].resurrectionTime
-            );
+            revert LibErrors.SarcophagusIsUnwrappable();
         }
 
         // Confirm that the new resurrection time is in the future
