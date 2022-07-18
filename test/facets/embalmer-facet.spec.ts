@@ -580,17 +580,6 @@ describe("Contract: EmbalmerFacet", () => {
         expect(sarcophagusStored.resurrectionTime).to.equal(newResurrectionTime.toString());
       });
 
-      it.skip("should store the new resurrection window", async () => {
-        const { viewStateFacet, sarcoId, oldResurrectionWindow } = await rewrapFixture(
-          { shares, threshold },
-          sarcoName
-        );
-
-        const sarcophagusStoredAfter = await viewStateFacet.getSarcophagus(sarcoId);
-
-        expect(sarcophagusStoredAfter.resurrectionWindow).to.not.equal(oldResurrectionWindow);
-      });
-
       it("should transfer the digging fee sum plus the protocol fee from the embalmer to the contract", async () => {
         const { archaeologists, sarcoToken, embalmer, embalmerBalanceBefore } = await rewrapFixture(
           { shares, threshold },

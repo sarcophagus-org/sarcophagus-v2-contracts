@@ -52,8 +52,6 @@ export const rewrapFixture = async (
   // Get the contract's sarco balance before rewrap
   const contractBalanceBefore = await sarcoToken.balanceOf(viewStateFacet.address);
 
-  const oldResurrectionWindow = (await viewStateFacet.getSarcophagus(sarcoId)).resurrectionWindow;
-
   // Calculate the sarco balances for each archaeologist before unwrap
   const archBalancesBefore = await Promise.all(
     archaeologists.map(async archaeologist => await sarcoToken.balanceOf(archaeologist.archAddress))
@@ -73,7 +71,6 @@ export const rewrapFixture = async (
     sarcoId,
     oldResurrectionTime,
     newResurrectionTime: _newResurrectionTime,
-    oldResurrectionWindow,
     archaeologists,
     sarcoToken,
     archBalancesBefore,

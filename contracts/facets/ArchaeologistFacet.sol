@@ -95,10 +95,7 @@ contract ArchaeologistFacet {
 
         // Confirm that the resurrection time has passed and that the
         // resurrection window has not passed
-        LibUtils.unwrapTime(
-            s.sarcophagi[sarcoId].resurrectionTime,
-            s.sarcophagi[sarcoId].resurrectionWindow
-        );
+        LibUtils.unwrapTime(s.sarcophagi[sarcoId].resurrectionTime);
 
         // Comfirm that the sarcophagus has been finalized
         if (!LibUtils.isSarcophagusFinalized(sarcoId)) {

@@ -21,11 +21,7 @@ contract EmbalmerFacet {
 
     event FinalizeSarcophagus(bytes32 indexed sarcoId, string arweaveTxId);
 
-    event RewrapSarcophagus(
-        bytes32 indexed sarcoId,
-        uint256 resurrectionTime,
-        uint256 resurrectionWindow
-    );
+    event RewrapSarcophagus(bytes32 indexed sarcoId, uint256 resurrectionTime);
 
     event CancelSarcophagus(bytes32 indexed sarcoId);
 
@@ -181,7 +177,6 @@ contract EmbalmerFacet {
             canBeTransferred: canBeTransferred,
             minShards: minShards,
             resurrectionTime: resurrectionTime,
-            resurrectionWindow: LibUtils.getGracePeriod(resurrectionTime),
             maxResurrectionInterval: maxResurrectionInterval,
             arweaveTxIds: new string[](0),
             storageFee: storageFee,
@@ -417,15 +412,6 @@ contract EmbalmerFacet {
             );
         }
 
-        // Calculate the new resurrectionWindow, which is the amount of time in
-        // seconds that an archaeologist has to unwrap after the resurrection
-        // time has passed.
-        uint256 resurrectionWindow = LibUtils.getGracePeriod(resurrectionTime);
-
-        // Store the new resurrectionTime and resurrectionWindow
-        s.sarcophagi[sarcoId].resurrectionTime = resurrectionTime;
-        s.sarcophagi[sarcoId].resurrectionWindow = resurrectionWindow;
-
         // For each archaeologist on the sarcophagus, transfer their digging fee allocations to them
         address[] memory bondedArchaeologists = s
             .sarcophagi[sarcoId]
@@ -462,7 +448,7 @@ contract EmbalmerFacet {
         );
 
         // Emit an event
-        emit RewrapSarcophagus(sarcoId, resurrectionTime, resurrectionWindow);
+        emit RewrapSarcophagus(sarcoId, resurrectionTime);
     }
 
     /// @notice Cancels a sarcophagus. An embalmer may cancel a sarcophagus after
