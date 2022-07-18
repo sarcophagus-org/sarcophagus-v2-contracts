@@ -103,6 +103,11 @@ contract EmbalmerFacet {
             revert LibErrors.MinShardsZero();
         }
 
+        // Confirm that maxResurrectionInterval is greater than 0
+        if (maxResurrectionInterval == 0) {
+            revert LibErrors.MaxResurrectionIntervalIsZero();
+        }
+
         // Initialize a list of archaeologist addresses to be passed in to the
         // sarcophagus object
         address[] memory archaeologistsToBond = new address[](
