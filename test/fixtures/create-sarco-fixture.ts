@@ -18,6 +18,10 @@ const sss = require("shamirs-secret-sharing");
  * transferrable sarcophagus. Deploys all contracts required for the system,
  * and initializes a sarcophagus with given config and name, with archaeologists
  * created and pre-configured for it. Ressurection time is set to 1 week.
+ * Optionally, initialising and finalising may be skipped. It's also possible to
+ * indicate to return a specified number of archaeologists not bonded to the
+ * sarcophagus that is setup, and not await the initialise and/or finalise
+ * transaction Promises.
  *
  * Arweave archaeologist is set to the first in the returned list of archaeologists.
  */
@@ -26,7 +30,10 @@ export const createSarcoFixture = (
   config: {
     shares: number;
     threshold: number;
+    skipInitialize?: boolean;
     skipFinalize?: boolean;
+    dontAwaitInitTx?: boolean;
+    dontAwaitFinalizeTx?: boolean;
     addUnbondedArchs?: number;
   },
   sarcoName: string
@@ -44,7 +51,10 @@ export const createSarcoFixture = (
 
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const sarcoToken = await ethers.getContract("SarcoTokenMock");
-      const embalmerFacet = await ethers.getContractAt("EmbalmerFacet", diamond.address);
+      const embalmerFacet = (await ethers.getContractAt(
+        "EmbalmerFacet",
+        diamond.address
+      )) as EmbalmerFacet;
       const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
       const thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamond.address);
       const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
@@ -56,11 +66,6 @@ export const createSarcoFixture = (
       await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
       // Set up the data for the sarcophagus
-      // const publicKey =
-      //   "-----BEGIN PUBLIC KEY-----\nMFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANFcUwtJSlCR65MqRqRmbJjBSuAhyxmN\nXmEV0imtcsKRiBHhHIxAAN/bw1tfzpHvAoM47iR11S7XsEfMjyW/nokCAwEAAQ==\n----- END PUBLIC KEY-----";
-      // const privateKey =
-      //   "-----BEGIN PRIVATE KEY-----\nMIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEA0VxTC0lKUJHrkypG\npGZsmMFK4CHLGY1eYRXSKa1ywpGIEeEcjEAA39vDW1/Oke8CgzjuJHXVLtewR8yP\nJb+eiQIDAQABAkEApXBbfzOvMfPdQDHMGOWHMz6rOGn74HlB914S8TRK10xTG0wG\n/4Y6pUJbRRqOanxkLgCBBZS9OvTF+dRf/VTVwQIhAPDB1OR8mXPgkoEsfJyBk5dw\n5uLnyN/jJyeaogSXILxFAiEA3p2fBYYVlbMnzNVi3yaglyxRiN0k2Oc7tfusPhtH\n93UCIQDQCj5jvkN/vUP7uSxotROLXnU1B6MtzATOlTGBk/ImnQIgZNquH7eGceLP\npjoKaCS83qBCdCoUNnxUDfduKlj7ur0CIBU7jkKqIw83yTJsLxWSiu9n07LbWss6\nGXukOtNeIAeZ\n-----END PRIVATE KEY-----";
-
       // 64-byte key:
       const privateKey = "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
 
@@ -118,36 +123,47 @@ export const createSarcoFixture = (
 
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
-      const embalmerBalance = await sarcoToken.balanceOf(embalmer.address);
+      const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
 
       // Create a sarcophagus as the embalmer
-      const tx: ContractTransaction = await embalmerFacet
-        .connect(embalmer)
-        .initializeSarcophagus(
-          sarcoName,
-          sarcoId,
-          archaeologists,
-          arweaveArchaeologist.signer.address,
-          recipient.address,
-          resurrectionTime,
-          canBeTransferred,
-          config.threshold
-        );
+      let initializeTx: Promise<ContractTransaction> | undefined;
+      if (config.skipInitialize !== true) {
+        initializeTx = embalmerFacet
+          .connect(embalmer)
+          .initializeSarcophagus(
+            sarcoName,
+            sarcoId,
+            archaeologists,
+            arweaveArchaeologist.signer.address,
+            recipient.address,
+            resurrectionTime,
+            canBeTransferred,
+            config.threshold
+          );
+      }
+
+      if (config.dontAwaitInitTx !== true) {
+        await initializeTx;
+      }
 
       const arweaveTxId = "arweaveTxId";
 
       const arweaveSignature = await sign(arweaveArchaeologist.signer, arweaveTxId, "string");
 
-      // Finalize the sarcophagus
-      if (config.skipFinalize !== true) {
-        await embalmerFacet
+      // Finalize the sarcophagus (will be skipped if initialize is skipped)
+      let finalizeTx: Promise<ContractTransaction> | undefined;
+      if (config.skipInitialize !== true && config.skipFinalize !== true) {
+        finalizeTx = embalmerFacet
           .connect(embalmer)
           .finalizeSarcophagus(sarcoId, signatures.slice(1), arweaveSignature, arweaveTxId);
       }
 
+      if (config.dontAwaitInitTx !== true && config.dontAwaitFinalizeTx !== true) {
+        await finalizeTx;
+      }
+
       return {
         sarcoId,
-        tx,
         embalmer,
         recipient,
         thirdParty,
@@ -157,8 +173,11 @@ export const createSarcoFixture = (
         arweaveSignature,
         arweaveArchaeologist,
         arweaveTxId,
-        embalmerBalance,
+        embalmerBalanceBefore,
         shards,
+        initializeTx,
+        finalizeTx,
+        resurrectionTime,
         sarcoToken: sarcoToken as IERC20,
         embalmerFacet: embalmerFacet as EmbalmerFacet,
         archaeologistFacet: archaeologistFacet as ArchaeologistFacet,

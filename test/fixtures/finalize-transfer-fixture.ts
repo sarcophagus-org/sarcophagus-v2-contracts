@@ -3,8 +3,8 @@ import { sign } from "../utils/helpers";
 import { createSarcoFixture } from "./create-sarco-fixture";
 
 /**
- * A fixture to simply deploy contracts and return a set number of
- * archaeologists with balances and approvals.
+ * A fixture to set up the transfer of an archaeologist's R&R on a
+ * sarcophagus to an unbonded archaeologist.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const finalizeTransferFixture = async () => {

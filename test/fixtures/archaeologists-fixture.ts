@@ -5,6 +5,9 @@ import { TestArchaeologist } from "./spawn-archaeologists";
 /**
  * A fixture to simply deploy contracts and return a set number of
  * archaeologists with balances and approvals.
+ *
+ * Used when testing archaeologist functions that don't depend on
+ * a sarcophagus.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const archeologistsFixture = (count: number) =>
