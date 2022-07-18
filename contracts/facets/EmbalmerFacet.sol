@@ -73,7 +73,7 @@ contract EmbalmerFacet {
         bool canBeTransferred,
         uint8 minShards
     ) external returns (uint256) {
-        bytes32 sarcoId = keccak256(abi.encode(name));
+        bytes32 sarcoId = keccak256(abi.encodePacked(name));
 
         // Confirm that this exact sarcophagus does not already exist
         if (

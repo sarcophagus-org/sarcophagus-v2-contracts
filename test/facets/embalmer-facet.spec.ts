@@ -60,7 +60,7 @@ describe("Contract: EmbalmerFacet", () => {
         );
 
         const sarco = await viewStateFacet.getSarcophagus(sarcoId);
-        expect(sarco.maxResurrectionInterval).to.not.be.undefined;
+        expect(sarco.maxResurrectionInterval.toString()).to.eq(time.duration.weeks(1).toString());
       });
     });
 
