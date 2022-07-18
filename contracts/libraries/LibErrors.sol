@@ -27,6 +27,8 @@ library LibErrors {
 
     error NewResurrectionTimeInPast(uint256 newResurrectionTime);
 
+    error NewResurrectionTimeTooLarge(uint256 newResurrectionTime);
+
     error NoArchaeologistsProvided();
 
     error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
@@ -56,7 +58,7 @@ library LibErrors {
 
     error SignerNotArchaeologistOnSarcophagus(bytes32 sarcoId, address signer);
 
-    // Used when an attempt is made to send an accusation after the resurrection time has already passed (so it's actually time to unwrap it)
+    // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)
     error SarcophagusIsUnwrappable();
 
     // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window

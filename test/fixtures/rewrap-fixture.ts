@@ -4,7 +4,11 @@ import { createSarcoFixture } from "./create-sarco-fixture";
 
 /**
  * A fixture to intialize and finalize a sarcophagus to set up a test that
- * performs a rewrapping. config has optional flags for skipping the rewrap
+ * performs a rewrapping.
+ *
+ * Defaults new resurrection time to 1 week from rewrap time.
+ *
+ * config has optional flags for skipping the rewrap
  * contract call, skipping finalising the sarcophagus, and not awaiting
  * the transaction Promise.
  */
@@ -17,7 +21,8 @@ export const rewrapFixture = async (
     skipFinaliseSarco?: boolean;
     dontAwaitTransaction?: boolean;
   },
-  sarcoName: string
+  sarcoName: string,
+  newResurrectionDuration?: number
 ) => {
   const {
     sarcoToken,
@@ -29,8 +34,14 @@ export const rewrapFixture = async (
     resurrectionTime: oldResurrectionTime,
   } = await createSarcoFixture({ ...config, skipFinalize: config.skipFinaliseSarco }, sarcoName);
 
-  // Set new resurrection time for 2 weeks in the future
-  const newResurrectionTime = (await time.latest()) + time.duration.weeks(2);
+  // Advance to a minute before resurrection time
+  await time.increase(time.duration.weeks(1) - 60);
+
+  const currentTime = await time.latest();
+  const _newResurrectionTime =
+    newResurrectionDuration === undefined
+      ? currentTime + time.duration.weeks(1) // Default new resurrection time to 1 week from current time
+      : currentTime + newResurrectionDuration;
 
   // Get the embalmer's balance before rewrap
   const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
@@ -50,10 +61,10 @@ export const rewrapFixture = async (
 
   let tx: Promise<ContractTransaction> | undefined;
   if (config.skipRewrap !== true) {
-    tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, newResurrectionTime);
+    tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, _newResurrectionTime);
   }
 
-  if (config.skipFinaliseSarco !== true) {
+  if (config.dontAwaitTransaction !== true) {
     await tx;
   }
 
@@ -61,7 +72,7 @@ export const rewrapFixture = async (
     viewStateFacet,
     sarcoId,
     oldResurrectionTime,
-    newResurrectionTime,
+    newResurrectionTime: _newResurrectionTime,
     oldResurrectionWindow,
     archaeologists,
     sarcoToken,

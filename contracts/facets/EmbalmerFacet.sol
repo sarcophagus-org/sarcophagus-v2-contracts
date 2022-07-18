@@ -408,6 +408,17 @@ contract EmbalmerFacet {
             revert LibErrors.NewResurrectionTimeInPast(resurrectionTime);
         }
 
+        // Confirm that the new resurrection time is not more than
+        // `maxResurrectionInterval` seconds into the future
+        if (
+            resurrectionTime - block.timestamp >
+            s.sarcophagi[sarcoId].maxResurrectionInterval
+        ) {
+            revert LibErrors.NewResurrectionTimeTooLarge(
+                s.sarcophagi[sarcoId].resurrectionTime
+            );
+        }
+
         // Calculate the new resurrectionWindow, which is the amount of time in
         // seconds that an archaeologist has to unwrap after the resurrection
         // time has passed.
