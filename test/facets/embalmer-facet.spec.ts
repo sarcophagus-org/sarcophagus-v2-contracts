@@ -126,6 +126,16 @@ describe("Contract: EmbalmerFacet", () => {
         await expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
       });
 
+      it("should revert if maxResurrectionInterval is 0", async () => {
+        const { initializeTx } = await createSarcoFixture(
+          { shares, threshold, skipFinalize: true, dontAwaitInitTx: true },
+          sarcoName,
+          0
+        );
+
+        await expect(initializeTx).to.be.revertedWith("MaxResurrectionIntervalIsZero");
+      });
+
       it("should revert if no archaeologists are provided", async () => {
         const { sarcoId, embalmerFacet, embalmer, arweaveArchaeologist, recipient } =
           await createSarcoFixture({ shares, threshold, skipInitialize: true }, sarcoName);

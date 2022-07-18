@@ -23,6 +23,8 @@ library LibErrors {
 
     error MinShardsZero();
 
+    error MaxResurrectionIntervalIsZero();
+
     error NewResurrectionTimeInPast(uint256 newResurrectionTime);
 
     error NoArchaeologistsProvided();
