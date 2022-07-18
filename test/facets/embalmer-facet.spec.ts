@@ -580,7 +580,7 @@ describe("Contract: EmbalmerFacet", () => {
         expect(sarcophagusStored.resurrectionTime).to.equal(newResurrectionTime.toString());
       });
 
-      it("should store the new resurrection window", async () => {
+      it.skip("should store the new resurrection window", async () => {
         const { viewStateFacet, sarcoId, oldResurrectionWindow } = await rewrapFixture(
           { shares, threshold },
           sarcoName
@@ -695,6 +695,18 @@ describe("Contract: EmbalmerFacet", () => {
         const tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, newResurrectionTime);
 
         await expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
+      });
+
+      it("should revert if the new resurrection time is further in the future than maxResurrectionTime allows", async () => {
+        const { tx } = await rewrapFixture(
+          { shares, threshold, dontAwaitTransaction: true },
+          sarcoName,
+          // Add 60 seconds to known default maxResurrectionInterval (from rewrapFixture's createSarcoFixture)
+          // of 1 week
+          time.duration.weeks(1) + 60
+        );
+
+        await expect(tx).to.be.revertedWith("NewResurrectionTimeTooLarge");
       });
     });
   });
