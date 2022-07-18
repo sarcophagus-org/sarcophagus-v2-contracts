@@ -52,6 +52,16 @@ describe("Contract: EmbalmerFacet", () => {
 
         expect(initializeTx).to.emit(embalmerFacet, "InitializeSarcophagus");
       });
+
+      it("should set a maximum resurrection interval", async () => {
+        const { sarcoId, viewStateFacet } = await createSarcoFixture(
+          { shares, threshold, skipFinalize: true },
+          sarcoName
+        );
+
+        const sarco = await viewStateFacet.getSarcophagus(sarcoId);
+        expect(sarco.maxResurrectionInterval).to.not.be.undefined;
+      });
     });
 
     context("Failed initialization", () => {
@@ -76,11 +86,11 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(embalmer)
           .initializeSarcophagus(
             sarcoName,
-            sarcoId,
             archaeologists,
             arweaveArchaeologist.signer.address,
             recipient.address,
             resurrectionTime,
+            time.duration.weeks(1),
             true,
             threshold
           );
@@ -104,11 +114,11 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(embalmer)
           .initializeSarcophagus(
             sarcoName,
-            sarcoId,
             archaeologists,
             arweaveArchaeologist.archAddress,
             recipient.address,
             resurrectionTime,
+            time.duration.weeks(1),
             true,
             threshold
           );
@@ -125,11 +135,11 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(embalmer)
           .initializeSarcophagus(
             sarcoName,
-            sarcoId,
             [],
             arweaveArchaeologist.archAddress,
             recipient.address,
             (await time.latest()) + 100,
+            time.duration.weeks(1),
             true,
             threshold
           );
@@ -157,11 +167,11 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(embalmer)
           .initializeSarcophagus(
             sarcoName,
-            sarcoId,
             nonUniqueArchaeologists,
             arweaveArchaeologist.archAddress,
             recipient.address,
             (await time.latest()) + 100,
+            time.duration.weeks(1),
             true,
             threshold
           );
@@ -184,11 +194,11 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(embalmer)
           .initializeSarcophagus(
             sarcoName,
-            sarcoId,
             archaeologists,
             arweaveArchaeologist.archAddress,
             recipient.address,
             (await time.latest()) + 100,
+            time.duration.weeks(1),
             true,
             archaeologists.length + 1
           );
@@ -211,11 +221,11 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(embalmer)
           .initializeSarcophagus(
             sarcoName,
-            sarcoId,
             archaeologists,
             arweaveArchaeologist.archAddress,
             recipient.address,
             (await time.latest()) + 100,
+            time.duration.weeks(1),
             true,
             0
           );
@@ -234,11 +244,11 @@ describe("Contract: EmbalmerFacet", () => {
           .connect(embalmer)
           .initializeSarcophagus(
             sarcoName,
-            sarcoId,
             archaeologists,
             signers[9].address,
             recipient.address,
             (await time.latest()) + 100,
+            time.duration.weeks(1),
             true,
             threshold
           );
