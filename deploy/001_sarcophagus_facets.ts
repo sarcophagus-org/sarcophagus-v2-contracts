@@ -6,11 +6,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, diamond } = hre.deployments;
   const { deployer } = await hre.getNamedAccounts();
 
-  // TODO: Find a way to pass this in as an argument
-  const network = "develop";
+  const network = hre.network.name;
 
   // Get the address of the SarcoToken contract
-  if (["develop", "test", "soliditycoverage"].includes(network)) {
+  if (["localhost", "hardhat", "test", "soliditycoverage"].includes(network)) {
     const sarcoTokenMock = await deploy("SarcoTokenMock", {
       from: deployer,
       log: true,
