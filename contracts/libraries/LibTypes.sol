@@ -77,7 +77,7 @@ library LibTypes {
         bool canBeTransferred;
         uint8 minShards;
         uint256 resurrectionTime;
-        uint256 resurrectionWindow;
+        uint256 maxResurrectionInterval;
         string[] arweaveTxIds;
         uint256 storageFee;
         address embalmer;

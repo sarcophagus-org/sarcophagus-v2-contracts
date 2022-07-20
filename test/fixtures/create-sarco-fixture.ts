@@ -17,13 +17,16 @@ const sss = require("shamirs-secret-sharing");
  * A fixture to set up a test that reqiures a successful initialization on a
  * transferrable sarcophagus. Deploys all contracts required for the system,
  * and initializes a sarcophagus with given config and name, with archaeologists
- * created and pre-configured for it. Ressurection time is set to 1 week.
+ * created and pre-configured for it.
+ *
+ * Ressurection time is set to 1 week.
+ * maxResurrectionInterval defaults to 1 week.
+ * Arweave archaeologist is set to the first in the returned list of archaeologists.
+ *
  * Optionally, initialising and finalising may be skipped. It's also possible to
  * indicate to return a specified number of archaeologists not bonded to the
  * sarcophagus that is setup, and not await the initialise and/or finalise
  * transaction Promises.
- *
- * Arweave archaeologist is set to the first in the returned list of archaeologists.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const createSarcoFixture = (
@@ -36,7 +39,8 @@ export const createSarcoFixture = (
     dontAwaitFinalizeTx?: boolean;
     addUnbondedArchs?: number;
   },
-  sarcoName: string
+  sarcoName: string,
+  maxResurrectionInterval?: number
 ) =>
   deployments.createFixture(
     async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {
@@ -132,13 +136,14 @@ export const createSarcoFixture = (
           .connect(embalmer)
           .initializeSarcophagus(
             sarcoName,
-            sarcoId,
             archaeologists,
             arweaveArchaeologist.signer.address,
             recipient.address,
             resurrectionTime,
+            maxResurrectionInterval ?? time.duration.weeks(1),
             canBeTransferred,
-            config.threshold
+            config.threshold,
+            sarcoId
           );
       }
 
