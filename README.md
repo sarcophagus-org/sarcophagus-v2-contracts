@@ -30,4 +30,5 @@ This repository contains the smart contracts (and corresponding deployment scrip
 ### Deploying
 
 `npx hardhat deploy --network <networkName>`
-Setup and/or add networks in the hardhat config file, `hardhat.config.ts`. You can then replace `local` with whichever network you'd like to deploy to.
+Setup and/or add networks in the hardhat config file, `hardhat.config.ts`. 
+You can then replace `<networkName>` with whichever network you'd like to deploy to (`localhost` for the local network spun up by `npx hardhat node`).
