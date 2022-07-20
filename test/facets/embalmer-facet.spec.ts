@@ -92,7 +92,8 @@ describe("Contract: EmbalmerFacet", () => {
             resurrectionTime,
             time.duration.weeks(1),
             true,
-            threshold
+            threshold,
+            sarcoId
           );
 
         await expect(tx).to.be.revertedWith("SarcophagusAlreadyExists");
@@ -120,7 +121,8 @@ describe("Contract: EmbalmerFacet", () => {
             resurrectionTime,
             time.duration.weeks(1),
             true,
-            threshold
+            threshold,
+            sarcoId
           );
 
         await expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
@@ -151,7 +153,8 @@ describe("Contract: EmbalmerFacet", () => {
             (await time.latest()) + 100,
             time.duration.weeks(1),
             true,
-            threshold
+            threshold,
+            sarcoId
           );
 
         await expect(tx).to.be.revertedWith("NoArchaeologistsProvided");
@@ -183,7 +186,8 @@ describe("Contract: EmbalmerFacet", () => {
             (await time.latest()) + 100,
             time.duration.weeks(1),
             true,
-            threshold
+            threshold,
+            sarcoId
           );
 
         await expect(tx).to.be.revertedWith("ArchaeologistListNotUnique");
@@ -210,7 +214,8 @@ describe("Contract: EmbalmerFacet", () => {
             (await time.latest()) + 100,
             time.duration.weeks(1),
             true,
-            archaeologists.length + 1
+            archaeologists.length + 1,
+            sarcoId
           );
 
         await expect(tx).to.be.revertedWith("MinShardsGreaterThanArchaeologists");
@@ -237,7 +242,8 @@ describe("Contract: EmbalmerFacet", () => {
             (await time.latest()) + 100,
             time.duration.weeks(1),
             true,
-            0
+            0,
+            sarcoId
           );
 
         await expect(tx).to.be.revertedWith("MinShardsZero");
@@ -260,7 +266,8 @@ describe("Contract: EmbalmerFacet", () => {
             (await time.latest()) + 100,
             time.duration.weeks(1),
             true,
-            threshold
+            threshold,
+            sarcoId
           );
 
         await expect(tx).to.be.revertedWith("ArweaveArchaeologistNotInList");

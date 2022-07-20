@@ -142,7 +142,8 @@ export const createSarcoFixture = (
             resurrectionTime,
             maxResurrectionInterval ?? time.duration.weeks(1),
             canBeTransferred,
-            config.threshold
+            config.threshold,
+            sarcoId
           );
       }
 

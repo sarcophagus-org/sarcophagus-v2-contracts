@@ -58,6 +58,7 @@ contract EmbalmerFacet {
     /// @dev archaeologists will have to sign off on this interval, and commit to it for the lifetime of the sarcophagus.
     /// @param canBeTransferred Whether the sarcophagus can be transferred
     /// @param minShards The minimum number of shards required to unwrap the sarcophagus
+    /// @param sarcoId Unique identifier of the sarcophagus
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
         string memory name,
@@ -67,10 +68,9 @@ contract EmbalmerFacet {
         uint256 resurrectionTime,
         uint256 maxResurrectionInterval,
         bool canBeTransferred,
-        uint8 minShards
+        uint8 minShards,
+        bytes32 sarcoId
     ) external returns (uint256) {
-        bytes32 sarcoId = keccak256(abi.encodePacked(name));
-
         // Confirm that this exact sarcophagus does not already exist
         if (
             s.sarcophagi[sarcoId].state !=
