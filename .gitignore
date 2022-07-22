@@ -1,6 +1,9 @@
 typechain
 typechain-types
 
+# Local deployment files
+deployments/localhost
+
 #Hardhat files
 cache
 artifacts
