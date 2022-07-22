@@ -34,17 +34,17 @@ Setup and/or add networks in the hardhat config file, `hardhat.config.ts`.
 You can then replace `<networkName>` with whichever network you'd like to deploy to (`localhost` for the local network spun up by `npx hardhat node`).
 Omitting the `--network` flag causes the command to run on the default network, usually the default in-memory and ephemeral `hardhat` network.
 
-### Upgrading Contracts
+## Upgrading Contracts
 
-## When testing with `npx hardhat test`
+### When testing with `npx hardhat test`
 Contracts are recompiled and redeployed every time tests are run this way, so the most recently saved contract code is always run.
 This is still the case even if `--network` is specified.
 
-## Deployed contracts
+### Deployed contracts
 To upgrade contracts that have already been deployed, simply run `npx hardhat deploy --network <networkName>` again.
 This does not re-deploy all facets - only those that have code changes.
 
-## Simulating an upgrade locally
+### Simulating an upgrade locally
 - Have a local node running `npx hardhat node`
 - Deploy the contracts `npx hardhat deploy --network localhost`
 - In `scripts/run.ts`, uncomment the `createSarcoScript` line
