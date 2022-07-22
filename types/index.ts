@@ -35,15 +35,3 @@ export interface DeployedContracts {
   embalmerFacet: Contract;
   archaeologistFacet: Contract;
 }
-
-export interface FixtureArchaeologist {
-  account: string;
-  // TODO: If archAddress changes to account in contract, remove archAddress from this type
-  archAddress: string; // same as account, contract expects archAddress
-  signer: SignerWithAddress;
-  bounty: BigNumber;
-  diggingFee: BigNumber;
-  storageFee: BigNumber;
-  hashedShard: string;
-  signature?: Signature;
-}
