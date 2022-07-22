@@ -30,4 +30,26 @@ This repository contains the smart contracts (and corresponding deployment scrip
 ### Deploying
 
 `npx hardhat deploy --network <networkName>`
-Setup and/or add networks in the hardhat config file, `hardhat.config.ts`. You can then replace `local` with whichever network you'd like to deploy to.
+Setup and/or add networks in the hardhat config file, `hardhat.config.ts`. 
+You can then replace `<networkName>` with whichever network you'd like to deploy to (`localhost` for the local network spun up by `npx hardhat node`).
+Omitting the `--network` flag causes the command to run on the default network, usually the default in-memory and ephemeral `hardhat` network.
+
+### Upgrading Contracts
+
+## When testing with `npx hardhat test`
+Contracts are recompiled and redeployed every time tests are run this way, so the most recently saved contract code is always run.
+This is still the case even if `--network` is specified.
+
+## Deployed contracts
+To upgrade contracts that have already been deployed, simply run `npx hardhat deploy --network <networkName>` again.
+This does not re-deploy all facets - only those that have code changes.
+
+## Simulating an upgrade locally
+- Have a local node running `npx hardhat node`
+- Deploy the contracts `npx hardhat deploy --network localhost`
+- In `scripts/run.ts`, uncomment the `createSarcoScript` line
+- Run `npx hardhat run scripts/run.ts`. A sarchophagus would have been created on the locally running network.
+- Comment out the `createSarcoScript` line if needed.
+- Edit contract code, modify `run.ts` as needed to confirm changes have NOT been reflected.
+- Run `npx hardhat deploy --network localhost`. This will redeploy updated contract facets.
+- Modify `run.ts` as needed to confirm changes have now been reflected. Verify the diamond contract address remains same.
