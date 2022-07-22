@@ -1,0 +1,605 @@
+{
+  "address": "0xAC7408d7480b778bf0003E0cCee0129934b6cC3a",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "cursedBond",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "NotEnoughCursedBond",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotEnoughProof",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "SarcophagusDoesNotExist",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SarcophagusIsUnwrappable",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SarcophagusNotCleanable",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "accuser",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "accuserBondReward",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "embalmerBondReward",
+          "type": "uint256"
+        }
+      ],
+      "name": "AccuseArchaeologist",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "cleaner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cleanerBondReward",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "embalmerBondReward",
+          "type": "uint256"
+        }
+      ],
+      "name": "CleanUpSarcophagus",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "unencryptedShardHashes",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "address",
+          "name": "paymentAddress",
+          "type": "address"
+        }
+      ],
+      "name": "accuse",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "paymentAddress",
+          "type": "address"
+        }
+      ],
+      "name": "clean",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "1bf053ca981c4b9e5393977a84534509",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"cursedBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"NotEnoughCursedBond\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotEnoughProof\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusDoesNotExist\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"SarcophagusIsUnwrappable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"SarcophagusNotCleanable\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"accuser\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"accuserBondReward\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"embalmerBondReward\",\"type\":\"uint256\"}],\"name\":\"AccuseArchaeologist\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"cleaner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"cleanerBondReward\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"embalmerBondReward\",\"type\":\"uint256\"}],\"name\":\"CleanUpSarcophagus\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32[]\",\"name\":\"unencryptedShardHashes\",\"type\":\"bytes32[]\"},{\"internalType\":\"address\",\"name\":\"paymentAddress\",\"type\":\"address\"}],\"name\":\"accuse\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"paymentAddress\",\"type\":\"address\"}],\"name\":\"clean\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"accuse(bytes32,bytes32[],address)\":{\"params\":{\"paymentAddress\":\"the address to which rewards should be sent if successful\",\"sarcoId\":\"The identifier of the sarcophagus having leaked shards\",\"unencryptedShardHashes\":\"At least 'm' unencrypted shard hashes as proof of bad behaviour\"}},\"clean(bytes32,address)\":{\"params\":{\"paymentAddress\":\"The address to which rewards will be sent\",\"sarcoId\":\"The identifier of the sarcophagus to clean\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"accuse(bytes32,bytes32[],address)\":{\"notice\":\"Accuse archaeologoists of bad behaviour, by providing proof of leaked unencrypted shards before a sarcophagus is ready to be unwrapped. The minumum number of shards required to unwrap the sarcophagus should be provided for a a successful accusal. of the cursed bonds of the archs back to them, and un-curses their bonds.\"},\"clean(bytes32,address)\":{\"notice\":\"Close a sarcophagus that has not been unwrapped before its resurrection window is passed\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/facets/ThirdPartyFacet.sol\":\"ThirdPartyFacet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) external returns (bool);\\n}\\n\",\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\"},\"contracts/facets/ThirdPartyFacet.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\nimport {LibBonds} from \\\"../libraries/LibBonds.sol\\\";\\nimport {LibUtils} from \\\"../libraries/LibUtils.sol\\\";\\nimport {AppStorage} from \\\"../storage/LibAppStorage.sol\\\";\\n\\ncontract ThirdPartyFacet {\\n    AppStorage internal s;\\n\\n    event AccuseArchaeologist(\\n        bytes32 indexed sarcoId,\\n        address indexed accuser,\\n        uint256 accuserBondReward,\\n        uint256 embalmerBondReward\\n    );\\n\\n    event CleanUpSarcophagus(\\n        bytes32 indexed sarcoId,\\n        address indexed cleaner,\\n        uint256 cleanerBondReward,\\n        uint256 embalmerBondReward\\n    );\\n\\n    /// @notice Close a sarcophagus that has not been unwrapped before its resurrection window is passed\\n    /// @param sarcoId The identifier of the sarcophagus to clean\\n    /// @param paymentAddress The address to which rewards will be sent\\n    function clean(bytes32 sarcoId, address paymentAddress) external {\\n        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];\\n\\n        if (sarco.state != LibTypes.SarcophagusState.Exists) {\\n            revert LibErrors.SarcophagusDoesNotExist(sarcoId);\\n        }\\n\\n        // Make sure the sarco is cleanable\\n        if (\\n            block.timestamp <\\n            LibUtils.getGracePeriod(sarco.resurrectionTime) +\\n                sarco.resurrectionTime\\n        ) {\\n            revert LibErrors.SarcophagusNotCleanable();\\n        }\\n\\n        // Figure out which archaeoligists did not fulfil their duties;\\n        // accumulate their digging fees and bounties\\n        address[] memory archAddresses = sarco.archaeologists;\\n\\n        uint256 totalCursedBond;\\n        uint256 totalDiggingFee;\\n        uint256 totalBounty;\\n\\n        for (uint256 i = 0; i < archAddresses.length; i++) {\\n            bool didNotUnwrap = s.archaeologistSuccesses[archAddresses[i]][\\n                sarcoId\\n            ] == false;\\n\\n            if (didNotUnwrap) {\\n                LibTypes.ArchaeologistStorage memory defaulter = s\\n                    .sarcophagusArchaeologists[sarcoId][archAddresses[i]];\\n\\n                totalBounty += defaulter.bounty;\\n                totalDiggingFee += defaulter.diggingFee;\\n\\n                uint256 cursedBond = LibBonds.calculateCursedBond(\\n                    defaulter.diggingFee,\\n                    defaulter.bounty\\n                );\\n\\n                totalCursedBond += cursedBond;\\n\\n                // decrease the defaulter's cursed bond\\n                LibBonds.decreaseCursedBond(archAddresses[i], cursedBond);\\n\\n                // Save the failure to unwrap against the archaeologist\\n                s.archaeologistCleanups[archAddresses[i]].push(sarcoId);\\n            }\\n        }\\n\\n        (\\n            uint256 cleanerBondReward,\\n            uint256 embalmerBondReward\\n        ) = _distributeLoot(\\n                paymentAddress,\\n                sarco,\\n                totalCursedBond,\\n                totalDiggingFee,\\n                totalBounty\\n            );\\n\\n        sarco.state = LibTypes.SarcophagusState.Done;\\n\\n        emit CleanUpSarcophagus(\\n            sarcoId,\\n            msg.sender,\\n            cleanerBondReward,\\n            embalmerBondReward\\n        );\\n    }\\n\\n    /**\\n     * @notice Accuse archaeologoists of bad behaviour, by providing proof of leaked\\n     * unencrypted shards before a sarcophagus is ready to be unwrapped. The minumum\\n     * number of shards required to unwrap the sarcophagus should be provided for a\\n     * a successful accusal.\\n     * of the cursed bonds of the archs back to them, and un-curses their bonds.\\n     * @param sarcoId The identifier of the sarcophagus having leaked shards\\n     * @param unencryptedShardHashes At least 'm' unencrypted shard hashes as proof of bad behaviour\\n     * @param paymentAddress the address to which rewards should be sent if successful\\n     */\\n    function accuse(\\n        bytes32 sarcoId,\\n        bytes32[] memory unencryptedShardHashes,\\n        address paymentAddress\\n    ) external {\\n        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];\\n\\n        if (sarco.state != LibTypes.SarcophagusState.Exists) {\\n            revert LibErrors.SarcophagusDoesNotExist(sarcoId);\\n        }\\n\\n        if (sarco.resurrectionTime < block.timestamp) {\\n            revert LibErrors.SarcophagusIsUnwrappable();\\n        }\\n\\n        if (unencryptedShardHashes.length < sarco.minShards) {\\n            revert LibErrors.NotEnoughProof();\\n        }\\n\\n        address[] memory accusedArchAddresses = new address[](\\n            unencryptedShardHashes.length\\n        );\\n\\n        // For each provided shard hash, check if its hash matches one on storage. If so, flag that\\n        // archaeologist as accusable\\n        uint256 diggingFeesToBeDistributed = 0;\\n        uint256 bountyToBeDistributed = 0;\\n        uint256 totalCursedBond = 0;\\n        uint256 pos = 0;\\n        for (uint256 i = 0; i < unencryptedShardHashes.length; i++) {\\n            bytes32 shardDoubleHash = keccak256(\\n                abi.encode(unencryptedShardHashes[i])\\n            );\\n\\n            address matchingArchAddr = s.doubleHashedShardArchaeologists[\\n                shardDoubleHash\\n            ];\\n\\n            LibTypes.ArchaeologistStorage storage badArch = s\\n                .sarcophagusArchaeologists[sarcoId][matchingArchAddr];\\n\\n            if (badArch.doubleHashedShard == shardDoubleHash) {\\n                accusedArchAddresses[pos++] = matchingArchAddr;\\n\\n                uint256 cursedBond = LibBonds.calculateCursedBond(\\n                    badArch.diggingFee,\\n                    badArch.bounty\\n                );\\n\\n                diggingFeesToBeDistributed += badArch.diggingFee;\\n                bountyToBeDistributed += badArch.bounty;\\n                totalCursedBond += cursedBond;\\n\\n                LibBonds.decreaseCursedBond(matchingArchAddr, cursedBond);\\n\\n                // Save the accusal against the archaeologist\\n                s.archaeologistAccusals[matchingArchAddr].push(sarcoId);\\n            } else {\\n                revert LibErrors.NotEnoughProof();\\n            }\\n        }\\n\\n        // At this point, we need to filter out unaccused archs in order to reimburse them.\\n        address[] memory bondedArchaeologists = s\\n            .sarcophagi[sarcoId]\\n            .archaeologists;\\n\\n        for (uint256 i = 0; i < bondedArchaeologists.length; i++) {\\n            // Need to check each archaeologist address on the sarcophagus\\n            bool isUnaccused = true;\\n\\n            for (uint256 j = 0; j < accusedArchAddresses.length; j++) {\\n                // For each arch address, if found in accusedArchAddresses,\\n                // then don't add to unaccusedArchsAddresses\\n                if (bondedArchaeologists[i] == accusedArchAddresses[j]) {\\n                    isUnaccused = false;\\n                    break;\\n                }\\n            }\\n\\n            // If this arch address wasn't in the accused list, free it from its curse\\n            if (isUnaccused) {\\n                // There are technically no rewards here, since the sarcophagus\\n                // has been compromised, so here this effectively merely resets\\n                // the state of the non-malicious archaeologists, as if they never\\n                // bonded to this sarcophagus in the first place.\\n                //\\n                // Of course, whatever rewards they might have gained in previous\\n                // rewraps remains theirs.\\n                LibBonds.freeArchaeologist(sarcoId, bondedArchaeologists[i]);\\n            }\\n        }\\n\\n        (\\n            uint256 accuserBondReward,\\n            uint256 embalmerBondReward\\n        ) = _distributeLoot(\\n                paymentAddress,\\n                sarco,\\n                totalCursedBond,\\n                diggingFeesToBeDistributed,\\n                bountyToBeDistributed\\n            );\\n\\n        sarco.state = LibTypes.SarcophagusState.Done;\\n\\n        emit AccuseArchaeologist(\\n            sarcoId,\\n            msg.sender,\\n            accuserBondReward,\\n            embalmerBondReward\\n        );\\n    }\\n\\n    /**\\n     * @notice Takes a sarcophagus's cursed bond, splits it in half, and sends\\n     * to paymentAddress and embalmer\\n     * @param paymentAddress payment address for the transaction caller\\n     * @param sarc the sarcophagus to operate on\\n     * @param totalCursedBond the sum of cursed bonds of all archs that failed to fulfil their duties\\n     * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties\\n     * @param totalBounty the sum of bounties that would have been paid to all archs that failed to fulfil their duties\\n     * @return halfToSender the amount of SARCO token going to transaction\\n     * sender\\n     * @return halfToEmbalmer the amount of SARCO token going to embalmer\\n     */\\n    function _distributeLoot(\\n        address paymentAddress,\\n        LibTypes.Sarcophagus storage sarc,\\n        uint256 totalCursedBond,\\n        uint256 totalDiggingFee,\\n        uint256 totalBounty\\n    ) private returns (uint256, uint256) {\\n        // split the sarcophagus's cursed bond into two halves\\n        uint256 halfToEmbalmer = totalCursedBond / 2;\\n        uint256 halfToSender = totalCursedBond - halfToEmbalmer;\\n\\n        // transfer the cursed half, plus bounty, plus digging fee to the\\n        // embalmer\\n        s.sarcoToken.transfer(\\n            sarc.embalmer,\\n            totalBounty + totalDiggingFee + halfToEmbalmer\\n        );\\n\\n        // transfer the other half of the cursed bond to the transaction caller\\n        s.sarcoToken.transfer(paymentAddress, halfToSender);\\n\\n        return (halfToSender, halfToEmbalmer);\\n    }\\n\\n    function _hashHelper(bytes memory data) private pure returns (bytes32) {\\n        return keccak256(data);\\n    }\\n}\\n\",\"keccak256\":\"0x782e3b26a06d6e60675e2545c4c68a7c1d851383864de338ad2f4235619bfa39\",\"license\":\"Unlicense\"},\"contracts/libraries/LibBonds.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\n\\nlibrary LibBonds {\\n    /// @notice Calculates the cursed bond that an archaeologist needs to lock\\n    /// up\\n    /// @dev The cursed bond amount is the sum of the digging fee and the\\n    /// bounty.\\n    /// @param diggingFee The digging fee of the sarcophagus\\n    /// @param bounty The bounty of the sarcophagus\\n    /// @return The amount of cursed bond\\n    function calculateCursedBond(uint256 diggingFee, uint256 bounty)\\n        internal\\n        pure\\n        returns (uint256)\\n    {\\n        // TODO: Implement a better algorithm for calculating the cursed bond\\n        return diggingFee + bounty;\\n    }\\n\\n    /// @notice Decreases the amount stored in the freeBond mapping for an\\n    /// archaeologist. Reverts if the archaeologist's free bond is lower than\\n    /// the amount.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being decreased\\n    /// @param amount The amount to decrease the free bond by\\n    function decreaseFreeBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Revert if the amount is greater than the current free bond\\n        if (amount > s.freeBonds[archaeologist]) {\\n            revert LibErrors.NotEnoughFreeBond(\\n                s.freeBonds[archaeologist],\\n                amount\\n            );\\n        }\\n\\n        // Decrease the free bond amount\\n        s.freeBonds[archaeologist] -= amount;\\n    }\\n\\n    /// @notice Increases the amount stored in the freeBond mapping for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being decreased\\n    /// @param amount The amount to decrease the free bond by\\n    function increaseFreeBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Increase the free bond amount\\n        s.freeBonds[archaeologist] += amount;\\n    }\\n\\n    /// @notice Decreases the amount stored in the cursedBond mapping for an\\n    /// archaeologist. Reverts if the archaeologist's cursed bond is lower than\\n    /// the amount.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being decreased\\n    /// @param amount The amount to decrease the cursed bond by\\n    function decreaseCursedBond(address archaeologist, uint256 amount)\\n        internal\\n    {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Revert if the amount is greater than the current cursed bond\\n        if (amount > s.cursedBonds[archaeologist]) {\\n            revert LibErrors.NotEnoughCursedBond(\\n                s.cursedBonds[archaeologist],\\n                amount\\n            );\\n        }\\n\\n        // Decrease the cursed bond amount\\n        s.cursedBonds[archaeologist] -= amount;\\n    }\\n\\n    /// @notice Increases the amount stored in the cursedBond mapping for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being decreased\\n    /// @param amount The amount to decrease the cursed bond by\\n    function increaseCursedBond(address archaeologist, uint256 amount)\\n        internal\\n    {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Increase the cursed bond amount\\n        s.cursedBonds[archaeologist] += amount;\\n    }\\n\\n    /// @notice Locks up the archaeologist's bond, decreasing the\\n    /// archaeologist's free bond by an amount and increasing the\\n    /// archaeologist's cursed bond by the same amount.\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param amount The amount to lock up\\n    function lockUpBond(address archaeologist, uint256 amount) internal {\\n        // Decrease the free bond amount\\n        decreaseFreeBond(archaeologist, amount);\\n\\n        // Increase the cursed bond amount\\n        increaseCursedBond(archaeologist, amount);\\n    }\\n\\n    /// @notice Unlocks the archaeologist's bond, increasing the\\n    /// archaeologist's free bond by an amount and decreasing the\\n    /// archaeologist's cursed bond by the same amount.\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param amount The amount to unlock\\n    function unlockBond(address archaeologist, uint256 amount) internal {\\n        // Decrease the cursed bond amount\\n        decreaseCursedBond(archaeologist, amount);\\n\\n        // Increase the free bond amount\\n        increaseFreeBond(archaeologist, amount);\\n    }\\n\\n    /// @notice Given an array of archaeologists on a sarcophagus, sums the total of\\n    /// 1. Each archaeologists' bounty\\n    /// 2. Each archaeologists' digging fees\\n    /// 3. The storage fee\\n    /// @param sarcoId The identifier of the sarcophagus\\n    /// @param archaeologists The array of archaeologists' addresses\\n    /// @return the total of the above\\n    function calculateTotalFees(\\n        bytes32 sarcoId,\\n        address[] memory archaeologists\\n    ) internal view returns (uint256) {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        uint256 totalFees = 0;\\n\\n        // iterate through each archaeologist\\n        for (uint256 i = 0; i < archaeologists.length; i++) {\\n            LibTypes.ArchaeologistStorage memory archaeologistsData = s\\n                .sarcophagusArchaeologists[sarcoId][archaeologists[i]];\\n\\n            // add the archaeologist's bounty to the total fees\\n            totalFees += archaeologistsData.bounty;\\n\\n            // add the archaeologist's digging fee to the total fees\\n            totalFees += archaeologistsData.diggingFee;\\n        }\\n\\n        // add the storage fee to the total fees\\n        totalFees += s.sarcophagi[sarcoId].storageFee;\\n\\n        // return the total fees\\n        return totalFees;\\n    }\\n\\n    /// @notice Calculates an archaeologist's cursed bond and curses them (locks\\n    /// up the free bond).\\n    /// @param sarcoId the identifier of the sarcophagus to bond the archaeologist with\\n    /// @param archaeologist the address of the archaeologist to curse\\n    function curseArchaeologist(bytes32 sarcoId, address archaeologist)\\n        internal\\n    {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Get the archaeologist's data from storage\\n        LibTypes.ArchaeologistStorage memory archaeologistData = s\\n            .sarcophagusArchaeologists[sarcoId][archaeologist];\\n\\n        // Calculate the amount of cursed bond the archaeologists needs to lock up\\n        uint256 cursedBondAmount = calculateCursedBond(\\n            archaeologistData.diggingFee,\\n            archaeologistData.bounty\\n        );\\n\\n        // Lock up the archaeologist's bond by the cursed bond amount\\n        lockUpBond(archaeologist, cursedBondAmount);\\n    }\\n\\n    /// @notice Calculates an archaeologist's cursed bond and frees them\\n    /// (unlocks the cursed bond).\\n    /// @param sarcoId the identifier of the sarcophagus to free the archaologist from\\n    /// @param archaeologist the address of the archaeologist to free\\n    function freeArchaeologist(bytes32 sarcoId, address archaeologist)\\n        internal\\n    {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Get the archaeologist's data from storage\\n        LibTypes.ArchaeologistStorage memory archaeologistData = s\\n            .sarcophagusArchaeologists[sarcoId][archaeologist];\\n\\n        // Calculate the amount of cursed bond the archaeologists needs to lock up\\n        uint256 cursedBondAmount = calculateCursedBond(\\n            archaeologistData.diggingFee,\\n            archaeologistData.bounty\\n        );\\n\\n        // Lock up the archaeologist's bond by the cursed bond amount\\n        unlockBond(archaeologist, cursedBondAmount);\\n    }\\n}\\n\",\"keccak256\":\"0xc9ad2a70beabd70e04375e8c497f5ea9461250a4ef00c025a39d09e7f7eba06d\",\"license\":\"Unlicense\"},\"contracts/libraries/LibErrors.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title A collection of Errors\\n * @notice This library defines all of the Errors that the Sarcophagus system\\n * uses.\\n */\\nlibrary LibErrors {\\n    error ArchaeologistAlreadyUnwrapped(address archaeologist);\\n\\n    error ArchaeologistListNotUnique(address[] archaeologists);\\n\\n    error ArchaeologistNotOnSarcophagus(address archaeologist);\\n\\n    error ArweaveArchaeologistNotInList();\\n\\n    error ArweaveTxIdEmpty();\\n\\n    error IncorrectNumberOfArchaeologistSignatures(uint256 signaturesLength);\\n\\n    error MinShardsGreaterThanArchaeologists(uint8 minShards);\\n\\n    error MinShardsZero();\\n\\n    error MaxResurrectionIntervalIsZero();\\n\\n    error NewResurrectionTimeInPast(uint256 newResurrectionTime);\\n\\n    error NewResurrectionTimeTooLarge(uint256 newResurrectionTime);\\n\\n    error NoArchaeologistsProvided();\\n\\n    error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);\\n\\n    error NotEnoughFreeBond(uint256 freeBond, uint256 amount);\\n\\n    error NotEnoughReward(uint256 reward, uint256 amount);\\n\\n    error ResurrectionTimeInPast(uint256 resurrectionTime);\\n\\n    error SarcophagusAlreadyExists(bytes32 sarcoId);\\n\\n    error SarcophagusAlreadyFinalized(bytes32 sarcoId);\\n\\n    error SarcophagusNotFinalized(bytes32 sarcoId);\\n\\n    error SarcophagusDoesNotExist(bytes32 sarcoId);\\n\\n    error SenderNotEmbalmer(address sender, address embalmer);\\n\\n    error SignatureFromWrongAccount(\\n        address hopefulAddress,\\n        address actualAddress\\n    );\\n\\n    error SignatureListNotUnique();\\n\\n    error SignerNotArchaeologistOnSarcophagus(bytes32 sarcoId, address signer);\\n\\n    // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)\\n    error SarcophagusIsUnwrappable();\\n\\n    // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window\\n    error SarcophagusNotCleanable();\\n\\n    // Used when accusing with not enough, or invalid, unencrypted shard(s)\\n    error NotEnoughProof();\\n\\n    error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);\\n\\n    error TooLateToUnwrap(\\n        uint256 resurrectionTime,\\n        uint256 resurrectionWindow,\\n        uint256 currentTime\\n    );\\n\\n    error UnencryptedShardHashMismatch(\\n        bytes unencryptedShard,\\n        bytes32 doubleHashedShard\\n    );\\n}\\n\",\"keccak256\":\"0x0597f3bebdcc132d73108b89f1e425a8ec9c5da54ae40114caa0823153fd63d7\",\"license\":\"Unlicense\"},\"contracts/libraries/LibTypes.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title A collection of defined structs\\n * @notice This library defines the various data models that the Sarcophagus\\n * system uses\\n */\\nlibrary LibTypes {\\n    // DoesNotExist must come first on the list to be the default value\\n    enum SarcophagusState {\\n        DoesNotExist,\\n        Exists,\\n        Done\\n    }\\n\\n    // A struct of just the signature. This is used primarily by the\\n    // finalizeSarcpohagus function for the arweave archaeologist. Note that,\\n    // unlike the regular archaeologists, the sarcophagus already stores the\\n    // single arweave archaeologist's address so there is no need to pass in the\\n    // address to the finalizeSarcophagus function.\\n    struct Signature {\\n        uint8 v;\\n        bytes32 r;\\n        bytes32 s;\\n    }\\n\\n    // Signature struct created to make passing in the signature argmuments into\\n    // finalizedSarcophagus easier and to avoid the \\\"stack too deep\\\" error.\\n    // Also attaching arachaeologist addresses so we can tie the signature back\\n    // to the address in finalizeSarcophagus.\\n    struct SignatureWithAccount {\\n        address account;\\n        uint8 v;\\n        bytes32 r;\\n        bytes32 s;\\n    }\\n\\n    // ArchaeologistMemory is the struct that is passed into the\\n    // initializeSarcophagus function. Even though we don't need each storage\\n    // fee of the archaeologist, the storage fee is included in the struct to\\n    // reduce the stack size within the function, preventing the \\\"stack too\\n    // deep\\\" error.\\n    struct ArchaeologistMemory {\\n        address archAddress;\\n        uint256 storageFee;\\n        uint256 diggingFee;\\n        uint256 bounty;\\n        bytes32 hashedShard;\\n    }\\n\\n    // ArchaeologistStorage is the struct that is stored in AppStorage under the\\n    // sarcophagusArchaeologists mapping.\\n    //\\n    // The archaeologist address is left out since each archaeologist's address\\n    // is stored on the sarcophagus object as an array.\\n    //\\n    // The storage fee is left out becuase we only need to store the storage fee\\n    // of the archaeologist uploading to arweave, which will be stored directly\\n    // on the sarcophagus.\\n    struct ArchaeologistStorage {\\n        uint256 diggingFee;\\n        uint256 bounty;\\n        bytes32 doubleHashedShard;\\n        bytes unencryptedShard;\\n    }\\n\\n    // The ArchaeologistStorage struct could be contained in this Sarcophagus\\n    // struct as a mapping, but it was put into it's own mapping\\n    // (sarcophagusArchaeologists) directly in AppStorage. Instead the\\n    // sarcophagus stores the addresses of each archaeologist added to it. This\\n    // was done to simplify the creation of a sarcophagus object in\\n    // initializeSarcophagus.\\n    struct Sarcophagus {\\n        string name;\\n        SarcophagusState state;\\n        bool canBeTransferred;\\n        uint8 minShards;\\n        uint256 resurrectionTime;\\n        uint256 maxResurrectionInterval;\\n        string[] arweaveTxIds;\\n        uint256 storageFee;\\n        address embalmer;\\n        address recipientAddress;\\n        address arweaveArchaeologist;\\n        address[] archaeologists;\\n    }\\n}\\n\",\"keccak256\":\"0x270a916e9f4b256a37342be7aab10069346fbb93a5954a94a2ab509e3a918274\",\"license\":\"Unlicense\"},\"contracts/libraries/LibUtils.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\n\\n/**\\n * @title Utility functions used within the Sarcophagus system\\n * @notice This library implements various functions that are used throughout\\n * Sarcophagus, mainly to DRY up the codebase\\n * @dev these functions are all stateless, public, pure/view\\n */\\nlibrary LibUtils {\\n    /**\\n     * @notice Reverts if the public key length is not exactly 64 bytes long\\n     * @param publicKey the key to check length of\\n     */\\n    function publicKeyLength(bytes memory publicKey) public pure {\\n        require(publicKey.length == 64, \\\"public key must be 64 bytes\\\");\\n    }\\n\\n    /**\\n     * @notice Reverts if the hash of singleHash does not equal doubleHash\\n     * @param doubleHash the hash to compare hash of singleHash to\\n     * @param singleHash the value to hash and compare against doubleHash\\n     */\\n    function hashCheck(bytes32 doubleHash, bytes memory singleHash)\\n        public\\n        pure\\n    {\\n        require(doubleHash == keccak256(singleHash), \\\"hashes do not match\\\");\\n    }\\n\\n    /**\\n     * @notice Reverts if the input string is not empty\\n     * @param assetId the string to check\\n     */\\n    function confirmAssetIdNotSet(string memory assetId) public pure {\\n        require(bytes(assetId).length == 0, \\\"assetId has already been set\\\");\\n    }\\n\\n    /**\\n     * @notice Reverts if existing assetId is not empty, or if new assetId is\\n     * @param existingAssetId the orignal assetId to check, make sure is empty\\n     * @param newAssetId the new assetId, which must not be empty\\n     */\\n    function assetIdsCheck(\\n        string memory existingAssetId,\\n        string memory newAssetId\\n    ) public pure {\\n        // verify that the existingAssetId is currently empty\\n        confirmAssetIdNotSet(existingAssetId);\\n\\n        require(bytes(newAssetId).length > 0, \\\"assetId must not have 0 length\\\");\\n    }\\n\\n    function archaeologistUnwrappedCheck(bytes32 sarcoId, address archaeologist)\\n        internal\\n        view\\n    {\\n        if (\\n            getArchaeologist(sarcoId, archaeologist).unencryptedShard.length > 0\\n        ) {\\n            revert LibErrors.ArchaeologistAlreadyUnwrapped(archaeologist);\\n        }\\n    }\\n\\n    /**\\n     * @notice Given some bytes32 data, a signature, and an account, verify that the\\n     * identifier was signed by the account.\\n     * @dev The verifyBytes32Signature function is identical to the\\n     * verifyBytesSignature function except for the data type being passed in.\\n     * The reason these are split up is beacuse it's really tricky to convert a\\n     * bytes32 value into a bytes value and have ecrecover still work properly.\\n     * If a simple solution can be found for this problem then please combine\\n     * these two functions together.\\n     * @param data the data to verify\\n     * @param v signature element\\n     * @param r signature element\\n     * @param s signature element\\n     * @param account address to confirm data and signature came from\\n     */\\n    function verifyBytes32Signature(\\n        bytes32 data,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s,\\n        address account\\n    ) internal pure {\\n        // Hash the hash of the data payload\\n        bytes32 messageHash = keccak256(\\n            abi.encodePacked(\\n                \\\"\\\\x19Ethereum Signed Message:\\\\n32\\\",\\n                keccak256(abi.encode(data))\\n            )\\n        );\\n\\n        // Genearate the address from the signature.\\n        // ecrecover should always return a valid address.\\n        address hopefulAddress = ecrecover(messageHash, v, r, s);\\n\\n        if (hopefulAddress != account) {\\n            revert LibErrors.SignatureFromWrongAccount(hopefulAddress, account);\\n        }\\n    }\\n\\n    /**\\n     * @notice Given an identifier, a signature, and an account, verify that the\\n     * identifier was signed by the account.\\n     * @dev The verifyBytes32Signature function is identical to the\\n     * verifyBytesSignature function except for the data type being passed in.\\n     * The reason these are split up is beacuse it's really tricky to convert a\\n     * bytes32 value into a bytes value and have ecrecover still work properly.\\n     * If a simple solution can be found for this problem then please combine\\n     * these two functions together.\\n     * @param data the data to verify\\n     * @param v signature element\\n     * @param r signature element\\n     * @param s signature element\\n     * @param account address to confirm data and signature came from\\n     */\\n    function verifyBytesSignature(\\n        bytes memory data,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s,\\n        address account\\n    ) internal pure {\\n        // Hash the hash of the data payload\\n        bytes32 messageHash = keccak256(\\n            abi.encodePacked(\\n                \\\"\\\\x19Ethereum Signed Message:\\\\n32\\\",\\n                keccak256(abi.encode(data))\\n            )\\n        );\\n\\n        // Genearate the address from the signature.\\n        // ecrecover should always return a valid address.\\n        // It's highly recommended that a hash be passed into ecrecover\\n        address hopefulAddress = ecrecover(messageHash, v, r, s);\\n\\n        if (hopefulAddress != account) {\\n            revert LibErrors.SignatureFromWrongAccount(hopefulAddress, account);\\n        }\\n    }\\n\\n    /// @notice Returns the address that signed some data given the data and the\\n    /// signature.\\n    /// @param data the data to verify\\n    /// @param v signature element\\n    /// @param r signature element\\n    /// @param s signature element\\n    /// @return the address that signed the data\\n    function recoverAddress(\\n        bytes memory data,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s\\n    ) internal pure returns (address) {\\n        // Hash the hash of the data payload\\n        bytes32 messageHash = keccak256(\\n            abi.encodePacked(\\n                \\\"\\\\x19Ethereum Signed Message:\\\\n32\\\",\\n                keccak256(abi.encode(data))\\n            )\\n        );\\n\\n        // Genearate the address from the signature.\\n        // ecrecover should always return a valid address.\\n        // It's highly recommended that a hash be passed into ecrecover\\n        address account = ecrecover(messageHash, v, r, s);\\n\\n        return account;\\n    }\\n\\n    /**\\n     * @notice Reverts if the given resurrection time is not in the future\\n     * @param resurrectionTime the time to check against block.timestamp\\n     */\\n    function resurrectionInFuture(uint256 resurrectionTime) internal view {\\n        if (resurrectionTime <= block.timestamp) {\\n            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);\\n        }\\n    }\\n\\n    /**\\n     * @notice Calculates the grace period that an archaeologist has after a\\n     * sarcophagus has reached its resurrection time\\n     * @param resurrectionTime the resurrection timestamp of a sarcophagus\\n     * @return the grace period\\n     * @dev The grace period is dependent on how far out the resurrection time\\n     * is. The longer out the resurrection time, the longer the grace period.\\n     * There is a minimum grace period of 30 minutes, otherwise, it's\\n     * calculated as 1% of the time between now and resurrection time.\\n     */\\n    function getGracePeriod(uint256 resurrectionTime)\\n        internal\\n        view\\n        returns (uint256)\\n    {\\n        // set a minimum window of 30 minutes\\n        uint16 minimumResurrectionWindow = 30 minutes;\\n\\n        // calculate 1% of the relative time between now and the resurrection\\n        // time\\n        uint256 gracePeriod = (\\n            resurrectionTime > block.timestamp\\n                ? resurrectionTime - block.timestamp\\n                : block.timestamp - resurrectionTime\\n        ) / 100;\\n\\n        // if our calculated grace period is less than the minimum time, we'll\\n        // use the minimum time instead\\n        if (gracePeriod < minimumResurrectionWindow) {\\n            gracePeriod = minimumResurrectionWindow;\\n        }\\n\\n        // return that grace period\\n        return gracePeriod;\\n    }\\n\\n    /**\\n     * @notice Reverts if we're not within the resurrection window (on either\\n     * side)\\n     * @param resurrectionTime the resurrection time of the sarcophagus\\n     * (absolute, i.e. a date time stamp)\\n     */\\n    function unwrapTime(uint256 resurrectionTime) internal view {\\n        // revert if too early\\n        if (resurrectionTime > block.timestamp) {\\n            revert LibErrors.TooEarlyToUnwrap(\\n                resurrectionTime,\\n                block.timestamp\\n            );\\n        }\\n\\n        uint256 resurrectionWindow = getGracePeriod(resurrectionTime);\\n\\n        // revert if too late\\n        if (resurrectionTime + resurrectionWindow < block.timestamp) {\\n            revert LibErrors.TooLateToUnwrap(\\n                resurrectionTime,\\n                resurrectionWindow,\\n                block.timestamp\\n            );\\n        }\\n    }\\n\\n    /// @notice Checks if the archaeologist exists on the sarcophagus.\\n    /// @param sarcoId the identifier of the sarcophagus\\n    /// @param archaeologist the address of the archaeologist\\n    /// @return The boolean true if the archaeologist exists on the sarcophagus\\n    function archaeologistExistsOnSarc(bytes32 sarcoId, address archaeologist)\\n        internal\\n        view\\n        returns (bool)\\n    {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // If the doubleHashedShard on an archaeologist is 0 (which is its default value),\\n        // then the archaeologist doesn't exist on the sarcophagus\\n        return\\n            s\\n            .sarcophagusArchaeologists[sarcoId][archaeologist]\\n                .doubleHashedShard != 0;\\n    }\\n\\n    /// @notice Gets an archaeologist given the sarcophagus identifier and the\\n    /// archaeologist's address.\\n    /// @param sarcoId the identifier of the sarcophagus\\n    /// @param archaeologist the address of the archaeologist\\n    /// @return The archaeologist\\n    function getArchaeologist(bytes32 sarcoId, address archaeologist)\\n        internal\\n        view\\n        returns (LibTypes.ArchaeologistStorage memory)\\n    {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        return s.sarcophagusArchaeologists[sarcoId][archaeologist];\\n    }\\n\\n    /// @notice Checks if a sarcophagus has been finalized by checking if it\\n    /// contains any arweaveTxIds.\\n    /// @param sarcoId the identifier of the sarcophagus\\n    /// @return The boolean true if the sarcophagus has been finalized\\n    function isSarcophagusFinalized(bytes32 sarcoId)\\n        internal\\n        view\\n        returns (bool)\\n    {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        return s.sarcophagi[sarcoId].arweaveTxIds.length > 0;\\n    }\\n\\n    /// @notice Calculates the protocol fees to be taken from the embalmer.\\n    /// @return The protocol fees amount\\n    function calculateProtocolFee() internal view returns (uint256) {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // TODO: Need feedback from the community to determine how protocol fees should be calculated\\n        // Just returns a constant value defined in an env file\\n        return s.protocolFee;\\n    }\\n}\\n\",\"keccak256\":\"0x7c7ad6e6c87850b6b79dc2f3cacec14cda233ce71c4fee63745c00910073e484\",\"license\":\"Unlicense\"},\"contracts/storage/LibAppStorage.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\n\\n// Global storage for the app. Can be accessed in facets and in libraries\\nstruct AppStorage {\\n    IERC20 sarcoToken;\\n    // The amount to be taken from the embalmer each time a protocol fee should\\n    // be collected\\n    uint256 protocolFee;\\n    // The amount of protocol fees currently stored on the contract\\n    uint256 totalProtocolFees;\\n    // sarcophagi\\n    bytes32[] sarcophagusIdentifiers;\\n    // Each archaeologist's total free and cursed bonds\\n    mapping(address => uint256) freeBonds;\\n    mapping(address => uint256) cursedBonds;\\n    // archaeologist stats\\n    mapping(address => mapping(bytes32 => bool)) archaeologistSuccesses;\\n    mapping(address => bytes32[]) archaeologistCancels;\\n    mapping(address => bytes32[]) archaeologistAccusals;\\n    mapping(address => bytes32[]) archaeologistCleanups;\\n    // Track how much archaeologists have made. To be credited and debited\\n    // as archaeologists fulfil their duties and withdraw their rewards\\n    mapping(address => uint256) archaeologistRewards;\\n    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;\\n    // sarcophagus ownerships\\n    mapping(address => bytes32[]) embalmerSarcophagi;\\n    mapping(address => bytes32[]) archaeologistSarcophagi;\\n    mapping(address => bytes32[]) recipientSarcophagi;\\n    // Mapping of unencrypted shard double hashes to archaeologists who are\\n    // responsible for them. Needed to optimise Accuse algo - unencrypted shard is\\n    // double hashed and used as a constant O(1) lookup here\\n    mapping(bytes32 => address) doubleHashedShardArchaeologists;\\n    // A mapping used to store an archaeologist's data on a sarcophagus.\\n    // Bounty, digging fees, storage fees, and the hashed shards of the\\n    // archaeologists all need to be stored per sarcophagus. This mapping of a\\n    // mapping stores the archaeologist's data we need per sarcophagus.\\n    // Example usage (to retrieve the bounty an archaeologist may claim on some sarcophagus):\\n    //   LibTypes.ArchaeologistStorage bondedArchaeologist = sarcophagusArchaeologists[sarcoId][archAddress];\\n    //   uint256 bounty = bondedArchaeologist.bounty;\\n    mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;\\n}\\n\\nlibrary LibAppStorage {\\n    function getAppStorage() internal pure returns (AppStorage storage s) {\\n        // Set the position of our struct in contract storage\\n        // Since AppStorage s is the first and only state variable declared in\\n        // facets its position in contract storage is 0\\n        assembly {\\n            s.slot := 0\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x367d92e27c7e659b0700d9b43046571d4a3f3942336070687d81b302385dd4cf\",\"license\":\"Unlicense\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061166e806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80633f5e9d6c1461003b5780635c88a8e114610057575b600080fd5b61005560048036038101906100509190611108565b610073565b005b610071600480360381019061006c91906112a1565b610556565b005b600080600b0160008481526020019081526020016000209050600160028111156100a05761009f611310565b5b8160010160009054906101000a900460ff1660028111156100c4576100c3611310565b5b1461010657826040517f018da6880000000000000000000000000000000000000000000000000000000081526004016100fd919061134e565b60405180910390fd5b80600201546101188260020154610b3d565b61012291906113a2565b42101561015b576040517f57f122a100000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b6000816009018054806020026020016040519081016040528092919081815260200182805480156101e157602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019060010190808311610197575b50505050509050600080600080600090505b84518110156104b85760008015156000600601600088858151811061021b5761021a6113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008b815260200190815260200160002060009054906101000a900460ff16151514905080156104a45760008060100160008b815260200190815260200160002060008885815181106102b3576102b26113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060405180608001604052908160008201548152602001600182015481526020016002820154815260200160038201805461032e90611456565b80601f016020809104026020016040519081016040528092919081815260200182805461035a90611456565b80156103a75780601f1061037c576101008083540402835291602001916103a7565b820191906000526020600020905b81548152906001019060200180831161038a57829003601f168201915b50505050508152505090508060200151846103c291906113a2565b93508060000151856103d491906113a2565b945060006103ea82600001518360200151610b98565b905080876103f891906113a2565b965061041e8885815181106104105761040f6113f8565b5b602002602001015182610bae565b60006009016000898681518110610438576104376113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208b908060018154018082558091505060019003906000526020600020016000909190919091505550505b5080806104b090611487565b9150506101f3565b506000806104c98888878787610ce0565b9150915060028760010160006101000a81548160ff021916908360028111156104f5576104f4611310565b5b02179055503373ffffffffffffffffffffffffffffffffffffffff16897f106e723534f3d39516c80d5e49eb5ac7788139c661267137c40382659d409fb984846040516105439291906114de565b60405180910390a3505050505050505050565b600080600b01600085815260200190815260200160002090506001600281111561058357610582611310565b5b8160010160009054906101000a900460ff1660028111156105a7576105a6611310565b5b146105e957836040517f018da6880000000000000000000000000000000000000000000000000000000081526004016105e0919061134e565b60405180910390fd5b4281600201541015610627576040517f8680d5de00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b8060010160029054906101000a900460ff1660ff1683511015610676576040517f2bb3a5a800000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b6000835167ffffffffffffffff8111156106935761069261115e565b5b6040519080825280602002602001820160405280156106c15781602001602082028036833780820191505090505b50905060008060008060005b88518110156109195760008982815181106106eb576106ea6113f8565b5b6020026020010151604051602001610703919061134e565b604051602081830303815290604052805190602001209050600080600f01600083815260200190815260200160002060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905060008060100160008e815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050828160020154036108d157818986806107c390611487565b9750815181106107d6576107d56113f8565b5b602002602001019073ffffffffffffffffffffffffffffffffffffffff16908173ffffffffffffffffffffffffffffffffffffffff1681525050600061082482600001548360010154610b98565b905081600001548961083691906113a2565b985081600101548861084891906113a2565b9750808761085691906113a2565b96506108628382610bae565b600060080160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208e908060018154018082558091505060019003906000526020600020016000909190919091505550610903565b6040517f2bb3a5a800000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b505050808061091190611487565b9150506106cd565b50600080600b0160008b81526020019081526020016000206009018054806020026020016040519081016040528092919081815260200182805480156109b457602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001906001019080831161096a575b5050505050905060005b8151811015610a9c5760006001905060005b8851811015610a5c578881815181106109ec576109eb6113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff16848481518110610a1d57610a1c6113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1603610a495760009150610a5c565b8080610a5490611487565b9150506109d0565b508015610a8857610a878c848481518110610a7a57610a796113f8565b5b6020026020010151610e96565b5b508080610a9490611487565b9150506109be565b50600080610aad8a8a878a8a610ce0565b9150915060028960010160006101000a81548160ff02191690836002811115610ad957610ad8611310565b5b02179055503373ffffffffffffffffffffffffffffffffffffffff168c7f6cee286923fc4de6af78ba8b06ff9f4236e5aad4282a5e13a3cea8446c803fd48484604051610b279291906114de565b60405180910390a3505050505050505050505050565b600080610708905060006064428511610b61578442610b5c9190611507565b610b6e565b4285610b6d9190611507565b5b610b78919061156a565b90508161ffff16811015610b8e578161ffff1690505b8092505050919050565b60008183610ba691906113a2565b905092915050565b6000610bb8610fda565b90508060050160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054821115610c83578060050160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054826040517faf5a111b000000000000000000000000000000000000000000000000000000008152600401610c7a9291906114de565b60405180910390fd5b818160050160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254610cd49190611507565b92505081905550505050565b6000806000600286610cf2919061156a565b905060008187610d029190611507565b90506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb8960060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16848989610d7691906113a2565b610d8091906113a2565b6040518363ffffffff1660e01b8152600401610d9d9291906115aa565b6020604051808303816000875af1158015610dbc573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610de0919061160b565b506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb8a836040518363ffffffff1660e01b8152600401610e409291906115aa565b6020604051808303816000875af1158015610e5f573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610e83919061160b565b5080829350935050509550959350505050565b6000610ea0610fda565b9050600081601001600085815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020604051806080016040529081600082015481526020016001820154815260200160028201548152602001600382018054610f2f90611456565b80601f0160208091040260200160405190810160405280929190818152602001828054610f5b90611456565b8015610fa85780601f10610f7d57610100808354040283529160200191610fa8565b820191906000526020600020905b815481529060010190602001808311610f8b57829003601f168201915b50505050508152505090506000610fc782600001518360200151610b98565b9050610fd38482610fdf565b5050505050565b600090565b610fe98282610bae565b610ff38282610ff7565b5050565b6000611001610fda565b9050818160040160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825461105491906113a2565b92505081905550505050565b6000604051905090565b600080fd5b600080fd5b6000819050919050565b61108781611074565b811461109257600080fd5b50565b6000813590506110a48161107e565b92915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006110d5826110aa565b9050919050565b6110e5816110ca565b81146110f057600080fd5b50565b600081359050611102816110dc565b92915050565b6000806040838503121561111f5761111e61106a565b5b600061112d85828601611095565b925050602061113e858286016110f3565b9150509250929050565b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6111968261114d565b810181811067ffffffffffffffff821117156111b5576111b461115e565b5b80604052505050565b60006111c8611060565b90506111d4828261118d565b919050565b600067ffffffffffffffff8211156111f4576111f361115e565b5b602082029050602081019050919050565b600080fd5b600061121d611218846111d9565b6111be565b905080838252602082019050602084028301858111156112405761123f611205565b5b835b8181101561126957806112558882611095565b845260208401935050602081019050611242565b5050509392505050565b600082601f83011261128857611287611148565b5b813561129884826020860161120a565b91505092915050565b6000806000606084860312156112ba576112b961106a565b5b60006112c886828701611095565b935050602084013567ffffffffffffffff8111156112e9576112e861106f565b5b6112f586828701611273565b9250506040611306868287016110f3565b9150509250925092565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b61134881611074565b82525050565b6000602082019050611363600083018461133f565b92915050565b6000819050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b60006113ad82611369565b91506113b883611369565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff038211156113ed576113ec611373565b5b828201905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061146e57607f821691505b60208210810361148157611480611427565b5b50919050565b600061149282611369565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff82036114c4576114c3611373565b5b600182019050919050565b6114d881611369565b82525050565b60006040820190506114f360008301856114cf565b61150060208301846114cf565b9392505050565b600061151282611369565b915061151d83611369565b9250828210156115305761152f611373565b5b828203905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b600061157582611369565b915061158083611369565b9250826115905761158f61153b565b5b828204905092915050565b6115a4816110ca565b82525050565b60006040820190506115bf600083018561159b565b6115cc60208301846114cf565b9392505050565b60008115159050919050565b6115e8816115d3565b81146115f357600080fd5b50565b600081519050611605816115df565b92915050565b6000602082840312156116215761162061106a565b5b600061162f848285016115f6565b9150509291505056fea26469706673582212205f2131a7fed5e939c3a3341f2234d90dfcd197d00ffdc72126c69f808baa634064736f6c634300080d0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c80633f5e9d6c1461003b5780635c88a8e114610057575b600080fd5b61005560048036038101906100509190611108565b610073565b005b610071600480360381019061006c91906112a1565b610556565b005b600080600b0160008481526020019081526020016000209050600160028111156100a05761009f611310565b5b8160010160009054906101000a900460ff1660028111156100c4576100c3611310565b5b1461010657826040517f018da6880000000000000000000000000000000000000000000000000000000081526004016100fd919061134e565b60405180910390fd5b80600201546101188260020154610b3d565b61012291906113a2565b42101561015b576040517f57f122a100000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b6000816009018054806020026020016040519081016040528092919081815260200182805480156101e157602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019060010190808311610197575b50505050509050600080600080600090505b84518110156104b85760008015156000600601600088858151811061021b5761021a6113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008b815260200190815260200160002060009054906101000a900460ff16151514905080156104a45760008060100160008b815260200190815260200160002060008885815181106102b3576102b26113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060405180608001604052908160008201548152602001600182015481526020016002820154815260200160038201805461032e90611456565b80601f016020809104026020016040519081016040528092919081815260200182805461035a90611456565b80156103a75780601f1061037c576101008083540402835291602001916103a7565b820191906000526020600020905b81548152906001019060200180831161038a57829003601f168201915b50505050508152505090508060200151846103c291906113a2565b93508060000151856103d491906113a2565b945060006103ea82600001518360200151610b98565b905080876103f891906113a2565b965061041e8885815181106104105761040f6113f8565b5b602002602001015182610bae565b60006009016000898681518110610438576104376113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208b908060018154018082558091505060019003906000526020600020016000909190919091505550505b5080806104b090611487565b9150506101f3565b506000806104c98888878787610ce0565b9150915060028760010160006101000a81548160ff021916908360028111156104f5576104f4611310565b5b02179055503373ffffffffffffffffffffffffffffffffffffffff16897f106e723534f3d39516c80d5e49eb5ac7788139c661267137c40382659d409fb984846040516105439291906114de565b60405180910390a3505050505050505050565b600080600b01600085815260200190815260200160002090506001600281111561058357610582611310565b5b8160010160009054906101000a900460ff1660028111156105a7576105a6611310565b5b146105e957836040517f018da6880000000000000000000000000000000000000000000000000000000081526004016105e0919061134e565b60405180910390fd5b4281600201541015610627576040517f8680d5de00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b8060010160029054906101000a900460ff1660ff1683511015610676576040517f2bb3a5a800000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b6000835167ffffffffffffffff8111156106935761069261115e565b5b6040519080825280602002602001820160405280156106c15781602001602082028036833780820191505090505b50905060008060008060005b88518110156109195760008982815181106106eb576106ea6113f8565b5b6020026020010151604051602001610703919061134e565b604051602081830303815290604052805190602001209050600080600f01600083815260200190815260200160002060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905060008060100160008e815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050828160020154036108d157818986806107c390611487565b9750815181106107d6576107d56113f8565b5b602002602001019073ffffffffffffffffffffffffffffffffffffffff16908173ffffffffffffffffffffffffffffffffffffffff1681525050600061082482600001548360010154610b98565b905081600001548961083691906113a2565b985081600101548861084891906113a2565b9750808761085691906113a2565b96506108628382610bae565b600060080160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208e908060018154018082558091505060019003906000526020600020016000909190919091505550610903565b6040517f2bb3a5a800000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b505050808061091190611487565b9150506106cd565b50600080600b0160008b81526020019081526020016000206009018054806020026020016040519081016040528092919081815260200182805480156109b457602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001906001019080831161096a575b5050505050905060005b8151811015610a9c5760006001905060005b8851811015610a5c578881815181106109ec576109eb6113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff16848481518110610a1d57610a1c6113f8565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1603610a495760009150610a5c565b8080610a5490611487565b9150506109d0565b508015610a8857610a878c848481518110610a7a57610a796113f8565b5b6020026020010151610e96565b5b508080610a9490611487565b9150506109be565b50600080610aad8a8a878a8a610ce0565b9150915060028960010160006101000a81548160ff02191690836002811115610ad957610ad8611310565b5b02179055503373ffffffffffffffffffffffffffffffffffffffff168c7f6cee286923fc4de6af78ba8b06ff9f4236e5aad4282a5e13a3cea8446c803fd48484604051610b279291906114de565b60405180910390a3505050505050505050505050565b600080610708905060006064428511610b61578442610b5c9190611507565b610b6e565b4285610b6d9190611507565b5b610b78919061156a565b90508161ffff16811015610b8e578161ffff1690505b8092505050919050565b60008183610ba691906113a2565b905092915050565b6000610bb8610fda565b90508060050160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054821115610c83578060050160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054826040517faf5a111b000000000000000000000000000000000000000000000000000000008152600401610c7a9291906114de565b60405180910390fd5b818160050160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254610cd49190611507565b92505081905550505050565b6000806000600286610cf2919061156a565b905060008187610d029190611507565b90506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb8960060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16848989610d7691906113a2565b610d8091906113a2565b6040518363ffffffff1660e01b8152600401610d9d9291906115aa565b6020604051808303816000875af1158015610dbc573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610de0919061160b565b506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb8a836040518363ffffffff1660e01b8152600401610e409291906115aa565b6020604051808303816000875af1158015610e5f573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610e83919061160b565b5080829350935050509550959350505050565b6000610ea0610fda565b9050600081601001600085815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020604051806080016040529081600082015481526020016001820154815260200160028201548152602001600382018054610f2f90611456565b80601f0160208091040260200160405190810160405280929190818152602001828054610f5b90611456565b8015610fa85780601f10610f7d57610100808354040283529160200191610fa8565b820191906000526020600020905b815481529060010190602001808311610f8b57829003601f168201915b50505050508152505090506000610fc782600001518360200151610b98565b9050610fd38482610fdf565b5050505050565b600090565b610fe98282610bae565b610ff38282610ff7565b5050565b6000611001610fda565b9050818160040160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825461105491906113a2565b92505081905550505050565b6000604051905090565b600080fd5b600080fd5b6000819050919050565b61108781611074565b811461109257600080fd5b50565b6000813590506110a48161107e565b92915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006110d5826110aa565b9050919050565b6110e5816110ca565b81146110f057600080fd5b50565b600081359050611102816110dc565b92915050565b6000806040838503121561111f5761111e61106a565b5b600061112d85828601611095565b925050602061113e858286016110f3565b9150509250929050565b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6111968261114d565b810181811067ffffffffffffffff821117156111b5576111b461115e565b5b80604052505050565b60006111c8611060565b90506111d4828261118d565b919050565b600067ffffffffffffffff8211156111f4576111f361115e565b5b602082029050602081019050919050565b600080fd5b600061121d611218846111d9565b6111be565b905080838252602082019050602084028301858111156112405761123f611205565b5b835b8181101561126957806112558882611095565b845260208401935050602081019050611242565b5050509392505050565b600082601f83011261128857611287611148565b5b813561129884826020860161120a565b91505092915050565b6000806000606084860312156112ba576112b961106a565b5b60006112c886828701611095565b935050602084013567ffffffffffffffff8111156112e9576112e861106f565b5b6112f586828701611273565b9250506040611306868287016110f3565b9150509250925092565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b61134881611074565b82525050565b6000602082019050611363600083018461133f565b92915050565b6000819050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b60006113ad82611369565b91506113b883611369565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff038211156113ed576113ec611373565b5b828201905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061146e57607f821691505b60208210810361148157611480611427565b5b50919050565b600061149282611369565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff82036114c4576114c3611373565b5b600182019050919050565b6114d881611369565b82525050565b60006040820190506114f360008301856114cf565b61150060208301846114cf565b9392505050565b600061151282611369565b915061151d83611369565b9250828210156115305761152f611373565b5b828203905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b600061157582611369565b915061158083611369565b9250826115905761158f61153b565b5b828204905092915050565b6115a4816110ca565b82525050565b60006040820190506115bf600083018561159b565b6115cc60208301846114cf565b9392505050565b60008115159050919050565b6115e8816115d3565b81146115f357600080fd5b50565b600081519050611605816115df565b92915050565b6000602082840312156116215761162061106a565b5b600061162f848285016115f6565b9150509291505056fea26469706673582212205f2131a7fed5e939c3a3341f2234d90dfcd197d00ffdc72126c69f808baa634064736f6c634300080d0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "accuse(bytes32,bytes32[],address)": {
+        "params": {
+          "paymentAddress": "the address to which rewards should be sent if successful",
+          "sarcoId": "The identifier of the sarcophagus having leaked shards",
+          "unencryptedShardHashes": "At least 'm' unencrypted shard hashes as proof of bad behaviour"
+        }
+      },
+      "clean(bytes32,address)": {
+        "params": {
+          "paymentAddress": "The address to which rewards will be sent",
+          "sarcoId": "The identifier of the sarcophagus to clean"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "accuse(bytes32,bytes32[],address)": {
+        "notice": "Accuse archaeologoists of bad behaviour, by providing proof of leaked unencrypted shards before a sarcophagus is ready to be unwrapped. The minumum number of shards required to unwrap the sarcophagus should be provided for a a successful accusal. of the cursed bonds of the archs back to them, and un-curses their bonds."
+      },
+      "clean(bytes32,address)": {
+        "notice": "Close a sarcophagus that has not been unwrapped before its resurrection window is passed"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 92,
+        "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+        "label": "s",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_struct(AppStorage)1932_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_bytes32)dyn_storage": {
+        "base": "t_bytes32",
+        "encoding": "dynamic_array",
+        "label": "bytes32[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_string_storage)dyn_storage": {
+        "base": "t_string_storage",
+        "encoding": "dynamic_array",
+        "label": "string[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_bytes_storage": {
+        "encoding": "bytes",
+        "label": "bytes",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IERC20)77": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_enum(SarcophagusState)1336": {
+        "encoding": "inplace",
+        "label": "enum LibTypes.SarcophagusState",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bytes32[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_bytes32)dyn_storage"
+      },
+      "t_mapping(t_address,t_mapping(t_bytes32,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(bytes32 => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_bytes32,t_bool)"
+      },
+      "t_mapping(t_address,t_struct(ArchaeologistStorage)1372_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct LibTypes.ArchaeologistStorage)",
+        "numberOfBytes": "32",
+        "value": "t_struct(ArchaeologistStorage)1372_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_bytes32,t_address)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_bytes32,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes32,t_mapping(t_address,t_struct(ArchaeologistStorage)1372_storage))": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => mapping(address => struct LibTypes.ArchaeologistStorage))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_struct(ArchaeologistStorage)1372_storage)"
+      },
+      "t_mapping(t_bytes32,t_struct(Sarcophagus)1400_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct LibTypes.Sarcophagus)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Sarcophagus)1400_storage"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(AppStorage)1932_storage": {
+        "encoding": "inplace",
+        "label": "struct AppStorage",
+        "members": [
+          {
+            "astId": 1860,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "sarcoToken",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IERC20)77"
+          },
+          {
+            "astId": 1862,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "protocolFee",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1864,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "totalProtocolFees",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1867,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "sarcophagusIdentifiers",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_array(t_bytes32)dyn_storage"
+          },
+          {
+            "astId": 1871,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "freeBonds",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 1875,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "cursedBonds",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 1881,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "archaeologistSuccesses",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_mapping(t_bytes32,t_bool))"
+          },
+          {
+            "astId": 1886,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "archaeologistCancels",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 1891,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "archaeologistAccusals",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 1896,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "archaeologistCleanups",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 1900,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "archaeologistRewards",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 1905,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "sarcophagi",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_bytes32,t_struct(Sarcophagus)1400_storage)"
+          },
+          {
+            "astId": 1910,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "embalmerSarcophagi",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 1915,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "archaeologistSarcophagi",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 1920,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "recipientSarcophagi",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 1924,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "doubleHashedShardArchaeologists",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_mapping(t_bytes32,t_address)"
+          },
+          {
+            "astId": 1931,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "sarcophagusArchaeologists",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_mapping(t_bytes32,t_mapping(t_address,t_struct(ArchaeologistStorage)1372_storage))"
+          }
+        ],
+        "numberOfBytes": "544"
+      },
+      "t_struct(ArchaeologistStorage)1372_storage": {
+        "encoding": "inplace",
+        "label": "struct LibTypes.ArchaeologistStorage",
+        "members": [
+          {
+            "astId": 1365,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "diggingFee",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1367,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "bounty",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1369,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "doubleHashedShard",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1371,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "unencryptedShard",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bytes_storage"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_struct(Sarcophagus)1400_storage": {
+        "encoding": "inplace",
+        "label": "struct LibTypes.Sarcophagus",
+        "members": [
+          {
+            "astId": 1374,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "name",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1377,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "state",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_enum(SarcophagusState)1336"
+          },
+          {
+            "astId": 1379,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "canBeTransferred",
+            "offset": 1,
+            "slot": "1",
+            "type": "t_bool"
+          },
+          {
+            "astId": 1381,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "minShards",
+            "offset": 2,
+            "slot": "1",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 1383,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "resurrectionTime",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1385,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "maxResurrectionInterval",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1388,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "arweaveTxIds",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_array(t_string_storage)dyn_storage"
+          },
+          {
+            "astId": 1390,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "storageFee",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1392,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "embalmer",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_address"
+          },
+          {
+            "astId": 1394,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "recipientAddress",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_address"
+          },
+          {
+            "astId": 1396,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "arweaveArchaeologist",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_address"
+          },
+          {
+            "astId": 1399,
+            "contract": "contracts/facets/ThirdPartyFacet.sol:ThirdPartyFacet",
+            "label": "archaeologists",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_array(t_address)dyn_storage"
+          }
+        ],
+        "numberOfBytes": "320"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}
