@@ -95,10 +95,7 @@ contract ArchaeologistFacet {
 
         // Confirm that the resurrection time has passed and that the
         // resurrection window has not passed
-        LibUtils.unwrapTime(
-            s.sarcophagi[sarcoId].resurrectionTime,
-            s.sarcophagi[sarcoId].resurrectionWindow
-        );
+        LibUtils.unwrapTime(s.sarcophagi[sarcoId].resurrectionTime);
 
         // Comfirm that the sarcophagus has been finalized
         if (!LibUtils.isSarcophagusFinalized(sarcoId)) {
@@ -109,11 +106,12 @@ contract ArchaeologistFacet {
         LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
             .getArchaeologist(sarcoId, msg.sender);
 
-        // Confirm that the hash of the unencrypted shard matches the hashedShard in storage
-        if (keccak256(unencryptedShard) != archaeologistData.hashedShard) {
+        // Confirm that the double hash of the unencrypted shard matches the hashedShard in storage
+        bytes32 doubleHash = keccak256(abi.encode(keccak256(unencryptedShard)));
+        if (doubleHash != archaeologistData.doubleHashedShard) {
             revert LibErrors.UnencryptedShardHashMismatch(
                 unencryptedShard,
-                archaeologistData.hashedShard
+                archaeologistData.doubleHashedShard
             );
         }
 
@@ -210,14 +208,14 @@ contract ArchaeologistFacet {
         // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
         newArchData.diggingFee = oldArchData.diggingFee;
         newArchData.bounty = oldArchData.bounty;
-        newArchData.hashedShard = oldArchData.hashedShard;
+        newArchData.doubleHashedShard = oldArchData.doubleHashedShard;
         newArchData.unencryptedShard = "";
 
         // Set the old archaeologist's data in the sarcophagusArchaeologists
         // mapping to their default values
         oldArchData.diggingFee = 0;
         oldArchData.bounty = 0;
-        oldArchData.hashedShard = 0;
+        oldArchData.doubleHashedShard = 0;
         oldArchData.unencryptedShard = "";
 
         // Add the arweave transaction id to arweaveTxIds on the sarcophagus

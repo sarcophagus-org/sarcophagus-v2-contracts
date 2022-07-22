@@ -225,13 +225,8 @@ library LibUtils {
      * side)
      * @param resurrectionTime the resurrection time of the sarcophagus
      * (absolute, i.e. a date time stamp)
-     * @param resurrectionWindow the resurrection window of the sarcophagus
-     * (relative, i.e. "30 minutes")
      */
-    function unwrapTime(uint256 resurrectionTime, uint256 resurrectionWindow)
-        internal
-        view
-    {
+    function unwrapTime(uint256 resurrectionTime) internal view {
         // revert if too early
         if (resurrectionTime > block.timestamp) {
             revert LibErrors.TooEarlyToUnwrap(
@@ -239,6 +234,8 @@ library LibUtils {
                 block.timestamp
             );
         }
+
+        uint256 resurrectionWindow = getGracePeriod(resurrectionTime);
 
         // revert if too late
         if (resurrectionTime + resurrectionWindow < block.timestamp) {
@@ -261,11 +258,12 @@ library LibUtils {
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // If the hashedShard on an archaeologist is 0 (which is its default
-        // value), then the archaeologist doesn't exist on the sarcophagus
+        // If the doubleHashedShard on an archaeologist is 0 (which is its default value),
+        // then the archaeologist doesn't exist on the sarcophagus
         return
-            s.sarcophagusArchaeologists[sarcoId][archaeologist].hashedShard !=
-            0;
+            s
+            .sarcophagusArchaeologists[sarcoId][archaeologist]
+                .doubleHashedShard != 0;
     }
 
     /// @notice Gets an archaeologist given the sarcophagus identifier and the

@@ -15,22 +15,13 @@ contract EmbalmerFacet {
 
     event InitializeSarcophagus(
         bytes32 indexed sarcoId,
-        string name,
-        bool canBeTransferred,
-        uint256 resurrectionTime,
         address embalmer,
-        address recipientAddress,
-        address arweaveArchaeologist,
-        address[] archaeologists
+        uint256 totalFees
     );
 
     event FinalizeSarcophagus(bytes32 indexed sarcoId, string arweaveTxId);
 
-    event RewrapSarcophagus(
-        bytes32 indexed sarcoId,
-        uint256 resurrectionTime,
-        uint256 resurrectionWindow
-    );
+    event RewrapSarcophagus(bytes32 indexed sarcoId, uint256 resurrectionTime);
 
     event CancelSarcophagus(bytes32 indexed sarcoId);
 
@@ -59,23 +50,26 @@ contract EmbalmerFacet {
     /// finalizeSarcohpagus() method should be called, which is the second step.
     ///
     /// @param name the name of the sarcophagus
-    /// @param sarcoId the identifier of the sarcophagus
     /// @param archaeologists the data for the archaeologists
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
     /// @param recipient the address of the recipient
     /// @param resurrectionTime the resurrection time of the sarcophagus
+    /// @param maxResurrectionInterval the maximum length of time that any new resurrection times can be from time of rewrap
+    /// @dev archaeologists will have to sign off on this interval, and commit to it for the lifetime of the sarcophagus.
     /// @param canBeTransferred Whether the sarcophagus can be transferred
     /// @param minShards The minimum number of shards required to unwrap the sarcophagus
+    /// @param sarcoId Unique identifier of the sarcophagus
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
         string memory name,
-        bytes32 sarcoId,
         LibTypes.ArchaeologistMemory[] memory archaeologists,
         address arweaveArchaeologist,
         address recipient,
         uint256 resurrectionTime,
+        uint256 maxResurrectionInterval,
         bool canBeTransferred,
-        uint8 minShards
+        uint8 minShards,
+        bytes32 sarcoId
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
         if (
@@ -105,6 +99,11 @@ contract EmbalmerFacet {
             revert LibErrors.MinShardsZero();
         }
 
+        // Confirm that maxResurrectionInterval is greater than 0
+        if (maxResurrectionInterval == 0) {
+            revert LibErrors.MaxResurrectionIntervalIsZero();
+        }
+
         // Initialize a list of archaeologist addresses to be passed in to the
         // sarcophagus object
         address[] memory archaeologistsToBond = new address[](
@@ -117,15 +116,12 @@ contract EmbalmerFacet {
         uint256 storageFee = 0;
 
         for (uint256 i = 0; i < archaeologists.length; i++) {
+            LibTypes.ArchaeologistMemory memory arch = archaeologists[i];
+
             // Confirm that the archaeologist list is unique. This is done by
             // checking that the archaeologist does not already exist from
             // previous iterations in this loop.
-            if (
-                LibUtils.archaeologistExistsOnSarc(
-                    sarcoId,
-                    archaeologists[i].archAddress
-                )
-            ) {
+            if (LibUtils.archaeologistExistsOnSarc(sarcoId, arch.archAddress)) {
                 revert LibErrors.ArchaeologistListNotUnique(
                     archaeologistsToBond
                 );
@@ -133,38 +129,36 @@ contract EmbalmerFacet {
 
             // If the archaeologist is the arweave archaeologist, set the
             // storage fee. This is the only storage fee we care about.
-            if (archaeologists[i].archAddress == arweaveArchaeologist) {
-                storageFee = archaeologists[i].storageFee;
+            if (arch.archAddress == arweaveArchaeologist) {
+                storageFee = arch.storageFee;
             }
 
             // Define an archaeologist storage object to be stored on the sarcophagus.
+            bytes32 doubleHashedShard = keccak256(abi.encode(arch.hashedShard));
             LibTypes.ArchaeologistStorage memory archaeologistStorage = LibTypes
                 .ArchaeologistStorage({
-                    diggingFee: archaeologists[i].diggingFee,
-                    bounty: archaeologists[i].bounty,
-                    hashedShard: archaeologists[i].hashedShard,
+                    diggingFee: arch.diggingFee,
+                    bounty: arch.bounty,
+                    doubleHashedShard: doubleHashedShard,
                     unencryptedShard: ""
                 });
 
-            // Map the hashed shared to this archaeologist's address for easier referencing on accuse
-            s.hashedShardArchaeologists[
-                archaeologists[i].hashedShard
-            ] = archaeologists[i].archAddress;
+            // Map the double-hashed shared to this archaeologist's address for easier referencing on accuse
+            s.doubleHashedShardArchaeologists[doubleHashedShard] = arch
+                .archAddress;
 
             // Stores each archaeologist's bounty, digging fees, and unencrypted
             // shard in app storage per sarcophagus
             s.sarcophagusArchaeologists[sarcoId][
-                archaeologists[i].archAddress
+                arch.archAddress
             ] = archaeologistStorage;
 
             // Add the sarcophagus identifier to archaeologist's list of sarcophagi
-            s.archaeologistSarcophagi[archaeologists[i].archAddress].push(
-                sarcoId
-            );
+            s.archaeologistSarcophagi[arch.archAddress].push(sarcoId);
 
             // Add the archaeologist address to the list of addresses to be
             // passed in to the sarcophagus object
-            archaeologistsToBond[i] = archaeologists[i].archAddress;
+            archaeologistsToBond[i] = arch.archAddress;
         }
 
         // If the storage fee is 0, then the storage fee was never set since the
@@ -183,7 +177,7 @@ contract EmbalmerFacet {
             canBeTransferred: canBeTransferred,
             minShards: minShards,
             resurrectionTime: resurrectionTime,
-            resurrectionWindow: LibUtils.getGracePeriod(resurrectionTime),
+            maxResurrectionInterval: maxResurrectionInterval,
             arweaveTxIds: new string[](0),
             storageFee: storageFee,
             embalmer: msg.sender,
@@ -208,16 +202,7 @@ contract EmbalmerFacet {
         s.sarcoToken.transferFrom(msg.sender, address(this), totalFees);
 
         // Emit the event
-        emit InitializeSarcophagus(
-            sarcoId,
-            name,
-            canBeTransferred,
-            resurrectionTime,
-            msg.sender,
-            recipient,
-            arweaveArchaeologist,
-            archaeologistsToBond
-        );
+        emit InitializeSarcophagus(sarcoId, msg.sender, totalFees);
 
         // Return the index of the sarcophagus
         return s.sarcophagusIdentifiers.length - 1;
@@ -406,11 +391,9 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusNotFinalized(sarcoId);
         }
 
-        // Confirm that the current resurrection time is in the future
+        // Confirm that the current resurrection time is in the future, and thus rewrappable
         if (s.sarcophagi[sarcoId].resurrectionTime <= block.timestamp) {
-            revert LibErrors.NewResurrectionTimeInPast(
-                s.sarcophagi[sarcoId].resurrectionTime
-            );
+            revert LibErrors.SarcophagusIsUnwrappable();
         }
 
         // Confirm that the new resurrection time is in the future
@@ -418,14 +401,16 @@ contract EmbalmerFacet {
             revert LibErrors.NewResurrectionTimeInPast(resurrectionTime);
         }
 
-        // Calculate the new resurrectionWindow, which is the amount of time in
-        // seconds that an archaeologist has to unwrap after the resurrection
-        // time has passed.
-        uint256 resurrectionWindow = LibUtils.getGracePeriod(resurrectionTime);
-
-        // Store the new resurrectionTime and resurrectionWindow
-        s.sarcophagi[sarcoId].resurrectionTime = resurrectionTime;
-        s.sarcophagi[sarcoId].resurrectionWindow = resurrectionWindow;
+        // Confirm that the new resurrection time is not more than
+        // `maxResurrectionInterval` seconds into the future
+        if (
+            resurrectionTime - block.timestamp >
+            s.sarcophagi[sarcoId].maxResurrectionInterval
+        ) {
+            revert LibErrors.NewResurrectionTimeTooLarge(
+                s.sarcophagi[sarcoId].resurrectionTime
+            );
+        }
 
         // For each archaeologist on the sarcophagus, transfer their digging fee allocations to them
         address[] memory bondedArchaeologists = s
@@ -454,6 +439,9 @@ contract EmbalmerFacet {
         // Add the protocol fee to the total protocol fees in storage
         s.totalProtocolFees += protocolFee;
 
+        // Set resurrection time to infinity
+        s.sarcophagi[sarcoId].resurrectionTime = resurrectionTime;
+
         // Transfer the new digging fees from the embalmer to the sarcophagus contract.
         // Archaeologists may withdraw their due from their respective reward pools
         s.sarcoToken.transferFrom(
@@ -463,7 +451,7 @@ contract EmbalmerFacet {
         );
 
         // Emit an event
-        emit RewrapSarcophagus(sarcoId, resurrectionTime, resurrectionWindow);
+        emit RewrapSarcophagus(sarcoId, resurrectionTime);
     }
 
     /// @notice Cancels a sarcophagus. An embalmer may cancel a sarcophagus after
