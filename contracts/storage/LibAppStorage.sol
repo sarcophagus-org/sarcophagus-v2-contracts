@@ -2,11 +2,13 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../interfaces/ICurses.sol";
 import "../libraries/LibTypes.sol";
 
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
     IERC20 sarcoToken;
+    ICurses curses;
     // The amount to be taken from the embalmer each time a protocol fee should
     // be collected
     uint256 protocolFee;
