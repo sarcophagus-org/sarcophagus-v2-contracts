@@ -42,9 +42,14 @@ const config: HardhatUserConfig = {
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     goerli: {
-      url: process.env.GOERLI_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      chainId: 5,
+      url: process.env.GOERLI_PROVIDER,
+      accounts: [process.env.GOERLI_DEPLOYER_PRIVATE_KEY || ""],
+    },
+    rinkeby: {
+      chainId: 4,
+      url: process.env.RINKEBY_PROVIDER,
+      accounts: [process.env.RINKEBY_DEPLOYER_PRIVATE_KEY || ""],
     },
     hardhat: {
       accounts: {
