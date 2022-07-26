@@ -21,14 +21,16 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
                 "Simple example of ERC1155OnChainMetadata with on chain svg"
             )
         );
-        setContractValue(KEY_CONTRACT_IMAGE, abi.encode(createSVG()));
+        setContractValue(
+            KEY_CONTRACT_IMAGE,
+            abi.encode(createSVG("100", "10"))
+        );
 
         mint(
             msg.sender,
             0,
             "First Test",
             "First test of ERC1155OnChainMetadata",
-            "someURI",
             "0",
             "0"
         );
@@ -65,13 +67,11 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
     /// @param _sarcoId the token identifier.
     /// @param _name the token name.
     /// @param _description the token description.
-    /// @param _imageURI the token image URI.
     function mint(
         address _to,
         uint256 _sarcoId,
         string memory _name,
         string memory _description,
-        string memory _imageURI,
         string memory _diggingFee,
         string memory _bounty
     ) public onlyOwner {
@@ -88,7 +88,12 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
             KEY_TOKEN_DESCRIPTION,
             abi.encode(_description)
         );
-        setValue(_sarcoId, _to, KEY_TOKEN_IMAGE, abi.encode(_imageURI));
+        setValue(
+            _sarcoId,
+            _to,
+            KEY_TOKEN_IMAGE,
+            abi.encode(createSVG(_bounty, _diggingFee))
+        );
 
         // Set up the array for attributes
         bytes[] memory traitTypes = new bytes[](2);
@@ -131,7 +136,18 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
         _mint(_to, _sarcoId, 1, "");
     }
 
-    function createSVG() public pure returns (string memory) {
-        return "";
+    // prettier-ignore
+    /// @notice Generates a SVG image for the token based on the passed in attributes.
+    /// @param _bounty the bounty of the token.
+    /// @param _diggingFee the digging fee of the token.
+    /// @return the SVG image for the token as a string.
+    function createSVG(string memory _bounty, string memory _diggingFee) public pure returns (string memory) {
+        return string( abi.encodePacked("data:image/svg+xml;base64,", Base64.encode(bytes(string(abi.encodePacked(
+            "<svg style='background-color:#000' viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'><text transform='translate(23.246 137.01)' dx='0' dy='0' fill='#ffffff' font-size='15' font-weight='400'>Sarcophagus</text><text transform='translate(23.246 176.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>Digging fee:</text><text transform='translate(23.246 162.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>Bounty:</text><text transform='translate(91.246 162.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>",
+            _bounty,
+            " SARCO</text><text transform='translate(91.246 176.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>",
+            _diggingFee,
+            " SARCO</text></svg>"
+        ))))));
     }
 }

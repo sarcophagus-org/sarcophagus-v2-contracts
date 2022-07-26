@@ -15,15 +15,7 @@ describe.only("Contract: Curses", () => {
 
       const arch = archaeologists[0].archAddress;
 
-      await curses.mint(
-        arch,
-        sarcoId,
-        "name",
-        "description",
-        "uri",
-        "10",
-        "100"
-      );
+      await curses.mint(arch, sarcoId, "name", "description", "25", "200");
 
       const uri = await curses.uri(sarcoId);
       console.log("🚀 ~ file: curses.spec.ts ~ line 21 ~ it ~ uri", uri);
