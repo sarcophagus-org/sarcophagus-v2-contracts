@@ -443,8 +443,9 @@ describe("Contract: ArchaeologistFacet", () => {
 
     context("Successful transfer", () => {
       it("should update the list of archaeologists on a sarcophagus", async () => {
-        const { oldArchaeologist, newArchaeologist, sarcoId, viewStateFacet } =
+        const { tx, oldArchaeologist, newArchaeologist, sarcoId, viewStateFacet } =
           await finalizeTransferFixture();
+        await tx;
 
         const archaeologistAddresses = (await viewStateFacet.getSarcophagus(sarcoId))
           .archaeologists;
