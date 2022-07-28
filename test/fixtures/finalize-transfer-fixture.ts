@@ -1,3 +1,4 @@
+import { POINT_CONVERSION_UNCOMPRESSED } from "constants";
 import { ArchaeologistFacet } from "../../typechain";
 import { sign } from "../utils/helpers";
 import { createSarcoFixture } from "./create-sarco-fixture";
@@ -9,12 +10,15 @@ import { createSarcoFixture } from "./create-sarco-fixture";
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const finalizeTransferFixture = async () => {
   const {
+    deployer,
     archaeologists,
     archaeologistFacet,
     viewStateFacet,
     sarcoId,
     arweaveTxId,
     unbondedArchaeologists,
+    diamond,
+    curses,
   } = await createSarcoFixture({ shares: 5, threshold: 3, addUnbondedArchs: 1 }, "Test Sarco");
 
   const newArchaeologist = unbondedArchaeologists[0];
@@ -60,8 +64,12 @@ export const finalizeTransferFixture = async () => {
     newArchaeologist.archAddress
   );
 
+  // Approve the diamond contract on the curses token
+  await curses.connect(deployer).setApprovalForAll(diamond.address, true);
+
   return {
     tx,
+    deployer,
     archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
     viewStateFacet,
     archaeologists,
@@ -78,5 +86,6 @@ export const finalizeTransferFixture = async () => {
     newArchaeologistFreeBondBefore,
     newArchaeologistFreeBondAfter,
     bondAmount,
+    curses,
   };
 };

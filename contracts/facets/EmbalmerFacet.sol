@@ -59,14 +59,10 @@ contract EmbalmerFacet {
     /// embalmer to indicate that they are ready to do work. After this the
     /// finalizeSarcohpagus() method should be called, which is the second step.
     ///
-    /// @param name the name of the sarcophagus
     /// @param sarcoId the identifier of the sarcophagus
+    /// @param sarcophagus an object that contains the sarcophagus data
     /// @param archaeologists the data for the archaeologists
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
-    /// @param recipient the address of the recipient
-    /// @param resurrectionTime the resurrection time of the sarcophagus
-    /// @param canBeTransferred Whether the sarcophagus can be transferred
-    /// @param minShards The minimum number of shards required to unwrap the sarcophagus
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
         bytes32 sarcoId,
@@ -617,8 +613,6 @@ contract EmbalmerFacet {
                 s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
                 s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty
             );
-
-            console.log("Token Id: ", tokenId);
 
             // Add a record of the curse token id that was just minted on the
             // sarcophagusArchaeologists mapping. This is for when the contract needs to look up the
