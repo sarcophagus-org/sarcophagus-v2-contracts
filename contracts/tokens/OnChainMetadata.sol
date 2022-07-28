@@ -22,8 +22,8 @@ abstract contract OnChainMetadata {
     // A mapping of the sarcophagus id to a mapping of the archaeologist address
     // to the curse token metadata
     // Example: tokenMetadata[sarcoId][archaeologist] = metadata
-    mapping(uint256 => mapping(address => Metadata)) private tokenMetadata;
-    // mapping(uint256 => Metadata) tokenMetadata;
+    // mapping(uint256 => mapping(address => Metadata)) private tokenMetadata;
+    mapping(uint256 => Metadata) tokenMetadata;
 
     // Keys for the contract metadata
     bytes32 internal constant KEY_CONTRACT_NAME = "name";
@@ -43,16 +43,14 @@ abstract contract OnChainMetadata {
     /// @notice Get the array of values of a token metadata key. An array is
     /// returned to support the attributes property, which is an array of custom
     /// attributes. In all other cases, the array will contain a single element.
-    /// @param _sarcoId the token identifier.
-    /// @param _archaeologist the archaeologist address.
+    /// @param _tokenId the token identifier.
     /// @param _key the token metadata key.
     /// @return the array of values of the token metadata key.
     function getValues(
-        uint256 _sarcoId,
-        address _archaeologist,
+        uint256 _tokenId,
         bytes32 _key
     ) internal view returns (bytes[] memory) {
-        bytes[] memory result = tokenMetadata[_sarcoId][_archaeologist].data[
+        bytes[] memory result = tokenMetadata[_tokenId].data[
             _key
         ];
 
@@ -62,16 +60,14 @@ abstract contract OnChainMetadata {
     }
 
     /// @notice Get the first value of a token metadata key.
-    /// @param _sarcoId the token identifier.
-    /// @param _archaeologist the archaeologist address.
+    /// @param _tokenId the token identifier.
     /// @param _key the token metadata key.
     /// @return the value of the token metadata key.
     function getValue(
-        uint256 _sarcoId,
-        address _archaeologist,
+        uint256 _tokenId,
         bytes32 _key
     ) internal view returns (bytes memory) {
-        bytes[] memory array = getValues(_sarcoId, _archaeologist, _key);
+        bytes[] memory array = getValues(_tokenId, _key);
         if (array.length > 0) {
             return array[0];
         } else {
@@ -108,42 +104,38 @@ abstract contract OnChainMetadata {
     }
 
     /// @notice Set the values of a token metadata key whose value is an array.
-    /// @param _sarcoId the token identifier.
-    /// @param _archaeologist the archaeologist address.
+    /// @param _tokenId the token identifier.
     /// @param _key the token metadata key.
     /// @param _values the array of values of the token metadata key.
     function setValues(
-        uint256 _sarcoId,
-        address _archaeologist,
+        uint256 _tokenId,
         bytes32 _key,
         bytes[] memory _values
     ) internal {
-        Metadata storage meta = tokenMetadata[_sarcoId][_archaeologist];
+        Metadata storage meta = tokenMetadata[_tokenId];
 
         if (meta.valueCount[_key] == 0) {
-            tokenMetadata[_sarcoId][_archaeologist].keyCount =
+            tokenMetadata[_tokenId].keyCount =
                 meta.keyCount +
                 1;
         }
-        tokenMetadata[_sarcoId][_archaeologist].data[_key] = _values;
-        tokenMetadata[_sarcoId][_archaeologist].valueCount[_key] = _values
+        tokenMetadata[_tokenId].data[_key] = _values;
+        tokenMetadata[_tokenId].valueCount[_key] = _values
             .length;
     }
 
     /// @notice Set the a single value of a token metadata key.
-    /// @param _sarcoId the token identifier.
-    /// @param _archaeologist the archaeologist address.
+    /// @param _tokenId the token identifier.
     /// @param _key the token metadata key.
     /// @param _value the value of the token metadata key.
     function setValue(
-        uint256 _sarcoId,
-        address _archaeologist,
+        uint256 _tokenId,
         bytes32 _key,
         bytes memory _value
     ) internal {
         bytes[] memory values = new bytes[](1);
         values[0] = _value;
-        setValues(_sarcoId, _archaeologist, _key, values);
+        setValues(_tokenId, _key, values);
     }
 
     /// @notice Set the values of a contract metadata key whose value is an array.
@@ -167,48 +159,49 @@ abstract contract OnChainMetadata {
     }
 
     // prettier-ignore
+    /* solhint-disable */
     // Disabling prettier for this function because this code is nearly
     // impossible to read when wrapped.
     /// @notice Builds a URI string for the token metadata.
-    /// @param _sarcoId the token identifier.
-    /// @param _archaeologist the archaeologist address.
+    /// @param _tokenId the token identifier.
     /// @return the token metadata URI.
-    function createTokenURI(uint256 _sarcoId, address _archaeologist)
+    function createTokenURI(uint256 _tokenId)
         internal
         view
         virtual
         returns (string memory)
     {
-
         // Build attribute values
         bytes memory attributes;
-        bytes[] memory traitType = getValues(_sarcoId, _archaeologist, KEY_TOKEN_ATTRIBUTES_TRAIT_TYPE);
+        bytes[] memory traitType = getValues(_tokenId, KEY_TOKEN_ATTRIBUTES_TRAIT_TYPE);
         if (traitType.length > 0) {
-            attributes = "[";
-            bytes[] memory traitValue = getValues(_sarcoId, _archaeologist, KEY_TOKEN_ATTRIBUTES_TRAIT_VALUE);
-            bytes[] memory traitDisplay = getValues(_sarcoId, _archaeologist, KEY_TOKEN_ATTRIBUTES_DISPLAY_TYPE);
+            attributes = '[';
+            bytes[] memory traitValue = getValues(_tokenId, KEY_TOKEN_ATTRIBUTES_TRAIT_VALUE);
+            bytes[] memory traitDisplay = getValues(_tokenId, KEY_TOKEN_ATTRIBUTES_DISPLAY_TYPE);
             for (uint256 i = 0; i < traitType.length; i++) {
-                attributes = abi.encodePacked( attributes, i > 0 ? "," : "", "{",
-                    bytes(traitDisplay[i]).length > 0 ? string(abi.encodePacked("'display_type': '", string(abi.decode(traitDisplay[i], (string))), "',")) : "",
-                    "'trait_type': '", string(abi.decode(traitType[i], (string))), "', 'value': '", string(abi.decode(traitValue[i], (string))), "'}"
+                attributes = abi.encodePacked( 
+                    attributes, i > 0 ? ',' : '', '{',
+                        '"display_type": "',  string(traitDisplay[i]), 
+                        '", "trait_type": "', string(traitType[i]), 
+                        '", "value": "',      string(traitValue[i]), 
+                    '"}'
                 );
             }
-            attributes = abi.encodePacked(attributes, "]");
+            attributes = abi.encodePacked(attributes, ']');
         }
 
         // Get the values of the token metadata
-        string memory name = string(abi.decode(getValue(_sarcoId, _archaeologist, KEY_TOKEN_NAME), (string)));
-        string memory description = string(abi.decode(getValue(_sarcoId, _archaeologist, KEY_TOKEN_DESCRIPTION), (string)));
-        bytes memory image = getValue(_sarcoId, _archaeologist, KEY_TOKEN_IMAGE);
+        string memory name = string(abi.decode(getValue(_tokenId, KEY_TOKEN_NAME), (string)));
+        string memory description = string(abi.decode(getValue(_tokenId, KEY_TOKEN_DESCRIPTION), (string))); 
+        bytes memory image = getValue(_tokenId, KEY_TOKEN_IMAGE); 
 
-        // Build the string of the token metadata
-        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(abi.encodePacked(
-            "{",
-                "'name': '", name, "', ",
-                "'description': '", description, "'",
-                bytes(image).length > 0 ? string(abi.encodePacked(", 'image': '", string(abi.decode(image, (string))), "'")) : "",
-                bytes(attributes).length > 0 ? string(abi.encodePacked(", 'attributes': ", attributes)) : "",
-            "}"
+        return string(abi.encodePacked('data:application/json;base64,', Base64.encode(abi.encodePacked(
+            '{',
+                '"name": "', name, '", ',
+                '"description": "', description, '"',
+                bytes(image).length > 0 ? string(abi.encodePacked(', "image": "', string(abi.decode(image, (string))), '"')) : '',
+                bytes(attributes).length > 0 ? string(abi.encodePacked(', "attributes": ', attributes)) : '',
+            '}'
         ))));
     }
 

@@ -65,6 +65,13 @@ library LibTypes {
         bytes unencryptedShard;
         uint256 curseTokenId;
     }
+
+    struct SarcophagusMemory {
+        string name;
+        address recipient;
+        uint256 resurrectionTime;
+        bool canBeTransferred;
+        uint8 minShards;
     }
 
     // The ArchaeologistStorage struct could be contained in this Sarcophagus

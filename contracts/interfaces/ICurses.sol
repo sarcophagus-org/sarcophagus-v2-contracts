@@ -20,14 +20,14 @@ interface ICurses {
 
     function mint(
         address _to,
-        uint256 _sarcoId,
+        uint256 _tokenId,
         string memory _name,
         string memory _description,
-        string memory _diggingFee,
-        string memory _bounty
+        uint256 _diggingFee,
+        uint256 _bounty
     ) external;
 
-    function createSVG(string memory bounty, string memory diggingFee)
+    function createSVG(uint256 bounty, uint256 diggingFee)
         external
         pure
         returns (string memory);

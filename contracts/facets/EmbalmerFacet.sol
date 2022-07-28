@@ -301,12 +301,14 @@ contract EmbalmerFacet {
         // Iterate over each regular archaeologist signature. This will not
         // include the arweave archaeologist.
         for (uint256 i = 0; i < archaeologistSignatures.length; i++) {
+            address archaeologist = archaeologistSignatures[i].account;
+
             // Confirm that this signauture has not already been verified. This
             // in combination with the signature length check guarantees that
             // each archaeologist gets verified and gets verified only once.
             if (
                 verifiedArchaeologists[sarcoId][
-                    archaeologistSignatures[i].account
+                    archaeologist
                 ]
             ) {
                 revert LibErrors.SignatureListNotUnique();
@@ -319,11 +321,11 @@ contract EmbalmerFacet {
             if (
                 !LibUtils.archaeologistExistsOnSarc(
                     sarcoId,
-                    archaeologistSignatures[i].account
+                    archaeologist
                 )
             ) {
                 revert LibErrors.ArchaeologistNotOnSarcophagus(
-                    archaeologistSignatures[i].account
+                    archaeologist
                 );
             }
 
@@ -336,21 +338,24 @@ contract EmbalmerFacet {
                 archaeologistSignatures[i].v,
                 archaeologistSignatures[i].r,
                 archaeologistSignatures[i].s,
-                archaeologistSignatures[i].account
+                archaeologist
             );
 
             // Calculates the archaeologist's cursed bond and curses them (locks
             // up the free bond)
             LibBonds.curseArchaeologist(
                 sarcoId,
-                archaeologistSignatures[i].account
+                archaeologist
             );
 
             // Add this archaeologist to the mapping of verified archaeologists
             // so that it can't be checked again.
             verifiedArchaeologists[sarcoId][
-                archaeologistSignatures[i].account
+                archaeologist
             ] = true;
+
+            // Mint the curse token for the archaeologist's role on this sarcophagus
+            mintCurseToken(sarcoId, archaeologist);
         }
 
         // Verify that the signature of the arweave transaction id came from the
@@ -374,6 +379,9 @@ contract EmbalmerFacet {
             sarcoId,
             s.sarcophagi[sarcoId].arweaveArchaeologist
         );
+
+        // Mint the curse token for the arweave archaeologist's role on this sarcophagus
+        mintCurseToken(sarcoId, s.sarcophagi[sarcoId].arweaveArchaeologist);
 
         // Store the arweave transaction id to the sarcophagus. The arweaveTxId
         // being populated indirectly designates the sarcophagus as finalized.
@@ -598,5 +606,40 @@ contract EmbalmerFacet {
 
         // Emit an event
         emit BurySarcophagus(sarcoId);
+    }
+
+    /// @notice Generates a token id by hashing the sarcophagus id and the archaeologist address and
+    /// converting it to a uint256
+    /// @param _sarcoId the sarcophagus id.
+    /// @param _archaeologist the archaeologist address.
+    /// @return the token id.
+    function generateTokenId(bytes32 _sarcoId, address _archaeologist) internal pure returns (uint256) {
+        // Return the hash of the sarcoId and the archaeologist address as an uint256
+        return uint256(keccak256(abi.encode(_sarcoId, _archaeologist)));
+    }
+
+    /// @notice Mints a curse token for an archaeologist on a sarcophagus
+    /// @param sarcoId the sarcophagus id.
+    /// @param archaeologist the archaeologist address.
+    function mintCurseToken(bytes32 sarcoId, address archaeologist) internal {
+            uint256 tokenId = generateTokenId(sarcoId, archaeologist);
+
+            // Mint a nft for the archaeologist
+            s.curses.mint(
+                archaeologist,
+                tokenId,
+                s.sarcophagi[sarcoId].name,
+                "Represents an archaeologist's relationship with the sarcophagus",
+                s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
+                s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty
+            );
+
+            console.log("Token Id: ", tokenId);
+
+            // Add a record of the curse token id that was just minted on the
+            // sarcophagusArchaeologists mapping. This is for when the contract needs to look up the
+            // token id on transfer.
+            s.sarcophagusArchaeologists[sarcoId][archaeologist].curseTokenId = 
+                tokenId;
     }
 }
