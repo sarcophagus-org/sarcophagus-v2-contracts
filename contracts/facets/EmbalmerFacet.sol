@@ -61,6 +61,7 @@ contract EmbalmerFacet {
     /// @param sarcoId Unique identifier of the sarcophagus
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
+<<<<<<< HEAD
         string memory name,
         LibTypes.ArchaeologistMemory[] memory archaeologists,
         address arweaveArchaeologist,
@@ -70,6 +71,12 @@ contract EmbalmerFacet {
         bool canBeTransferred,
         uint8 minShards,
         bytes32 sarcoId
+=======
+        bytes32 sarcoId,
+        LibTypes.SarcophagusMemory memory sarcophagus,
+        LibTypes.ArchaeologistMemory[] memory archaeologists,
+        address arweaveArchaeologist
+>>>>>>> Fix stack too deep error
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
         if (
@@ -80,8 +87,8 @@ contract EmbalmerFacet {
         }
 
         // Confirm that the ressurection time is in the future
-        if (resurrectionTime <= block.timestamp) {
-            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
+        if (sarcophagus.resurrectionTime <= block.timestamp) {
+            revert LibErrors.ResurrectionTimeInPast(sarcophagus.resurrectionTime);
         }
 
         // Confirm that archaeologists are provided
@@ -90,12 +97,12 @@ contract EmbalmerFacet {
         }
 
         // Confirm that minShards is less than the number of archaeologists
-        if (minShards > archaeologists.length) {
-            revert LibErrors.MinShardsGreaterThanArchaeologists(minShards);
+        if (sarcophagus.minShards > archaeologists.length) {
+            revert LibErrors.MinShardsGreaterThanArchaeologists(sarcophagus.minShards);
         }
 
         // Confirm that minShards is greater than 0
-        if (minShards == 0) {
+        if (sarcophagus.minShards == 0) {
             revert LibErrors.MinShardsZero();
         }
 
@@ -172,16 +179,23 @@ contract EmbalmerFacet {
 
         // Create the sarcophagus object and store it in AppStorage
         s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
-            name: name,
+            name: sarcophagus.name,
             state: LibTypes.SarcophagusState.Exists,
+<<<<<<< HEAD
             canBeTransferred: canBeTransferred,
             minShards: minShards,
             resurrectionTime: resurrectionTime,
             maxResurrectionInterval: maxResurrectionInterval,
+=======
+            canBeTransferred: sarcophagus.canBeTransferred,
+            minShards: sarcophagus.minShards,
+            resurrectionTime: sarcophagus.resurrectionTime,
+            resurrectionWindow: LibUtils.getGracePeriod(sarcophagus.resurrectionTime),
+>>>>>>> Fix stack too deep error
             arweaveTxIds: new string[](0),
             storageFee: storageFee,
             embalmer: msg.sender,
-            recipientAddress: recipient,
+            recipientAddress: sarcophagus.recipient,
             arweaveArchaeologist: arweaveArchaeologist,
             archaeologists: archaeologistsToBond
         });
@@ -189,7 +203,7 @@ contract EmbalmerFacet {
         // Add the identifier to the necessary data structures
         s.sarcophagusIdentifiers.push(sarcoId);
         s.embalmerSarcophagi[msg.sender].push(sarcoId);
-        s.recipientSarcophagi[recipient].push(sarcoId);
+        s.recipientSarcophagi[sarcophagus.recipient].push(sarcoId);
 
         // Calculate the total fees in sarco tokens that the contract will
         // receive from the embalmer
@@ -202,7 +216,21 @@ contract EmbalmerFacet {
         s.sarcoToken.transferFrom(msg.sender, address(this), totalFees);
 
         // Emit the event
+<<<<<<< HEAD
         emit InitializeSarcophagus(sarcoId, msg.sender, totalFees);
+=======
+        emit InitializeSarcophagus(
+            sarcoId,
+            sarcophagus.name,
+            sarcophagus.canBeTransferred,
+            sarcophagus.resurrectionTime,
+            msg.sender,
+            sarcophagus.recipient,
+            arweaveArchaeologist,
+            archaeologistsToBond,
+            totalFees
+        );
+>>>>>>> Fix stack too deep error
 
         // Return the index of the sarcophagus
         return s.sarcophagusIdentifiers.length - 1;
