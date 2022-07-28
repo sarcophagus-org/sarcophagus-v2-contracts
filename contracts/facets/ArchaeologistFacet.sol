@@ -16,7 +16,8 @@ contract ArchaeologistFacet {
         bytes32 sarcoId,
         string arweaveTxId,
         address oldArchaeologist,
-        address newArchaeologist
+        address newArchaeologist,
+        uint256 curseTokenId
     );
 
     event UnwrapSarcophagus(bytes32 indexed sarcoId, bytes unencryptedShard);
@@ -224,12 +225,21 @@ contract ArchaeologistFacet {
         // Curse the new archaeologist's bond
         LibBonds.curseArchaeologist(sarcoId, msg.sender);
 
+        // Transfer the nft to the new archaeologist. This is the only method of tranfering an nft
+        // in the sarcophagus app. The owner of the nft may not transfer it themselves.
+        // The contract needs to keep track of who owns the nft so that it can make the transfer
+        // again if the new archaeologist chooses to tranfer it to another archaeologist later on.
+        newArchData.curseTokenId = oldArchData.curseTokenId;
+        oldArchData.curseTokenId = 0;
+        s.curses.safeTransferFrom(oldArchaeologist, msg.sender, newArchData.curseTokenId, 1, "");
+
         // Emit an event
         emit FinalizeTransfer(
             sarcoId,
             arweaveTxId,
             oldArchaeologist,
-            msg.sender
+            msg.sender,
+            newArchData.curseTokenId
         );
     }
 }
