@@ -3,7 +3,7 @@ import { deployments, ethers, getUnnamedAccounts } from "hardhat";
 import { CursesMock } from "../../typechain/CursesMock";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 
-describe.only("Contract: Curses", () => {
+describe.skip("Contract: Curses", () => {
   describe("mint()", () => {
     it("should pass", async () => {
       const { archaeologists, sarcoId } = await createSarcoFixture(
