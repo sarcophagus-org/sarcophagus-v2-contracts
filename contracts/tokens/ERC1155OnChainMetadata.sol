@@ -9,9 +9,6 @@ import "./OnChainMetadata.sol";
  * NFTs, parametric NFTs or any NFT with dynamic metadata.
  */
 contract ERC1155OnChainMetadata is ERC1155, OnChainMetadata {
-    // For looking up the owner of a token by its id.
-    mapping(uint256 => address) internal owners;
-
     // solhint-disable-next-line no-empty-blocks
     constructor() ERC1155("") {}
 
@@ -21,10 +18,7 @@ contract ERC1155OnChainMetadata is ERC1155, OnChainMetadata {
         override(ERC1155)
         returns (string memory)
     {
-        // Look up the token's owner since we can't pass it in as a function
-        // argument
-        address archaeologist = owners[_tokenId];
-        return createTokenURI(_tokenId, archaeologist);
+        return createTokenURI(_tokenId);
     }
 
     function contractURI() public view virtual returns (string memory) {
