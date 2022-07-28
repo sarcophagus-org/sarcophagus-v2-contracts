@@ -63,6 +63,8 @@ library LibTypes {
         uint256 bounty;
         bytes32 doubleHashedShard;
         bytes unencryptedShard;
+        uint256 curseTokenId;
+    }
     }
 
     // The ArchaeologistStorage struct could be contained in this Sarcophagus

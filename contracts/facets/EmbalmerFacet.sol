@@ -159,7 +159,13 @@ contract EmbalmerFacet {
             // shard in app storage per sarcophagus
             s.sarcophagusArchaeologists[sarcoId][
                 archaeologists[i].archAddress
-            ] = archaeologistStorage;
+            ] = LibTypes.ArchaeologistStorage({
+                diggingFee: archaeologists[i].diggingFee,
+                bounty: archaeologists[i].bounty,
+                doubleHashedShard: doubleHashedShard,
+                unencryptedShard: "",
+                curseTokenId: 0
+            });
 
             // Add the sarcophagus identifier to archaeologist's list of sarcophagi
             s.archaeologistSarcophagi[archaeologists[i].archAddress].push(
