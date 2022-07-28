@@ -187,6 +187,7 @@ export const createSarcoFixture = (
 
       return {
         sarcoId,
+        deployer,
         embalmer,
         recipient,
         thirdParty,
@@ -201,6 +202,7 @@ export const createSarcoFixture = (
         initializeTx,
         finalizeTx,
         resurrectionTime,
+        diamond,
         sarcoToken: sarcoToken as IERC20,
         curses: curses as CursesMock,
         embalmerFacet: embalmerFacet as EmbalmerFacet,

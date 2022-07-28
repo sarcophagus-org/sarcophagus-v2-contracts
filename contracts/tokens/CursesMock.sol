@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import "./ERC1155OnChainMetadata.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ERC1155OnChainMetadata.sol";
@@ -26,7 +25,7 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
 
         mint(
             msg.sender,
-            0,
+            1,
             "First Test",
             "First test of ERC1155OnChainMetadata",
             1,
@@ -113,7 +112,7 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
         uint256 _id,
         uint256 _amount,
         bytes memory _data
-    ) public override(ERC1155, ICurses) onlyOwner {
+    ) public override(ERC1155, ICurses) {
         _safeTransferFrom(_from, _to, _id, _amount, _data);
     }
 

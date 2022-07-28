@@ -174,7 +174,7 @@ describe("Contract: EmbalmerFacet", () => {
 
         // Create a sarcophagus as the embalmer
         const tx = embalmerFacet.connect(embalmer).initializeSarcophagus(
-          sarcoName,
+          sarcoId,
           {
             name: sarcoName,
             recipient: recipient.address,
@@ -280,16 +280,25 @@ describe("Contract: EmbalmerFacet", () => {
         expect(sarcophagusStored.arweaveTxIds).to.contain(arweaveTxId);
       });
 
-      it.only("should mint nfts for the archaeologists", async () => {
-        const { curses, archaeologists, sarcoId } = await createSarcoFixture(
+      it("should mint nfts for the archaeologists", async () => {
+        const { curses, archaeologists, sarcoId, viewStateFacet } = await createSarcoFixture(
           { shares, threshold },
           sarcoName
         );
 
-        // const balancePromises = archaeologists.map(async arch => {
-        //   const curseTokenId = 0;
-        //   return await curses.balanceOf(arch.archAddress, curseTokenId);
-        // });
+        const balancePromises = archaeologists.map(async arch => {
+          const sarcArch = await viewStateFacet.getSarcophagusArchaeologist(
+            sarcoId,
+            arch.archAddress
+          );
+          const curseTokenId = sarcArch.curseTokenId;
+          return (await curses.balanceOf(arch.archAddress, curseTokenId)).toString();
+        });
+
+        const balances = await Promise.all(balancePromises);
+
+        const expected = archaeologists.map(() => "1");
+        expect(balances).to.deep.equal(expected);
       });
 
       it("should lock up an archaeologist's free bond", async () => {

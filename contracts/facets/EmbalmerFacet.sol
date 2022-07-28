@@ -49,34 +49,16 @@ contract EmbalmerFacet {
     /// embalmer to indicate that they are ready to do work. After this the
     /// finalizeSarcohpagus() method should be called, which is the second step.
     ///
-    /// @param name the name of the sarcophagus
+    /// @param sarcoId the identifier of the sarcophagus
+    /// @param sarcophagus an object that contains the sarcophagus data
     /// @param archaeologists the data for the archaeologists
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
-    /// @param recipient the address of the recipient
-    /// @param resurrectionTime the resurrection time of the sarcophagus
-    /// @param maxResurrectionInterval the maximum length of time that any new resurrection times can be from time of rewrap
-    /// @dev archaeologists will have to sign off on this interval, and commit to it for the lifetime of the sarcophagus.
-    /// @param canBeTransferred Whether the sarcophagus can be transferred
-    /// @param minShards The minimum number of shards required to unwrap the sarcophagus
-    /// @param sarcoId Unique identifier of the sarcophagus
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
-<<<<<<< HEAD
-        string memory name,
-        LibTypes.ArchaeologistMemory[] memory archaeologists,
-        address arweaveArchaeologist,
-        address recipient,
-        uint256 resurrectionTime,
-        uint256 maxResurrectionInterval,
-        bool canBeTransferred,
-        uint8 minShards,
-        bytes32 sarcoId
-=======
         bytes32 sarcoId,
         LibTypes.SarcophagusMemory memory sarcophagus,
         LibTypes.ArchaeologistMemory[] memory archaeologists,
         address arweaveArchaeologist
->>>>>>> Fix stack too deep error
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
         if (
@@ -181,17 +163,10 @@ contract EmbalmerFacet {
         s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
             name: sarcophagus.name,
             state: LibTypes.SarcophagusState.Exists,
-<<<<<<< HEAD
-            canBeTransferred: canBeTransferred,
-            minShards: minShards,
-            resurrectionTime: resurrectionTime,
-            maxResurrectionInterval: maxResurrectionInterval,
-=======
             canBeTransferred: sarcophagus.canBeTransferred,
             minShards: sarcophagus.minShards,
             resurrectionTime: sarcophagus.resurrectionTime,
             resurrectionWindow: LibUtils.getGracePeriod(sarcophagus.resurrectionTime),
->>>>>>> Fix stack too deep error
             arweaveTxIds: new string[](0),
             storageFee: storageFee,
             embalmer: msg.sender,
@@ -216,9 +191,6 @@ contract EmbalmerFacet {
         s.sarcoToken.transferFrom(msg.sender, address(this), totalFees);
 
         // Emit the event
-<<<<<<< HEAD
-        emit InitializeSarcophagus(sarcoId, msg.sender, totalFees);
-=======
         emit InitializeSarcophagus(
             sarcoId,
             sarcophagus.name,
@@ -230,7 +202,6 @@ contract EmbalmerFacet {
             archaeologistsToBond,
             totalFees
         );
->>>>>>> Fix stack too deep error
 
         // Return the index of the sarcophagus
         return s.sarcophagusIdentifiers.length - 1;
@@ -633,8 +604,6 @@ contract EmbalmerFacet {
                 s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
                 s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty
             );
-
-            console.log("Token Id: ", tokenId);
 
             // Add a record of the curse token id that was just minted on the
             // sarcophagusArchaeologists mapping. This is for when the contract needs to look up the
