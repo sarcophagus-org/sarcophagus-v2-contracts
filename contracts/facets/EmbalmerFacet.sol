@@ -69,14 +69,10 @@ contract EmbalmerFacet {
     /// @param minShards The minimum number of shards required to unwrap the sarcophagus
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
-        string memory name,
         bytes32 sarcoId,
+        LibTypes.SarcophagusMemory memory sarcophagus,
         LibTypes.ArchaeologistMemory[] memory archaeologists,
-        address arweaveArchaeologist,
-        address recipient,
-        uint256 resurrectionTime,
-        bool canBeTransferred,
-        uint8 minShards
+        address arweaveArchaeologist
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
         if (
@@ -87,8 +83,8 @@ contract EmbalmerFacet {
         }
 
         // Confirm that the ressurection time is in the future
-        if (resurrectionTime <= block.timestamp) {
-            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
+        if (sarcophagus.resurrectionTime <= block.timestamp) {
+            revert LibErrors.ResurrectionTimeInPast(sarcophagus.resurrectionTime);
         }
 
         // Confirm that archaeologists are provided
@@ -97,12 +93,12 @@ contract EmbalmerFacet {
         }
 
         // Confirm that minShards is less than the number of archaeologists
-        if (minShards > archaeologists.length) {
-            revert LibErrors.MinShardsGreaterThanArchaeologists(minShards);
+        if (sarcophagus.minShards > archaeologists.length) {
+            revert LibErrors.MinShardsGreaterThanArchaeologists(sarcophagus.minShards);
         }
 
         // Confirm that minShards is greater than 0
-        if (minShards == 0) {
+        if (sarcophagus.minShards == 0) {
             revert LibErrors.MinShardsZero();
         }
 
@@ -142,13 +138,6 @@ contract EmbalmerFacet {
             bytes32 doubleHashedShard = keccak256(
                 abi.encode(archaeologists[i].hashedShard)
             );
-            LibTypes.ArchaeologistStorage memory archaeologistStorage = LibTypes
-                .ArchaeologistStorage({
-                    diggingFee: archaeologists[i].diggingFee,
-                    bounty: archaeologists[i].bounty,
-                    doubleHashedShard: doubleHashedShard,
-                    unencryptedShard: ""
-                });
 
             // Map the hashed shared to this archaeologist's address for easier referencing on accuse
             s.doubleHashedShardArchaeologists[
@@ -188,16 +177,16 @@ contract EmbalmerFacet {
 
         // Create the sarcophagus object and store it in AppStorage
         s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
-            name: name,
+            name: sarcophagus.name,
             state: LibTypes.SarcophagusState.Exists,
-            canBeTransferred: canBeTransferred,
-            minShards: minShards,
-            resurrectionTime: resurrectionTime,
-            resurrectionWindow: LibUtils.getGracePeriod(resurrectionTime),
+            canBeTransferred: sarcophagus.canBeTransferred,
+            minShards: sarcophagus.minShards,
+            resurrectionTime: sarcophagus.resurrectionTime,
+            resurrectionWindow: LibUtils.getGracePeriod(sarcophagus.resurrectionTime),
             arweaveTxIds: new string[](0),
             storageFee: storageFee,
             embalmer: msg.sender,
-            recipientAddress: recipient,
+            recipientAddress: sarcophagus.recipient,
             arweaveArchaeologist: arweaveArchaeologist,
             archaeologists: archaeologistsToBond
         });
@@ -205,7 +194,7 @@ contract EmbalmerFacet {
         // Add the identifier to the necessary data structures
         s.sarcophagusIdentifiers.push(sarcoId);
         s.embalmerSarcophagi[msg.sender].push(sarcoId);
-        s.recipientSarcophagi[recipient].push(sarcoId);
+        s.recipientSarcophagi[sarcophagus.recipient].push(sarcoId);
 
         // Calculate the total fees in sarco tokens that the contract will
         // receive from the embalmer
@@ -220,11 +209,11 @@ contract EmbalmerFacet {
         // Emit the event
         emit InitializeSarcophagus(
             sarcoId,
-            name,
-            canBeTransferred,
-            resurrectionTime,
+            sarcophagus.name,
+            sarcophagus.canBeTransferred,
+            sarcophagus.resurrectionTime,
             msg.sender,
-            recipient,
+            sarcophagus.recipient,
             arweaveArchaeologist,
             archaeologistsToBond,
             totalFees
