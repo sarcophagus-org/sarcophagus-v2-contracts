@@ -112,7 +112,7 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
         uint256 _id,
         uint256 _amount,
         bytes memory _data
-    ) public override(ERC1155, ICurses) {
+    ) public override(ERC1155, ICurses) onlyOwner {
         _safeTransferFrom(_from, _to, _id, _amount, _data);
     }
 

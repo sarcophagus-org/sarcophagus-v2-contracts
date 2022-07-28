@@ -1,4 +1,4 @@
-import { POINT_CONVERSION_UNCOMPRESSED } from "constants";
+import { ethers } from "hardhat";
 import { ArchaeologistFacet } from "../../typechain";
 import { sign } from "../utils/helpers";
 import { createSarcoFixture } from "./create-sarco-fixture";
@@ -47,6 +47,11 @@ export const finalizeTransferFixture = async () => {
     newArchaeologist.archAddress
   );
 
+  // Transfer ownership of the curses ERC1155 contract to the diamond
+  const cursesOwnerAddress = await curses.owner();
+  const cursesOwnerSigner = await ethers.getSigner(cursesOwnerAddress);
+  await curses.connect(cursesOwnerSigner).transferOwnership(diamond.address);
+
   // Actually have the new archaeologist finalize the transfer
   const tx = archaeologistFacet
     .connect(newArchaeologist.signer)
@@ -64,11 +69,9 @@ export const finalizeTransferFixture = async () => {
     newArchaeologist.archAddress
   );
 
-  // Approve the diamond contract on the curses token
-  await curses.connect(deployer).setApprovalForAll(diamond.address, true);
-
   return {
     tx,
+    diamond,
     deployer,
     archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
     viewStateFacet,
