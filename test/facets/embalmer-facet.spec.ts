@@ -53,14 +53,14 @@ describe("Contract: EmbalmerFacet", () => {
         expect(initializeTx).to.emit(embalmerFacet, "InitializeSarcophagus");
       });
 
-      it("should set a maximum resurrection interval", async () => {
+      it("should set a resurrection window", async () => {
         const { sarcoId, viewStateFacet } = await createSarcoFixture(
           { shares, threshold, skipFinalize: true },
           sarcoName
         );
 
         const sarco = await viewStateFacet.getSarcophagus(sarcoId);
-        expect(sarco.maxResurrectionInterval.toString()).to.eq(time.duration.weeks(1).toString());
+        expect(sarco.resurrectionWindow).to.be.gt(0);
       });
     });
 
@@ -124,16 +124,6 @@ describe("Contract: EmbalmerFacet", () => {
         );
 
         await expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
-      });
-
-      it("should revert if maxResurrectionInterval is 0", async () => {
-        const { initializeTx } = await createSarcoFixture(
-          { shares, threshold, skipFinalize: true, dontAwaitInitTx: true },
-          sarcoName,
-          0
-        );
-
-        await expect(initializeTx).to.be.revertedWith("MaxResurrectionIntervalIsZero");
       });
 
       it("should revert if no archaeologists are provided", async () => {
@@ -594,16 +584,6 @@ describe("Contract: EmbalmerFacet", () => {
 
   describe("rewrapSarcophagus()", () => {
     context("Successful rewrap", () => {
-      it("should store the new resurrection time", async () => {
-        const { viewStateFacet, sarcoId, newResurrectionTime } = await rewrapFixture(
-          { shares, threshold },
-          sarcoName
-        );
-        const sarcophagusStored = await viewStateFacet.getSarcophagus(sarcoId);
-
-        expect(sarcophagusStored.resurrectionTime).to.equal(newResurrectionTime.toString());
-      });
-
       it("should transfer the digging fee sum plus the protocol fee from the embalmer to the contract", async () => {
         const { archaeologists, sarcoToken, embalmer, embalmerBalanceBefore } = await rewrapFixture(
           { shares, threshold },
@@ -713,18 +693,6 @@ describe("Contract: EmbalmerFacet", () => {
         const tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, newResurrectionTime);
 
         await expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
-      });
-
-      it("should revert if the new resurrection time is further in the future than maxResurrectionTime allows", async () => {
-        const { tx } = await rewrapFixture(
-          { shares, threshold, dontAwaitTransaction: true },
-          sarcoName,
-          // Add 60 seconds to known default maxResurrectionInterval (from rewrapFixture's createSarcoFixture)
-          // of 1 week
-          time.duration.weeks(1) + 60
-        );
-
-        await expect(tx).to.be.revertedWith("NewResurrectionTimeTooLarge");
       });
     });
   });

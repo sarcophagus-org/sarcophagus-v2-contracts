@@ -134,35 +134,18 @@ export const createSarcoFixture = (
       // Create a sarcophagus as the embalmer
       let initializeTx: Promise<ContractTransaction> | undefined;
       if (config.skipInitialize !== true) {
-<<<<<<< HEAD
-        initializeTx = embalmerFacet
-          .connect(embalmer)
-          .initializeSarcophagus(
-            sarcoName,
-            archaeologists,
-            arweaveArchaeologist.signer.address,
-            recipient.address,
-=======
         initializeTx = embalmerFacet.connect(embalmer).initializeSarcophagus(
           sarcoId,
           {
             name: sarcoName,
             recipient: recipient.address,
->>>>>>> Get a basic test working
             resurrectionTime,
-            maxResurrectionInterval ?? time.duration.weeks(1),
             canBeTransferred,
-<<<<<<< HEAD
-            config.threshold,
-            sarcoId
-          );
-=======
             minShards: config.threshold,
           },
           archaeologists,
           arweaveArchaeologist.signer.address
         );
->>>>>>> Get a basic test working
       }
 
       if (config.dontAwaitInitTx !== true) {

@@ -15,7 +15,13 @@ contract EmbalmerFacet {
 
     event InitializeSarcophagus(
         bytes32 indexed sarcoId,
+        string name,
+        bool canBeTransferred,
+        uint256 resurrectionTime,
         address embalmer,
+        address recipient,
+        address arweaveArchaeologist,
+        address[] cursedArchaeologists,
         uint256 totalFees
     );
 
@@ -88,11 +94,6 @@ contract EmbalmerFacet {
             revert LibErrors.MinShardsZero();
         }
 
-        // Confirm that maxResurrectionInterval is greater than 0
-        if (maxResurrectionInterval == 0) {
-            revert LibErrors.MaxResurrectionIntervalIsZero();
-        }
-
         // Initialize a list of archaeologist addresses to be passed in to the
         // sarcophagus object
         address[] memory archaeologistsToBond = new address[](
@@ -129,7 +130,8 @@ contract EmbalmerFacet {
                     diggingFee: arch.diggingFee,
                     bounty: arch.bounty,
                     doubleHashedShard: doubleHashedShard,
-                    unencryptedShard: ""
+                    unencryptedShard: "",
+                    curseTokenId: 0
                 });
 
             // Map the double-hashed shared to this archaeologist's address for easier referencing on accuse
@@ -406,17 +408,6 @@ contract EmbalmerFacet {
         // Confirm that the new resurrection time is in the future
         if (resurrectionTime <= block.timestamp) {
             revert LibErrors.NewResurrectionTimeInPast(resurrectionTime);
-        }
-
-        // Confirm that the new resurrection time is not more than
-        // `maxResurrectionInterval` seconds into the future
-        if (
-            resurrectionTime - block.timestamp >
-            s.sarcophagi[sarcoId].maxResurrectionInterval
-        ) {
-            revert LibErrors.NewResurrectionTimeTooLarge(
-                s.sarcophagi[sarcoId].resurrectionTime
-            );
         }
 
         // For each archaeologist on the sarcophagus, transfer their digging fee allocations to them
