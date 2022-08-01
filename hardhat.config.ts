@@ -13,6 +13,10 @@ import "hardhat-contract-sizer";
 
 dotenv.config();
 
+// Defining this manually since ethers cannot be access from within the hardhat config
+const hashZero =
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -43,13 +47,13 @@ const config: HardhatUserConfig = {
     },
     goerli: {
       chainId: 5,
-      url: process.env.GOERLI_PROVIDER,
-      accounts: [process.env.GOERLI_DEPLOYER_PRIVATE_KEY || ""],
+      url: process.env.GOERLI_PROVIDER || "",
+      accounts: [process.env.GOERLI_DEPLOYER_PRIVATE_KEY || hashZero],
     },
     rinkeby: {
       chainId: 4,
-      url: process.env.RINKEBY_PROVIDER,
-      accounts: [process.env.RINKEBY_DEPLOYER_PRIVATE_KEY || ""],
+      url: process.env.RINKEBY_PROVIDER || "",
+      accounts: [process.env.RINKEBY_DEPLOYER_PRIVATE_KEY || hashZero],
     },
     hardhat: {
       accounts: {
