@@ -76,7 +76,9 @@ contract EmbalmerFacet {
 
         // Confirm that the ressurection time is in the future
         if (sarcophagus.resurrectionTime <= block.timestamp) {
-            revert LibErrors.ResurrectionTimeInPast(sarcophagus.resurrectionTime);
+            revert LibErrors.ResurrectionTimeInPast(
+                sarcophagus.resurrectionTime
+            );
         }
 
         // Confirm that archaeologists are provided
@@ -86,7 +88,9 @@ contract EmbalmerFacet {
 
         // Confirm that minShards is less than the number of archaeologists
         if (sarcophagus.minShards > archaeologists.length) {
-            revert LibErrors.MinShardsGreaterThanArchaeologists(sarcophagus.minShards);
+            revert LibErrors.MinShardsGreaterThanArchaeologists(
+                sarcophagus.minShards
+            );
         }
 
         // Confirm that minShards is greater than 0
@@ -168,7 +172,9 @@ contract EmbalmerFacet {
             canBeTransferred: sarcophagus.canBeTransferred,
             minShards: sarcophagus.minShards,
             resurrectionTime: sarcophagus.resurrectionTime,
-            resurrectionWindow: LibUtils.getGracePeriod(sarcophagus.resurrectionTime),
+            resurrectionWindow: LibUtils.getGracePeriod(
+                sarcophagus.resurrectionTime
+            ),
             arweaveTxIds: new string[](0),
             storageFee: storageFee,
             embalmer: msg.sender,
@@ -279,11 +285,7 @@ contract EmbalmerFacet {
             // Confirm that this signauture has not already been verified. This
             // in combination with the signature length check guarantees that
             // each archaeologist gets verified and gets verified only once.
-            if (
-                verifiedArchaeologists[sarcoId][
-                    archaeologist
-                ]
-            ) {
+            if (verifiedArchaeologists[sarcoId][archaeologist]) {
                 revert LibErrors.SignatureListNotUnique();
             }
 
@@ -291,15 +293,8 @@ contract EmbalmerFacet {
             // sarcophagus. The alternative to this is to iterate over each
             // archaeologist on the sarcophagus and run ecrecover to see if
             // there is a match. This is much more efficient.
-            if (
-                !LibUtils.archaeologistExistsOnSarc(
-                    sarcoId,
-                    archaeologist
-                )
-            ) {
-                revert LibErrors.ArchaeologistNotOnSarcophagus(
-                    archaeologist
-                );
+            if (!LibUtils.archaeologistExistsOnSarc(sarcoId, archaeologist)) {
+                revert LibErrors.ArchaeologistNotOnSarcophagus(archaeologist);
             }
 
             // Verify that the signature of the sarcophagus identifier came from
@@ -316,19 +311,14 @@ contract EmbalmerFacet {
 
             // Calculates the archaeologist's cursed bond and curses them (locks
             // up the free bond)
-            LibBonds.curseArchaeologist(
-                sarcoId,
-                archaeologist
-            );
+            LibBonds.curseArchaeologist(sarcoId, archaeologist);
 
             // Add this archaeologist to the mapping of verified archaeologists
             // so that it can't be checked again.
-            verifiedArchaeologists[sarcoId][
-                archaeologist
-            ] = true;
+            verifiedArchaeologists[sarcoId][archaeologist] = true;
 
             // Mint the curse token for the archaeologist's role on this sarcophagus
-            mintCurseToken(sarcoId, archaeologist);
+            LibUtils.mintCurseToken(sarcoId, archaeologist);
         }
 
         // Verify that the signature of the arweave transaction id came from the
@@ -354,7 +344,10 @@ contract EmbalmerFacet {
         );
 
         // Mint the curse token for the arweave archaeologist's role on this sarcophagus
-        mintCurseToken(sarcoId, s.sarcophagi[sarcoId].arweaveArchaeologist);
+        LibUtils.mintCurseToken(
+            sarcoId,
+            s.sarcophagi[sarcoId].arweaveArchaeologist
+        );
 
         // Store the arweave transaction id to the sarcophagus. The arweaveTxId
         // being populated indirectly designates the sarcophagus as finalized.
@@ -568,38 +561,5 @@ contract EmbalmerFacet {
 
         // Emit an event
         emit BurySarcophagus(sarcoId);
-    }
-
-    /// @notice Generates a token id by hashing the sarcophagus id and the archaeologist address and
-    /// converting it to a uint256
-    /// @param _sarcoId the sarcophagus id.
-    /// @param _archaeologist the archaeologist address.
-    /// @return the token id.
-    function generateTokenId(bytes32 _sarcoId, address _archaeologist) internal pure returns (uint256) {
-        // Return the hash of the sarcoId and the archaeologist address as an uint256
-        return uint256(keccak256(abi.encode(_sarcoId, _archaeologist)));
-    }
-
-    /// @notice Mints a curse token for an archaeologist on a sarcophagus
-    /// @param sarcoId the sarcophagus id.
-    /// @param archaeologist the archaeologist address.
-    function mintCurseToken(bytes32 sarcoId, address archaeologist) internal {
-            uint256 tokenId = generateTokenId(sarcoId, archaeologist);
-
-            // Mint a nft for the archaeologist
-            s.curses.mint(
-                archaeologist,
-                tokenId,
-                s.sarcophagi[sarcoId].name,
-                "Represents an archaeologist's relationship with the sarcophagus",
-                s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
-                s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty
-            );
-
-            // Add a record of the curse token id that was just minted on the
-            // sarcophagusArchaeologists mapping. This is for when the contract needs to look up the
-            // token id on transfer.
-            s.sarcophagusArchaeologists[sarcoId][archaeologist].curseTokenId = 
-                tokenId;
     }
 }

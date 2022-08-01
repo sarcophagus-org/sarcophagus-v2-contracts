@@ -304,4 +304,46 @@ library LibUtils {
         // Just returns a constant value defined in an env file
         return s.protocolFee;
     }
+
+    /// @notice Generates a token id by hashing the sarcophagus id and the archaeologist address and
+    /// converting it to a uint256
+    /// @param _sarcoId the sarcophagus id.
+    /// @param _archaeologist the archaeologist address.
+    /// @return the token id.
+    function generateTokenId(bytes32 _sarcoId, address _archaeologist)
+        private
+        returns (
+            // pure
+            uint256
+        )
+    {
+        // Return the hash of the sarcoId and the archaeologist address as an uint256
+        return uint256(keccak256(abi.encode(_sarcoId, _archaeologist)));
+    }
+
+    /// @notice Mints a curse token for an archaeologist on a sarcophagus
+    /// @param sarcoId the sarcophagus id.
+    /// @param archaeologist the archaeologist address.
+    function mintCurseToken(bytes32 sarcoId, address archaeologist) internal {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        uint256 tokenId = generateTokenId(sarcoId, archaeologist);
+
+        // Mint a nft for the archaeologist
+        s.curses.mint(
+            archaeologist,
+            tokenId,
+            s.sarcophagi[sarcoId].name,
+            "Represents an archaeologist's relationship with the sarcophagus",
+            s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
+            s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty
+        );
+
+        // Add a record of the curse token id that was just minted on the
+        // sarcophagusArchaeologists mapping. This is for when the contract needs to look up the
+        // token id on transfer.
+        s
+        .sarcophagusArchaeologists[sarcoId][archaeologist]
+            .curseTokenId = tokenId;
+    }
 }
