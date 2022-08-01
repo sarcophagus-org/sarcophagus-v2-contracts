@@ -443,8 +443,9 @@ describe("Contract: ArchaeologistFacet", () => {
 
     context("Successful transfer", () => {
       it("should update the list of archaeologists on a sarcophagus", async () => {
-        const { oldArchaeologist, newArchaeologist, sarcoId, viewStateFacet } =
+        const { tx, oldArchaeologist, newArchaeologist, sarcoId, viewStateFacet } =
           await finalizeTransferFixture();
+        await tx;
 
         const archaeologistAddresses = (await viewStateFacet.getSarcophagus(sarcoId))
           .archaeologists;
@@ -452,6 +453,29 @@ describe("Contract: ArchaeologistFacet", () => {
         expect(archaeologistAddresses).to.have.lengthOf(shares);
         expect(archaeologistAddresses).to.contain(newArchaeologist.archAddress);
         expect(archaeologistAddresses).to.not.contain(oldArchaeologist.address);
+      });
+
+      it("should transfer the old archaeologists nft to the new archaeologist", async () => {
+        const {
+          tx,
+          curses,
+          newArchaeologist,
+          oldArchaeologist,
+          sarcoId,
+          viewStateFacet,
+          deployer,
+        } = await finalizeTransferFixture();
+        await tx;
+
+        const tokenId = (
+          await viewStateFacet.getSarcophagusArchaeologist(sarcoId, newArchaeologist.archAddress)
+        ).curseTokenId;
+
+        const oldArchBalance = await curses.balanceOf(oldArchaeologist.address, tokenId);
+        const newArchBalance = await curses.balanceOf(newArchaeologist.archAddress, tokenId);
+
+        expect(oldArchBalance.toString()).to.equal("0");
+        expect(newArchBalance.toString()).to.equal("1");
       });
 
       it("should update the data in the sarcophagusArchaeologists mapping", async () => {
@@ -537,12 +561,29 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should emit FinalizeTransfer()", async () => {
-        const { tx, archaeologistFacet, oldArchaeologist, newArchaeologist, sarcoId, arweaveTxId } =
-          await finalizeTransferFixture();
+        const {
+          tx,
+          archaeologistFacet,
+          oldArchaeologist,
+          newArchaeologist,
+          sarcoId,
+          arweaveTxId,
+          viewStateFacet,
+        } = await finalizeTransferFixture();
+
+        const tokenId = (
+          await viewStateFacet.getSarcophagusArchaeologist(sarcoId, newArchaeologist.archAddress)
+        ).curseTokenId;
 
         await expect(tx)
           .emit(archaeologistFacet, "FinalizeTransfer")
-          .withArgs(sarcoId, arweaveTxId, oldArchaeologist.address, newArchaeologist.archAddress);
+          .withArgs(
+            sarcoId,
+            arweaveTxId,
+            oldArchaeologist.address,
+            newArchaeologist.archAddress,
+            tokenId
+          );
       });
     });
 

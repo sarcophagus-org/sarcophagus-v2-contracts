@@ -50,9 +50,9 @@ export async function spawnArchaologistsWithSignatures(
       hashedShard: ethers.utils.solidityKeccak256(["bytes"], [shards[shardI]]),
       unencryptedShard: shards[shardI],
       signer: acc,
-      storageFee: ethers.utils.parseEther("20"),
-      diggingFee: ethers.utils.parseEther("10"),
-      bounty: ethers.utils.parseEther("100"),
+      storageFee: BigNumber.from("20"),
+      diggingFee: BigNumber.from("10"),
+      bounty: BigNumber.from("100"),
     });
 
     // Transfer 10,000 sarco tokens to each archaeologist to be put into free

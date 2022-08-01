@@ -2,6 +2,7 @@ import { ContractTransaction } from "ethers";
 import { deployments } from "hardhat";
 import {
   ArchaeologistFacet,
+  CursesMock,
   EmbalmerFacet,
   IERC20,
   ThirdPartyFacet,
@@ -55,6 +56,7 @@ export const createSarcoFixture = (
 
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const sarcoToken = await ethers.getContract("SarcoTokenMock");
+      const curses = await ethers.getContract("CursesMock");
       const embalmerFacet = (await ethers.getContractAt(
         "EmbalmerFacet",
         diamond.address
@@ -132,19 +134,18 @@ export const createSarcoFixture = (
       // Create a sarcophagus as the embalmer
       let initializeTx: Promise<ContractTransaction> | undefined;
       if (config.skipInitialize !== true) {
-        initializeTx = embalmerFacet
-          .connect(embalmer)
-          .initializeSarcophagus(
-            sarcoName,
-            archaeologists,
-            arweaveArchaeologist.signer.address,
-            recipient.address,
+        initializeTx = embalmerFacet.connect(embalmer).initializeSarcophagus(
+          sarcoId,
+          {
+            name: sarcoName,
+            recipient: recipient.address,
             resurrectionTime,
-            maxResurrectionInterval ?? time.duration.weeks(1),
             canBeTransferred,
-            config.threshold,
-            sarcoId
-          );
+            minShards: config.threshold,
+          },
+          archaeologists,
+          arweaveArchaeologist.signer.address
+        );
       }
 
       if (config.dontAwaitInitTx !== true) {
@@ -169,6 +170,7 @@ export const createSarcoFixture = (
 
       return {
         sarcoId,
+        deployer,
         embalmer,
         recipient,
         thirdParty,
@@ -183,7 +185,9 @@ export const createSarcoFixture = (
         initializeTx,
         finalizeTx,
         resurrectionTime,
+        diamond,
         sarcoToken: sarcoToken as IERC20,
+        curses: curses as CursesMock,
         embalmerFacet: embalmerFacet as EmbalmerFacet,
         archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
         thirdPartyFacet: thirdPartyFacet as ThirdPartyFacet,
