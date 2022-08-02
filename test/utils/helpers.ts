@@ -109,13 +109,13 @@ export const getArchaeologistSarcoRewards = async (
 export const calculateCursedBond = (diggingFee: BigNumber, bounty: BigNumber): BigNumber =>
   diggingFee.add(bounty);
 
-export const getResurrectionTimeFromUri = (uri: string): number => {
+export const getAttributeFromURI = (uri: string, attributeName: string): number => {
   const uriPrefix = "data:application/json;base64,";
   const base64Uri = uri.replace(uriPrefix, "");
   const decodedUri = Buffer.from(base64Uri, "base64").toString("utf8");
   const nftMetadata = JSON.parse(decodedUri);
   const resurrectionTime = nftMetadata.attributes.find(
-    (x: any) => x.trait_type === "Resurrection Time"
+    (x: any) => x.trait_type === attributeName
   ).value;
   return parseInt(resurrectionTime);
 };

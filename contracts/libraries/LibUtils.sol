@@ -329,16 +329,21 @@ library LibUtils {
 
         uint256 tokenId = generateTokenId(sarcoId, archaeologist);
 
+        LibTypes.MetadataAttributes memory attr = LibTypes.MetadataAttributes(
+            s.sarcophagi[sarcoId].name,
+            s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
+            s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty,
+            s.sarcophagi[sarcoId].resurrectionTime,
+            s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFeesPaid
+        );
+
         // Mint a nft for the archaeologist
         s.curses.mint(
             archaeologist,
             tokenId,
             s.sarcophagi[sarcoId].name,
             "Represents an archaeologist's relationship with the sarcophagus",
-            s.sarcophagi[sarcoId].name,
-            s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
-            s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty,
-            s.sarcophagi[sarcoId].resurrectionTime
+            attr
         );
 
         // Add a record of the curse token id that was just minted on the
