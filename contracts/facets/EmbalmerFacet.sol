@@ -423,6 +423,13 @@ contract EmbalmerFacet {
 
             // Add the archaeologist's digging fee to the sum
             diggingFeeSum += archaeologistData.diggingFee;
+
+            // Update the resurrection time on the archaeologist's nft
+            s.curses.updateAttribute(
+                archaeologistData.curseTokenId,
+                abi.encodePacked("Resurrection Time"),
+                abi.encodePacked(resurrectionTime)
+            );
         }
 
         uint256 protocolFee = LibUtils.calculateProtocolFee();

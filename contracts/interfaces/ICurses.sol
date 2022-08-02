@@ -23,8 +23,16 @@ interface ICurses {
         uint256 _tokenId,
         string memory _name,
         string memory _description,
+        string memory _sarcophagusName,
         uint256 _diggingFee,
-        uint256 _bounty
+        uint256 _bounty,
+        uint256 _resurrectionTime
+    ) external;
+
+    function updateAttribute(
+        uint256 _tokenId,
+        bytes memory _traitType,
+        bytes memory _traitValue
     ) external;
 
     function createSVG(uint256 bounty, uint256 diggingFee)

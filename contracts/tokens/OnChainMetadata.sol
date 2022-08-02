@@ -23,7 +23,11 @@ abstract contract OnChainMetadata {
     // to the curse token metadata
     // Example: tokenMetadata[sarcoId][archaeologist] = metadata
     // mapping(uint256 => mapping(address => Metadata)) private tokenMetadata;
-    mapping(uint256 => Metadata) tokenMetadata;
+    mapping(uint256 => Metadata) public tokenMetadata;
+
+    // Used to look up the index of a trait type by name so that the corresponding value may be
+    // updated
+    mapping(bytes => uint256) public attributeIndexes;
 
     // Keys for the contract metadata
     bytes32 internal constant KEY_CONTRACT_NAME = "name";
@@ -46,13 +50,12 @@ abstract contract OnChainMetadata {
     /// @param _tokenId the token identifier.
     /// @param _key the token metadata key.
     /// @return the array of values of the token metadata key.
-    function getValues(
-        uint256 _tokenId,
-        bytes32 _key
-    ) internal view returns (bytes[] memory) {
-        bytes[] memory result = tokenMetadata[_tokenId].data[
-            _key
-        ];
+    function getValues(uint256 _tokenId, bytes32 _key)
+        internal
+        view
+        returns (bytes[] memory)
+    {
+        bytes[] memory result = tokenMetadata[_tokenId].data[_key];
 
         // Result length is 0
 
@@ -63,10 +66,11 @@ abstract contract OnChainMetadata {
     /// @param _tokenId the token identifier.
     /// @param _key the token metadata key.
     /// @return the value of the token metadata key.
-    function getValue(
-        uint256 _tokenId,
-        bytes32 _key
-    ) internal view returns (bytes memory) {
+    function getValue(uint256 _tokenId, bytes32 _key)
+        internal
+        view
+        returns (bytes memory)
+    {
         bytes[] memory array = getValues(_tokenId, _key);
         if (array.length > 0) {
             return array[0];
@@ -115,13 +119,10 @@ abstract contract OnChainMetadata {
         Metadata storage meta = tokenMetadata[_tokenId];
 
         if (meta.valueCount[_key] == 0) {
-            tokenMetadata[_tokenId].keyCount =
-                meta.keyCount +
-                1;
+            tokenMetadata[_tokenId].keyCount = meta.keyCount + 1;
         }
         tokenMetadata[_tokenId].data[_key] = _values;
-        tokenMetadata[_tokenId].valueCount[_key] = _values
-            .length;
+        tokenMetadata[_tokenId].valueCount[_key] = _values.length;
     }
 
     /// @notice Set the a single value of a token metadata key.

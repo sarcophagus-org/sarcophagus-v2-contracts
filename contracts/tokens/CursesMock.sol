@@ -28,9 +28,26 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
             1,
             "First Test",
             "First test of ERC1155OnChainMetadata",
+            "Sarcophagus name",
             1,
-            2
+            2,
+            0
         );
+    }
+
+    /// @notice Updates an attribute's trait value on a token by trait type
+    /// @param _tokenId the token identifier.
+    /// @param _traitType the trait type.
+    /// @param _traitValue the trait value.
+    function updateAttribute(
+        uint256 _tokenId,
+        bytes memory _traitType,
+        bytes memory _traitValue
+    ) public {
+        uint256 attributeIndex = attributeIndexes[_traitType];
+        tokenMetadata[_tokenId].data[KEY_TOKEN_ATTRIBUTES_TRAIT_VALUE][
+                attributeIndex
+            ] = _traitValue;
     }
 
     /// @notice Mints a single curse nft with metadata.
@@ -38,15 +55,19 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
     /// @param _tokenId the token identifier.
     /// @param _name the token name.
     /// @param _description the token description.
+    /// @param _sarcophagusName the name of the sarcohpagus.
     /// @param _diggingFee the digging fee.
     /// @param _bounty the bounty.
+    /// @param _resurrectionTime the resurrection time of the sarcophagus.
     function mint(
         address _to,
         uint256 _tokenId,
         string memory _name,
         string memory _description,
+        string memory _sarcophagusName,
         uint256 _diggingFee,
-        uint256 _bounty
+        uint256 _bounty,
+        uint256 _resurrectionTime
     ) public {
         // Confirm that the nft doesn't already exist.
         if (ids[_tokenId] != false) {
@@ -55,11 +76,7 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
 
         // Set the token's metadata
         setValue(_tokenId, KEY_TOKEN_NAME, abi.encode(_name));
-        setValue(
-            _tokenId,
-            KEY_TOKEN_DESCRIPTION,
-            abi.encode(_description)
-        );
+        setValue(_tokenId, KEY_TOKEN_DESCRIPTION, abi.encode(_description));
         setValue(
             _tokenId,
             KEY_TOKEN_IMAGE,
@@ -67,29 +84,37 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
         );
 
         // Set up the array for attributes
-        bytes[] memory traitTypes = new bytes[](2);
-        bytes[] memory displayTypes = new bytes[](2);
-        bytes[] memory values = new bytes[](2);
+        bytes[] memory traitTypes = new bytes[](4);
+        bytes[] memory displayTypes = new bytes[](4);
+        bytes[] memory values = new bytes[](4);
 
         // Define attributes trait types
         traitTypes[0] = abi.encodePacked("Digging Fee");
         traitTypes[1] = abi.encodePacked("Bounty");
+        traitTypes[2] = abi.encodePacked("SarcophagusName");
+        traitTypes[3] = abi.encodePacked("Resurrection Time");
+
+        // Map the trait type name to the index for look up while updating an attribute
+        attributeIndexes[traitTypes[0]] = 0;
+        attributeIndexes[traitTypes[1]] = 1;
+        attributeIndexes[traitTypes[2]] = 2;
+        attributeIndexes[traitTypes[3]] = 3;
 
         // Define attributes display types
-        displayTypes[0] = abi.encodePacked("string");
-        displayTypes[1] = abi.encodePacked("string");
+        displayTypes[0] = abi.encodePacked("number");
+        displayTypes[1] = abi.encodePacked("number");
+        displayTypes[2] = abi.encodePacked("string");
+        displayTypes[3] = abi.encodePacked("number");
 
         // Define attribute values
         values[0] = abi.encodePacked(Strings.toString(_diggingFee));
         values[1] = abi.encodePacked(Strings.toString(_bounty));
+        values[2] = abi.encodePacked(_sarcophagusName);
+        values[3] = abi.encodePacked(Strings.toString(_resurrectionTime));
 
         // Save the attributes to the contract
         setValues(_tokenId, KEY_TOKEN_ATTRIBUTES_TRAIT_TYPE, traitTypes);
-        setValues(
-            _tokenId,
-            KEY_TOKEN_ATTRIBUTES_DISPLAY_TYPE,
-            displayTypes
-        );
+        setValues(_tokenId, KEY_TOKEN_ATTRIBUTES_DISPLAY_TYPE, displayTypes);
         setValues(_tokenId, KEY_TOKEN_ATTRIBUTES_TRAIT_VALUE, values);
 
         ids[_tokenId] = true;

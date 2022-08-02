@@ -335,8 +335,10 @@ library LibUtils {
             tokenId,
             s.sarcophagi[sarcoId].name,
             "Represents an archaeologist's relationship with the sarcophagus",
+            s.sarcophagi[sarcoId].name,
             s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
-            s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty
+            s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty,
+            s.sarcophagi[sarcoId].resurrectionTime
         );
 
         // Add a record of the curse token id that was just minted on the
