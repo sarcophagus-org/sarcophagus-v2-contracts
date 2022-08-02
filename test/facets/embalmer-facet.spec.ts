@@ -8,7 +8,12 @@ import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { buryFixture } from "../fixtures/bury-fixture";
 import { cancelSarcoFixture } from "../fixtures/cancel-sarco-fixture";
 import { rewrapFixture } from "../fixtures/rewrap-fixture";
-import { calculateCursedBond, sign, signMultiple } from "../utils/helpers";
+import {
+  calculateCursedBond,
+  getResurrectionTimeFromUri,
+  sign,
+  signMultiple,
+} from "../utils/helpers";
 import time from "../utils/time";
 
 describe("Contract: EmbalmerFacet", () => {
@@ -626,6 +631,25 @@ describe("Contract: EmbalmerFacet", () => {
       it("should emit an event", async () => {
         const { tx, embalmerFacet } = await rewrapFixture({ shares, threshold }, sarcoName);
         expect(tx).to.emit(embalmerFacet, "RewrapSarcophagus");
+      });
+
+      it("should update the ressurection time on the curse nft", async () => {
+        const { tx, curses, archaeologists, viewStateFacet, sarcoId, newResurrectionTime } =
+          await rewrapFixture({ shares, threshold }, sarcoName);
+        await tx;
+
+        // Get an archaeologist's curse token id
+        const oneArchaeologist = archaeologists[0];
+        const archData = await viewStateFacet.getSarcophagusArchaeologist(
+          sarcoId,
+          oneArchaeologist.archAddress
+        );
+
+        // Get the resurrectionTime from the nft attributes
+        const uri = await curses.uri(archData.curseTokenId);
+        const resurrectionTime = getResurrectionTimeFromUri(uri);
+
+        expect(resurrectionTime).to.equal(newResurrectionTime);
       });
     });
 
