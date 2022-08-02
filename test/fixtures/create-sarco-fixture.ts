@@ -48,6 +48,9 @@ export const createSarcoFixture = (
       // Deploy contracts
       await deployments.fixture();
 
+      const namedAccounts = await getNamedAccounts();
+      const deployer = await ethers.getSigner(namedAccounts.deployer);
+
       // Get the entities interacting with the contracts
       const unnamedAccounts = await getUnnamedAccounts();
       const embalmer = await ethers.getSigner(unnamedAccounts[0]);
@@ -71,6 +74,9 @@ export const createSarcoFixture = (
       // Approve the embalmer on the sarco token
       await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
 
+      // Approve the diamond contract on the 1155 curses token
+      await curses.connect(deployer).setApprovalForAll(diamond.address, true);
+
       // Set up the data for the sarcophagus
       // 64-byte key:
       const privateKey = "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
@@ -79,8 +85,6 @@ export const createSarcoFixture = (
       const shards: Buffer[] = sss.split(secret, config);
 
       const sarcoId = ethers.utils.solidityKeccak256(["string"], [sarcoName]);
-      const namedAccounts = await getNamedAccounts();
-      const deployer = await ethers.getSigner(namedAccounts.deployer);
 
       const [archaeologists, signatures] = await spawnArchaologistsWithSignatures(
         shards,

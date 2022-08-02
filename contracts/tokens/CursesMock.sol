@@ -9,6 +9,7 @@ import "../libraries/LibTypes.sol";
 
 contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
     error CurseAlreadyExists(uint256 sarcoId, address archaeologist);
+    error SenderIsNotApproved(address sender);
 
     mapping(uint256 => bool) private ids;
 
@@ -50,6 +51,10 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
         bytes memory _traitType,
         bytes memory _traitValue
     ) public {
+        if (!isApprovedForAll(owner(), msg.sender)) {
+            revert SenderIsNotApproved(msg.sender);
+        }
+
         uint256 attributeIndex = attributeIndexes[_traitType];
         tokenMetadata[_tokenId].data[KEY_TOKEN_ATTRIBUTES_TRAIT_VALUE][
                 attributeIndex
