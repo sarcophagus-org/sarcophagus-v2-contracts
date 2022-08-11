@@ -61,6 +61,7 @@ library LibTypes {
     struct ArchaeologistStorage {
         uint256 diggingFee;
         uint256 bounty;
+        uint256 diggingFeesPaid;
         bytes32 doubleHashedShard;
         bytes unencryptedShard;
         uint256 curseTokenId;
@@ -93,5 +94,13 @@ library LibTypes {
         address recipientAddress;
         address arweaveArchaeologist;
         address[] archaeologists;
+    }
+
+    struct MetadataAttributes {
+        string sarcophagusName;
+        uint256 diggingFee;
+        uint256 bounty;
+        uint256 resurrectionTime;
+        uint256 diggingFeesPaid;
     }
 }

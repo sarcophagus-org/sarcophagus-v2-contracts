@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
+import {LibTypes} from "../libraries/LibTypes.sol";
+
 interface ICurses {
     function safeTransferFrom(
         address _from,
@@ -23,8 +25,13 @@ interface ICurses {
         uint256 _tokenId,
         string memory _name,
         string memory _description,
-        uint256 _diggingFee,
-        uint256 _bounty
+        LibTypes.MetadataAttributes memory _attr
+    ) external;
+
+    function updateAttribute(
+        uint256 _tokenId,
+        bytes memory _traitType,
+        bytes memory _traitValue
     ) external;
 
     function createSVG(uint256 bounty, uint256 diggingFee)

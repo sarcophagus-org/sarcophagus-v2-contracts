@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
@@ -133,6 +134,7 @@ contract EmbalmerFacet {
                 .ArchaeologistStorage({
                     diggingFee: arch.diggingFee,
                     bounty: arch.bounty,
+                    diggingFeesPaid: 0,
                     doubleHashedShard: doubleHashedShard,
                     unencryptedShard: "",
                     curseTokenId: 0
@@ -421,8 +423,32 @@ contract EmbalmerFacet {
                 archaeologistData.diggingFee
             );
 
+            // Add to the total of digging fees paid
+            archaeologistData.diggingFeesPaid += archaeologistData.diggingFee;
+
+            // Add to the total of digging fees paid on the nft attributes
+            s.curses.updateAttribute(
+                archaeologistData.curseTokenId,
+                abi.encodePacked("Digging Fees Paid"),
+                abi.encodePacked(
+                    Strings.toString(archaeologistData.diggingFeesPaid)
+                )
+            );
+
             // Add the archaeologist's digging fee to the sum
             diggingFeeSum += archaeologistData.diggingFee;
+
+            // Update the resurrection time on the archaeologist's nft
+            s.curses.updateAttribute(
+                archaeologistData.curseTokenId,
+                abi.encodePacked("Resurrection Time"),
+                abi.encodePacked(Strings.toString(resurrectionTime))
+            );
+
+            // Update the archaeologist's data in storage
+            s.sarcophagusArchaeologists[sarcoId][
+                bondedArchaeologists[i]
+            ] = archaeologistData;
         }
 
         uint256 protocolFee = LibUtils.calculateProtocolFee();

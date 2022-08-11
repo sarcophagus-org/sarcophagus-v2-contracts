@@ -5,9 +5,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ERC1155OnChainMetadata.sol";
 import "../interfaces/ICurses.sol";
+import "../libraries/LibTypes.sol";
 
 contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
     error CurseAlreadyExists(uint256 sarcoId, address archaeologist);
+    error SenderIsNotApproved(address sender);
 
     mapping(uint256 => bool) private ids;
 
@@ -23,14 +25,40 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
             )
         );
 
+        LibTypes.MetadataAttributes memory attr = LibTypes.MetadataAttributes(
+            "First Test",
+            1,
+            2,
+            0,
+            0
+        );
+
         mint(
             msg.sender,
             1,
             "First Test",
             "First test of ERC1155OnChainMetadata",
-            1,
-            2
+            attr
         );
+    }
+
+    /// @notice Updates an attribute's trait value on a token by trait type
+    /// @param _tokenId the token identifier.
+    /// @param _traitType the trait type.
+    /// @param _traitValue the trait value.
+    function updateAttribute(
+        uint256 _tokenId,
+        bytes memory _traitType,
+        bytes memory _traitValue
+    ) public {
+        if (!isApprovedForAll(owner(), msg.sender)) {
+            revert SenderIsNotApproved(msg.sender);
+        }
+
+        uint256 attributeIndex = attributeIndexes[_traitType];
+        tokenMetadata[_tokenId].data[KEY_TOKEN_ATTRIBUTES_TRAIT_VALUE][
+                attributeIndex
+            ] = _traitValue;
     }
 
     /// @notice Mints a single curse nft with metadata.
@@ -38,15 +66,13 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
     /// @param _tokenId the token identifier.
     /// @param _name the token name.
     /// @param _description the token description.
-    /// @param _diggingFee the digging fee.
-    /// @param _bounty the bounty.
+    /// @param _attr the metadata attributes.
     function mint(
         address _to,
         uint256 _tokenId,
         string memory _name,
         string memory _description,
-        uint256 _diggingFee,
-        uint256 _bounty
+        LibTypes.MetadataAttributes memory _attr
     ) public {
         // Confirm that the nft doesn't already exist.
         if (ids[_tokenId] != false) {
@@ -55,41 +81,51 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
 
         // Set the token's metadata
         setValue(_tokenId, KEY_TOKEN_NAME, abi.encode(_name));
-        setValue(
-            _tokenId,
-            KEY_TOKEN_DESCRIPTION,
-            abi.encode(_description)
-        );
+        setValue(_tokenId, KEY_TOKEN_DESCRIPTION, abi.encode(_description));
         setValue(
             _tokenId,
             KEY_TOKEN_IMAGE,
-            abi.encode(createSVG(_bounty, _diggingFee))
+            abi.encode(createSVG(_attr.bounty, _attr.diggingFee))
         );
 
         // Set up the array for attributes
-        bytes[] memory traitTypes = new bytes[](2);
-        bytes[] memory displayTypes = new bytes[](2);
-        bytes[] memory values = new bytes[](2);
+        bytes[] memory traitTypes = new bytes[](5);
+        bytes[] memory displayTypes = new bytes[](5);
+        bytes[] memory values = new bytes[](5);
 
-        // Define attributes trait types
+        // Digging fee
         traitTypes[0] = abi.encodePacked("Digging Fee");
+        displayTypes[0] = abi.encodePacked("number");
+        values[0] = abi.encodePacked(Strings.toString(_attr.diggingFee));
+        attributeIndexes[traitTypes[0]] = 0;
+
+        // Bounty
         traitTypes[1] = abi.encodePacked("Bounty");
+        displayTypes[1] = abi.encodePacked("number");
+        values[1] = abi.encodePacked(Strings.toString(_attr.bounty));
+        attributeIndexes[traitTypes[1]] = 1;
 
-        // Define attributes display types
-        displayTypes[0] = abi.encodePacked("string");
-        displayTypes[1] = abi.encodePacked("string");
+        // Sarcophagus name
+        traitTypes[2] = abi.encodePacked("SarcophagusName");
+        displayTypes[2] = abi.encodePacked("string");
+        values[2] = abi.encodePacked(_attr.sarcophagusName);
+        attributeIndexes[traitTypes[2]] = 2;
 
-        // Define attribute values
-        values[0] = abi.encodePacked(Strings.toString(_diggingFee));
-        values[1] = abi.encodePacked(Strings.toString(_bounty));
+        // Resurrection time
+        traitTypes[3] = abi.encodePacked("Resurrection Time");
+        displayTypes[3] = abi.encodePacked("number");
+        values[3] = abi.encodePacked(Strings.toString(_attr.resurrectionTime));
+        attributeIndexes[traitTypes[3]] = 3;
+
+        // Digging fees collected
+        traitTypes[4] = abi.encodePacked("Digging Fees Paid");
+        displayTypes[4] = abi.encodePacked("string");
+        values[4] = abi.encodePacked(Strings.toString(_attr.diggingFeesPaid));
+        attributeIndexes[traitTypes[4]] = 4;
 
         // Save the attributes to the contract
         setValues(_tokenId, KEY_TOKEN_ATTRIBUTES_TRAIT_TYPE, traitTypes);
-        setValues(
-            _tokenId,
-            KEY_TOKEN_ATTRIBUTES_DISPLAY_TYPE,
-            displayTypes
-        );
+        setValues(_tokenId, KEY_TOKEN_ATTRIBUTES_DISPLAY_TYPE, displayTypes);
         setValues(_tokenId, KEY_TOKEN_ATTRIBUTES_TRAIT_VALUE, values);
 
         ids[_tokenId] = true;
