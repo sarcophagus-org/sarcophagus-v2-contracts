@@ -228,7 +228,7 @@ contract ArchaeologistFacet {
         // Transfer the nft to the new archaeologist. This is the only method of tranfering an nft
         // in the sarcophagus app. The owner of the nft may not transfer it themselves.
         // The contract needs to keep track of who owns the nft so that it can make the transfer
-        // again if the new archaeologist chooses to tranfer it to another archaeologist later on.
+        // again if the new archaeologist chooses to transfer it to another archaeologist later on.
         newArchData.curseTokenId = oldArchData.curseTokenId;
         oldArchData.curseTokenId = 0;
         s.curses.safeTransferFrom(oldArchaeologist, msg.sender, newArchData.curseTokenId, 1, "");
