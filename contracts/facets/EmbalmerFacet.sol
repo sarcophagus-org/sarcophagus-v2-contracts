@@ -64,7 +64,7 @@ contract EmbalmerFacet {
     function initializeSarcophagus(
         bytes32 sarcoId,
         LibTypes.SarcophagusMemory memory sarcophagus,
-        LibTypes.SelectedArchaeologistMemory[] memory sarcoArchaeologists,
+        LibTypes.SelectedArchaeologistMemory[] memory selectedArchaeologists,
         address arweaveArchaeologist
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
@@ -75,7 +75,7 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusAlreadyExists(sarcoId);
         }
 
-        // Confirm that the ressurection time is in the future
+        // Confirm that the resurrection time is in the future
         if (sarcophagus.resurrectionTime <= block.timestamp) {
             revert LibErrors.ResurrectionTimeInPast(
                 sarcophagus.resurrectionTime
@@ -83,12 +83,12 @@ contract EmbalmerFacet {
         }
 
         // Confirm that archaeologists are provided
-        if (sarcoArchaeologists.length == 0) {
+        if (selectedArchaeologists.length == 0) {
             revert LibErrors.NoArchaeologistsProvided();
         }
 
         // Confirm that minShards is less than the number of archaeologists
-        if (sarcophagus.minShards > sarcoArchaeologists.length) {
+        if (sarcophagus.minShards > selectedArchaeologists.length) {
             revert LibErrors.MinShardsGreaterThanArchaeologists(
                 sarcophagus.minShards
             );
@@ -102,7 +102,7 @@ contract EmbalmerFacet {
         // Initialize a list of archaeologist addresses to be passed in to the
         // sarcophagus object
         address[] memory archaeologistsToBond = new address[](
-            sarcoArchaeologists.length
+            selectedArchaeologists.length
         );
 
         // Initialize the storage fee of the archaeologist who uploades to
@@ -110,8 +110,8 @@ contract EmbalmerFacet {
         // sarcophagus object.
         uint256 storageFee = 0;
 
-        for (uint256 i = 0; i < sarcoArchaeologists.length; i++) {
-            LibTypes.SelectedArchaeologistMemory memory arch = sarcoArchaeologists[i];
+        for (uint256 i = 0; i < selectedArchaeologists.length; i++) {
+            LibTypes.SelectedArchaeologistMemory memory arch = selectedArchaeologists[i];
 
             // Confirm that the archaeologist list is unique. This is done by
             // checking that the archaeologist does not already exist from

@@ -24,6 +24,13 @@ contract ArchaeologistFacet {
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
+    event RegisterArchaeologist(
+        address indexed archaeologist,
+        uint256 minimumDiggingFee,
+        uint256 maximumResurrectionTime,
+        uint256 freeBond
+    );
+
     event WithdrawFreeBond(
         address indexed archaeologist,
         uint256 withdrawnBond
@@ -34,10 +41,49 @@ contract ArchaeologistFacet {
         uint256 withdrawnReward
     );
 
+    function registerArchaeologist(
+        uint256 minimumDiggingFee,
+        uint256 maximumResurrectionTime,
+        uint256 freeBond,
+        IERC20 sarcoToken
+    ) external {
+        // verify that the archaeologist does not already exist
+        LibUtils.revertIfArchProfileExists(msg.sender);
+
+        // transfer SARCO tokens from the archaeologist to this contract, to be
+        // used as their free bond. can be 0.
+        if (freeBond > 0) {
+            sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+        }
+
+        // create a new archaeologist
+        LibTypes.ArchaeologistProfile memory newArch =
+            LibTypes.ArchaeologistProfile({
+                exists: true,
+                minimumDiggingFee: minimumDiggingFee,
+                maximumResurrectionTime: maximumResurrectionTime,
+                freeBond: freeBond,
+                cursedBond: 0,
+                rewards: 0
+            });
+
+        // save the new archaeologist into relevant data structures
+        s.archaeologistProfiles[msg.sender] = newArch;
+        s.archaeologistProfileAddresses.push(msg.sender);
+
+        // emit an event
+        emit RegisterArchaeologist(
+            msg.sender,
+            newArch.minimumDiggingFee,
+            newArch.maximumResurrectionTime,
+            newArch.freeBond
+        );
+    }
+
     /// @notice Deposits an archaeologist's free bond to the contract.
     /// @param amount The amount to deposit
     function depositFreeBond(uint256 amount) external {
-        // Increase the archaeolgist's free bond in app storage
+        // Increase the archaeologist's free bond in app storage
         LibBonds.increaseFreeBond(msg.sender, amount);
 
         // Transfer the amount of sarcoToken from the archaeologist to the contract

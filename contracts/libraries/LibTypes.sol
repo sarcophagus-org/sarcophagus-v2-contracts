@@ -67,6 +67,16 @@ library LibTypes {
         uint256 curseTokenId;
     }
 
+    // ArchaeologistProfile is used to store archaeologist profile data
+    struct ArchaeologistProfile {
+        bool exists;
+        uint256 minimumDiggingFee;
+        uint256 maximumResurrectionInterval;
+        uint256 freeBond;
+        uint256 cursedBond;
+        uint256 rewards;
+    }
+
     struct SarcophagusMemory {
         string name;
         address recipient;

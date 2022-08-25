@@ -28,7 +28,7 @@ contract ViewStateFacet {
         view
         returns (uint256)
     {
-        return s.freeBonds[archaeologist];
+        return s.archaeologistProfiles[archaeologist].freeBond;
     }
 
     /// @notice Returns the amount of rewards stored in the contract for an
@@ -52,7 +52,7 @@ contract ViewStateFacet {
         view
         returns (uint256)
     {
-        return s.cursedBonds[archaeologist];
+        return s.archaeologistProfiles[archaeologist].cursedBond;
     }
 
     function getArchaeologistSuccessOnSarcophagus(

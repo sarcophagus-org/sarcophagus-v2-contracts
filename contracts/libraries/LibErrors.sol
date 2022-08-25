@@ -13,6 +13,8 @@ library LibErrors {
 
     error ArchaeologistNotOnSarcophagus(address archaeologist);
 
+    error ArchaeologistProfileExistsIs(bool exists, address archaeologist);
+
     error ArweaveArchaeologistNotInList();
 
     error ArweaveTxIdEmpty();
