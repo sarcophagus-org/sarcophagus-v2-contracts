@@ -58,7 +58,7 @@ contract EmbalmerFacet {
     ///
     /// @param sarcoId the identifier of the sarcophagus
     /// @param sarcophagus an object that contains the sarcophagus data
-    /// @param archaeologists the data for the archaeologists
+    /// @param selectedArchaeologists the data for the archaeologists
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(

@@ -71,7 +71,7 @@ library LibTypes {
     struct ArchaeologistProfile {
         bool exists;
         uint256 minimumDiggingFee;
-        uint256 maximumResurrectionInterval;
+        uint256 maximumRewrapInterval;
         uint256 freeBond;
         uint256 cursedBond;
         uint256 rewards;

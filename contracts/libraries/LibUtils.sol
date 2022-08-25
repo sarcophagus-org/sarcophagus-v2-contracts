@@ -266,26 +266,24 @@ library LibUtils {
                 .doubleHashedShard != 0;
     }
 
-    /**
-     * @notice Checks if an archaeologist profile exists and
-     * reverts if it does not
-     * @param account the archaeologist address to check existence of
-     */
     function revertIfArchProfileIs(bool existing, address archaeologist)
         internal
         view
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // revert if necessary
-        if (existing ? !s.ArchaeologistProfiles[archaeologist] : s.ArchaeologistProfiles[archaeologist]) {
-            revert LibErrors.ArchaeologistProfileExistsIs(
-                existing,
+        if (existing ? s.archaeologistProfiles[archaeologist].exists : !s.archaeologistProfiles[archaeologist].exists) {
+            revert LibErrors.ArchaeologistProfileExistsShouldBe(
+                !existing,
                 archaeologist
             );
         }
     }
 
+    /// @notice Checks if an archaeologist profile exists and
+    /// reverts if so
+    ///
+    /// @param archaeologist the archaeologist address to check existence of
     function revertIfArchProfileExists(address archaeologist)
         internal
         view
@@ -293,6 +291,10 @@ library LibUtils {
         revertIfArchProfileIs(true, archaeologist);
     }
 
+    /// @notice Checks if an archaeologist profile doesn't exist and
+    /// reverts if so
+    ///
+    /// @param archaeologist the archaeologist address to check lack of existence of
     function revertIfArchProfileDoesNotExist(address archaeologist)
         internal
         view
