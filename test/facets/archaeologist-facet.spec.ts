@@ -10,11 +10,112 @@ import { calculateCursedBond, registerArchaeologist, sign } from "../utils/helpe
 import time from "../utils/time";
 
 describe("Contract: ArchaeologistFacet", () => {
+  describe("registerArchaeologist", () => {
+    it("registers an archaeologist", async () => {
+      const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
+      const archaeologist = archaeologists[0];
+
+      await registerArchaeologist(archaeologist, archaeologistFacet);
+
+      const registeredArch = await viewStateFacet.getArchaeologistProfile(
+        archaeologist.archAddress
+      );
+      expect(registeredArch.exists).to.be.true;
+    });
+
+    it("fails to register an archaeologist when it is already registered", async () => {
+      const { archaeologists, archaeologistFacet } = await archeologistsFixture(1);
+
+      const archaeologist = archaeologists[0];
+
+      await registerArchaeologist(archaeologist, archaeologistFacet);
+
+      await expect(registerArchaeologist(archaeologist, archaeologistFacet)).to.be.revertedWith(
+        "ArchaeologistProfileExistsShouldBe"
+      );
+    });
+
+    it("initializes the cursedBond and rewards to 0", async () => {
+      const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
+      const archaeologist = archaeologists[0];
+
+      await registerArchaeologist(archaeologist, archaeologistFacet);
+
+      const registeredArch = await viewStateFacet.getArchaeologistProfile(
+        archaeologist.archAddress
+      );
+      expect(registeredArch.cursedBond).to.equal(BigNumber.from("0"));
+      expect(registeredArch.rewards).to.equal(BigNumber.from("0"));
+    });
+
+    it("initializes the profile config values correctly", async () => {
+      const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
+      const archaeologist = archaeologists[0];
+
+      const minDiggingFee = "40";
+      const maxRewrapInterval = "50";
+      const freeBond = "90";
+
+      await registerArchaeologist(
+        archaeologist,
+        archaeologistFacet,
+        minDiggingFee,
+        maxRewrapInterval,
+        freeBond
+      );
+
+      const registeredArch = await viewStateFacet.getArchaeologistProfile(
+        archaeologist.archAddress
+      );
+      expect(registeredArch.minimumDiggingFee).to.equal(BigNumber.from(minDiggingFee));
+      expect(registeredArch.maximumRewrapInterval).to.equal(BigNumber.from(maxRewrapInterval));
+      expect(registeredArch.freeBond).to.equal(BigNumber.from(freeBond));
+    });
+
+    it("adds the archaeologist address to the archaeologistProfileAddresses array", async () => {
+      const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
+      const archaeologist = archaeologists[0];
+
+      await registerArchaeologist(archaeologist, archaeologistFacet,);
+
+      const registeredArchAddress = await viewStateFacet.getArchaeologistProfileAddressAtIndex(0);
+      expect(registeredArchAddress).to.equal(archaeologist.archAddress);
+    });
+
+    it("deposits free bond to the sarcophagus contract when registering with a positive free bond value", async () => {
+      const { archaeologists, archaeologistFacet, sarcoToken } = await archeologistsFixture(1);
+      const archaeologist = archaeologists[0];
+
+      const minDiggingFee = "40";
+      const maxRewrapInterval = "50";
+      const freeBond = "90";
+
+      // hopefully someday chai will support to.be.changed.by matchers for contracts/bignums
+      const sarcoContractBalanceBefore = await sarcoToken.balanceOf(
+        archaeologistFacet.address
+      );
+
+      await registerArchaeologist(
+        archaeologist,
+        archaeologistFacet,
+        minDiggingFee,
+        maxRewrapInterval,
+        freeBond
+      );
+
+      const sarcoContractBalanceAfter = await sarcoToken.balanceOf(
+        archaeologistFacet.address
+      );
+
+      expect(sarcoContractBalanceAfter.sub(sarcoContractBalanceBefore))
+        .to.equal(BigNumber.from(freeBond));
+    });
+  });
+
   describe("depositFreeBond()", () => {
     context("with an unregistered archaeologist", () => {
       it("reverts when depositing free bond", async () => {
-        const { archaeologists, archaeologistFacet } =
-          await archeologistsFixture(1);
+        const { archaeologists, archaeologistFacet } = await archeologistsFixture(1);
         const archaeologist = archaeologists[0];
 
         await expect(
@@ -37,7 +138,9 @@ describe("Contract: ArchaeologistFacet", () => {
           archaeologist.archAddress
         );
 
-        await archaeologistFacet.connect(archaeologist.signer).depositFreeBond(BigNumber.from(amountToDeposit));
+        await archaeologistFacet
+          .connect(archaeologist.signer)
+          .depositFreeBond(BigNumber.from(amountToDeposit));
 
         const freeBond = await viewStateFacet.getFreeBond(archaeologist.archAddress);
         expect(freeBond.toString()).to.equal(amountToDeposit);
@@ -46,9 +149,9 @@ describe("Contract: ArchaeologistFacet", () => {
           archaeologist.archAddress
         );
 
-        expect(archaeologistSarcoBalanceAfter.add(BigNumber.from(amountToDeposit)).toString()).to.equal(
-          archaeologistSarcoBalanceBefore.toString()
-        );
+        expect(
+          archaeologistSarcoBalanceAfter.add(BigNumber.from(amountToDeposit)).toString()
+        ).to.equal(archaeologistSarcoBalanceBefore.toString());
 
         const contractSarcBalance = await sarcoToken.balanceOf(archaeologistFacet.address);
         expect(contractSarcBalance.toString()).to.equal(amountToDeposit);
@@ -190,15 +293,11 @@ describe("Contract: ArchaeologistFacet", () => {
           await expect(
             archaeologistFacet
               .connect(contextArchaeologist.signer)
-              .withdrawFreeBond(BigNumber.from(101)))
-            .to.be.revertedWith(
-            "NotEnoughFreeBond"
-          );
+              .withdrawFreeBond(BigNumber.from(101))
+          ).to.be.revertedWith("NotEnoughFreeBond");
         });
       });
     });
-
-
   });
 
   describe("unwrapSarcophagus()", () => {
@@ -497,7 +596,7 @@ describe("Contract: ArchaeologistFacet", () => {
           oldArchaeologist,
           sarcoId,
           viewStateFacet,
-          deployer
+          deployer,
         } = await finalizeTransferFixture();
         await tx;
 
@@ -556,7 +655,7 @@ describe("Contract: ArchaeologistFacet", () => {
           oldArchaeologistFreeBondBefore,
           oldArchaeologistFreeBondAfter,
           oldArchaeologistCursedBondBefore,
-          oldArchaeologistCursedBondAfter
+          oldArchaeologistCursedBondAfter,
         } = await finalizeTransferFixture();
 
         // Check that the difference betwwen the old and new cursed bonds is equal to
@@ -578,7 +677,7 @@ describe("Contract: ArchaeologistFacet", () => {
           newArchaeologistCursedBondAfter,
           newArchaeologistFreeBondBefore,
           newArchaeologistFreeBondAfter,
-          bondAmount
+          bondAmount,
         } = await finalizeTransferFixture();
 
         // Check that the difference betwwen the old and new cursed bonds is equal to
@@ -602,7 +701,7 @@ describe("Contract: ArchaeologistFacet", () => {
           newArchaeologist,
           sarcoId,
           arweaveTxId,
-          viewStateFacet
+          viewStateFacet,
         } = await finalizeTransferFixture();
 
         const tokenId = (

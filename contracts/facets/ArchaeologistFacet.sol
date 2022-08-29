@@ -49,12 +49,6 @@ contract ArchaeologistFacet {
         // verify that the archaeologist does not already exist
         LibUtils.revertIfArchProfileExists(msg.sender);
 
-        // transfer SARCO tokens from the archaeologist to this contract, to be
-        // used as their free bond. can be 0.
-        if (freeBond > 0) {
-            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
-        }
-
         // create a new archaeologist
         LibTypes.ArchaeologistProfile memory newArch =
             LibTypes.ArchaeologistProfile({
@@ -65,6 +59,12 @@ contract ArchaeologistFacet {
                 cursedBond: 0,
                 rewards: 0
             });
+
+        // transfer SARCO tokens from the archaeologist to this contract, to be
+        // used as their free bond. can be 0.
+        if (freeBond > 0) {
+            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+        }
 
         // save the new archaeologist into relevant data structures
         s.archaeologistProfiles[msg.sender] = newArch;
