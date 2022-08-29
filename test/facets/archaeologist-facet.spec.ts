@@ -6,7 +6,7 @@ import { ethers } from "hardhat";
 import { archeologistsFixture } from "../fixtures/archaeologists-fixture";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { finalizeTransferFixture } from "../fixtures/finalize-transfer-fixture";
-import { calculateCursedBond, registerArchaeologist, sign } from "../utils/helpers";
+import { calculateCursedBond, registerArchaeologist, sign, updateArchaeologist } from "../utils/helpers";
 import time from "../utils/time";
 
 describe("Contract: ArchaeologistFacet", () => {
@@ -112,6 +112,87 @@ describe("Contract: ArchaeologistFacet", () => {
     });
   });
 
+  describe("updateArchaeologist", () => {
+    it("updates an archaeologist values successfully", async () => {
+      const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
+      const archaeologist = archaeologists[0];
+
+      await registerArchaeologist(archaeologist, archaeologistFacet);
+
+      const minDiggingFee = "150";
+      const maxRewrapInterval = "150";
+      const freeBond = "150";
+
+      const archFreeBondBeforeUpdate = await viewStateFacet.getFreeBond(archaeologist.archAddress);
+
+      await updateArchaeologist(
+        archaeologist,
+        archaeologistFacet,
+        minDiggingFee,
+        maxRewrapInterval,
+        freeBond
+      );
+
+      const registeredArch = await viewStateFacet.getArchaeologistProfile(
+        archaeologist.archAddress
+      );
+      expect(registeredArch.minimumDiggingFee).to.equal(BigNumber.from(minDiggingFee));
+      expect(registeredArch.maximumRewrapInterval).to.equal(BigNumber.from(maxRewrapInterval));
+      expect(registeredArch.freeBond.sub(archFreeBondBeforeUpdate)).to.equal(
+        BigNumber.from(freeBond)
+      );
+    });
+
+    it("deposits free bond to the sarcophagus contract when updating with a positive free bond value", async () => {
+      const { archaeologists, archaeologistFacet, sarcoToken } = await archeologistsFixture(1);
+      const archaeologist = archaeologists[0];
+
+      const minDiggingFee = "40";
+      const maxRewrapInterval = "50";
+      const freeBond = "90";
+
+      await registerArchaeologist(
+        archaeologist,
+        archaeologistFacet,
+        minDiggingFee,
+        maxRewrapInterval,
+        freeBond
+      );
+
+      const sarcoContractBalanceBefore = await sarcoToken.balanceOf(
+        archaeologistFacet.address
+      );
+
+      await updateArchaeologist(
+        archaeologist,
+        archaeologistFacet,
+        minDiggingFee,
+        maxRewrapInterval,
+        freeBond
+      );
+
+      const sarcoContractBalanceAfter = await sarcoToken.balanceOf(
+        archaeologistFacet.address
+      );
+
+      expect(sarcoContractBalanceAfter.sub(sarcoContractBalanceBefore))
+        .to.equal(BigNumber.from(freeBond));
+    });
+
+    it("reverts when an archaeologist is not registered", async () => {
+      const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
+      const archaeologist = archaeologists[0];
+
+      await expect(updateArchaeologist(
+        archaeologist,
+        archaeologistFacet,
+        "150",
+        "150",
+        "150"
+      )).to.be.revertedWith("ArchaeologistProfileExistsShouldBe");
+    });
+  });
+
   describe("depositFreeBond()", () => {
     context("with an unregistered archaeologist", () => {
       it("reverts when depositing free bond", async () => {
@@ -120,7 +201,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         await expect(
           archaeologistFacet.connect(archaeologist.signer).depositFreeBond(BigNumber.from(100))
-        ).to.be.reverted;
+        ).to.be.revertedWith("ArchaeologistProfileExistsShouldBe");
       });
     });
 

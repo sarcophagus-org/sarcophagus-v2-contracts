@@ -31,6 +31,13 @@ contract ArchaeologistFacet {
         uint256 freeBond
     );
 
+    event UpdateArchaeologist(
+        address indexed archaeologist,
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond
+    );
+
     event WithdrawFreeBond(
         address indexed archaeologist,
         uint256 withdrawnBond
@@ -70,12 +77,39 @@ contract ArchaeologistFacet {
         s.archaeologistProfiles[msg.sender] = newArch;
         s.archaeologistProfileAddresses.push(msg.sender);
 
-        // emit an event
         emit RegisterArchaeologist(
             msg.sender,
             newArch.minimumDiggingFee,
             newArch.maximumRewrapInterval,
             newArch.freeBond
+        );
+    }
+
+    function updateArchaeologist(
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond
+    ) external {
+        // verify that the archaeologist exists
+        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
+
+        // create a new archaeologist
+        LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];
+        existingArch.minimumDiggingFee = minimumDiggingFee;
+        existingArch.maximumRewrapInterval = maximumRewrapInterval;
+
+        // transfer SARCO tokens from the archaeologist to this contract, to be
+        // used as their free bond. can be 0.
+        if (freeBond > 0) {
+            LibBonds.increaseFreeBond(msg.sender, freeBond);
+            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+        }
+
+        emit UpdateArchaeologist(
+            msg.sender,
+            existingArch.minimumDiggingFee,
+            existingArch.maximumRewrapInterval,
+            existingArch.freeBond
         );
     }
 

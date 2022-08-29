@@ -140,3 +140,19 @@ export const registerArchaeologist = async (
       BigNumber.from(freeBond)
     );
 }
+
+export const updateArchaeologist = async (
+  archaeologist: TestArchaeologist,
+  archaeologistFacet: ArchaeologistFacet,
+  minDiggingFee: string,
+  minRewrapInterval: string,
+  freeBond?: string
+): Promise<void> => {
+  await archaeologistFacet
+    .connect(archaeologist.signer)
+    .updateArchaeologist(
+      BigNumber.from(minDiggingFee),
+      BigNumber.from(minRewrapInterval),
+      BigNumber.from(freeBond || 0)
+    );
+}
