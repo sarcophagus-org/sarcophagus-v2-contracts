@@ -15,7 +15,7 @@ library LibTypes {
     }
 
     // A struct of just the signature. This is used primarily by the
-    // finalizeSarcpohagus function for the arweave archaeologist. Note that,
+    // finalizeSarcophagus function for the arweave archaeologist. Note that,
     // unlike the regular archaeologists, the sarcophagus already stores the
     // single arweave archaeologist's address so there is no need to pass in the
     // address to the finalizeSarcophagus function.
@@ -36,12 +36,12 @@ library LibTypes {
         bytes32 s;
     }
 
-    // ArchaeologistMemory is the struct that is passed into the
+    // SelectedArchaeologistMemory is the struct that is passed into the
     // initializeSarcophagus function. Even though we don't need each storage
     // fee of the archaeologist, the storage fee is included in the struct to
     // reduce the stack size within the function, preventing the "stack too
     // deep" error.
-    struct ArchaeologistMemory {
+    struct SelectedArchaeologistMemory {
         address archAddress;
         uint256 storageFee;
         uint256 diggingFee;
@@ -55,7 +55,7 @@ library LibTypes {
     // The archaeologist address is left out since each archaeologist's address
     // is stored on the sarcophagus object as an array.
     //
-    // The storage fee is left out becuase we only need to store the storage fee
+    // The storage fee is left out because we only need to store the storage fee
     // of the archaeologist uploading to arweave, which will be stored directly
     // on the sarcophagus.
     struct ArchaeologistStorage {
@@ -65,6 +65,16 @@ library LibTypes {
         bytes32 doubleHashedShard;
         bytes unencryptedShard;
         uint256 curseTokenId;
+    }
+
+    // ArchaeologistProfile is used to store archaeologist profile data
+    struct ArchaeologistProfile {
+        bool exists;
+        uint256 minimumDiggingFee;
+        uint256 maximumRewrapInterval;
+        uint256 freeBond;
+        uint256 cursedBond;
+        uint256 rewards;
     }
 
     struct SarcophagusMemory {

@@ -19,6 +19,30 @@ contract ViewStateFacet {
         return s.protocolFee;
     }
 
+    /// @notice Given an archaeologist address, return that archaeologist's
+    /// profile
+    /// @param archaeologist The archaeologist account's address
+    /// @return the Archaeologist object
+    function getArchaeologistProfile(address archaeologist)
+        external
+        view
+        returns (LibTypes.ArchaeologistProfile memory)
+    {
+        return s.archaeologistProfiles[archaeologist];
+    }
+
+    /// @notice Given an index (of the full archaeologist array), return the
+    /// archaeologist address at that index
+    /// @param index The index of the registered archaeologist
+    /// @return address of the archaeologist
+    function getArchaeologistProfileAddressAtIndex(uint256 index)
+        external
+        view
+        returns (address)
+    {
+        return s.archaeologistProfileAddresses[index];
+    }
+
     /// @notice Returns the amount of free bond stored in the contract for an
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose
@@ -28,7 +52,7 @@ contract ViewStateFacet {
         view
         returns (uint256)
     {
-        return s.freeBonds[archaeologist];
+        return s.archaeologistProfiles[archaeologist].freeBond;
     }
 
     /// @notice Returns the amount of rewards stored in the contract for an
@@ -52,7 +76,7 @@ contract ViewStateFacet {
         view
         returns (uint256)
     {
-        return s.cursedBonds[archaeologist];
+        return s.archaeologistProfiles[archaeologist].cursedBond;
     }
 
     function getArchaeologistSuccessOnSarcophagus(
@@ -98,7 +122,7 @@ contract ViewStateFacet {
     /// sarcophagi that the embalmer has created.
     /// @param embalmer The address of the embalmer whose sarcophagi are being
     /// returned
-    function getEmbalmersarcophagi(address embalmer)
+    function getEmbalmerSarcophagi(address embalmer)
         external
         view
         returns (bytes32[] memory)
@@ -110,7 +134,7 @@ contract ViewStateFacet {
     /// sarcophagi that the archaeologist has participated in.
     /// @param archaeologist The address of the archaeologist whose sarcophagi
     /// are being returned
-    function getArchaeologistsarcophagi(address archaeologist)
+    function getArchaeologistSarcophagi(address archaeologist)
         external
         view
         returns (bytes32[] memory)
@@ -122,7 +146,7 @@ contract ViewStateFacet {
     /// sarcophagi that the recipient has participated in.
     /// @param recipient The address of the recipient whose sarcophagi are being
     /// returned
-    function getRecipientsarcophagi(address recipient)
+    function getRecipientSarcophagi(address recipient)
         external
         view
         returns (bytes32[] memory)

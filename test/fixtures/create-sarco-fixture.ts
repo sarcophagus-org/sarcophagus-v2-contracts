@@ -1,5 +1,5 @@
-import { ContractTransaction } from "ethers";
-import { deployments } from "hardhat";
+import { BigNumber, ContractTransaction } from "ethers";
+import { deployments, ethers } from "hardhat";
 import {
   ArchaeologistFacet,
   CursesMock,
@@ -124,7 +124,11 @@ export const createSarcoFixture = (
 
           await sarcoToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
 
-          await archaeologistFacet.connect(acc).depositFreeBond(ethers.utils.parseEther("5000"));
+          await archaeologistFacet.connect(acc).registerArchaeologist(
+            ethers.utils.parseEther("10"),
+            BigNumber.from("1000"),
+            ethers.utils.parseEther("5000")
+          );
         }
       }
 

@@ -24,6 +24,20 @@ contract ArchaeologistFacet {
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
+    event RegisterArchaeologist(
+        address indexed archaeologist,
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond
+    );
+
+    event UpdateArchaeologist(
+        address indexed archaeologist,
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond
+    );
+
     event WithdrawFreeBond(
         address indexed archaeologist,
         uint256 withdrawnBond
@@ -34,15 +48,80 @@ contract ArchaeologistFacet {
         uint256 withdrawnReward
     );
 
+    function registerArchaeologist(
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond
+    ) external {
+        // verify that the archaeologist does not already exist
+        LibUtils.revertIfArchProfileExists(msg.sender);
+
+        // create a new archaeologist
+        LibTypes.ArchaeologistProfile memory newArch =
+            LibTypes.ArchaeologistProfile({
+                exists: true,
+                minimumDiggingFee: minimumDiggingFee,
+                maximumRewrapInterval: maximumRewrapInterval,
+                freeBond: freeBond,
+                cursedBond: 0,
+                rewards: 0
+            });
+
+        // transfer SARCO tokens from the archaeologist to this contract, to be
+        // used as their free bond. can be 0.
+        if (freeBond > 0) {
+            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+        }
+
+        // save the new archaeologist into relevant data structures
+        s.archaeologistProfiles[msg.sender] = newArch;
+        s.archaeologistProfileAddresses.push(msg.sender);
+
+        emit RegisterArchaeologist(
+            msg.sender,
+            newArch.minimumDiggingFee,
+            newArch.maximumRewrapInterval,
+            newArch.freeBond
+        );
+    }
+
+    function updateArchaeologist(
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond
+    ) external {
+        // verify that the archaeologist exists
+        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
+
+        // create a new archaeologist
+        LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];
+        existingArch.minimumDiggingFee = minimumDiggingFee;
+        existingArch.maximumRewrapInterval = maximumRewrapInterval;
+
+        // transfer SARCO tokens from the archaeologist to this contract, to be
+        // used as their free bond. can be 0.
+        if (freeBond > 0) {
+            LibBonds.increaseFreeBond(msg.sender, freeBond);
+            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+        }
+
+        emit UpdateArchaeologist(
+            msg.sender,
+            existingArch.minimumDiggingFee,
+            existingArch.maximumRewrapInterval,
+            existingArch.freeBond
+        );
+    }
+
     /// @notice Deposits an archaeologist's free bond to the contract.
     /// @param amount The amount to deposit
     function depositFreeBond(uint256 amount) external {
-        // Increase the archaeolgist's free bond in app storage
+        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
+        // Increase the archaeologist's free bond in app storage
         LibBonds.increaseFreeBond(msg.sender, amount);
 
         // Transfer the amount of sarcoToken from the archaeologist to the contract
         s.sarcoToken.transferFrom(msg.sender, address(this), amount);
-
         // Emit an event
         emit DepositFreeBond(msg.sender, amount);
     }
@@ -50,6 +129,7 @@ contract ArchaeologistFacet {
     /// @notice Withdraws an archaeologist's free bond from the contract.
     /// @param amount The amount to withdraw
     function withdrawFreeBond(uint256 amount) external {
+        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
         // Decrease the archaeologist's free bond amount.
         // Reverts if there is not enough free bond on the contract.
         LibBonds.decreaseFreeBond(msg.sender, amount);
@@ -228,7 +308,7 @@ contract ArchaeologistFacet {
         // Transfer the nft to the new archaeologist. This is the only method of tranfering an nft
         // in the sarcophagus app. The owner of the nft may not transfer it themselves.
         // The contract needs to keep track of who owns the nft so that it can make the transfer
-        // again if the new archaeologist chooses to tranfer it to another archaeologist later on.
+        // again if the new archaeologist chooses to transfer it to another archaeologist later on.
         newArchData.curseTokenId = oldArchData.curseTokenId;
         oldArchData.curseTokenId = 0;
         s.curses.safeTransferFrom(oldArchaeologist, msg.sender, newArchData.curseTokenId, 1, "");

@@ -16,9 +16,9 @@ struct AppStorage {
     uint256 totalProtocolFees;
     // sarcophagi
     bytes32[] sarcophagusIdentifiers;
-    // Each archaeologist's total free and cursed bonds
-    mapping(address => uint256) freeBonds;
-    mapping(address => uint256) cursedBonds;
+    // archaeologist profiles
+    address[] archaeologistProfileAddresses;
+    mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;
     // archaeologist stats
     mapping(address => mapping(bytes32 => bool)) archaeologistSuccesses;
     mapping(address => bytes32[]) archaeologistCancels;
@@ -26,6 +26,7 @@ struct AppStorage {
     mapping(address => bytes32[]) archaeologistCleanups;
     // Track how much archaeologists have made. To be credited and debited
     // as archaeologists fulfil their duties and withdraw their rewards
+    // TODO use archaeologistProfiles for rewards instead
     mapping(address => uint256) archaeologistRewards;
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
     // sarcophagus ownerships

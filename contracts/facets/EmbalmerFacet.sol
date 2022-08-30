@@ -43,10 +43,10 @@ contract EmbalmerFacet {
     /// InitializeSarcophagus is the first step of the two step mummification
     /// process.
     ///
-    /// The purpose of intializeSarcophagus is to:
+    /// The purpose of initializeSarcophagus is to:
     ///   - Lock up payment for the archaeologists (bounty, digging fees, and storage fee)
     ///   - Store hashes of the unencrypted shards on chain
-    ///   - Store the particapting archaeologists' addresses and individual
+    ///   - Store the participating archaeologists' addresses and individual
     ///     denominations of fees dedicated to each
     ///   - Create the sarcophagus object
     ///
@@ -54,17 +54,17 @@ contract EmbalmerFacet {
     /// have no knowledge of the sarcophagus yet. An archaeologist still needs
     /// to upload a payload to arweave and also communicate directly with the
     /// embalmer to indicate that they are ready to do work. After this the
-    /// finalizeSarcohpagus() method should be called, which is the second step.
+    /// finalizeSarcophagus() method should be called, which is the second step.
     ///
     /// @param sarcoId the identifier of the sarcophagus
     /// @param sarcophagus an object that contains the sarcophagus data
-    /// @param archaeologists the data for the archaeologists
+    /// @param selectedArchaeologists the data for the archaeologists
     /// @param arweaveArchaeologist The address of the archaeologist who uploads to arweave
     /// @return The index of the new sarcophagus
     function initializeSarcophagus(
         bytes32 sarcoId,
         LibTypes.SarcophagusMemory memory sarcophagus,
-        LibTypes.ArchaeologistMemory[] memory archaeologists,
+        LibTypes.SelectedArchaeologistMemory[] memory selectedArchaeologists,
         address arweaveArchaeologist
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
@@ -75,7 +75,7 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusAlreadyExists(sarcoId);
         }
 
-        // Confirm that the ressurection time is in the future
+        // Confirm that the resurrection time is in the future
         if (sarcophagus.resurrectionTime <= block.timestamp) {
             revert LibErrors.ResurrectionTimeInPast(
                 sarcophagus.resurrectionTime
@@ -83,12 +83,12 @@ contract EmbalmerFacet {
         }
 
         // Confirm that archaeologists are provided
-        if (archaeologists.length == 0) {
+        if (selectedArchaeologists.length == 0) {
             revert LibErrors.NoArchaeologistsProvided();
         }
 
         // Confirm that minShards is less than the number of archaeologists
-        if (sarcophagus.minShards > archaeologists.length) {
+        if (sarcophagus.minShards > selectedArchaeologists.length) {
             revert LibErrors.MinShardsGreaterThanArchaeologists(
                 sarcophagus.minShards
             );
@@ -102,7 +102,7 @@ contract EmbalmerFacet {
         // Initialize a list of archaeologist addresses to be passed in to the
         // sarcophagus object
         address[] memory archaeologistsToBond = new address[](
-            archaeologists.length
+            selectedArchaeologists.length
         );
 
         // Initialize the storage fee of the archaeologist who uploades to
@@ -110,8 +110,8 @@ contract EmbalmerFacet {
         // sarcophagus object.
         uint256 storageFee = 0;
 
-        for (uint256 i = 0; i < archaeologists.length; i++) {
-            LibTypes.ArchaeologistMemory memory arch = archaeologists[i];
+        for (uint256 i = 0; i < selectedArchaeologists.length; i++) {
+            LibTypes.SelectedArchaeologistMemory memory arch = selectedArchaeologists[i];
 
             // Confirm that the archaeologist list is unique. This is done by
             // checking that the archaeologist does not already exist from

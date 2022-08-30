@@ -1,8 +1,9 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
-import { SarcoTokenMock, ViewStateFacet } from "../../typechain";
+import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
 import { SignatureWithAccount } from "../../types";
+import { TestArchaeologist } from "../fixtures/spawn-archaeologists";
 
 /**
  * Signs a message as any EVM compatible type and returns the signature and the
@@ -119,3 +120,39 @@ export const getAttributeFromURI = (uri: string, attributeName: string): number 
   ).value;
   return parseInt(resurrectionTime);
 };
+
+export const registerArchaeologist = async (
+  archaeologist: TestArchaeologist,
+  archaeologistFacet: ArchaeologistFacet,
+  minDiggingFee?: string,
+  minRewrapInterval?: string,
+  freeBond?: string
+): Promise<void> => {
+  freeBond = freeBond || "0";
+  minDiggingFee = minDiggingFee || "100";
+  minRewrapInterval = minRewrapInterval || "10000";
+
+  await archaeologistFacet
+    .connect(archaeologist.signer)
+    .registerArchaeologist(
+      BigNumber.from(minDiggingFee),
+      BigNumber.from(minRewrapInterval),
+      BigNumber.from(freeBond)
+    );
+}
+
+export const updateArchaeologist = async (
+  archaeologist: TestArchaeologist,
+  archaeologistFacet: ArchaeologistFacet,
+  minDiggingFee: string,
+  minRewrapInterval: string,
+  freeBond?: string
+): Promise<void> => {
+  await archaeologistFacet
+    .connect(archaeologist.signer)
+    .updateArchaeologist(
+      BigNumber.from(minDiggingFee),
+      BigNumber.from(minRewrapInterval),
+      BigNumber.from(freeBond || 0)
+    );
+}

@@ -266,6 +266,42 @@ library LibUtils {
                 .doubleHashedShard != 0;
     }
 
+    function revertIfArchProfileIs(bool existing, address archaeologist)
+        internal
+        view
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        if (existing ? s.archaeologistProfiles[archaeologist].exists : !s.archaeologistProfiles[archaeologist].exists) {
+            revert LibErrors.ArchaeologistProfileExistsShouldBe(
+                !existing,
+                archaeologist
+            );
+        }
+    }
+
+    /// @notice Checks if an archaeologist profile exists and
+    /// reverts if so
+    ///
+    /// @param archaeologist the archaeologist address to check existence of
+    function revertIfArchProfileExists(address archaeologist)
+        internal
+        view
+    {
+        revertIfArchProfileIs(true, archaeologist);
+    }
+
+    /// @notice Checks if an archaeologist profile doesn't exist and
+    /// reverts if so
+    ///
+    /// @param archaeologist the archaeologist address to check lack of existence of
+    function revertIfArchProfileDoesNotExist(address archaeologist)
+        internal
+        view
+    {
+        revertIfArchProfileIs(false, archaeologist);
+    }
+
     /// @notice Gets an archaeologist given the sarcophagus identifier and the
     /// archaeologist's address.
     /// @param sarcoId the identifier of the sarcophagus

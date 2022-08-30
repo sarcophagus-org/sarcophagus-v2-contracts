@@ -32,15 +32,15 @@ library LibBonds {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Revert if the amount is greater than the current free bond
-        if (amount > s.freeBonds[archaeologist]) {
+        if (amount > s.archaeologistProfiles[archaeologist].freeBond) {
             revert LibErrors.NotEnoughFreeBond(
-                s.freeBonds[archaeologist],
+                s.archaeologistProfiles[archaeologist].freeBond,
                 amount
             );
         }
 
         // Decrease the free bond amount
-        s.freeBonds[archaeologist] -= amount;
+        s.archaeologistProfiles[archaeologist].freeBond -= amount;
     }
 
     /// @notice Increases the amount stored in the freeBond mapping for an
@@ -52,7 +52,7 @@ library LibBonds {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Increase the free bond amount
-        s.freeBonds[archaeologist] += amount;
+        s.archaeologistProfiles[archaeologist].freeBond += amount;
     }
 
     /// @notice Decreases the amount stored in the cursedBond mapping for an
@@ -67,15 +67,15 @@ library LibBonds {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Revert if the amount is greater than the current cursed bond
-        if (amount > s.cursedBonds[archaeologist]) {
+        if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {
             revert LibErrors.NotEnoughCursedBond(
-                s.cursedBonds[archaeologist],
+                s.archaeologistProfiles[archaeologist].cursedBond,
                 amount
             );
         }
 
         // Decrease the cursed bond amount
-        s.cursedBonds[archaeologist] -= amount;
+        s.archaeologistProfiles[archaeologist].cursedBond -= amount;
     }
 
     /// @notice Increases the amount stored in the cursedBond mapping for an
@@ -89,7 +89,7 @@ library LibBonds {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Increase the cursed bond amount
-        s.cursedBonds[archaeologist] += amount;
+        s.archaeologistProfiles[archaeologist].cursedBond += amount;
     }
 
     /// @notice Locks up the archaeologist's bond, decreasing the
@@ -194,7 +194,7 @@ library LibBonds {
             archaeologistData.bounty
         );
 
-        // Lock up the archaeologist's bond by the cursed bond amount
+        // Free up the archaeologist's locked bond
         unlockBond(archaeologist, cursedBondAmount);
     }
 }
