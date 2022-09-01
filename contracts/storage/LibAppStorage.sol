@@ -38,7 +38,7 @@ struct AppStorage {
     // double hashed and used as a constant O(1) lookup here
     mapping(bytes32 => address) doubleHashedShardArchaeologists;
     // A mapping used to store an archaeologist's data on a sarcophagus.
-    // Bounty, digging fees, storage fees, and the hashed shards of the
+    // Digging fees, storage fees, and the hashed shards of the
     // archaeologists all need to be stored per sarcophagus. This mapping of a
     // mapping stores the archaeologist's data we need per sarcophagus.
     // Example usage (to retrieve the digging fees an archaeologist may claim on some sarcophagus):
