@@ -9,7 +9,6 @@ import { ArchaeologistFacet, IERC20 } from "../../typechain";
 export interface TestArchaeologist {
   archAddress: string;
   signer: SignerWithAddress;
-  storageFee: BigNumber;
   diggingFee: BigNumber;
   hashedShard: string;
   unencryptedShard: BytesLike;
@@ -49,7 +48,6 @@ export async function spawnArchaologistsWithSignatures(
       hashedShard: ethers.utils.solidityKeccak256(["bytes"], [shards[shardI]]),
       unencryptedShard: shards[shardI],
       signer: acc,
-      storageFee: BigNumber.from("20"),
       diggingFee: BigNumber.from("10")
     });
 

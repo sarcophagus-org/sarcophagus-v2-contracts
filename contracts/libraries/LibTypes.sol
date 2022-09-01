@@ -43,7 +43,6 @@ library LibTypes {
     // deep" error.
     struct SelectedArchaeologistMemory {
         address archAddress;
-        uint256 storageFee;
         uint256 diggingFee;
         bytes32 hashedShard;
     }
@@ -97,10 +96,8 @@ library LibTypes {
         uint256 resurrectionTime;
         uint256 resurrectionWindow;
         string[] arweaveTxIds;
-        uint256 storageFee;
         address embalmer;
         address recipientAddress;
-        address arweaveArchaeologist;
         address[] archaeologists;
     }
 

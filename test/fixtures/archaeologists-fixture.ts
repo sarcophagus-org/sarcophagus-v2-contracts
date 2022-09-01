@@ -35,7 +35,6 @@ export const archeologistsFixture = (count: number) =>
           hashedShard: "",
           unencryptedShard: [],
           signer: acc,
-          storageFee: ethers.utils.parseEther("20"),
           diggingFee: ethers.utils.parseEther("10")
         });
 

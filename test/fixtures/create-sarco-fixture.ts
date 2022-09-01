@@ -15,14 +15,13 @@ import { spawnArchaologistsWithSignatures, TestArchaeologist } from "./spawn-arc
 const sss = require("shamirs-secret-sharing");
 
 /**
- * A fixture to set up a test that reqiures a successful initialization on a
- * transferrable sarcophagus. Deploys all contracts required for the system,
+ * A fixture to set up a test that requires a successful initialization on a
+ * transferable sarcophagus. Deploys all contracts required for the system,
  * and initializes a sarcophagus with given config and name, with archaeologists
  * created and pre-configured for it.
  *
- * Ressurection time is set to 1 week.
+ * Resurrection time is set to 1 week.
  * maxResurrectionInterval defaults to 1 week.
- * Arweave archaeologist is set to the first in the returned list of archaeologists.
  *
  * Optionally, initialising and finalising may be skipped. It's also possible to
  * indicate to return a specified number of archaeologists not bonded to the
@@ -111,7 +110,6 @@ export const createSarcoFixture = (
             hashedShard: "",
             unencryptedShard: [],
             signer: acc,
-            storageFee: ethers.utils.parseEther("20"),
             diggingFee: ethers.utils.parseEther("10")
           });
 
@@ -131,7 +129,6 @@ export const createSarcoFixture = (
         }
       }
 
-      const arweaveArchaeologist = archaeologists[0];
       const canBeTransferred = true;
 
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
@@ -151,7 +148,6 @@ export const createSarcoFixture = (
             minShards: config.threshold,
           },
           archaeologists,
-          arweaveArchaeologist.signer.address
         );
       }
 
@@ -161,14 +157,12 @@ export const createSarcoFixture = (
 
       const arweaveTxId = "arweaveTxId";
 
-      const arweaveSignature = await sign(arweaveArchaeologist.signer, arweaveTxId, "string");
-
       // Finalize the sarcophagus (will be skipped if initialize is skipped)
       let finalizeTx: Promise<ContractTransaction> | undefined;
       if (config.skipInitialize !== true && config.skipFinalize !== true) {
         finalizeTx = embalmerFacet
           .connect(embalmer)
-          .finalizeSarcophagus(sarcoId, signatures.slice(1), arweaveSignature, arweaveTxId);
+          .finalizeSarcophagus(sarcoId, signatures, arweaveTxId);
       }
 
       if (config.dontAwaitInitTx !== true && config.dontAwaitFinalizeTx !== true) {
@@ -184,8 +178,6 @@ export const createSarcoFixture = (
         archaeologists,
         unbondedArchaeologists,
         signatures,
-        arweaveSignature,
-        arweaveArchaeologist,
         arweaveTxId,
         embalmerBalanceBefore,
         shards,
