@@ -368,7 +368,6 @@ library LibUtils {
         LibTypes.MetadataAttributes memory attr = LibTypes.MetadataAttributes(
             s.sarcophagi[sarcoId].name,
             s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFee,
-            s.sarcophagusArchaeologists[sarcoId][archaeologist].bounty,
             s.sarcophagi[sarcoId].resurrectionTime,
             s.sarcophagusArchaeologists[sarcoId][archaeologist].diggingFeesPaid
         );

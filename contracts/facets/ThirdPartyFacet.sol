@@ -45,12 +45,11 @@ contract ThirdPartyFacet {
         }
 
         // Figure out which archaeoligists did not fulfil their duties;
-        // accumulate their digging fees and bounties
+        // accumulate their digging fees
         address[] memory archAddresses = sarco.archaeologists;
 
         uint256 totalCursedBond;
         uint256 totalDiggingFee;
-        uint256 totalBounty;
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
             bool didNotUnwrap = s.archaeologistSuccesses[archAddresses[i]][
@@ -61,12 +60,10 @@ contract ThirdPartyFacet {
                 LibTypes.ArchaeologistStorage memory defaulter = s
                     .sarcophagusArchaeologists[sarcoId][archAddresses[i]];
 
-                totalBounty += defaulter.bounty;
                 totalDiggingFee += defaulter.diggingFee;
 
                 uint256 cursedBond = LibBonds.calculateCursedBond(
-                    defaulter.diggingFee,
-                    defaulter.bounty
+                    defaulter.diggingFee
                 );
 
                 totalCursedBond += cursedBond;
@@ -86,8 +83,7 @@ contract ThirdPartyFacet {
                 paymentAddress,
                 sarco,
                 totalCursedBond,
-                totalDiggingFee,
-                totalBounty
+                totalDiggingFee
             );
 
         sarco.state = LibTypes.SarcophagusState.Done;
@@ -136,7 +132,6 @@ contract ThirdPartyFacet {
         // For each provided shard hash, check if its hash matches one on storage. If so, flag that
         // archaeologist as accusable
         uint256 diggingFeesToBeDistributed = 0;
-        uint256 bountyToBeDistributed = 0;
         uint256 totalCursedBond = 0;
         uint256 pos = 0;
         for (uint256 i = 0; i < unencryptedShardHashes.length; i++) {
@@ -155,12 +150,10 @@ contract ThirdPartyFacet {
                 accusedArchAddresses[pos++] = matchingArchAddr;
 
                 uint256 cursedBond = LibBonds.calculateCursedBond(
-                    badArch.diggingFee,
-                    badArch.bounty
+                    badArch.diggingFee
                 );
 
                 diggingFeesToBeDistributed += badArch.diggingFee;
-                bountyToBeDistributed += badArch.bounty;
                 totalCursedBond += cursedBond;
 
                 LibBonds.decreaseCursedBond(matchingArchAddr, cursedBond);
@@ -210,8 +203,7 @@ contract ThirdPartyFacet {
                 paymentAddress,
                 sarco,
                 totalCursedBond,
-                diggingFeesToBeDistributed,
-                bountyToBeDistributed
+                diggingFeesToBeDistributed
             );
 
         sarco.state = LibTypes.SarcophagusState.Done;
@@ -231,7 +223,6 @@ contract ThirdPartyFacet {
      * @param sarc the sarcophagus to operate on
      * @param totalCursedBond the sum of cursed bonds of all archs that failed to fulfil their duties
      * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties
-     * @param totalBounty the sum of bounties that would have been paid to all archs that failed to fulfil their duties
      * @return halfToSender the amount of SARCO token going to transaction
      * sender
      * @return halfToEmbalmer the amount of SARCO token going to embalmer
@@ -240,18 +231,17 @@ contract ThirdPartyFacet {
         address paymentAddress,
         LibTypes.Sarcophagus storage sarc,
         uint256 totalCursedBond,
-        uint256 totalDiggingFee,
-        uint256 totalBounty
+        uint256 totalDiggingFee
     ) private returns (uint256, uint256) {
         // split the sarcophagus's cursed bond into two halves
         uint256 halfToEmbalmer = totalCursedBond / 2;
         uint256 halfToSender = totalCursedBond - halfToEmbalmer;
 
-        // transfer the cursed half, plus bounty, plus digging fee to the
+        // transfer the cursed half, plus digging fee to the
         // embalmer
         s.sarcoToken.transfer(
             sarc.embalmer,
-            totalBounty + totalDiggingFee + halfToEmbalmer
+            totalDiggingFee + halfToEmbalmer
         );
 
         // transfer the other half of the cursed bond to the transaction caller

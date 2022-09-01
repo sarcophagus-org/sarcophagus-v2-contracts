@@ -207,10 +207,10 @@ contract ArchaeologistFacet {
         // Save the successful sarcophagus against the archaeologist
         s.archaeologistSuccesses[msg.sender][sarcoId] = true;
 
-        // Transfer the bounty and digging fee to the archaeologist's reward pool
+        // Transfer the digging fee to the archaeologist's reward pool
         LibRewards.increaseRewardPool(
             msg.sender,
-            archaeologistData.bounty + archaeologistData.diggingFee
+            archaeologistData.diggingFee
         );
 
         // Emit an event
@@ -288,14 +288,12 @@ contract ArchaeologistFacet {
 
         // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
         newArchData.diggingFee = oldArchData.diggingFee;
-        newArchData.bounty = oldArchData.bounty;
         newArchData.doubleHashedShard = oldArchData.doubleHashedShard;
         newArchData.unencryptedShard = "";
 
         // Set the old archaeologist's data in the sarcophagusArchaeologists
         // mapping to their default values
         oldArchData.diggingFee = 0;
-        oldArchData.bounty = 0;
         oldArchData.doubleHashedShard = 0;
         oldArchData.unencryptedShard = "";
 

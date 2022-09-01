@@ -34,7 +34,7 @@ interface ICurses {
         bytes memory _traitValue
     ) external;
 
-    function createSVG(uint256 bounty, uint256 diggingFee)
+    function createSVG(uint256 diggingFee)
         external
         pure
         returns (string memory);

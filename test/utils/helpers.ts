@@ -106,9 +106,9 @@ export const getArchaeologistSarcoRewards = async (
   return rewards;
 };
 
-// TODO: update if calculate cursed bond algorithm changes (or possibly read this from contract instead?)
-export const calculateCursedBond = (diggingFee: BigNumber, bounty: BigNumber): BigNumber =>
-  diggingFee.add(bounty);
+// TODO: update if calculate cursed bond algorithm changes (or possibly this function will be removed)
+export const calculateCursedBond = (diggingFee: BigNumber): BigNumber =>
+  diggingFee;
 
 export const getAttributeFromURI = (uri: string, attributeName: string): number => {
   const uriPrefix = "data:application/json;base64,";

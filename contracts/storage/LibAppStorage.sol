@@ -41,9 +41,9 @@ struct AppStorage {
     // Bounty, digging fees, storage fees, and the hashed shards of the
     // archaeologists all need to be stored per sarcophagus. This mapping of a
     // mapping stores the archaeologist's data we need per sarcophagus.
-    // Example usage (to retrieve the bounty an archaeologist may claim on some sarcophagus):
+    // Example usage (to retrieve the digging fees an archaeologist may claim on some sarcophagus):
     //   LibTypes.ArchaeologistStorage bondedArchaeologist = sarcophagusArchaeologists[sarcoId][archAddress];
-    //   uint256 bounty = bondedArchaeologist.bounty;
+    //   uint256 diggingFees = bondedArchaeologist.diggingFees;
     mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;
 }
 

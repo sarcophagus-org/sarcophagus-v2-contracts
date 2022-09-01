@@ -27,12 +27,11 @@ export const finalizeTransferFixture = async () => {
   const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
 
   const oldArchaeologistFees = {
-    diggingFee: archaeologists[1].diggingFee,
-    bounty: archaeologists[1].bounty,
+    diggingFee: archaeologists[1].diggingFee
   };
 
   // Calculate the old arch's bond amount
-  const bondAmount = oldArchaeologistFees.bounty.add(oldArchaeologistFees.diggingFee);
+  const bondAmount = oldArchaeologistFees.diggingFee;
 
   // Get the archaeologists cursed, free bond before transfer
   const oldArchaeologistCursedBondBefore = await viewStateFacet.getCursedBond(

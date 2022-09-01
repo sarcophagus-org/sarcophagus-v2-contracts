@@ -11,7 +11,6 @@ export interface TestArchaeologist {
   signer: SignerWithAddress;
   storageFee: BigNumber;
   diggingFee: BigNumber;
-  bounty: BigNumber;
   hashedShard: string;
   unencryptedShard: BytesLike;
 }
@@ -20,8 +19,8 @@ export interface TestArchaeologist {
  * Generates and returns [shards.length] archaeologists, each
  * with 10,000 sarco tokens and a 5000-sarco token bond deposit,
  * along with their signatures on the sarcoId. Storage fee,
- * digging fee, and bounty for each generated archaeologist are
- * set to a constanct 20, 10, and 100 sarco tokens respectively.
+ * digging fee for each generated archaeologist are
+ * set to a constant 20, 10, and 100 sarco tokens respectively.
  * */
 export async function spawnArchaologistsWithSignatures(
   shards: Buffer[],
@@ -51,8 +50,7 @@ export async function spawnArchaologistsWithSignatures(
       unencryptedShard: shards[shardI],
       signer: acc,
       storageFee: BigNumber.from("20"),
-      diggingFee: BigNumber.from("10"),
-      bounty: BigNumber.from("100"),
+      diggingFee: BigNumber.from("10")
     });
 
     // Transfer 10,000 sarco tokens to each archaeologist to be put into free

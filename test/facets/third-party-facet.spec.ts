@@ -50,24 +50,23 @@ describe("Contract: ThirdPartyFacet", () => {
         // after cleaning, calculate sum, and verify on exact amounts instead
         // Set up amounts that should have been transferred to accuser and embalmer
         // ie, rewards of failed archaeologists
-        const totalDiggingFeesAndBounty = archaeologists
+        const sumDiggingFees = archaeologists
           .slice(1) // archaeologists[0] did their job, so not included
           .reduce(
-            (acc, arch) => [acc[0].add(arch.diggingFee), acc[1].add(arch.bounty)],
-            [BigNumber.from("0"), BigNumber.from("0")]
+            (acc, arch) => [acc[0].add(arch.diggingFee)],
+            [BigNumber.from("0")]
           );
 
-        const totalDiggingFees = totalDiggingFeesAndBounty[0];
-        const totalBounty = totalDiggingFeesAndBounty[1];
+        const totalDiggingFees = sumDiggingFees[0];
 
-        const cursedBond = calculateCursedBond(totalDiggingFees, totalBounty);
+        const cursedBond = calculateCursedBond(totalDiggingFees);
         const toEmbalmer = cursedBond.div(2);
         const toCleaner = cursedBond.sub(toEmbalmer);
 
         // Check that embalmer and accuser now have balance that includes the amount that should have been transferred to them
 
-        // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
-        const embalmerReward = toEmbalmer.add(totalBounty.add(totalDiggingFees));
+        // embalmer should receive half cursed bond, PLUS digging fees of failed archs
+        const embalmerReward = toEmbalmer.add(totalDiggingFees);
 
         expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
         expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toCleaner))).to.be
@@ -268,7 +267,7 @@ describe("Contract: ThirdPartyFacet", () => {
         expect(sarco.state).to.be.eq(2); // 2 is "Done"
       });
 
-      it("Should distribute half the sum of the accused archaeologists' bounties and digging fees to accuser, and other half to embalmer", async () => {
+      it("Should distribute half the sum of the accused archaeologists' digging fees to accuser, and other half to embalmer", async () => {
         const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, embalmer, sarcoToken } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
@@ -288,18 +287,16 @@ describe("Contract: ThirdPartyFacet", () => {
         await tx.wait();
 
         // Set up amounts that should have been transferred to accuser and embalmer
-        const totalDiggingFeesBountyCursedBond = accusedArchs.reduce(
+        const totalDiggingFeesCursedBond = accusedArchs.reduce(
           (acc, arch) => [
             acc[0].add(arch.diggingFee),
-            acc[1].add(arch.bounty),
-            acc[2].add(calculateCursedBond(arch.diggingFee, arch.bounty)),
+            acc[1].add(calculateCursedBond(arch.diggingFee)),
           ],
-          [BigNumber.from("0"), BigNumber.from("0"), BigNumber.from("0")]
+          [BigNumber.from("0"), BigNumber.from("0")]
         );
 
-        const totalDiggingFees = totalDiggingFeesBountyCursedBond[0];
-        const totalBounty = totalDiggingFeesBountyCursedBond[1];
-        const totalCursedBond = totalDiggingFeesBountyCursedBond[2];
+        const totalDiggingFees = totalDiggingFeesCursedBond[0];
+        const totalCursedBond = totalDiggingFeesCursedBond[1];
 
         const toEmbalmer = totalCursedBond.div(2);
         const toAccuser = totalCursedBond.sub(toEmbalmer);
@@ -309,8 +306,8 @@ describe("Contract: ThirdPartyFacet", () => {
 
         // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
 
-        // embalmer should receive half cursed bond, PLUS bounty and digging fees of failed archs
-        const embalmerReward = toEmbalmer.add(totalBounty.add(totalDiggingFees));
+        // embalmer should receive half cursed bond, PLUS  digging fees of failed archs
+        const embalmerReward = toEmbalmer.add(totalDiggingFees);
 
         expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
         expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toAccuser))).to.be
