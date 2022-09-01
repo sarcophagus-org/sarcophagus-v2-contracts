@@ -28,7 +28,6 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
         LibTypes.MetadataAttributes memory attr = LibTypes.MetadataAttributes(
             "First Test",
             1,
-            2,
             0,
             0
         );
@@ -85,7 +84,7 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
         setValue(
             _tokenId,
             KEY_TOKEN_IMAGE,
-            abi.encode(createSVG(_attr.bounty, _attr.diggingFee))
+            abi.encode(createSVG(_attr.diggingFee))
         );
 
         // Set up the array for attributes
@@ -99,29 +98,23 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
         values[0] = abi.encodePacked(Strings.toString(_attr.diggingFee));
         attributeIndexes[traitTypes[0]] = 0;
 
-        // Bounty
-        traitTypes[1] = abi.encodePacked("Bounty");
-        displayTypes[1] = abi.encodePacked("number");
-        values[1] = abi.encodePacked(Strings.toString(_attr.bounty));
+        // Sarcophagus name
+        traitTypes[1] = abi.encodePacked("SarcophagusName");
+        displayTypes[1] = abi.encodePacked("string");
+        values[1] = abi.encodePacked(_attr.sarcophagusName);
         attributeIndexes[traitTypes[1]] = 1;
 
-        // Sarcophagus name
-        traitTypes[2] = abi.encodePacked("SarcophagusName");
-        displayTypes[2] = abi.encodePacked("string");
-        values[2] = abi.encodePacked(_attr.sarcophagusName);
+        // Resurrection time
+        traitTypes[2] = abi.encodePacked("Resurrection Time");
+        displayTypes[2] = abi.encodePacked("number");
+        values[2] = abi.encodePacked(Strings.toString(_attr.resurrectionTime));
         attributeIndexes[traitTypes[2]] = 2;
 
-        // Resurrection time
-        traitTypes[3] = abi.encodePacked("Resurrection Time");
-        displayTypes[3] = abi.encodePacked("number");
-        values[3] = abi.encodePacked(Strings.toString(_attr.resurrectionTime));
-        attributeIndexes[traitTypes[3]] = 3;
-
         // Digging fees collected
-        traitTypes[4] = abi.encodePacked("Digging Fees Paid");
-        displayTypes[4] = abi.encodePacked("string");
-        values[4] = abi.encodePacked(Strings.toString(_attr.diggingFeesPaid));
-        attributeIndexes[traitTypes[4]] = 4;
+        traitTypes[3] = abi.encodePacked("Digging Fees Paid");
+        displayTypes[3] = abi.encodePacked("string");
+        values[3] = abi.encodePacked(Strings.toString(_attr.diggingFeesPaid));
+        attributeIndexes[traitTypes[3]] = 3;
 
         // Save the attributes to the contract
         setValues(_tokenId, KEY_TOKEN_ATTRIBUTES_TRAIT_TYPE, traitTypes);
@@ -167,13 +160,11 @@ contract CursesMock is ERC1155OnChainMetadata, Ownable, ICurses {
 
     // prettier-ignore
     /// @notice Generates a SVG image for the token based on the passed in attributes.
-    /// @param _bounty the bounty of the token.
     /// @param _diggingFee the digging fee of the token.
     /// @return the SVG image for the token as a string.
-    function createSVG(uint256 _bounty, uint256 _diggingFee) public pure returns (string memory) {
+    function createSVG(uint256 _diggingFee) public pure returns (string memory) {
         return string( abi.encodePacked("data:image/svg+xml;base64,", Base64.encode(bytes(string(abi.encodePacked(
-            "<svg style='background-color:#000' viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'><text transform='translate(23.246 137.01)' dx='0' dy='0' fill='#ffffff' font-size='15' font-weight='400'>Sarcophagus</text><text transform='translate(23.246 176.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>Digging fee:</text><text transform='translate(23.246 162.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>Bounty:</text><text transform='translate(91.246 162.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>",
-            Strings.toString(_bounty),
+            "<svg style='background-color:#000' viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'><text transform='translate(23.246 137.01)' dx='0' dy='0' fill='#ffffff' font-size='15' font-weight='400'>Sarcophagus</text><text transform='translate(23.246 176.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>Digging fee:</text><text transform='translate(23.246 162.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>",
             " SARCO</text><text transform='translate(91.246 176.56)' dx='0' dy='0' fill='#a6a6a6' font-size='8' font-weight='400' stroke-width='0'>",
             Strings.toString(_diggingFee),
             " SARCO</text></svg>"

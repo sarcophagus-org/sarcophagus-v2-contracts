@@ -45,7 +45,6 @@ library LibTypes {
         address archAddress;
         uint256 storageFee;
         uint256 diggingFee;
-        uint256 bounty;
         bytes32 hashedShard;
     }
 
@@ -60,7 +59,6 @@ library LibTypes {
     // on the sarcophagus.
     struct ArchaeologistStorage {
         uint256 diggingFee;
-        uint256 bounty;
         uint256 diggingFeesPaid;
         bytes32 doubleHashedShard;
         bytes unencryptedShard;
@@ -109,7 +107,6 @@ library LibTypes {
     struct MetadataAttributes {
         string sarcophagusName;
         uint256 diggingFee;
-        uint256 bounty;
         uint256 resurrectionTime;
         uint256 diggingFeesPaid;
     }

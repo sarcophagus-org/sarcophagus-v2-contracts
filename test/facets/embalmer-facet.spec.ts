@@ -29,22 +29,19 @@ describe("Contract: EmbalmerFacet", () => {
 
         const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
 
-        // Calculate the total fees:
-        // The arweaver archaeologist's storage fee + all bounties + all digging
-        // fees
+        // Calculate the total fees (all digging fees)
         const totalFees = archaeologists
           .reduce(
-            (acc, arch) => acc.add(calculateCursedBond(arch.diggingFee, arch.bounty)),
+            (acc, arch) => acc.add(calculateCursedBond(arch.diggingFee)),
             BigNumber.from("0")
-          )
-          .add(arweaveArchaeologist.storageFee);
+          );
 
         expect(embalmerBalanceAfter.toString()).to.equal(
           embalmerBalanceBefore.sub(totalFees).toString()
         );
       });
 
-      it("should emit InitializeSarcophagust()", async () => {
+      it("should emit InitializeSarcophagus()", async () => {
         const { embalmerFacet, initializeTx } = await createSarcoFixture(
           { shares, threshold, skipFinalize: true },
           sarcoName
@@ -324,8 +321,7 @@ describe("Contract: EmbalmerFacet", () => {
         );
 
         const bondAmount = calculateCursedBond(
-          regularArchaeologist.diggingFee,
-          regularArchaeologist.bounty
+          regularArchaeologist.diggingFee
         );
 
         // Check that the archaeologist's free bond afterward has descreased by the bond amount
@@ -368,8 +364,7 @@ describe("Contract: EmbalmerFacet", () => {
         );
 
         const bondAmount = calculateCursedBond(
-          arweaveArchaeologist.diggingFee,
-          arweaveArchaeologist.bounty
+          arweaveArchaeologist.diggingFee
         );
 
         // Check that the arweave archaeologist's free bond has decreased by the bond amount
@@ -628,7 +623,7 @@ describe("Contract: EmbalmerFacet", () => {
         expect(tx).to.emit(embalmerFacet, "RewrapSarcophagus");
       });
 
-      it("should update the ressurection time on the curse nft", async () => {
+      it("should update the resurrection time on the curse nft", async () => {
         const { tx, curses, archaeologists, viewStateFacet, sarcoId, newResurrectionTime } =
           await rewrapFixture({ shares, threshold }, sarcoName);
         await tx;
@@ -661,7 +656,7 @@ describe("Contract: EmbalmerFacet", () => {
         await tx;
 
         // Rewrap a second time
-        const anotherTx = await embalmerFacet
+        await embalmerFacet
           .connect(embalmer)
           .rewrapSarcophagus(sarcoId, newResurrectionTime + 604800);
 
@@ -849,32 +844,15 @@ describe("Contract: EmbalmerFacet", () => {
 
         expect(freeBondAfter.toString()).to.equal(
           regularArchaeologistFreeBondBefore
-            .add(calculateCursedBond(regularArchaeologist.diggingFee, regularArchaeologist.bounty))
+            .add(calculateCursedBond(regularArchaeologist.diggingFee))
             .toString()
         );
 
         expect(cursedBondAfter.toString()).to.equal(
           regularArchaeologistCursedBondBefore
-            .sub(calculateCursedBond(regularArchaeologist.diggingFee, regularArchaeologist.bounty))
+            .sub(calculateCursedBond(regularArchaeologist.diggingFee))
             .toString()
         );
-      });
-
-      it("should transfer the bounty back to the embalmer", async () => {
-        const { sarcoToken, embalmer, archaeologists, embalmerBalanceBeforeBury } =
-          await buryFixture({ shares, threshold }, sarcoName);
-
-        // Get the archaeologist sarco balance after bury
-        const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-
-        // Add the bounties in archaeologist fees
-        const totalBounty = archaeologists.reduce(
-          (acc, arch) => acc.add(arch.bounty),
-          ethers.constants.Zero
-        );
-
-        // Check that the difference in balances is equal to the total bounty
-        expect(embalmerBalanceAfter.sub(embalmerBalanceBeforeBury)).to.equal(totalBounty);
       });
 
       it("should emit BurySarcophagus()", async () => {

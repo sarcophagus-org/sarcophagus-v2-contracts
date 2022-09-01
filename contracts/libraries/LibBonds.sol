@@ -8,18 +8,18 @@ import {LibErrors} from "../libraries/LibErrors.sol";
 library LibBonds {
     /// @notice Calculates the cursed bond that an archaeologist needs to lock
     /// up
-    /// @dev The cursed bond amount is the sum of the digging fee and the
-    /// bounty.
+    /// @dev The cursed bond amount is the digging fee
     /// @param diggingFee The digging fee of the sarcophagus
-    /// @param bounty The bounty of the sarcophagus
     /// @return The amount of cursed bond
-    function calculateCursedBond(uint256 diggingFee, uint256 bounty)
+    function calculateCursedBond(uint256 diggingFee)
         internal
         pure
         returns (uint256)
     {
-        // TODO: Implement a better algorithm for calculating the cursed bond
-        return diggingFee + bounty;
+        // TODO: We dont need this function unless we implement a better algorithm
+        // for calculating the cursed bond
+        // Anywhere this method is used should be replaced with just the digging fee
+        return diggingFee;
     }
 
     /// @notice Decreases the amount stored in the freeBond mapping for an
@@ -119,9 +119,7 @@ library LibBonds {
     }
 
     /// @notice Given an array of archaeologists on a sarcophagus, sums the total of
-    /// 1. Each archaeologists' bounty
-    /// 2. Each archaeologists' digging fees
-    /// 3. The storage fee
+    /// 1. Each archaeologists' digging fees
     /// @param sarcoId The identifier of the sarcophagus
     /// @param archaeologists The array of archaeologists' addresses
     /// @return the total of the above
@@ -138,15 +136,9 @@ library LibBonds {
             LibTypes.ArchaeologistStorage memory archaeologistsData = s
                 .sarcophagusArchaeologists[sarcoId][archaeologists[i]];
 
-            // add the archaeologist's bounty to the total fees
-            totalFees += archaeologistsData.bounty;
-
             // add the archaeologist's digging fee to the total fees
             totalFees += archaeologistsData.diggingFee;
         }
-
-        // add the storage fee to the total fees
-        totalFees += s.sarcophagi[sarcoId].storageFee;
 
         // return the total fees
         return totalFees;
@@ -167,8 +159,7 @@ library LibBonds {
 
         // Calculate the amount of cursed bond the archaeologists needs to lock up
         uint256 cursedBondAmount = calculateCursedBond(
-            archaeologistData.diggingFee,
-            archaeologistData.bounty
+            archaeologistData.diggingFee
         );
 
         // Lock up the archaeologist's bond by the cursed bond amount
@@ -190,8 +181,7 @@ library LibBonds {
 
         // Calculate the amount of cursed bond the archaeologists needs to lock up
         uint256 cursedBondAmount = calculateCursedBond(
-            archaeologistData.diggingFee,
-            archaeologistData.bounty
+            archaeologistData.diggingFee
         );
 
         // Free up the archaeologist's locked bond

@@ -435,7 +435,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         // Check that the cursed bond amount has been freed up.
         expect(cursedBondAmountBefore).to.equal(
-          calculateCursedBond(archaeologists[0].diggingFee, archaeologists[0].bounty)
+          calculateCursedBond(archaeologists[0].diggingFee)
         );
         expect(cursedBondAmountAfter).to.equal(0);
       });
@@ -461,12 +461,12 @@ describe("Contract: ArchaeologistFacet", () => {
         expect(isSuccessfulSarcophagus).to.be.true;
       });
 
-      it("should transfer the digging fee and bounty to the archaeologist's reward pool without transferring tokens", async () => {
+      it("should transfer the digging fee to the archaeologist's reward pool without transferring tokens", async () => {
         const { archaeologists, archaeologistFacet, sarcoId, sarcoToken, viewStateFacet } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
-        // Calculate the digging fee and bounty for the first archaeologist
-        const totalFees = archaeologists[0].diggingFee.add(archaeologists[0].bounty);
+        // Calculate the digging fee for the first archaeologist
+        const totalFees = archaeologists[0].diggingFee;
 
         // Get the sarco balance of the first archaeologist before unwrap
         const sarcoBalanceBefore = await sarcoToken.balanceOf(archaeologists[0].archAddress);
@@ -718,7 +718,6 @@ describe("Contract: ArchaeologistFacet", () => {
 
         expect(oldArchaeologistData.doubleHashedShard).to.equal(ethers.constants.HashZero);
         expect(oldArchaeologistData.diggingFee).to.equal("0");
-        expect(oldArchaeologistData.bounty).to.equal("0");
       });
 
       it("should add the arweave transaction id to the list of arweaveTxIds on the sarcophagus", async () => {

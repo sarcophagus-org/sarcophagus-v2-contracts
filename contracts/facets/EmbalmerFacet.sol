@@ -44,7 +44,7 @@ contract EmbalmerFacet {
     /// process.
     ///
     /// The purpose of initializeSarcophagus is to:
-    ///   - Lock up payment for the archaeologists (bounty, digging fees, and storage fee)
+    ///   - Lock up payment for the archaeologists (digging fees)
     ///   - Store hashes of the unencrypted shards on chain
     ///   - Store the participating archaeologists' addresses and individual
     ///     denominations of fees dedicated to each
@@ -133,7 +133,6 @@ contract EmbalmerFacet {
             LibTypes.ArchaeologistStorage memory archaeologistStorage = LibTypes
                 .ArchaeologistStorage({
                     diggingFee: arch.diggingFee,
-                    bounty: arch.bounty,
                     diggingFeesPaid: 0,
                     doubleHashedShard: doubleHashedShard,
                     unencryptedShard: "",
@@ -144,7 +143,7 @@ contract EmbalmerFacet {
             s.doubleHashedShardArchaeologists[doubleHashedShard] = arch
                 .archAddress;
 
-            // Stores each archaeologist's bounty, digging fees, and unencrypted
+            // Stores each archaeologist's digging fees and unencrypted
             // shard in app storage per sarcophagus
             s.sarcophagusArchaeologists[sarcoId][
                 arch.archAddress
@@ -554,10 +553,6 @@ contract EmbalmerFacet {
         // Set sarcophagus state to done
         s.sarcophagi[sarcoId].state = LibTypes.SarcophagusState.Done;
 
-        // Total bounty will be added up when we loop through the
-        // archaeologists. This will be sent back to the embalmer.
-        uint256 totalBounty = 0;
-
         // For each archaeologist on the sarcophagus,
         // 1. Unlock their cursed bond
         // 2. Transfer digging fees to the archaeologist.
@@ -577,13 +572,7 @@ contract EmbalmerFacet {
                 bondedArchaeologists[i],
                 archaeologistData.diggingFee
             );
-
-            // Add the archaeoogist's bounty to totalBounty
-            totalBounty += archaeologistData.bounty;
         }
-
-        // Transfer the total bounty back to the embalmer (msg.sender)
-        s.sarcoToken.transfer(msg.sender, totalBounty);
 
         // Emit an event
         emit BurySarcophagus(sarcoId);
