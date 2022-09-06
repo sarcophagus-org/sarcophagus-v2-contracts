@@ -155,7 +155,6 @@ async function _runCreateSarcoTest(arg: { shares: number; threshold: number }) {
   const {
     archaeologists,
     sarcoId,
-    arweaveSignature,
     embalmer,
     embalmerFacet,
     shards,
@@ -174,7 +173,6 @@ async function _runCreateSarcoTest(arg: { shares: number; threshold: number }) {
   return {
     sarcoId: sarcoId,
     archaeologists,
-    arweaveSignature,
     archaeologistFacet,
     embalmer,
     embalmerFacet,

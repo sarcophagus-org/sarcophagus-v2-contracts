@@ -19,7 +19,6 @@ export interface DiamondCut {
 
 export interface Archaeologist {
   archAddress: string;
-  storageFee: BigNumber;
   diggingFee: BigNumber;
   hashedShard: string;
 }

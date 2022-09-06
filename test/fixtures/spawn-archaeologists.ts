@@ -9,7 +9,6 @@ import { ArchaeologistFacet, IERC20 } from "../../typechain";
 export interface TestArchaeologist {
   archAddress: string;
   signer: SignerWithAddress;
-  storageFee: BigNumber;
   diggingFee: BigNumber;
   hashedShard: string;
   unencryptedShard: BytesLike;
@@ -49,7 +48,6 @@ export async function spawnArchaologistsWithSignatures(
       hashedShard: ethers.utils.solidityKeccak256(["bytes"], [shards[shardI]]),
       unencryptedShard: shards[shardI],
       signer: acc,
-      storageFee: BigNumber.from("20"),
       diggingFee: BigNumber.from("10")
     });
 
@@ -61,6 +59,7 @@ export async function spawnArchaologistsWithSignatures(
 
     // Deposit 5000 tokens for each archaeologist so they're ready to be bonded
     await archaeologistFacet.connect(acc).registerArchaeologist(
+      "myFakePeerId",
       ethers.utils.parseEther("10"),
       BigNumber.from("1000"),
       ethers.utils.parseEther("5000")

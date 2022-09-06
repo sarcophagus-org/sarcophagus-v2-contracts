@@ -26,6 +26,7 @@ contract ArchaeologistFacet {
 
     event RegisterArchaeologist(
         address indexed archaeologist,
+        string peerId,
         uint256 minimumDiggingFee,
         uint256 maximumRewrapInterval,
         uint256 freeBond
@@ -33,6 +34,7 @@ contract ArchaeologistFacet {
 
     event UpdateArchaeologist(
         address indexed archaeologist,
+        string peerId,
         uint256 minimumDiggingFee,
         uint256 maximumRewrapInterval,
         uint256 freeBond
@@ -48,7 +50,14 @@ contract ArchaeologistFacet {
         uint256 withdrawnReward
     );
 
+    /// @notice Registers the archaeologist profile
+    /// @param peerId The libp2p identifier for the archaeologist
+    /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee
+    /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept
+    /// for a resurrection
+    /// freeBond How much bond the archaeologist wants to deposit during the register call (if any)
     function registerArchaeologist(
+        string memory peerId,
         uint256 minimumDiggingFee,
         uint256 maximumRewrapInterval,
         uint256 freeBond
@@ -60,6 +69,7 @@ contract ArchaeologistFacet {
         LibTypes.ArchaeologistProfile memory newArch =
             LibTypes.ArchaeologistProfile({
                 exists: true,
+                peerId: peerId,
                 minimumDiggingFee: minimumDiggingFee,
                 maximumRewrapInterval: maximumRewrapInterval,
                 freeBond: freeBond,
@@ -79,13 +89,21 @@ contract ArchaeologistFacet {
 
         emit RegisterArchaeologist(
             msg.sender,
+            newArch.peerId,
             newArch.minimumDiggingFee,
             newArch.maximumRewrapInterval,
             newArch.freeBond
         );
     }
 
+    /// @notice Updates the archaeologist profile
+    /// @param peerId The libp2p identifier for the archaeologist
+    /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee
+    /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept
+    /// for a resurrection
+    /// freeBond How much bond the archaeologist wants to deposit during the update call (if any)
     function updateArchaeologist(
+        string memory peerId,
         uint256 minimumDiggingFee,
         uint256 maximumRewrapInterval,
         uint256 freeBond
@@ -95,6 +113,7 @@ contract ArchaeologistFacet {
 
         // create a new archaeologist
         LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];
+        existingArch.peerId = peerId;
         existingArch.minimumDiggingFee = minimumDiggingFee;
         existingArch.maximumRewrapInterval = maximumRewrapInterval;
 
@@ -107,6 +126,7 @@ contract ArchaeologistFacet {
 
         emit UpdateArchaeologist(
             msg.sender,
+            existingArch.peerId,
             existingArch.minimumDiggingFee,
             existingArch.maximumRewrapInterval,
             existingArch.freeBond

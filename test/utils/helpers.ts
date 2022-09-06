@@ -126,15 +126,18 @@ export const registerArchaeologist = async (
   archaeologistFacet: ArchaeologistFacet,
   minDiggingFee?: string,
   minRewrapInterval?: string,
-  freeBond?: string
+  freeBond?: string,
+  peerId?: string
 ): Promise<void> => {
   freeBond = freeBond || "0";
   minDiggingFee = minDiggingFee || "100";
   minRewrapInterval = minRewrapInterval || "10000";
+  peerId = peerId || "myfakelibp2pPeerId"
 
   await archaeologistFacet
     .connect(archaeologist.signer)
     .registerArchaeologist(
+      peerId,
       BigNumber.from(minDiggingFee),
       BigNumber.from(minRewrapInterval),
       BigNumber.from(freeBond)
@@ -146,11 +149,13 @@ export const updateArchaeologist = async (
   archaeologistFacet: ArchaeologistFacet,
   minDiggingFee: string,
   minRewrapInterval: string,
-  freeBond?: string
+  freeBond?: string,
+  peerId?: string
 ): Promise<void> => {
   await archaeologistFacet
     .connect(archaeologist.signer)
     .updateArchaeologist(
+      peerId || "myfakelibp2pPeerId",
       BigNumber.from(minDiggingFee),
       BigNumber.from(minRewrapInterval),
       BigNumber.from(freeBond || 0)

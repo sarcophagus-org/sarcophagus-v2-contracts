@@ -43,7 +43,6 @@ library LibTypes {
     // deep" error.
     struct SelectedArchaeologistMemory {
         address archAddress;
-        uint256 storageFee;
         uint256 diggingFee;
         bytes32 hashedShard;
     }
@@ -68,6 +67,7 @@ library LibTypes {
     // ArchaeologistProfile is used to store archaeologist profile data
     struct ArchaeologistProfile {
         bool exists;
+        string peerId;
         uint256 minimumDiggingFee;
         uint256 maximumRewrapInterval;
         uint256 freeBond;
@@ -97,10 +97,8 @@ library LibTypes {
         uint256 resurrectionTime;
         uint256 resurrectionWindow;
         string[] arweaveTxIds;
-        uint256 storageFee;
         address embalmer;
         address recipientAddress;
-        address arweaveArchaeologist;
         address[] archaeologists;
     }
 
