@@ -122,6 +122,7 @@ export const createSarcoFixture = (
           await sarcoToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
 
           await archaeologistFacet.connect(acc).registerArchaeologist(
+            "myFakePeerId",
             ethers.utils.parseEther("10"),
             BigNumber.from("1000"),
             ethers.utils.parseEther("5000")

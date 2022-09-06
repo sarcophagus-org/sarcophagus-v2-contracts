@@ -55,13 +55,15 @@ describe("Contract: ArchaeologistFacet", () => {
       const minDiggingFee = "40";
       const maxRewrapInterval = "50";
       const freeBond = "90";
+      const peerId = "myNewPeerId";
 
       await registerArchaeologist(
         archaeologist,
         archaeologistFacet,
         minDiggingFee,
         maxRewrapInterval,
-        freeBond
+        freeBond,
+        peerId
       );
 
       const registeredArch = await viewStateFacet.getArchaeologistProfile(
@@ -70,6 +72,7 @@ describe("Contract: ArchaeologistFacet", () => {
       expect(registeredArch.minimumDiggingFee).to.equal(BigNumber.from(minDiggingFee));
       expect(registeredArch.maximumRewrapInterval).to.equal(BigNumber.from(maxRewrapInterval));
       expect(registeredArch.freeBond).to.equal(BigNumber.from(freeBond));
+      expect(registeredArch.peerId).to.equal(peerId);
     });
 
     it("adds the archaeologist address to the archaeologistProfileAddresses array", async () => {
@@ -122,6 +125,7 @@ describe("Contract: ArchaeologistFacet", () => {
       const minDiggingFee = "150";
       const maxRewrapInterval = "150";
       const freeBond = "150";
+      const peerId = "myNewPeerId";
 
       const archFreeBondBeforeUpdate = await viewStateFacet.getFreeBond(archaeologist.archAddress);
 
@@ -130,7 +134,8 @@ describe("Contract: ArchaeologistFacet", () => {
         archaeologistFacet,
         minDiggingFee,
         maxRewrapInterval,
-        freeBond
+        freeBond,
+        peerId
       );
 
       const registeredArch = await viewStateFacet.getArchaeologistProfile(
@@ -141,6 +146,7 @@ describe("Contract: ArchaeologistFacet", () => {
       expect(registeredArch.freeBond.sub(archFreeBondBeforeUpdate)).to.equal(
         BigNumber.from(freeBond)
       );
+      expect(registeredArch.peerId).to.equal(peerId);
     });
 
     it("deposits free bond to the sarcophagus contract when updating with a positive free bond value", async () => {

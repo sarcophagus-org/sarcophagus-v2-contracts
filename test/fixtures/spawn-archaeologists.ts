@@ -59,6 +59,7 @@ export async function spawnArchaologistsWithSignatures(
 
     // Deposit 5000 tokens for each archaeologist so they're ready to be bonded
     await archaeologistFacet.connect(acc).registerArchaeologist(
+      "myFakePeerId",
       ethers.utils.parseEther("10"),
       BigNumber.from("1000"),
       ethers.utils.parseEther("5000")

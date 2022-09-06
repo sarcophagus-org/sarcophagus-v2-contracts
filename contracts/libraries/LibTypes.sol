@@ -67,6 +67,7 @@ library LibTypes {
     // ArchaeologistProfile is used to store archaeologist profile data
     struct ArchaeologistProfile {
         bool exists;
+        string peerId;
         uint256 minimumDiggingFee;
         uint256 maximumRewrapInterval;
         uint256 freeBond;
