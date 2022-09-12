@@ -17,7 +17,9 @@ library LibErrors {
 
     error ArweaveArchaeologistNotInList();
 
-    error ArweaveTxIdEmpty();
+    error ArweaveTxIdsInvalid();
+
+    error DiggingFeeTooLow(uint256 diggingFee, address archaeologist);
 
     error IncorrectNumberOfArchaeologistSignatures(uint256 signaturesLength);
 
@@ -40,6 +42,8 @@ library LibErrors {
     error NotEnoughReward(uint256 reward, uint256 amount);
 
     error ResurrectionTimeInPast(uint256 resurrectionTime);
+
+    error ResurrectionTimeTooFarInFuture(uint256 resurrectionTime, address archaeologist);
 
     error SarcophagusAlreadyExists(bytes32 sarcoId);
 

@@ -198,11 +198,6 @@ contract ArchaeologistFacet {
         // resurrection window has not passed
         LibUtils.unwrapTime(s.sarcophagi[sarcoId].resurrectionTime);
 
-        // Comfirm that the sarcophagus has been finalized
-        if (!LibUtils.isSarcophagusFinalized(sarcoId)) {
-            revert LibErrors.SarcophagusNotFinalized(sarcoId);
-        }
-
         // Get the archaeologist's data from storage
         LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
             .getArchaeologist(sarcoId, msg.sender);
@@ -251,11 +246,6 @@ contract ArchaeologistFacet {
         // Confirm that the sarcophagus exists
         if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
-
-        // Confirm that the sarcophagus has been finalized
-        if (!LibUtils.isSarcophagusFinalized(sarcoId)) {
-            revert LibErrors.SarcophagusNotFinalized(sarcoId);
         }
 
         // Confirm that the resurrection time is in the future

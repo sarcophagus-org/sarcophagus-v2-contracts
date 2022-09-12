@@ -32,29 +32,6 @@ library LibUtils {
         require(doubleHash == keccak256(singleHash), "hashes do not match");
     }
 
-    /**
-     * @notice Reverts if the input string is not empty
-     * @param assetId the string to check
-     */
-    function confirmAssetIdNotSet(string memory assetId) public pure {
-        require(bytes(assetId).length == 0, "assetId has already been set");
-    }
-
-    /**
-     * @notice Reverts if existing assetId is not empty, or if new assetId is
-     * @param existingAssetId the orignal assetId to check, make sure is empty
-     * @param newAssetId the new assetId, which must not be empty
-     */
-    function assetIdsCheck(
-        string memory existingAssetId,
-        string memory newAssetId
-    ) public pure {
-        // verify that the existingAssetId is currently empty
-        confirmAssetIdNotSet(existingAssetId);
-
-        require(bytes(newAssetId).length > 0, "assetId must not have 0 length");
-    }
-
     function archaeologistUnwrappedCheck(bytes32 sarcoId, address archaeologist)
         internal
         view
@@ -67,22 +44,19 @@ library LibUtils {
     }
 
     /**
-     * @notice Given some bytes32 data, a signature, and an account, verify that the
-     * identifier was signed by the account.
-     * @dev The verifyBytes32Signature function is identical to the
-     * verifyBytesSignature function except for the data type being passed in.
-     * The reason these are split up is beacuse it's really tricky to convert a
-     * bytes32 value into a bytes value and have ecrecover still work properly.
-     * If a simple solution can be found for this problem then please combine
-     * these two functions together.
-     * @param data the data to verify
+     * @notice The archaeologist needs to sign off on two pieces of data
+     * to guarantee their unrwap will be successful
+     *
+     * @param hashedShard the hash of the unencrypted shard
+     * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard
      * @param v signature element
      * @param r signature element
      * @param s signature element
-     * @param account address to confirm data and signature came from
+     * @param account address to confirm signature of data came from
      */
-    function verifyBytes32Signature(
-        bytes32 data,
+    function verifyArchaeologistSignature(
+        bytes32 unencryptedShardDoubleHash,
+        string arweaveTxId,
         uint8 v,
         bytes32 r,
         bytes32 s,
@@ -92,52 +66,12 @@ library LibUtils {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(data))
+                keccak256(abi.encode(unencryptedShardDoubleHash, arweaveTxId))
             )
         );
 
-        // Genearate the address from the signature.
+        // Generate the address from the signature.
         // ecrecover should always return a valid address.
-        address hopefulAddress = ecrecover(messageHash, v, r, s);
-
-        if (hopefulAddress != account) {
-            revert LibErrors.SignatureFromWrongAccount(hopefulAddress, account);
-        }
-    }
-
-    /**
-     * @notice Given an identifier, a signature, and an account, verify that the
-     * identifier was signed by the account.
-     * @dev The verifyBytes32Signature function is identical to the
-     * verifyBytesSignature function except for the data type being passed in.
-     * The reason these are split up is beacuse it's really tricky to convert a
-     * bytes32 value into a bytes value and have ecrecover still work properly.
-     * If a simple solution can be found for this problem then please combine
-     * these two functions together.
-     * @param data the data to verify
-     * @param v signature element
-     * @param r signature element
-     * @param s signature element
-     * @param account address to confirm data and signature came from
-     */
-    function verifyBytesSignature(
-        bytes memory data,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        address account
-    ) internal pure {
-        // Hash the hash of the data payload
-        bytes32 messageHash = keccak256(
-            abi.encodePacked(
-                "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(data))
-            )
-        );
-
-        // Genearate the address from the signature.
-        // ecrecover should always return a valid address.
-        // It's highly recommended that a hash be passed into ecrecover
         address hopefulAddress = ecrecover(messageHash, v, r, s);
 
         if (hopefulAddress != account) {
@@ -302,6 +236,40 @@ library LibUtils {
         revertIfArchProfileIs(false, archaeologist);
     }
 
+    /// @notice Checks if digging fee the embalmer has supplied for
+    /// an archaeologist is greater than or equal to the arch's min digging fee
+    /// on their profile
+    ///
+    /// @param diggingFee the digging fee supplied by the embalmer
+    /// @param archaeologist the archaeologist to check minimum digging fee of
+    function revertIfDiggingFeeTooLow(uint256 diggingFee, address archaeologist)
+        internal
+        view
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        if (s.archaeologistProfiles[archaeologist].minimumDiggingFee < diggingFee) {
+            revert LibErrors.DiggingFeeTooLow(diggingFee, archaeologist);
+        }
+    }
+
+    /// @notice Checks if the resurrection time supplied for the sarcophagus
+    /// is within the window that an archaeologist will accept
+    ///
+    /// @param resurrectionTime the resurrectionTime supplied for the sarcophagus
+    /// @param archaeologist the archaeologist to check the max rewrap interval of
+    function revertIfResurrectionTimeTooFarInFuture(uint256 resurrectionTime, address archaeologist)
+        internal
+        view
+    {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+        uint256 maxResurrectionTime = block.timestamp + s.archaeologistProfiles[archaeologist].maximumRewrapInterval;
+
+        if (resurrectionTime > maxResurrectionTime) {
+            revert LibErrors.ResurrectionTimeTooFarInFuture(resurrectionTime, archaeologist);
+        }
+    }
+
     /// @notice Gets an archaeologist given the sarcophagus identifier and the
     /// archaeologist's address.
     /// @param sarcoId the identifier of the sarcophagus
@@ -315,20 +283,6 @@ library LibUtils {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         return s.sarcophagusArchaeologists[sarcoId][archaeologist];
-    }
-
-    /// @notice Checks if a sarcophagus has been finalized by checking if it
-    /// contains any arweaveTxIds.
-    /// @param sarcoId the identifier of the sarcophagus
-    /// @return The boolean true if the sarcophagus has been finalized
-    function isSarcophagusFinalized(bytes32 sarcoId)
-        internal
-        view
-        returns (bool)
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        return s.sarcophagi[sarcoId].arweaveTxIds.length > 0;
     }
 
     /// @notice Calculates the protocol fees to be taken from the embalmer.
