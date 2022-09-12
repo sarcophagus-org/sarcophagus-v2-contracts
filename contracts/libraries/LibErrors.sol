@@ -15,13 +15,9 @@ library LibErrors {
 
     error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);
 
-    error ArweaveArchaeologistNotInList();
-
     error ArweaveTxIdsInvalid();
 
     error DiggingFeeTooLow(uint256 diggingFee, address archaeologist);
-
-    error IncorrectNumberOfArchaeologistSignatures(uint256 signaturesLength);
 
     error MinShardsGreaterThanArchaeologists(uint8 minShards);
 
@@ -47,10 +43,6 @@ library LibErrors {
 
     error SarcophagusAlreadyExists(bytes32 sarcoId);
 
-    error SarcophagusAlreadyFinalized(bytes32 sarcoId);
-
-    error SarcophagusNotFinalized(bytes32 sarcoId);
-
     error SarcophagusDoesNotExist(bytes32 sarcoId);
 
     error SenderNotEmbalmer(address sender, address embalmer);
@@ -59,8 +51,6 @@ library LibErrors {
         address hopefulAddress,
         address actualAddress
     );
-
-    error SignatureListNotUnique();
 
     error SignerNotArchaeologistOnSarcophagus(bytes32 sarcoId, address signer);
 
