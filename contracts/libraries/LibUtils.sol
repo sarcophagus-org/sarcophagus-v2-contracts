@@ -47,7 +47,7 @@ library LibUtils {
      * @notice The archaeologist needs to sign off on two pieces of data
      * to guarantee their unrwap will be successful
      *
-     * @param hashedShard the hash of the unencrypted shard
+     * @param unencryptedShardDoubleHash the double hash of the unencrypted shard
      * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard
      * @param v signature element
      * @param r signature element
@@ -56,7 +56,7 @@ library LibUtils {
      */
     function verifyArchaeologistSignature(
         bytes32 unencryptedShardDoubleHash,
-        string arweaveTxId,
+        string memory arweaveTxId,
         uint8 v,
         bytes32 r,
         bytes32 s,

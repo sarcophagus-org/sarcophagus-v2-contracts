@@ -119,19 +119,19 @@ contract EmbalmerFacet {
             }
 
             // Validate archaeologist profile value minimums are met
-            revertIfDiggingFeeTooLow(arch.diggingFee, arch.archAddress);
-            totalDiggingFees += arch.diggingFee;
+            LibUtils.revertIfDiggingFeeTooLow(arch.diggingFee, arch.archAddress);
+            LibUtils.revertIfResurrectionTimeTooFarInFuture(sarcophagus.resurrectionTime, arch.archAddress);
 
-            revertIfResurrectionTimeTooFarInFuture(sarcophagus.resurrectionTime, arch.archAddress);
+            totalDiggingFees += arch.diggingFee;
 
             // Validate the archaeologist has signed off on their shard data:
             // hashed shard, arweaveTxId[1] (encrypted shard on arweave)
             LibUtils.verifyArchaeologistSignature(
                 arch.unencryptedShardDoubleHash,
                 arweaveTxIds[1],
-                archaeologistSignatures[i].v,
-                archaeologistSignatures[i].r,
-                archaeologistSignatures[i].s,
+                arch.v,
+                arch.r,
+                arch.s,
                 arch.archAddress
             );
 
@@ -145,7 +145,7 @@ contract EmbalmerFacet {
                 });
 
             // Map the double-hashed shared to this archaeologist's address for easier referencing on accuse
-            s.doubleHashedShardArchaeologists[doubleHashedShard] = arch
+            s.doubleHashedShardArchaeologists[arch.unencryptedShardDoubleHash] = arch
                 .archAddress;
 
             // Save the necessary archaeologist data to the sarcophagus
@@ -157,7 +157,7 @@ contract EmbalmerFacet {
             s.archaeologistSarcophagi[arch.archAddress].push(sarcoId);
 
             // Move free bond to cursed bond on archaeologist
-            LibBonds.curseArchaeologist(sarcoId, archaeologist);
+            LibBonds.curseArchaeologist(sarcoId, arch.archAddress);
 
             // Add the archaeologist address to the list of addresses to be
             // passed in to the sarcophagus object
