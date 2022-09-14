@@ -5,6 +5,10 @@ import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typech
 import { SignatureWithAccount } from "../../types";
 import { TestArchaeologist } from "../fixtures/spawn-archaeologists";
 
+const flat = (data: string | string[]): string[] => {
+  return data instanceof Array ? data : [data]
+}
+
 /**
  * Signs a message as any EVM compatible type and returns the signature and the
  * data hash that was signed. The bytes value that was signed is returned so
@@ -17,10 +21,10 @@ import { TestArchaeologist } from "../fixtures/spawn-archaeologists";
  */
 export async function sign(
   signer: SignerWithAddress,
-  message: string,
-  type: string
+  message: string | string[],
+  type: string | string[]
 ): Promise<Signature> {
-  const dataHex = ethers.utils.defaultAbiCoder.encode([type], [message]);
+  const dataHex = ethers.utils.defaultAbiCoder.encode(flat(type), flat(message));
   const dataHash = ethers.utils.keccak256(dataHex);
   const dataHashBytes = ethers.utils.arrayify(dataHash);
   const signature = await signer.signMessage(dataHashBytes);

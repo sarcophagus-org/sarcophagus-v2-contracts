@@ -32,7 +32,7 @@ export const archeologistsFixture = (count: number) =>
 
         archaeologists.push({
           archAddress: acc.address,
-          hashedShard: "",
+          unencryptedShardDoubleHash: "",
           unencryptedShard: [],
           signer: acc,
           diggingFee: ethers.utils.parseEther("10")

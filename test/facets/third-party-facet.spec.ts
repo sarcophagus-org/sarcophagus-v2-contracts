@@ -242,7 +242,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
 
@@ -258,7 +258,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await tx.wait();
@@ -281,7 +281,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          accusedArchs.map(a => a.hashedShard),
+          accusedArchs.map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await tx.wait();
@@ -330,7 +330,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          accusedArchs.map(a => a.hashedShard),
+          accusedArchs.map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await tx.wait();
@@ -370,7 +370,7 @@ describe("Contract: ThirdPartyFacet", () => {
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           // archaeologists[0], archaeologists[1] are unnaccused:
-          archaeologists.slice(2, threshold + 2).map(a => a.hashedShard),
+          archaeologists.slice(2, threshold + 2).map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await tx.wait();
@@ -402,7 +402,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(1, threshold + 1).map(a => a.hashedShard),
+          archaeologists.slice(1, threshold + 1).map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await tx.wait();
@@ -423,7 +423,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          accusedArchs.map(a => a.hashedShard),
+          accusedArchs.map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await tx.wait();
@@ -453,7 +453,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
 
@@ -471,7 +471,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx2 = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold - 1).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold - 1).map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await expect(tx2).to.be.revertedWith("NotEnoughProof()");
@@ -485,7 +485,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx2 = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard.replace("a", "b")),
+          archaeologists.slice(0, threshold).map(a => a.unencryptedShardDoubleHash.replace("a", "b")),
           thirdParty.address
         );
         await expect(tx2).to.be.revertedWith("NotEnoughProof()");
@@ -499,7 +499,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           formatBytes32String("unknown-id"),
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
@@ -514,14 +514,14 @@ describe("Contract: ThirdPartyFacet", () => {
         (
           await thirdPartyFacet.connect(thirdParty).accuse(
             sarcoId,
-            archaeologists.slice(0, threshold).map(a => a.hashedShard),
+            archaeologists.slice(0, threshold).map(a => a.unencryptedShardDoubleHash),
             thirdParty.address
           )
         ).wait();
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => a.unencryptedShardDoubleHash),
           thirdParty.address
         );
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");

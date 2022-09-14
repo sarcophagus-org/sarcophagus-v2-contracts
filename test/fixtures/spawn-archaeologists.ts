@@ -1,5 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumber } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { ethers, getUnnamedAccounts } from "hardhat";
 import { sign } from "../utils/helpers";
 import { SignatureWithAccount } from "../../types";
@@ -10,8 +10,20 @@ export interface TestArchaeologist {
   archAddress: string;
   signer: SignerWithAddress;
   diggingFee: BigNumber;
-  hashedShard: string;
+  unencryptedShardDoubleHash: string;
   unencryptedShard: BytesLike;
+  v: BigNumberish;
+  r: string;
+  s: string;
+}
+
+function doubleHashFromShard(shard: Buffer) {
+  return ethers.utils.solidityKeccak256(
+    ["bytes"],
+    [ethers.utils.solidityKeccak256(
+      ["bytes"], [shard]
+    )]
+  )
 }
 
 /**
@@ -23,7 +35,7 @@ export interface TestArchaeologist {
  * */
 export async function spawnArchaologistsWithSignatures(
   shards: Buffer[],
-  sarcoId: string,
+  arweaveTxId: string,
   archaeologistFacet: ArchaeologistFacet,
   sarcoToken: IERC20,
   diamondAddress: string
@@ -40,15 +52,19 @@ export async function spawnArchaologistsWithSignatures(
     accountI >= unnamedAccounts.length - shards.length;
     accountI--, shardI++
   ) {
+    const shardDoubleHash = doubleHashFromShard(shards[shardI]);
     const acc = await ethers.getSigner(unnamedAccounts[accountI]);
-    const signature = await sign(acc, sarcoId, "bytes32");
+    const signature = await sign(acc, [shardDoubleHash, arweaveTxId], ["bytes32", "string"]);
 
     archs.push({
       archAddress: acc.address,
-      hashedShard: ethers.utils.solidityKeccak256(["bytes"], [shards[shardI]]),
+      unencryptedShardDoubleHash: shardDoubleHash,
       unencryptedShard: shards[shardI],
       signer: acc,
-      diggingFee: BigNumber.from("10")
+      diggingFee: BigNumber.from("10"),
+      v: signature.v,
+      r: signature.r,
+      s: signature.s
     });
 
     // Transfer 10,000 sarco tokens to each archaeologist to be put into free

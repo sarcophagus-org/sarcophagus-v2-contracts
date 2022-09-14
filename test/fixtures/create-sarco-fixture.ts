@@ -15,17 +15,17 @@ import { spawnArchaologistsWithSignatures, TestArchaeologist } from "./spawn-arc
 const sss = require("shamirs-secret-sharing");
 
 /**
- * A fixture to set up a test that requires a successful initialization on a
+ * A fixture to set up a test that requires a successful creation on a
  * transferable sarcophagus. Deploys all contracts required for the system,
- * and initializes a sarcophagus with given config and name, with archaeologists
+ * and creates a sarcophagus with given config and name, with archaeologists
  * created and pre-configured for it.
  *
  * Resurrection time is set to 1 week.
- * maxResurrectionInterval defaults to 1 week.
+ * maxRewrapInterval defaults to 1 week.
  *
- * Optionally, initialising and finalising may be skipped. It's also possible to
+ * Optionally, creating may be skipped. It's also possible to
  * indicate to return a specified number of archaeologists not bonded to the
- * sarcophagus that is setup, and not await the initialise and/or finalise
+ * sarcophagus that is setup, and not await the createSarcophagus
  * transaction Promises.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -33,10 +33,8 @@ export const createSarcoFixture = (
   config: {
     shares: number;
     threshold: number;
-    skipInitialize?: boolean;
-    skipFinalize?: boolean;
-    dontAwaitInitTx?: boolean;
-    dontAwaitFinalizeTx?: boolean;
+    skipCreateTx?: boolean;
+    skipAwaitCreateTx?: boolean;
     addUnbondedArchs?: number;
   },
   sarcoName: string,
@@ -67,7 +65,7 @@ export const createSarcoFixture = (
       const thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamond.address);
       const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
 
-      // Transfer 100,000 sarco tokens to each embalmer
+      // Transfer 100,000 sarco tokens to the embalmer
       await sarcoToken.transfer(embalmer.address, ethers.utils.parseEther("100000"));
 
       // Approve the embalmer on the sarco token
@@ -78,16 +76,19 @@ export const createSarcoFixture = (
 
       // Set up the data for the sarcophagus
       // 64-byte key:
-      const privateKey = "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
+      const outerLayerPrivateKey = "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
 
-      const secret = Buffer.from(privateKey);
+      const secret = Buffer.from(outerLayerPrivateKey);
       const shards: Buffer[] = sss.split(secret, config);
 
+      // TODO -- need to determine how sarco name will be genned, b/c it needs to be unique
+      // we could add a random salt to this
       const sarcoId = ethers.utils.solidityKeccak256(["string"], [sarcoName]);
+      const arweaveTxIds = ["FilePayloadTxId", "EncryptedShardTxId"];
 
       const [archaeologists, signatures] = await spawnArchaologistsWithSignatures(
         shards,
-        sarcoId,
+        arweaveTxIds[1],
         archaeologistFacet as ArchaeologistFacet,
         (sarcoToken as IERC20).connect(deployer),
         diamond.address
@@ -107,10 +108,13 @@ export const createSarcoFixture = (
 
           unbondedArchaeologists.push({
             archAddress: acc.address,
-            hashedShard: "",
+            unencryptedShardDoubleHash: "",
             unencryptedShard: [],
             signer: acc,
-            diggingFee: ethers.utils.parseEther("10")
+            diggingFee: ethers.utils.parseEther("10"),
+            v: BigNumber.from(0),
+            r: "",
+            s: ""
           });
 
           // Transfer 10,000 sarco tokens to each archaeologist to be put into free
@@ -130,44 +134,30 @@ export const createSarcoFixture = (
         }
       }
 
-      const canBeTransferred = true;
-
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
       const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
 
       // Create a sarcophagus as the embalmer
-      let initializeTx: Promise<ContractTransaction> | undefined;
-      if (config.skipInitialize !== true) {
-        initializeTx = embalmerFacet.connect(embalmer).initializeSarcophagus(
+      let createTx: Promise<ContractTransaction> | undefined;
+      // eslint-disable-next-line prefer-const
+      if (!config.skipCreateTx) {
+        createTx = embalmerFacet.connect(embalmer).createSarcophagus(
           sarcoId,
           {
             name: sarcoName,
             recipient: recipient.address,
             resurrectionTime,
-            canBeTransferred,
+            canBeTransferred: true,
             minShards: config.threshold,
           },
           archaeologists,
+          arweaveTxIds
         );
       }
 
-      if (config.dontAwaitInitTx !== true) {
-        await initializeTx;
-      }
-
-      const arweaveTxId = "arweaveTxId";
-
-      // Finalize the sarcophagus (will be skipped if initialize is skipped)
-      let finalizeTx: Promise<ContractTransaction> | undefined;
-      if (config.skipInitialize !== true && config.skipFinalize !== true) {
-        finalizeTx = embalmerFacet
-          .connect(embalmer)
-          .finalizeSarcophagus(sarcoId, signatures, arweaveTxId);
-      }
-
-      if (config.dontAwaitInitTx !== true && config.dontAwaitFinalizeTx !== true) {
-        await finalizeTx;
+      if (config.skipAwaitCreateTx !== true) {
+        await createTx;
       }
 
       return {
@@ -179,11 +169,10 @@ export const createSarcoFixture = (
         archaeologists,
         unbondedArchaeologists,
         signatures,
-        arweaveTxId,
+        arweaveTxIds,
         embalmerBalanceBefore,
         shards,
-        initializeTx,
-        finalizeTx,
+        createTx,
         resurrectionTime,
         diamond,
         sarcoToken: sarcoToken as IERC20,
