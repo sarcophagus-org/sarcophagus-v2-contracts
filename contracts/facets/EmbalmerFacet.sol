@@ -139,7 +139,7 @@ contract EmbalmerFacet {
                 .ArchaeologistStorage({
                     diggingFee: arch.diggingFee,
                     diggingFeesPaid: 0,
-                    doubleHashedShard: arch.unencryptedShardDoubleHash,
+                    unencryptedShardDoubleHash: arch.unencryptedShardDoubleHash,
                     unencryptedShard: "",
                     curseTokenId: 0
                 });

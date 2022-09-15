@@ -667,9 +667,9 @@ describe("Contract: ArchaeologistFacet", () => {
           newArchaeologist.archAddress
         );
 
-        expect(newArchaeologistData.doubleHashedShard).to.not.equal(ethers.constants.HashZero);
-        expect(newArchaeologistData.doubleHashedShard).to.not.equal(ethers.constants.HashZero);
-        expect(newArchaeologistData.doubleHashedShard).to.not.equal(ethers.constants.HashZero);
+        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(ethers.constants.HashZero);
+        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(ethers.constants.HashZero);
+        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(ethers.constants.HashZero);
 
         // Check that the old archaeologist's values are reset to default values
         const oldArchaeologistData = await viewStateFacet.getSarcophagusArchaeologist(
@@ -677,11 +677,11 @@ describe("Contract: ArchaeologistFacet", () => {
           oldArchaeologist.address
         );
 
-        expect(oldArchaeologistData.doubleHashedShard).to.equal(ethers.constants.HashZero);
+        expect(oldArchaeologistData.unencryptedShardDoubleHash).to.equal(ethers.constants.HashZero);
 
-        expect(oldArchaeologistData.doubleHashedShard).to.equal(ethers.constants.HashZero);
+        expect(oldArchaeologistData.unencryptedShardDoubleHash).to.equal(ethers.constants.HashZero);
 
-        expect(oldArchaeologistData.doubleHashedShard).to.equal(ethers.constants.HashZero);
+        expect(oldArchaeologistData.unencryptedShardDoubleHash).to.equal(ethers.constants.HashZero);
         expect(oldArchaeologistData.diggingFee).to.equal("0");
       });
 

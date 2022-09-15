@@ -36,7 +36,8 @@ export const createSarcoFixture = (
     skipCreateTx?: boolean;
     skipAwaitCreateTx?: boolean;
     addUnbondedArchs?: number;
-    arweaveTxIds?: string[]
+    arweaveTxIds?: string[];
+    archMinDiggingFee?: BigNumber;
   },
   sarcoName: string,
   maxRewrapInterval: number = time.duration.weeks(4)
@@ -93,7 +94,8 @@ export const createSarcoFixture = (
         archaeologistFacet as ArchaeologistFacet,
         (sarcoToken as IERC20).connect(deployer),
         diamond.address,
-        maxRewrapInterval
+        maxRewrapInterval,
+        config.archMinDiggingFee
       );
 
       const unbondedArchaeologists: TestArchaeologist[] = [];

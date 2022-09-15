@@ -146,7 +146,7 @@ contract ThirdPartyFacet {
             LibTypes.ArchaeologistStorage storage badArch = s
                 .sarcophagusArchaeologists[sarcoId][matchingArchAddr];
 
-            if (badArch.doubleHashedShard == shardDoubleHash) {
+            if (badArch.unencryptedShardDoubleHash == shardDoubleHash) {
                 accusedArchAddresses[pos++] = matchingArchAddr;
 
                 uint256 cursedBond = LibBonds.calculateCursedBond(

@@ -62,7 +62,7 @@ library LibTypes {
     struct ArchaeologistStorage {
         uint256 diggingFee;
         uint256 diggingFeesPaid;
-        bytes32 doubleHashedShard;
+        bytes32 unencryptedShardDoubleHash;
         bytes unencryptedShard;
         uint256 curseTokenId;
     }

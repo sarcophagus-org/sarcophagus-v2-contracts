@@ -197,7 +197,7 @@ library LibUtils {
         return
             s
             .sarcophagusArchaeologists[sarcoId][archaeologist]
-                .doubleHashedShard != 0;
+                .unencryptedShardDoubleHash != 0;
     }
 
     function revertIfArchProfileIs(bool existing, address archaeologist)
@@ -248,7 +248,7 @@ library LibUtils {
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        if (s.archaeologistProfiles[archaeologist].minimumDiggingFee < diggingFee) {
+        if (diggingFee < s.archaeologistProfiles[archaeologist].minimumDiggingFee) {
             revert LibErrors.DiggingFeeTooLow(diggingFee, archaeologist);
         }
     }

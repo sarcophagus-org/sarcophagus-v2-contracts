@@ -184,7 +184,7 @@ describe("Contract: EmbalmerFacet", () => {
         const { sarcoId, embalmerFacet, embalmer, recipient, arweaveTxIds } =
           await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
 
-        // Initialise the sarco without archaeologists
+        // Create the sarco without archaeologists
         const tx = embalmerFacet.connect(embalmer).createSarcophagus(
           sarcoId,
           {
@@ -323,6 +323,61 @@ describe("Contract: EmbalmerFacet", () => {
         await expect(createTx).to.be.revertedWith("ArweaveTxIdsInvalid");
       });
 
+      it("reverts if the embalmer does not provide enough digging fee", async () => {
+        // Set min digging fees for each archaeologist profile to 10
+        const { archaeologists, embalmer, embalmerFacet, sarcoId, recipient, arweaveTxIds } =
+          await createSarcoFixture({
+            shares,
+            threshold,
+            archMinDiggingFee: BigNumber.from("10"),
+            skipCreateTx: true
+          }, sarcoName);
+
+        // set one of the archaeologist's digging fees too low
+        archaeologists[0].diggingFee = BigNumber.from("9");
+
+        const tx = embalmerFacet.connect(embalmer).createSarcophagus(
+          sarcoId,
+          {
+            name: sarcoName,
+            recipient: recipient.address,
+            resurrectionTime: (await time.latest()) + 100,
+            canBeTransferred: true,
+            minShards: threshold,
+          },
+          archaeologists,
+          arweaveTxIds
+        );
+
+        await expect(tx).to.be.revertedWith("DiggingFeeTooLow");
+      });
+
+      it("reverts if the resurrection time is too far in the future", async () => {
+        // Default max rewrap time is 4 weeks
+        const { archaeologists, embalmer, embalmerFacet, sarcoId, recipient, arweaveTxIds } =
+          await createSarcoFixture({
+            shares,
+            threshold,
+            skipCreateTx: true
+          }, sarcoName);
+
+        // Set resurrection time to be 4 weeks and 1 day away
+        const tx = embalmerFacet.connect(embalmer).createSarcophagus(
+          sarcoId,
+          {
+            name: sarcoName,
+            recipient: recipient.address,
+            resurrectionTime: (await time.latest()) + time.duration.weeks(4) + time.duration.days(1),
+            canBeTransferred: true,
+            minShards: threshold,
+          },
+          archaeologists,
+          arweaveTxIds
+        );
+
+        await expect(tx).to.be.revertedWith("ResurrectionTimeTooFarInFuture");
+      });
+
       it("reverts if any signature provided by a regular archaeologist is from the wrong archaeologist", async () => {
         const {
           embalmer,
@@ -442,7 +497,6 @@ describe("Contract: EmbalmerFacet", () => {
       it("adds digging fees to the archaeologist's total digging fees paid", async () => {
         const {
           tx,
-          curses,
           archaeologists,
           viewStateFacet,
           sarcoId,

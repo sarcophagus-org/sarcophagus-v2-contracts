@@ -204,10 +204,10 @@ contract ArchaeologistFacet {
 
         // Confirm that the double hash of the unencrypted shard matches the hashedShard in storage
         bytes32 doubleHash = keccak256(abi.encode(keccak256(unencryptedShard)));
-        if (doubleHash != archaeologistData.doubleHashedShard) {
+        if (doubleHash != archaeologistData.unencryptedShardDoubleHash) {
             revert LibErrors.UnencryptedShardHashMismatch(
                 unencryptedShard,
-                archaeologistData.doubleHashedShard
+                archaeologistData.unencryptedShardDoubleHash
             );
         }
 
@@ -298,13 +298,13 @@ contract ArchaeologistFacet {
 
         // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
         newArchData.diggingFee = oldArchData.diggingFee;
-        newArchData.doubleHashedShard = oldArchData.doubleHashedShard;
+        newArchData.unencryptedShardDoubleHash = oldArchData.unencryptedShardDoubleHash;
         newArchData.unencryptedShard = "";
 
         // Set the old archaeologist's data in the sarcophagusArchaeologists
         // mapping to their default values
         oldArchData.diggingFee = 0;
-        oldArchData.doubleHashedShard = 0;
+        oldArchData.unencryptedShardDoubleHash = 0;
         oldArchData.unencryptedShard = "";
 
         // Add the arweave transaction id to arweaveTxIds on the sarcophagus

@@ -31,12 +31,14 @@ function doubleHashFromShard(shard: Buffer): string {
 }
 
 /**
- * Generates and returns [shards.length] archaeologists, each
- * with 10,000 sarco tokens and a 5000-sarco token bond deposit,
- * along with their signatures on the sarcoId.
+ * Generates and returns [shards.length] archaeologists
+ * with the data needed to register and call create (signatures)
  *
- * Digging Fees are set to 100
- * MaxRewrapInterval defaults to 4 weeks
+ * Defaults:
+ * Total SARCO Balance: 10,000
+ * SARCO in free bond: 500
+ * Digging Fees: 10
+ * MaxRewrapInterval: 4 weeks
  * */
 export async function spawnArchaologistsWithSignatures(
   shards: Buffer[],
@@ -44,7 +46,8 @@ export async function spawnArchaologistsWithSignatures(
   archaeologistFacet: ArchaeologistFacet,
   sarcoToken: IERC20,
   diamondAddress: string,
-  maxRewrapInterval: number
+  maxRewrapInterval: number,
+  archMinDiggingFee: BigNumber = BigNumber.from("10")
 ): Promise<[TestArchaeologist[], SignatureWithAccount[]]> {
   const unnamedAccounts = await getUnnamedAccounts();
   const archs: TestArchaeologist[] = [];
@@ -66,7 +69,7 @@ export async function spawnArchaologistsWithSignatures(
       unencryptedShardDoubleHash: shardDoubleHash,
       unencryptedShard: shards[shardI],
       signer: acc,
-      diggingFee: BigNumber.from("10"),
+      diggingFee: archMinDiggingFee,
       v: signature.v,
       r: signature.r,
       s: signature.s
@@ -81,7 +84,7 @@ export async function spawnArchaologistsWithSignatures(
     // Deposit 5000 tokens for each archaeologist so they're ready to be bonded
     await archaeologistFacet.connect(acc).registerArchaeologist(
       "myFakePeerId",
-      ethers.utils.parseEther("10"),
+      archMinDiggingFee,
       maxRewrapInterval,
       ethers.utils.parseEther("5000")
     );
