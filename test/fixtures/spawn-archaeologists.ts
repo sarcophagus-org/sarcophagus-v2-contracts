@@ -17,33 +17,38 @@ export interface TestArchaeologist {
   s: string;
 }
 
-function doubleHashFromShard(shard: Buffer) {
+export function hashBytes(data: any): string {
   return ethers.utils.solidityKeccak256(
     ["bytes"],
-    [ethers.utils.solidityKeccak256(
-      ["bytes"], [shard]
-    )]
+    [data]
   )
+}
+
+function doubleHashFromShard(shard: Buffer): string {
+  return hashBytes(
+    hashBytes(shard)
+  );
 }
 
 /**
  * Generates and returns [shards.length] archaeologists, each
  * with 10,000 sarco tokens and a 5000-sarco token bond deposit,
- * along with their signatures on the sarcoId. Storage fee,
- * digging fee for each generated archaeologist are
- * set to a constant 20, 10, and 100 sarco tokens respectively.
+ * along with their signatures on the sarcoId.
+ *
+ * Digging Fees are set to 100
+ * MaxRewrapInterval defaults to 4 weeks
  * */
 export async function spawnArchaologistsWithSignatures(
   shards: Buffer[],
   arweaveTxId: string,
   archaeologistFacet: ArchaeologistFacet,
   sarcoToken: IERC20,
-  diamondAddress: string
+  diamondAddress: string,
+  maxRewrapInterval: number
 ): Promise<[TestArchaeologist[], SignatureWithAccount[]]> {
   const unnamedAccounts = await getUnnamedAccounts();
   const archs: TestArchaeologist[] = [];
   const signatures: SignatureWithAccount[] = [];
-
   // Use tail-end of unnamed accounts list to populate archaeologists.
   // This allows callers outside this function, but in same test context,
   // to grab accounts from the head-end without worrying about overlap.
@@ -77,7 +82,7 @@ export async function spawnArchaologistsWithSignatures(
     await archaeologistFacet.connect(acc).registerArchaeologist(
       "myFakePeerId",
       ethers.utils.parseEther("10"),
-      BigNumber.from("1000"),
+      maxRewrapInterval,
       ethers.utils.parseEther("5000")
     );
 

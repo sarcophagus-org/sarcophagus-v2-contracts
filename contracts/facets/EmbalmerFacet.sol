@@ -76,7 +76,7 @@ contract EmbalmerFacet {
         }
 
         // Validate exactly 2 arweave TX IDs have been provided
-        if (arweaveTxIds.length != 2) {
+        if (arweaveTxIds.length != 2 || bytes(arweaveTxIds[0]).length == 0 || bytes(arweaveTxIds[1]).length == 0) {
             revert LibErrors.ArweaveTxIdsInvalid();
         }
 
@@ -258,24 +258,8 @@ contract EmbalmerFacet {
             // Add to the total of digging fees paid
             archaeologistData.diggingFeesPaid += archaeologistData.diggingFee;
 
-            // Add to the total of digging fees paid on the nft attributes
-            s.curses.updateAttribute(
-                archaeologistData.curseTokenId,
-                abi.encodePacked("Digging Fees Paid"),
-                abi.encodePacked(
-                    Strings.toString(archaeologistData.diggingFeesPaid)
-                )
-            );
-
             // Add the archaeologist's digging fee to the sum
             diggingFeeSum += archaeologistData.diggingFee;
-
-            // Update the resurrection time on the archaeologist's nft
-            s.curses.updateAttribute(
-                archaeologistData.curseTokenId,
-                abi.encodePacked("Resurrection Time"),
-                abi.encodePacked(Strings.toString(resurrectionTime))
-            );
 
             // Update the archaeologist's data in storage
             s.sarcophagusArchaeologists[sarcoId][

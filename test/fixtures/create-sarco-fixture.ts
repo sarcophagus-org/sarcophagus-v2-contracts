@@ -36,9 +36,10 @@ export const createSarcoFixture = (
     skipCreateTx?: boolean;
     skipAwaitCreateTx?: boolean;
     addUnbondedArchs?: number;
+    arweaveTxIds?: string[]
   },
   sarcoName: string,
-  maxResurrectionInterval?: number
+  maxRewrapInterval: number = time.duration.weeks(4)
 ) =>
   deployments.createFixture(
     async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {
@@ -84,14 +85,15 @@ export const createSarcoFixture = (
       // TODO -- need to determine how sarco name will be genned, b/c it needs to be unique
       // we could add a random salt to this
       const sarcoId = ethers.utils.solidityKeccak256(["string"], [sarcoName]);
-      const arweaveTxIds = ["FilePayloadTxId", "EncryptedShardTxId"];
+      const arweaveTxIds = config.arweaveTxIds || ["FilePayloadTxId", "EncryptedShardTxId"];
 
       const [archaeologists, signatures] = await spawnArchaologistsWithSignatures(
         shards,
-        arweaveTxIds[1],
+        arweaveTxIds[1] || 'fakeArweaveTxId',
         archaeologistFacet as ArchaeologistFacet,
         (sarcoToken as IERC20).connect(deployer),
-        diamond.address
+        diamond.address,
+        maxRewrapInterval
       );
 
       const unbondedArchaeologists: TestArchaeologist[] = [];
@@ -128,7 +130,7 @@ export const createSarcoFixture = (
           await archaeologistFacet.connect(acc).registerArchaeologist(
             "myFakePeerId",
             ethers.utils.parseEther("10"),
-            BigNumber.from("1000"),
+            maxRewrapInterval,
             ethers.utils.parseEther("5000")
           );
         }
