@@ -1,5 +1,6 @@
 typechain
 typechain-types
+deployments/localhost
 .idea/
 
 #Hardhat files
