@@ -76,6 +76,7 @@ contract EmbalmerFacet {
         }
 
         // Validate exactly 2 arweave TX IDs have been provided
+        // TODO: See if we can verify exact byte length of arweave TXs
         if (arweaveTxIds.length != 2 || bytes(arweaveTxIds[0]).length == 0 || bytes(arweaveTxIds[1]).length == 0) {
             revert LibErrors.ArweaveTxIdsInvalid();
         }
@@ -118,7 +119,7 @@ contract EmbalmerFacet {
                 );
             }
 
-            // Validate archaeologist profile value minimums are met
+            // Validate archaeologist profile value requirements are met
             LibUtils.revertIfDiggingFeeTooLow(arch.diggingFee, arch.archAddress);
             LibUtils.revertIfResurrectionTimeTooFarInFuture(sarcophagus.resurrectionTime, arch.archAddress);
 

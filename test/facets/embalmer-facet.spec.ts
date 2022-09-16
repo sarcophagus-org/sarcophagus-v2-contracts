@@ -38,13 +38,13 @@ describe("Contract: EmbalmerFacet", () => {
         );
       });
 
-      it("should emit createSarcophagus()", async () => {
+      it("should emit CreateSarcophagus()", async () => {
         const { embalmerFacet, createTx } = await createSarcoFixture(
           { shares, threshold, skipAwaitCreateTx: true },
           sarcoName
         );
 
-        expect(createTx).to.emit(embalmerFacet, "createSarcophagus");
+        expect(createTx).to.emit(embalmerFacet, "CreateSarcophagus");
       });
 
       it("should set a resurrection window", async () => {
