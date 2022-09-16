@@ -31,6 +31,16 @@ contract ViewStateFacet {
         return s.archaeologistProfiles[archaeologist];
     }
 
+    /// @notice Return the list of registereed archaeologist addresses.
+    /// @return addresses of registered archaeologists
+    function getArchaeologistProfileAddresses()
+        external
+        view
+        returns (address[] memory)
+    {
+        return s.archaeologistProfileAddresses;
+    }
+
     /// @notice Given an index (of the full archaeologist array), return the
     /// archaeologist address at that index
     /// @param index The index of the registered archaeologist
