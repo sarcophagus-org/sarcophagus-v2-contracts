@@ -118,32 +118,6 @@ library LibBonds {
         increaseFreeBond(archaeologist, amount);
     }
 
-    /// @notice Given an array of archaeologists on a sarcophagus, sums the total of
-    /// 1. Each archaeologists' digging fees
-    /// @param sarcoId The identifier of the sarcophagus
-    /// @param archaeologists The array of archaeologists' addresses
-    /// @return the total of the above
-    function calculateTotalFees(
-        bytes32 sarcoId,
-        address[] memory archaeologists
-    ) internal view returns (uint256) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        uint256 totalFees = 0;
-
-        // iterate through each archaeologist
-        for (uint256 i = 0; i < archaeologists.length; i++) {
-            LibTypes.ArchaeologistStorage memory archaeologistsData = s
-                .sarcophagusArchaeologists[sarcoId][archaeologists[i]];
-
-            // add the archaeologist's digging fee to the total fees
-            totalFees += archaeologistsData.diggingFee;
-        }
-
-        // return the total fees
-        return totalFees;
-    }
-
     /// @notice Calculates an archaeologist's cursed bond and curses them (locks
     /// up the free bond).
     /// @param sarcoId the identifier of the sarcophagus to bond the archaeologist with

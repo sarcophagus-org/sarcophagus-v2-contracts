@@ -36,15 +36,18 @@ library LibTypes {
         bytes32 s;
     }
 
-    // SelectedArchaeologistMemory is the struct that is passed into the
+    // SelectedArchaeologistData is the struct that is passed into the
     // initializeSarcophagus function. Even though we don't need each storage
     // fee of the archaeologist, the storage fee is included in the struct to
     // reduce the stack size within the function, preventing the "stack too
     // deep" error.
-    struct SelectedArchaeologistMemory {
+    struct SelectedArchaeologistData {
         address archAddress;
         uint256 diggingFee;
-        bytes32 hashedShard;
+        bytes32 unencryptedShardDoubleHash;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
     }
 
     // ArchaeologistStorage is the struct that is stored in AppStorage under the
@@ -59,7 +62,7 @@ library LibTypes {
     struct ArchaeologistStorage {
         uint256 diggingFee;
         uint256 diggingFeesPaid;
-        bytes32 doubleHashedShard;
+        bytes32 unencryptedShardDoubleHash;
         bytes unencryptedShard;
         uint256 curseTokenId;
     }

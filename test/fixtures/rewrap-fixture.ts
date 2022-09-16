@@ -18,7 +18,6 @@ export const rewrapFixture = async (
     shares: number;
     threshold: number;
     skipRewrap?: boolean;
-    skipFinaliseSarco?: boolean;
     dontAwaitTransaction?: boolean;
   },
   sarcoName: string,
@@ -33,7 +32,7 @@ export const rewrapFixture = async (
     sarcoId,
     curses,
     resurrectionTime: oldResurrectionTime,
-  } = await createSarcoFixture({ ...config, skipFinalize: config.skipFinaliseSarco }, sarcoName);
+  } = await createSarcoFixture({ ...config }, sarcoName);
 
   // Advance to a minute before resurrection time
   await time.increase(time.duration.weeks(1) - 60);

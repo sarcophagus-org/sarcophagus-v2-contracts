@@ -1,6 +1,7 @@
 import { deployments } from "hardhat";
 import { ArchaeologistFacet, IERC20, ViewStateFacet } from "../../typechain";
 import { TestArchaeologist } from "./spawn-archaeologists";
+import { BigNumber } from "ethers";
 
 /**
  * A fixture to simply deploy contracts and return a set number of
@@ -32,10 +33,13 @@ export const archeologistsFixture = (count: number) =>
 
         archaeologists.push({
           archAddress: acc.address,
-          hashedShard: "",
+          unencryptedShardDoubleHash: "",
           unencryptedShard: [],
           signer: acc,
-          diggingFee: ethers.utils.parseEther("10")
+          diggingFee: ethers.utils.parseEther("10"),
+          v: BigNumber.from(0),
+          r: "",
+          s: ""
         });
 
         // Transfer 10,000 sarco tokens to each archaeologist to be put into free

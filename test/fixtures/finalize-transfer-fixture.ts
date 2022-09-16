@@ -15,7 +15,7 @@ export const finalizeTransferFixture = async () => {
     archaeologistFacet,
     viewStateFacet,
     sarcoId,
-    arweaveTxId,
+    arweaveTxIds,
     unbondedArchaeologists,
     diamond,
     curses,
@@ -24,7 +24,7 @@ export const finalizeTransferFixture = async () => {
   const newArchaeologist = unbondedArchaeologists[0];
 
   const oldArchaeologist = archaeologists[1].signer;
-  const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxId, "string");
+  const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxIds[1], "string");
 
   const oldArchaeologistFees = {
     diggingFee: archaeologists[1].diggingFee
@@ -54,7 +54,7 @@ export const finalizeTransferFixture = async () => {
   // Actually have the new archaeologist finalize the transfer
   const tx = archaeologistFacet
     .connect(newArchaeologist.signer)
-    .finalizeTransfer(sarcoId, arweaveTxId, oldArchaeologistSignature);
+    .finalizeTransfer(sarcoId, arweaveTxIds[1], oldArchaeologistSignature);
 
   // Get the archaeologists cursed, free bond before transfer
   const oldArchaeologistCursedBondAfter = await viewStateFacet.getCursedBond(
@@ -78,7 +78,7 @@ export const finalizeTransferFixture = async () => {
     oldArchaeologist,
     newArchaeologist,
     sarcoId,
-    arweaveTxId,
+    arweaveTxIds,
     oldArchaeologistCursedBondBefore,
     oldArchaeologistCursedBondAfter,
     oldArchaeologistFreeBondBefore,

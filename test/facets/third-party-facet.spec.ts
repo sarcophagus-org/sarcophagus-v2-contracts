@@ -5,6 +5,7 @@ import { calculateCursedBond } from "../utils/helpers";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { BigNumber } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
+import { hashBytes } from "../fixtures/spawn-archaeologists";
 
 describe("Contract: ThirdPartyFacet", () => {
   const shares = 5;
@@ -242,14 +243,14 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
         await expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist");
       });
 
-      it("Should update sarcophagus' state to DONE", async () => {
+      it("updates the sarcophagus state to DONE", async () => {
         const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, viewStateFacet } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
@@ -258,7 +259,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await tx.wait();
@@ -281,7 +282,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          accusedArchs.map(a => a.hashedShard),
+          accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await tx.wait();
@@ -330,7 +331,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          accusedArchs.map(a => a.hashedShard),
+          accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await tx.wait();
@@ -370,7 +371,7 @@ describe("Contract: ThirdPartyFacet", () => {
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           // archaeologists[0], archaeologists[1] are unnaccused:
-          archaeologists.slice(2, threshold + 2).map(a => a.hashedShard),
+          archaeologists.slice(2, threshold + 2).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await tx.wait();
@@ -392,7 +393,7 @@ describe("Contract: ThirdPartyFacet", () => {
         }
       });
 
-      it("Should not actually transfer tokens (being explicit here, cz of recent refactoring)", async () => {
+      it("does not transfer tokens of un-accused archaeologists", async () => {
         const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, sarcoToken } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
@@ -402,7 +403,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(1, threshold + 1).map(a => a.hashedShard),
+          archaeologists.slice(1, threshold + 1).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await tx.wait();
@@ -423,7 +424,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          accusedArchs.map(a => a.hashedShard),
+          accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await tx.wait();
@@ -453,7 +454,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
@@ -467,17 +468,17 @@ describe("Contract: ThirdPartyFacet", () => {
         );
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [], thirdParty.address);
-        await expect(tx).to.be.revertedWith("NotEnoughProof()");
+        await expect(tx).to.be.revertedWith("AccuseNotEnoughProof");
 
         const tx2 = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold - 1).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold - 1).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await expect(tx2).to.be.revertedWith("NotEnoughProof()");
+        await expect(tx2).to.be.revertedWith("AccuseNotEnoughProof");
       });
 
-      it("Should revert with NotEnoughProof() if at least m unencrypted shards are provided, but one or more are invalid", async () => {
+      it("Should revert with AccuseIncorrectProof if at least m unencrypted shards are provided, but one or more are invalid", async () => {
         const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
@@ -485,10 +486,10 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx2 = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard.replace("a", "b")),
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard).replace("a", "b")),
           thirdParty.address
         );
-        await expect(tx2).to.be.revertedWith("NotEnoughProof()");
+        await expect(tx2).to.be.revertedWith("AccuseIncorrectProof");
       });
 
       it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
@@ -499,7 +500,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           formatBytes32String("unknown-id"),
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
@@ -514,14 +515,14 @@ describe("Contract: ThirdPartyFacet", () => {
         (
           await thirdPartyFacet.connect(thirdParty).accuse(
             sarcoId,
-            archaeologists.slice(0, threshold).map(a => a.hashedShard),
+            archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
             thirdParty.address
           )
         ).wait();
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => a.hashedShard),
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");

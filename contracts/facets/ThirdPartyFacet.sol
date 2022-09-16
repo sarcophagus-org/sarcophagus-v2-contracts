@@ -122,7 +122,7 @@ contract ThirdPartyFacet {
         }
 
         if (unencryptedShardHashes.length < sarco.minShards) {
-            revert LibErrors.NotEnoughProof();
+            revert LibErrors.AccuseNotEnoughProof(unencryptedShardHashes.length, sarco.minShards);
         }
 
         address[] memory accusedArchAddresses = new address[](
@@ -146,7 +146,7 @@ contract ThirdPartyFacet {
             LibTypes.ArchaeologistStorage storage badArch = s
                 .sarcophagusArchaeologists[sarcoId][matchingArchAddr];
 
-            if (badArch.doubleHashedShard == shardDoubleHash) {
+            if (badArch.unencryptedShardDoubleHash == shardDoubleHash) {
                 accusedArchAddresses[pos++] = matchingArchAddr;
 
                 uint256 cursedBond = LibBonds.calculateCursedBond(
@@ -161,7 +161,7 @@ contract ThirdPartyFacet {
                 // Save the accusal against the archaeologist
                 s.archaeologistAccusals[matchingArchAddr].push(sarcoId);
             } else {
-                revert LibErrors.NotEnoughProof();
+                revert LibErrors.AccuseIncorrectProof();
             }
         }
 

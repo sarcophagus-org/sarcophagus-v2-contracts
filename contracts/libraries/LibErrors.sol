@@ -7,6 +7,10 @@ pragma solidity ^0.8.13;
  * uses.
  */
 library LibErrors {
+    error AccuseNotEnoughProof(uint256 shardsProvided, uint8 minShards);
+
+    error AccuseIncorrectProof();
+
     error ArchaeologistAlreadyUnwrapped(address archaeologist);
 
     error ArchaeologistListNotUnique(address[] archaeologists);
@@ -15,11 +19,9 @@ library LibErrors {
 
     error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);
 
-    error ArweaveArchaeologistNotInList();
+    error ArweaveTxIdsInvalid();
 
-    error ArweaveTxIdEmpty();
-
-    error IncorrectNumberOfArchaeologistSignatures(uint256 signaturesLength);
+    error DiggingFeeTooLow(uint256 diggingFee, address archaeologist);
 
     error MinShardsGreaterThanArchaeologists(uint8 minShards);
 
@@ -41,11 +43,9 @@ library LibErrors {
 
     error ResurrectionTimeInPast(uint256 resurrectionTime);
 
+    error ResurrectionTimeTooFarInFuture(uint256 resurrectionTime, address archaeologist);
+
     error SarcophagusAlreadyExists(bytes32 sarcoId);
-
-    error SarcophagusAlreadyFinalized(bytes32 sarcoId);
-
-    error SarcophagusNotFinalized(bytes32 sarcoId);
 
     error SarcophagusDoesNotExist(bytes32 sarcoId);
 
@@ -56,8 +56,6 @@ library LibErrors {
         address actualAddress
     );
 
-    error SignatureListNotUnique();
-
     error SignerNotArchaeologistOnSarcophagus(bytes32 sarcoId, address signer);
 
     // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)
@@ -65,9 +63,6 @@ library LibErrors {
 
     // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
     error SarcophagusNotCleanable();
-
-    // Used when accusing with not enough, or invalid, unencrypted shard(s)
-    error NotEnoughProof();
 
     error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
 
