@@ -100,7 +100,7 @@ export const getArchaeologistSarcoRewards = async (
 ): Promise<{ address: string; reward: BigNumber }[]> => {
   const rewards: { address: string; reward: BigNumber }[] = [];
   for (const arch of archaeologists) {
-    const reward = await viewStateFacet.getAvailableRewards(arch.address);
+    const reward = await viewStateFacet.getRewards(arch.address);
     rewards.push({
       address: arch.address,
       reward: reward,

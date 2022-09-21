@@ -406,7 +406,7 @@ describe("Contract: ArchaeologistFacet", () => {
         .unwrapSarcophagus(sarcoId, contextArchaeologist.unencryptedShard);
 
       // expect rewards to be increased after unwrap (this should probably be in a separate test)
-      const currentRewards = await viewStateFacet.getAvailableRewards(contextArchaeologist.archAddress);
+      const currentRewards = await viewStateFacet.getRewards(contextArchaeologist.archAddress);
       expect(currentRewards).to.equal(archDiggingFee);
 
       const archSarcoBalanceBefore = await sarcoToken.balanceOf(contextArchaeologist.archAddress);
@@ -416,7 +416,7 @@ describe("Contract: ArchaeologistFacet", () => {
         .withdrawReward();
 
       // expect rewards to be depleted after claiming
-      const rewardsAfterWithdrawal = await viewStateFacet.getAvailableRewards(contextArchaeologist.archAddress);
+      const rewardsAfterWithdrawal = await viewStateFacet.getRewards(contextArchaeologist.archAddress);
       expect(rewardsAfterWithdrawal).to.equal(0);
 
       // expect archs sarco token balance to increase by rewards amount
@@ -517,7 +517,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         // Get the sarco balance of the first archaeologist before unwrap
         const sarcoBalanceBefore = await sarcoToken.balanceOf(archaeologists[0].archAddress);
-        const archRewardsBefore = await viewStateFacet.getAvailableRewards(
+        const archRewardsBefore = await viewStateFacet.getRewards(
           archaeologists[0].archAddress
         );
 
@@ -532,7 +532,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         // Get the sarco balance of the first archaeologist after unwrap
         const sarcoBalanceAfter = await sarcoToken.balanceOf(archaeologists[0].archAddress);
-        const archRewardsAfter = await viewStateFacet.getAvailableRewards(
+        const archRewardsAfter = await viewStateFacet.getRewards(
           archaeologists[0].archAddress
         );
 

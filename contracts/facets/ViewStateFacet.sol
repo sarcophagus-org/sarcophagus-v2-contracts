@@ -69,7 +69,7 @@ contract ViewStateFacet {
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose
     /// reward is being returned
-    function getAvailableRewards(address archaeologist)
+    function getRewards(address archaeologist)
         external
         view
         returns (uint256)
