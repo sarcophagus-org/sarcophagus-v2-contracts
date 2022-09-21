@@ -25,8 +25,7 @@ struct AppStorage {
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
     // Track how much archaeologists have made. To be credited and debited
-    // as archaeologists fulfil their duties and withdraw their rewards
-    // TODO use archaeologistProfiles for rewards instead
+    // as archaeologists fulfill their duties and withdraw their rewards
     mapping(address => uint256) archaeologistRewards;
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
     // sarcophagus ownerships

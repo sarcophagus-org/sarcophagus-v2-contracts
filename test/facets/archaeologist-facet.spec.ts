@@ -35,7 +35,7 @@ describe("Contract: ArchaeologistFacet", () => {
       );
     });
 
-    it("initializes the cursedBond and rewards to 0", async () => {
+    it("initializes the cursedBond to 0", async () => {
       const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
       const archaeologist = archaeologists[0];
 
@@ -45,7 +45,6 @@ describe("Contract: ArchaeologistFacet", () => {
         archaeologist.archAddress
       );
       expect(registeredArch.cursedBond).to.equal(BigNumber.from("0"));
-      expect(registeredArch.rewards).to.equal(BigNumber.from("0"));
     });
 
     it("initializes the profile config values correctly", async () => {
@@ -273,7 +272,7 @@ describe("Contract: ArchaeologistFacet", () => {
   describe("withdrawFreeBond()", () => {
     context("with an unregistered archaeologist", () => {
       it("reverts when withdrawing free bond", async () => {
-        const { archaeologists, archaeologistFacet, viewStateFacet, sarcoToken } =
+        const { archaeologists, archaeologistFacet } =
           await archeologistsFixture(1);
         const archaeologist = archaeologists[0];
 
@@ -385,6 +384,48 @@ describe("Contract: ArchaeologistFacet", () => {
         });
       });
     });
+  });
+
+  describe("withdrawReward()", () => {
+    it("withdraws all the archaeologists rewards", async () => {
+      const shares = 5;
+      const threshold = 2;
+
+      const archDiggingFee = BigNumber.from("1000000000000");
+
+      // Setup arch + unwrap so rewards are received
+      const { archaeologists, archaeologistFacet, sarcoId, sarcoToken, viewStateFacet } =
+        await createSarcoFixture({ shares, threshold, archMinDiggingFee: archDiggingFee }, "Test Sarco");
+
+      const contextArchaeologist = archaeologists[0];
+
+      await time.increase(time.duration.weeks(1) + 1);
+
+      await archaeologistFacet
+        .connect(contextArchaeologist.signer)
+        .unwrapSarcophagus(sarcoId, contextArchaeologist.unencryptedShard);
+
+      // expect rewards to be increased after unwrap (this should probably be in a separate test)
+      const currentRewards = await viewStateFacet.getAvailableRewards(contextArchaeologist.archAddress);
+      expect(currentRewards).to.equal(archDiggingFee);
+
+      const archSarcoBalanceBefore = await sarcoToken.balanceOf(contextArchaeologist.archAddress);
+
+      await archaeologistFacet
+        .connect(contextArchaeologist.signer)
+        .withdrawReward();
+
+      // expect rewards to be depleted after claiming
+      const rewardsAfterWithdrawal = await viewStateFacet.getAvailableRewards(contextArchaeologist.archAddress);
+      expect(rewardsAfterWithdrawal).to.equal(0);
+
+      // expect archs sarco token balance to increase by rewards amount
+      expect(
+        await sarcoToken.balanceOf(contextArchaeologist.archAddress)
+      ).to.equal(
+        archSarcoBalanceBefore.add(archDiggingFee)
+      )
+    })
   });
 
   describe("unwrapSarcophagus()", () => {

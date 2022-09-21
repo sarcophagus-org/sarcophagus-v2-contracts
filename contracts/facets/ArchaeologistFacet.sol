@@ -73,8 +73,7 @@ contract ArchaeologistFacet {
                 minimumDiggingFee: minimumDiggingFee,
                 maximumRewrapInterval: maximumRewrapInterval,
                 freeBond: freeBond,
-                cursedBond: 0,
-                rewards: 0
+                cursedBond: 0
             });
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
@@ -161,15 +160,15 @@ contract ArchaeologistFacet {
         emit WithdrawFreeBond(msg.sender, amount);
     }
 
-    /// @notice Withdraws froms an archaeologist's reward pool
-    /// @param amount The amount to withdraw
-    function withdrawReward(uint256 amount) external {
-        LibRewards.decreaseRewardPool(msg.sender, amount);
+    /// @notice Withdraws all rewards from an archaeologist's reward pool
+    function withdrawReward() external {
+        uint256 amountToWithdraw = s.archaeologistRewards[msg.sender];
+        s.archaeologistRewards[msg.sender] = 0;
 
         // Transfer the amount of sarcoToken to the archaeologist
-        s.sarcoToken.transfer(msg.sender, amount);
+        s.sarcoToken.transfer(msg.sender, amountToWithdraw);
 
-        emit WithdrawReward(msg.sender, amount);
+        emit WithdrawReward(msg.sender, amountToWithdraw);
     }
 
     /// @notice Unwraps the sarcophagus.
