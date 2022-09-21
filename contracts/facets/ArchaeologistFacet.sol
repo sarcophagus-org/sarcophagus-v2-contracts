@@ -6,7 +6,6 @@ import "../libraries/LibTypes.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
-import {LibRewards} from "../libraries/LibRewards.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract ArchaeologistFacet {
@@ -222,10 +221,7 @@ contract ArchaeologistFacet {
         s.archaeologistSuccesses[msg.sender][sarcoId] = true;
 
         // Transfer the digging fee to the archaeologist's reward pool
-        LibRewards.increaseRewardPool(
-            msg.sender,
-            archaeologistData.diggingFee
-        );
+        s.archaeologistRewards[msg.sender] += archaeologistData.diggingFee;
 
         // Emit an event
         emit UnwrapSarcophagus(sarcoId, unencryptedShard);
