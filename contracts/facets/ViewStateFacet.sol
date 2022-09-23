@@ -13,9 +13,9 @@ contract ViewStateFacet {
         return s.totalProtocolFees;
     }
 
-    /// @notice Get the protocol fee amount from the contract.
-    /// @return The protocol fee amount
-    function getProtocolFeeAmount() external view returns (uint256) {
+    /// @notice Get the protocol fee from the contract.
+    /// @return The protocol fee
+    function getProtocolFee() external view returns (uint256) {
         return s.protocolFee;
     }
 

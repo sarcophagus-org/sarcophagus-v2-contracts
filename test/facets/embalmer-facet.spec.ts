@@ -6,7 +6,7 @@ import { SarcophagusState } from "../../types";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { buryFixture } from "../fixtures/bury-fixture";
 import { rewrapFixture } from "../fixtures/rewrap-fixture";
-import { calculateCursedBond, getAttributeFromURI, sign, signMultiple } from "../utils/helpers";
+import { calculateCursedBond, getAttributeFromURI, sign, signMultiple, toSarco } from "../utils/helpers";
 import time from "../utils/time";
 
 describe("Contract: EmbalmerFacet", () => {
@@ -15,13 +15,13 @@ describe("Contract: EmbalmerFacet", () => {
   const sarcoName = "test init";
 
   describe("createSarcophagus()", () => {
-    context("Successful initialization", () => {
+    context("Successful creation", () => {
       it("should transfer fees in sarco token from the embalmer to the contract", async () => {
         const {
           sarcoToken,
           embalmer,
           archaeologists,
-          embalmerBalanceBefore,
+          embalmerBalanceBeforeCreate
         } = await createSarcoFixture({ shares, threshold }, sarcoName);
 
         const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
@@ -34,11 +34,11 @@ describe("Contract: EmbalmerFacet", () => {
           );
 
         expect(embalmerBalanceAfter.toString()).to.equal(
-          embalmerBalanceBefore.sub(totalFees).toString()
+          embalmerBalanceBeforeCreate.sub(totalFees).toString()
         );
       });
 
-      it("should emit CreateSarcophagus()", async () => {
+      it("emits CreateSarcophagus()", async () => {
         const { embalmerFacet, createTx } = await createSarcoFixture(
           { shares, threshold, skipAwaitCreateTx: true },
           sarcoName
@@ -47,7 +47,7 @@ describe("Contract: EmbalmerFacet", () => {
         expect(createTx).to.emit(embalmerFacet, "CreateSarcophagus");
       });
 
-      it("should set a resurrection window", async () => {
+      it("sets a resurrection window", async () => {
         const { sarcoId, viewStateFacet } = await createSarcoFixture(
           { shares, threshold },
           sarcoName
@@ -77,7 +77,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds,
           embalmerFacet,
           embalmer,
-          archaeologists,
+          archaeologists
         } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
 
         const regularArchaeologist = archaeologists[1];
@@ -96,7 +96,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime: (await time.latest()) + 100,
             canBeTransferred: true,
-            minShards: 4,
+            minShards: 4
           },
           archaeologists,
           arweaveTxIds
@@ -121,6 +121,66 @@ describe("Contract: EmbalmerFacet", () => {
           archaeologistCursedBondBefore.add(bondAmount)
         );
       });
+
+      it("transfers the protocol fees from the embalmer to the contract", async () => {
+        const _shares = 5;
+        const _threshold = 3;
+        const archMinDiggingFee = toSarco(5);
+
+        const {
+          sarcoToken,
+          viewStateFacet,
+          embalmer,
+          embalmerFacet,
+          sarcoId,
+          recipient,
+          archaeologists,
+          arweaveTxIds
+        } = await createSarcoFixture({
+            shares: _shares,
+            threshold: _threshold,
+            archMinDiggingFee,
+            skipCreateTx: true
+          }
+        );
+
+        // Total min digging fees will be 25 SARCO (5 archs * 5 sarco digging fee)
+        const totalDiggingFees = BigNumber.from(_shares).mul(archMinDiggingFee);
+        // Protocol fee defaults to 1
+        const protocolFee = await viewStateFacet.connect(embalmer).getProtocolFee();
+        // total protocol fees will be .25 SARCO (25 * 1 / 100)
+        const expectedTotalProtocolFees = totalDiggingFees.mul(protocolFee).div(100);
+
+        // validate balance after create sarcophagus
+        const embalmerBalanceBeforeCreate = await sarcoToken.balanceOf(embalmer.address);
+
+        await embalmerFacet.connect(embalmer).createSarcophagus(
+          sarcoId,
+          {
+            name: sarcoName,
+            recipient: recipient.address,
+            resurrectionTime: (await time.latest()) + 100,
+            canBeTransferred: true,
+            minShards: _threshold
+          },
+          archaeologists,
+          arweaveTxIds
+        );
+
+        // confirm that protocol fee amount is updated on the contract
+        const actualTotalProtocolFees = await viewStateFacet.connect(embalmer).getTotalProtocolFees();
+        expect(actualTotalProtocolFees).to.equal(expectedTotalProtocolFees);
+
+        // confirm embalmers SARCO balance has been debited
+        const embalmerBalanceAfterCreate = await sarcoToken.balanceOf(embalmer.address);
+        expect(
+          embalmerBalanceAfterCreate
+        ).to.equal(
+          embalmerBalanceBeforeCreate
+            .sub(totalDiggingFees)
+            .sub(expectedTotalProtocolFees)
+        );
+      });
     });
 
     context("Failed createSarcophagus", () => {
@@ -143,7 +203,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime,
             canBeTransferred: true,
-            minShards: threshold,
+            minShards: threshold
           },
           archaeologists,
           arweaveTxIds
@@ -171,7 +231,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime,
             canBeTransferred: true,
-            minShards: threshold,
+            minShards: threshold
           },
           archaeologists,
           arweaveTxIds
@@ -192,7 +252,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime: (await time.latest()) + 100,
             canBeTransferred: true,
-            minShards: threshold,
+            minShards: threshold
           },
           [],
           arweaveTxIds
@@ -224,7 +284,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime: (await time.latest()) + 100,
             canBeTransferred: true,
-            minShards: threshold,
+            minShards: threshold
           },
           nonUniqueArchaeologists,
           arweaveTxIds
@@ -251,7 +311,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime: (await time.latest()) + 100,
             canBeTransferred: true,
-            minShards: archaeologists.length + 1,
+            minShards: archaeologists.length + 1
           },
           archaeologists,
           arweaveTxIds
@@ -278,7 +338,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime: (await time.latest()) + 100,
             canBeTransferred: true,
-            minShards: 0,
+            minShards: 0
           },
           archaeologists,
           arweaveTxIds
@@ -343,7 +403,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime: (await time.latest()) + 100,
             canBeTransferred: true,
-            minShards: threshold,
+            minShards: threshold
           },
           archaeologists,
           arweaveTxIds
@@ -369,7 +429,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime: (await time.latest()) + time.duration.weeks(4) + time.duration.days(1),
             canBeTransferred: true,
-            minShards: threshold,
+            minShards: threshold
           },
           archaeologists,
           arweaveTxIds
@@ -393,7 +453,7 @@ describe("Contract: EmbalmerFacet", () => {
 
         // Get a false signer
         const falseSigner = signers[9];
-        const falseSig = await sign(falseSigner, [archaeologists[0].unencryptedShardDoubleHash, arweaveTxIds[1]], ["bytes32", "string"])
+        const falseSig = await sign(falseSigner, [archaeologists[0].unencryptedShardDoubleHash, arweaveTxIds[1]], ["bytes32", "string"]);
         archaeologists[0].v = falseSig.v;
         archaeologists[0].r = falseSig.r;
         archaeologists[0].s = falseSig.s;
@@ -405,7 +465,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime,
             canBeTransferred: true,
-            minShards: threshold,
+            minShards: threshold
           },
           archaeologists,
           arweaveTxIds
@@ -425,7 +485,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
 
-        const sigWithBadData = await sign(archaeologists[0].signer, [archaeologists[0].unencryptedShardDoubleHash, "some nonsense"], ["bytes32", "string"])
+        const sigWithBadData = await sign(archaeologists[0].signer, [archaeologists[0].unencryptedShardDoubleHash, "some nonsense"], ["bytes32", "string"]);
         archaeologists[0].v = sigWithBadData.v;
         archaeologists[0].r = sigWithBadData.r;
         archaeologists[0].s = sigWithBadData.s;
@@ -437,7 +497,7 @@ describe("Contract: EmbalmerFacet", () => {
             recipient: recipient.address,
             resurrectionTime,
             canBeTransferred: true,
-            minShards: threshold,
+            minShards: threshold
           },
           archaeologists,
           arweaveTxIds
@@ -451,7 +511,7 @@ describe("Contract: EmbalmerFacet", () => {
   describe("rewrapSarcophagus()", () => {
     context("Successful rewrap", () => {
       it("transfers the digging fee sum plus the protocol fee from the embalmer to the contract", async () => {
-        const { archaeologists, sarcoToken, embalmer, embalmerBalanceBefore } = await rewrapFixture(
+        const { archaeologists, sarcoToken, embalmer, embalmerBalanceBeforeRewrap } = await rewrapFixture(
           { shares, threshold },
           sarcoName
         );
@@ -470,23 +530,39 @@ describe("Contract: EmbalmerFacet", () => {
         const expectedFees = diggingFeeSum.add(BigNumber.from(protocolFee));
 
         // Check that the difference in balances is equal to the sum of digging fees
-        expect(embalmerBalanceBefore.sub(embalmerSarcoBalanceAfter)).to.equal(expectedFees);
+        expect(embalmerBalanceBeforeRewrap.sub(embalmerSarcoBalanceAfter)).to.equal(expectedFees);
       });
 
-      it("should collect protocol fees", async () => {
-        const { viewStateFacet, totalProtocolFees } = await rewrapFixture(
-          { shares, threshold },
-          sarcoName
+      it("transfers protocol fees from the embalmer to the contract", async () => {
+        const _shares = 5;
+        const _threshold = 3;
+        const archMinDiggingFee = toSarco(8);
+
+        const {
+          viewStateFacet,
+          totalProtocolFeesBeforeRewrap,
+          embalmerBalanceBeforeRewrap,
+          embalmer,
+          sarcoToken
+        } = await rewrapFixture({ shares: _shares, threshold: _threshold, archMinDiggingFee });
+
+        const totalDiggingFees = BigNumber.from(_shares).mul(archMinDiggingFee);
+        const protocolFee = await viewStateFacet.getProtocolFee();
+        const expectedTotalProtocolFees = totalDiggingFees.mul(protocolFee).div(100);
+        const totalProtocolFeesAfterRewrap = await viewStateFacet.getTotalProtocolFees();
+
+        // confirm that protocol fee amount is updated on the contract
+        expect(totalProtocolFeesAfterRewrap.sub(totalProtocolFeesBeforeRewrap)).to.equal(expectedTotalProtocolFees);
+
+        // confirm embalmers SARCO balance has been debited
+        const embalmerBalanceAfterRewrap = await sarcoToken.balanceOf(embalmer.address);
+        expect(
+          embalmerBalanceAfterRewrap
+        ).to.equal(
+          embalmerBalanceBeforeRewrap
+            .sub(totalDiggingFees)
+            .sub(expectedTotalProtocolFees)
         );
-
-        // Get the protocol fee amount
-        const protocolFee = await viewStateFacet.getProtocolFeeAmount();
-
-        // Get the total protocol fees after rewrap
-        const totalProtocolFeesAfter = await viewStateFacet.getTotalProtocolFees();
-
-        // Check that the difference in total protocol fees is equal to the protocol fee amount
-        expect(totalProtocolFeesAfter.sub(totalProtocolFees)).to.equal(protocolFee);
       });
 
       it("emits an event", async () => {
@@ -502,7 +578,7 @@ describe("Contract: EmbalmerFacet", () => {
           sarcoId,
           embalmerFacet,
           embalmer,
-          newResurrectionTime,
+          newResurrectionTime
         } = await rewrapFixture({ shares, threshold }, sarcoName);
         await tx;
 
@@ -596,7 +672,7 @@ describe("Contract: EmbalmerFacet", () => {
           viewStateFacet,
           regularArchaeologist,
           regularArchaeologistFreeBondBefore,
-          regularArchaeologistCursedBondBefore,
+          regularArchaeologistCursedBondBefore
         } = await buryFixture({ shares, threshold }, sarcoName);
 
         // Get the free and cursed bond after bury

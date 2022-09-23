@@ -1,9 +1,9 @@
-import { ContractTransaction } from "ethers";
+import { BigNumber, ContractTransaction } from "ethers";
 import time from "../utils/time";
 import { createSarcoFixture } from "./create-sarco-fixture";
 
 /**
- * A fixture to intialize and finalize a sarcophagus to set up a test that
+ * A fixture to initialize and finalize a sarcophagus to set up a test that
  * performs a rewrapping.
  *
  * Defaults new resurrection time to 1 week from rewrap time.
@@ -18,9 +18,10 @@ export const rewrapFixture = async (
     shares: number;
     threshold: number;
     skipRewrap?: boolean;
-    dontAwaitTransaction?: boolean;
+    skipAwaitRewrapTx?: boolean;
+    archMinDiggingFee?: BigNumber;
   },
-  sarcoName: string,
+  sarcoName = "test init",
   newResurrectionDuration?: number
 ) => {
   const {
@@ -44,10 +45,10 @@ export const rewrapFixture = async (
       : currentTime + newResurrectionDuration;
 
   // Get the embalmer's balance before rewrap
-  const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
+  const embalmerBalanceBeforeRewrap = await sarcoToken.balanceOf(embalmer.address);
 
   // Get the total protocol fees on the contract before rewrap
-  const totalProtocolFees = await viewStateFacet.getTotalProtocolFees();
+  const totalProtocolFeesBeforeRewrap = await viewStateFacet.getTotalProtocolFees();
 
   // Get the contract's sarco balance before rewrap
   const contractBalanceBefore = await sarcoToken.balanceOf(viewStateFacet.address);
@@ -62,7 +63,7 @@ export const rewrapFixture = async (
     tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, _newResurrectionTime);
   }
 
-  if (config.dontAwaitTransaction !== true) {
+  if (config.skipAwaitRewrapTx !== true) {
     await tx;
   }
 
@@ -75,9 +76,9 @@ export const rewrapFixture = async (
     sarcoToken,
     archBalancesBefore,
     embalmer,
-    embalmerBalanceBefore,
+    embalmerBalanceBeforeRewrap,
     embalmerFacet,
-    totalProtocolFees,
+    totalProtocolFeesBeforeRewrap,
     contractBalanceBefore,
     tx,
     curses,

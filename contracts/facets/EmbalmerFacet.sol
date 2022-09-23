@@ -21,7 +21,8 @@ contract EmbalmerFacet {
         address embalmer,
         address recipient,
         address[] cursedArchaeologists,
-        uint256 totalFees,
+        uint256 totalDiggingFees,
+        uint256 protocolFee,
         string[] arweaveTxIds
     );
 
@@ -185,9 +186,13 @@ contract EmbalmerFacet {
         s.embalmerSarcophagi[msg.sender].push(sarcoId);
         s.recipientSarcophagi[sarcophagus.recipient].push(sarcoId);
 
-        // Transfer the total fees amount in sarco token from the embalmer to this contract
-        // TODO -- add protocol fees to the total fees
-        s.sarcoToken.transferFrom(msg.sender, address(this), totalDiggingFees);
+        // Transfer the total fees amount + protocol fees in sarco token from the embalmer to this contract
+        uint256 protocolFee = LibUtils.calculateProtocolFee(totalDiggingFees);
+
+        // Add the protocol fee to the total protocol fees in storage
+        s.totalProtocolFees += protocolFee;
+
+        s.sarcoToken.transferFrom(msg.sender, address(this), totalDiggingFees + protocolFee);
 
         // Emit the event
         emit CreateSarcophagus(
@@ -199,6 +204,7 @@ contract EmbalmerFacet {
             sarcophagus.recipient,
             cursedArchaeologists,
             totalDiggingFees,
+            protocolFee,
             arweaveTxIds
         );
 
@@ -242,7 +248,7 @@ contract EmbalmerFacet {
             .sarcophagi[sarcoId]
             .archaeologists;
 
-        uint256 diggingFeeSum = 0;
+        uint256 totalDiggingFees = 0;
 
         for (uint256 i = 0; i < bondedArchaeologists.length; i++) {
             // Get the archaeolgist's fee data
@@ -256,7 +262,7 @@ contract EmbalmerFacet {
             archaeologistData.diggingFeesPaid += archaeologistData.diggingFee;
 
             // Add the archaeologist's digging fee to the sum
-            diggingFeeSum += archaeologistData.diggingFee;
+            totalDiggingFees += archaeologistData.diggingFee;
 
             // Update the archaeologist's data in storage
             s.sarcophagusArchaeologists[sarcoId][
@@ -264,7 +270,7 @@ contract EmbalmerFacet {
             ] = archaeologistData;
         }
 
-        uint256 protocolFee = LibUtils.calculateProtocolFee();
+        uint256 protocolFee = LibUtils.calculateProtocolFee(totalDiggingFees);
 
         // Add the protocol fee to the total protocol fees in storage
         s.totalProtocolFees += protocolFee;
@@ -277,7 +283,7 @@ contract EmbalmerFacet {
         s.sarcoToken.transferFrom(
             msg.sender,
             address(this),
-            diggingFeeSum + protocolFee
+            totalDiggingFees + protocolFee
         );
 
         // Emit an event

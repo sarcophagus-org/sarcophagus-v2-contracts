@@ -88,6 +88,10 @@ export const getArchaeologistSarcoBalances = async (
   return balances;
 };
 
+export const toSarco = (amount: number): BigNumber => {
+  return BigNumber.from((amount * (10**18)).toString())
+}
+
 /**
  * Gets a list of archaeologist sarco rewards.
  *

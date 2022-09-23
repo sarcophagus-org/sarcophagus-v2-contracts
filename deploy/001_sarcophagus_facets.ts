@@ -37,6 +37,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // deployed.
   // The only reason for doing diamond.deploy again is so we can execute
   // AppStorageInit. This is pretty much just just a convenience.
+  // Protocol fee defaults to 1% (100bps)
+  const protocolFee = "1";
+
   await diamond.deploy("Diamond", {
     from: deployer,
     owner: deployer,
@@ -50,7 +53,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     execute: {
       contract: "AppStorageInit",
       methodName: "init",
-      args: [sarcoTokenAddress, process.env.PROTOCOL_FEE || "0", cursesAddress],
+      args: [sarcoTokenAddress, process.env.PROTOCOL_FEE || protocolFee, cursesAddress],
     },
     log: true,
   });

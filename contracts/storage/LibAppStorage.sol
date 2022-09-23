@@ -9,8 +9,8 @@ import "../libraries/LibTypes.sol";
 struct AppStorage {
     IERC20 sarcoToken;
     ICurses curses;
-    // The percentage amount to be taken from the embalmer each time a protocol fee should
-    // be collected
+    // The percentage (i.e. 1 = 1%) of a sarcophagus' total digging fees, collected on
+    // createSarcophagus and rewrapSarcophagus, paid by the embalmer
     uint256 protocolFee;
     // The amount of protocol fees currently stored on the contract
     uint256 totalProtocolFees;
