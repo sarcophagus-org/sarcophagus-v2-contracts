@@ -115,7 +115,7 @@ describe("Contract: ArchaeologistFacet", () => {
   });
 
   describe("updateArchaeologist", () => {
-    it("updates an archaeologist values successfully", async () => {
+    it.only("updates an archaeologist values successfully", async () => {
       const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
       const archaeologist = archaeologists[0];
 
@@ -124,7 +124,7 @@ describe("Contract: ArchaeologistFacet", () => {
       const minDiggingFee = "150";
       const maxRewrapInterval = "150";
       const freeBond = "150";
-      const peerId = "myNewPeerId";
+      const peerId = "12D3KooWNFXTC6pWrZpLaeVpF4r3siBk8RPV5fDcMm9kdFUsxRo5";
 
       const archFreeBondBeforeUpdate = await viewStateFacet.getFreeBond(archaeologist.archAddress);
 

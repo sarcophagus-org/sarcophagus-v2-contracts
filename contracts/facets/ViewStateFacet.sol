@@ -13,10 +13,10 @@ contract ViewStateFacet {
         return s.totalProtocolFees;
     }
 
-    /// @notice Get the protocol fee from the contract.
-    /// @return The protocol fee
-    function getProtocolFee() external view returns (uint256) {
-        return s.protocolFee;
+    /// @notice Get the protocol fee base percentage from the contract.
+    /// @return The protocol fee base percentage
+    function getProtocolFeeBasePercentage() external view returns (uint256) {
+        return s.protocolFeeBasePercentage;
     }
 
     /// @notice Given an archaeologist address, return that archaeologist's

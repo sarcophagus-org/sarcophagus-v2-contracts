@@ -23,8 +23,8 @@ contract AdminFacet {
 
     /// @notice Sets the protocol fee, expressed as a percentage (i.e. 1 = 1%).
     /// @dev Can only be called by the owner.
-    function setProtocolFee(uint256 protocolFee) external {
+    function setProtocolFee(uint256 protocolFeeBasePercentage) external {
         LibDiamond.enforceIsContractOwner();
-        s.protocolFee = protocolFee;
+        s.protocolFeeBasePercentage = protocolFeeBasePercentage;
     }
 }

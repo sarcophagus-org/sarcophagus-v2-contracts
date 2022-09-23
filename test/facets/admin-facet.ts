@@ -6,7 +6,7 @@ const shares = 5;
 const threshold = 3;
 const sarcoName = "test init";
 
-describe("AdminFacet", () => {
+describe.only("AdminFacet", () => {
   describe("setProtocolFee", () => {
     it("allows deployer of diamond contract to set the protocol fee", async () => {
       const { deployer, adminFacet, viewStateFacet } = await createSarcoFixture({shares, threshold}, sarcoName);
@@ -26,7 +26,7 @@ describe("AdminFacet", () => {
       const { embalmer, adminFacet } = await createSarcoFixture({shares, threshold}, sarcoName);
 
       const protocolFee = BigNumber.from("12");
-      expect (
+      await expect (
         adminFacet.connect(embalmer).setProtocolFee(protocolFee)
       ).to.be.revertedWith("LibDiamond: Must be contract owner");
     })

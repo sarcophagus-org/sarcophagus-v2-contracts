@@ -290,7 +290,7 @@ library LibUtils {
     function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        return totalDiggingFees * s.protocolFee / 100;
+        return totalDiggingFees * s.protocolFeeBasePercentage / 100;
     }
 
     /// @notice Generates a token id by hashing the sarcophagus id and the archaeologist address and
