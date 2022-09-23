@@ -115,7 +115,7 @@ describe("Contract: ArchaeologistFacet", () => {
   });
 
   describe("updateArchaeologist", () => {
-    it.only("updates an archaeologist values successfully", async () => {
+    it("updates an archaeologist values successfully", async () => {
       const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
       const archaeologist = archaeologists[0];
 

@@ -6,14 +6,14 @@ const shares = 5;
 const threshold = 3;
 const sarcoName = "test init";
 
-describe.only("AdminFacet", () => {
+describe("AdminFacet", () => {
   describe("setProtocolFee", () => {
     it("allows deployer of diamond contract to set the protocol fee", async () => {
       const { deployer, adminFacet, viewStateFacet } = await createSarcoFixture({shares, threshold}, sarcoName);
 
       const newProtocolFee = BigNumber.from("12");
       await adminFacet.connect(deployer).setProtocolFee(newProtocolFee);
-      const protocolFee = await viewStateFacet.connect(deployer).getProtocolFee();
+      const protocolFee = await viewStateFacet.connect(deployer).getProtocolFeeBasePercentage();
 
       expect(
         newProtocolFee

@@ -147,7 +147,7 @@ describe("Contract: EmbalmerFacet", () => {
         // Total min digging fees will be 25 SARCO (5 archs * 5 sarco digging fee)
         const totalDiggingFees = BigNumber.from(_shares).mul(archMinDiggingFee);
         // Protocol fee defaults to 1
-        const protocolFee = await viewStateFacet.connect(embalmer).getProtocolFee();
+        const protocolFee = await viewStateFacet.connect(embalmer).getProtocolFeeBasePercentage();
         // total protocol fees will be .25 SARCO (25 * 1 / 100)
         const expectedTotalProtocolFees = totalDiggingFees.mul(protocolFee).div(100);
 
@@ -547,7 +547,7 @@ describe("Contract: EmbalmerFacet", () => {
         } = await rewrapFixture({ shares: _shares, threshold: _threshold, archMinDiggingFee });
 
         const totalDiggingFees = BigNumber.from(_shares).mul(archMinDiggingFee);
-        const protocolFee = await viewStateFacet.getProtocolFee();
+        const protocolFee = await viewStateFacet.getProtocolFeeBasePercentage();
         const expectedTotalProtocolFees = totalDiggingFees.mul(protocolFee).div(100);
         const totalProtocolFeesAfterRewrap = await viewStateFacet.getTotalProtocolFees();
 
