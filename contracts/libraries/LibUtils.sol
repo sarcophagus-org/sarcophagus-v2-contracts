@@ -287,7 +287,7 @@ library LibUtils {
 
     /// @notice Calculates the protocol fees to be taken from the embalmer.
     /// @return The protocol fees amount
-    function calculateProtocolFee(uint256 totalDiggingFees) internal view returns (uint256) {
+    function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         return totalDiggingFees * s.protocolFee / 100;

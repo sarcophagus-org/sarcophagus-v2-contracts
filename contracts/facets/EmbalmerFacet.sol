@@ -22,11 +22,16 @@ contract EmbalmerFacet {
         address recipient,
         address[] cursedArchaeologists,
         uint256 totalDiggingFees,
-        uint256 protocolFee,
+        uint256 createSarcophagusProtocolFees,
         string[] arweaveTxIds
     );
 
-    event RewrapSarcophagus(bytes32 indexed sarcoId, uint256 resurrectionTime);
+    event RewrapSarcophagus(
+        bytes32 indexed sarcoId,
+        uint256 resurrectionTime,
+        uint256 totalDiggingFees,
+        uint256 rewrapSarcophagusProtocolFees
+    );
 
     event BurySarcophagus(bytes32 indexed sarcoId);
 
@@ -187,12 +192,16 @@ contract EmbalmerFacet {
         s.recipientSarcophagi[sarcophagus.recipient].push(sarcoId);
 
         // Transfer the total fees amount + protocol fees in sarco token from the embalmer to this contract
-        uint256 protocolFee = LibUtils.calculateProtocolFee(totalDiggingFees);
+        uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
 
-        // Add the protocol fee to the total protocol fees in storage
-        s.totalProtocolFees += protocolFee;
+        // Add the create sarcophagus protocol fee to the total protocol fees in storage
+        s.totalProtocolFees += protocolFees;
 
-        s.sarcoToken.transferFrom(msg.sender, address(this), totalDiggingFees + protocolFee);
+        s.sarcoToken.transferFrom(
+            msg.sender,
+            address(this),
+            totalDiggingFees + protocolFees
+        );
 
         // Emit the event
         emit CreateSarcophagus(
@@ -204,7 +213,7 @@ contract EmbalmerFacet {
             sarcophagus.recipient,
             cursedArchaeologists,
             totalDiggingFees,
-            protocolFee,
+            protocolFees,
             arweaveTxIds
         );
 
@@ -270,10 +279,10 @@ contract EmbalmerFacet {
             ] = archaeologistData;
         }
 
-        uint256 protocolFee = LibUtils.calculateProtocolFee(totalDiggingFees);
+        uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
 
         // Add the protocol fee to the total protocol fees in storage
-        s.totalProtocolFees += protocolFee;
+        s.totalProtocolFees += protocolFees;
 
         // Set resurrection time to infinity
         s.sarcophagi[sarcoId].resurrectionTime = resurrectionTime;
@@ -283,11 +292,11 @@ contract EmbalmerFacet {
         s.sarcoToken.transferFrom(
             msg.sender,
             address(this),
-            totalDiggingFees + protocolFee
+            totalDiggingFees + protocolFees
         );
 
         // Emit an event
-        emit RewrapSarcophagus(sarcoId, resurrectionTime);
+        emit RewrapSarcophagus(sarcoId, resurrectionTime, totalDiggingFees, protocolFees);
     }
 
     /// @notice Permanently closes the sarcophagus, giving it no opportunity to
