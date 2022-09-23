@@ -14,7 +14,7 @@ contract ViewStateFacet {
     }
 
     /// @notice Get the protocol fee base percentage from the contract.
-    /// @return The protocol fee base percentage
+    /// @return The protocol fee base percentage - protocolFeeBasePercentage
     function getProtocolFeeBasePercentage() external view returns (uint256) {
         return s.protocolFeeBasePercentage;
     }

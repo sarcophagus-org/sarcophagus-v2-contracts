@@ -21,9 +21,10 @@ contract AdminFacet {
         s.sarcoToken.transfer(msg.sender, totalProtocolFees);
     }
 
-    /// @notice Sets the protocol fee, expressed as a percentage (i.e. 1 = 1%).
+    /// @notice Sets the protocol fee base percentage, used to calculate protocol fees
+    /// @param protocolFeeBasePercentage percentage to set
     /// @dev Can only be called by the owner.
-    function setProtocolFee(uint256 protocolFeeBasePercentage) external {
+    function setProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage) external {
         LibDiamond.enforceIsContractOwner();
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
     }

@@ -12,7 +12,7 @@ describe("AdminFacet", () => {
       const { deployer, adminFacet, viewStateFacet } = await createSarcoFixture({shares, threshold}, sarcoName);
 
       const newProtocolFee = BigNumber.from("12");
-      await adminFacet.connect(deployer).setProtocolFee(newProtocolFee);
+      await adminFacet.connect(deployer).setProtocolFeeBasePercentage(newProtocolFee);
       const protocolFee = await viewStateFacet.connect(deployer).getProtocolFeeBasePercentage();
 
       expect(
@@ -27,7 +27,7 @@ describe("AdminFacet", () => {
 
       const protocolFee = BigNumber.from("12");
       await expect (
-        adminFacet.connect(embalmer).setProtocolFee(protocolFee)
+        adminFacet.connect(embalmer).setProtocolFeeBasePercentage(protocolFee)
       ).to.be.revertedWith("LibDiamond: Must be contract owner");
     })
   })

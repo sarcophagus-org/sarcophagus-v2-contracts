@@ -510,29 +510,6 @@ describe("Contract: EmbalmerFacet", () => {
 
   describe("rewrapSarcophagus()", () => {
     context("Successful rewrap", () => {
-      it("transfers the digging fee sum plus the protocol fee from the embalmer to the contract", async () => {
-        const { archaeologists, sarcoToken, embalmer, embalmerBalanceBeforeRewrap } = await rewrapFixture(
-          { shares, threshold },
-          sarcoName
-        );
-
-        // Get the embalmer's sarco balance after rewrap
-        const embalmerSarcoBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-
-        // Calculate the sum of digging fees from archaeologistFees
-        const diggingFeeSum = archaeologists.reduce(
-          (acc, arch) => acc.add(arch.diggingFee),
-          BigNumber.from(0)
-        );
-
-        const protocolFee = process.env.PROTOCOL_FEE || "0";
-
-        const expectedFees = diggingFeeSum.add(BigNumber.from(protocolFee));
-
-        // Check that the difference in balances is equal to the sum of digging fees
-        expect(embalmerBalanceBeforeRewrap.sub(embalmerSarcoBalanceAfter)).to.equal(expectedFees);
-      });
-
       it("transfers protocol fees from the embalmer to the contract", async () => {
         const _shares = 5;
         const _threshold = 3;
