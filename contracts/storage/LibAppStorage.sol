@@ -9,9 +9,9 @@ import "../libraries/LibTypes.sol";
 struct AppStorage {
     IERC20 sarcoToken;
     ICurses curses;
-    // The amount to be taken from the embalmer each time a protocol fee should
-    // be collected
-    uint256 protocolFee;
+    // The percentage (i.e. 1 = 1%) of a sarcophagus' total digging fees that will be collected on
+    // createSarcophagus and rewrapSarcophagus, paid by the embalmer
+    uint256 protocolFeeBasePercentage;
     // The amount of protocol fees currently stored on the contract
     uint256 totalProtocolFees;
     // sarcophagi
@@ -25,8 +25,7 @@ struct AppStorage {
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
     // Track how much archaeologists have made. To be credited and debited
-    // as archaeologists fulfil their duties and withdraw their rewards
-    // TODO use archaeologistProfiles for rewards instead
+    // as archaeologists fulfill their duties and withdraw their rewards
     mapping(address => uint256) archaeologistRewards;
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
     // sarcophagus ownerships

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {AppStorage} from "../storage/LibAppStorage.sol";
+import { LibDiamond } from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol";
 
 contract AdminFacet {
     AppStorage internal s;
@@ -9,8 +10,7 @@ contract AdminFacet {
     /// @notice Withdraws the total protocol fee amount from the contract.
     /// @dev Can only be called by the owner.
     function withdrawProtocolFees() external {
-        // TODO: confirm that sender is owner
-
+        LibDiamond.enforceIsContractOwner();
         // Get the total protocol fees from storage
         uint256 totalProtocolFees = s.totalProtocolFees;
 
@@ -19,5 +19,13 @@ contract AdminFacet {
 
         // Transfer the protocol fee amount to the sender after setting state
         s.sarcoToken.transfer(msg.sender, totalProtocolFees);
+    }
+
+    /// @notice Sets the protocol fee base percentage, used to calculate protocol fees
+    /// @param protocolFeeBasePercentage percentage to set
+    /// @dev Can only be called by the owner.
+    function setProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage) external {
+        LibDiamond.enforceIsContractOwner();
+        s.protocolFeeBasePercentage = protocolFeeBasePercentage;
     }
 }

@@ -6,7 +6,6 @@ import "../libraries/LibTypes.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
-import {LibRewards} from "../libraries/LibRewards.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract ArchaeologistFacet {
@@ -73,8 +72,7 @@ contract ArchaeologistFacet {
                 minimumDiggingFee: minimumDiggingFee,
                 maximumRewrapInterval: maximumRewrapInterval,
                 freeBond: freeBond,
-                cursedBond: 0,
-                rewards: 0
+                cursedBond: 0
             });
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
@@ -161,15 +159,15 @@ contract ArchaeologistFacet {
         emit WithdrawFreeBond(msg.sender, amount);
     }
 
-    /// @notice Withdraws froms an archaeologist's reward pool
-    /// @param amount The amount to withdraw
-    function withdrawReward(uint256 amount) external {
-        LibRewards.decreaseRewardPool(msg.sender, amount);
+    /// @notice Withdraws all rewards from an archaeologist's reward pool
+    function withdrawReward() external {
+        uint256 amountToWithdraw = s.archaeologistRewards[msg.sender];
+        s.archaeologistRewards[msg.sender] = 0;
 
         // Transfer the amount of sarcoToken to the archaeologist
-        s.sarcoToken.transfer(msg.sender, amount);
+        s.sarcoToken.transfer(msg.sender, amountToWithdraw);
 
-        emit WithdrawReward(msg.sender, amount);
+        emit WithdrawReward(msg.sender, amountToWithdraw);
     }
 
     /// @notice Unwraps the sarcophagus.
@@ -223,10 +221,7 @@ contract ArchaeologistFacet {
         s.archaeologistSuccesses[msg.sender][sarcoId] = true;
 
         // Transfer the digging fee to the archaeologist's reward pool
-        LibRewards.increaseRewardPool(
-            msg.sender,
-            archaeologistData.diggingFee
-        );
+        s.archaeologistRewards[msg.sender] += archaeologistData.diggingFee;
 
         // Emit an event
         emit UnwrapSarcophagus(sarcoId, unencryptedShard);

@@ -13,10 +13,10 @@ contract ViewStateFacet {
         return s.totalProtocolFees;
     }
 
-    /// @notice Get the protocol fee amount from the contract.
-    /// @return The protocol fee amount
-    function getProtocolFeeAmount() external view returns (uint256) {
-        return s.protocolFee;
+    /// @notice Get the protocol fee base percentage from the contract.
+    /// @return The protocol fee base percentage - protocolFeeBasePercentage
+    function getProtocolFeeBasePercentage() external view returns (uint256) {
+        return s.protocolFeeBasePercentage;
     }
 
     /// @notice Given an archaeologist address, return that archaeologist's
@@ -69,7 +69,7 @@ contract ViewStateFacet {
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose
     /// reward is being returned
-    function getAvailableRewards(address archaeologist)
+    function getRewards(address archaeologist)
         external
         view
         returns (uint256)

@@ -75,7 +75,6 @@ library LibTypes {
         uint256 maximumRewrapInterval;
         uint256 freeBond;
         uint256 cursedBond;
-        uint256 rewards;
     }
 
     struct SarcophagusMemory {

@@ -23,7 +23,7 @@ export const buryFixture = async (
     archaeologists,
     sarcoToken,
     embalmer,
-    embalmerBalanceBefore: embalmerBalanceBeforeCreate,
+    embalmerBalanceBeforeCreate: embalmerBalanceBeforeCreate,
     embalmerFacet,
     viewStateFacet,
   } = await createSarcoFixture(config, sarcoName);

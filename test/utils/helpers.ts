@@ -88,6 +88,10 @@ export const getArchaeologistSarcoBalances = async (
   return balances;
 };
 
+export const toSarco = (amount: number): BigNumber => {
+  return BigNumber.from((amount * (10**18)).toString())
+}
+
 /**
  * Gets a list of archaeologist sarco rewards.
  *
@@ -100,7 +104,7 @@ export const getArchaeologistSarcoRewards = async (
 ): Promise<{ address: string; reward: BigNumber }[]> => {
   const rewards: { address: string; reward: BigNumber }[] = [];
   for (const arch of archaeologists) {
-    const reward = await viewStateFacet.getAvailableRewards(arch.address);
+    const reward = await viewStateFacet.getRewards(arch.address);
     rewards.push({
       address: arch.address,
       reward: reward,

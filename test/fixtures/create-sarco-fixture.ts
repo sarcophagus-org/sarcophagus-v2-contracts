@@ -1,12 +1,13 @@
 import { BigNumber, ContractTransaction } from "ethers";
 import { deployments, ethers } from "hardhat";
 import {
+  AdminFacet,
   ArchaeologistFacet,
   CursesMock,
   EmbalmerFacet,
   IERC20,
   ThirdPartyFacet,
-  ViewStateFacet,
+  ViewStateFacet
 } from "../../typechain";
 import { sign } from "../utils/helpers";
 import time from "../utils/time";
@@ -39,7 +40,7 @@ export const createSarcoFixture = (
     arweaveTxIds?: string[];
     archMinDiggingFee?: BigNumber;
   },
-  sarcoName: string,
+  sarcoName = "test init",
   maxRewrapInterval: number = time.duration.weeks(4)
 ) =>
   deployments.createFixture(
@@ -66,6 +67,7 @@ export const createSarcoFixture = (
       const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
       const thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamond.address);
       const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
+      const adminFacet = await ethers.getContractAt("AdminFacet", diamond.address);
 
       // Transfer 100,000 sarco tokens to the embalmer
       await sarcoToken.transfer(embalmer.address, ethers.utils.parseEther("100000"));
@@ -140,11 +142,10 @@ export const createSarcoFixture = (
 
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
-      const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
+      const embalmerBalanceBeforeCreate = await sarcoToken.balanceOf(embalmer.address);
 
       // Create a sarcophagus as the embalmer
       let createTx: Promise<ContractTransaction> | undefined;
-      // eslint-disable-next-line prefer-const
       if (!config.skipCreateTx) {
         createTx = embalmerFacet.connect(embalmer).createSarcophagus(
           sarcoId,
@@ -174,17 +175,19 @@ export const createSarcoFixture = (
         unbondedArchaeologists,
         signatures,
         arweaveTxIds,
-        embalmerBalanceBefore,
+        embalmerBalanceBeforeCreate,
         shards,
         createTx,
         resurrectionTime,
         diamond,
+        archMinDiggingFee: config.archMinDiggingFee,
         sarcoToken: sarcoToken as IERC20,
         curses: curses as CursesMock,
         embalmerFacet: embalmerFacet as EmbalmerFacet,
         archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
         thirdPartyFacet: thirdPartyFacet as ThirdPartyFacet,
         viewStateFacet: viewStateFacet as ViewStateFacet,
+        adminFacet: adminFacet as AdminFacet
       };
     }
   )();
