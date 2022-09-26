@@ -119,42 +119,6 @@ library LibUtils {
     }
 
     /**
-     * @notice Calculates the grace period that an archaeologist has after a
-     * sarcophagus has reached its resurrection time
-     * @param resurrectionTime the resurrection timestamp of a sarcophagus
-     * @return the grace period
-     * @dev The grace period is dependent on how far out the resurrection time
-     * is. The longer out the resurrection time, the longer the grace period.
-     * There is a minimum grace period of 30 minutes, otherwise, it's
-     * calculated as 1% of the time between now and resurrection time.
-     */
-    function getGracePeriod(uint256 resurrectionTime)
-        internal
-        view
-        returns (uint256)
-    {
-        // set a minimum window of 30 minutes
-        uint16 minimumResurrectionWindow = 30 minutes;
-
-        // calculate 1% of the relative time between now and the resurrection
-        // time
-        uint256 gracePeriod = (
-            resurrectionTime > block.timestamp
-                ? resurrectionTime - block.timestamp
-                : block.timestamp - resurrectionTime
-        ) / 100;
-
-        // if our calculated grace period is less than the minimum time, we'll
-        // use the minimum time instead
-        if (gracePeriod < minimumResurrectionWindow) {
-            gracePeriod = minimumResurrectionWindow;
-        }
-
-        // return that grace period
-        return gracePeriod;
-    }
-
-    /**
      * @notice Reverts if we're not within the resurrection window (on either
      * side)
      * @param resurrectionTime the resurrection time of the sarcophagus
@@ -168,14 +132,13 @@ library LibUtils {
                 block.timestamp
             );
         }
-
-        uint256 resurrectionWindow = getGracePeriod(resurrectionTime);
+        AppStorage storage s = LibAppStorage.getAppStorage();
 
         // revert if too late
-        if (resurrectionTime + resurrectionWindow < block.timestamp) {
+        if (resurrectionTime + s.gracePeriod < block.timestamp) {
             revert LibErrors.TooLateToUnwrap(
                 resurrectionTime,
-                resurrectionWindow,
+                s.gracePeriod,
                 block.timestamp
             );
         }

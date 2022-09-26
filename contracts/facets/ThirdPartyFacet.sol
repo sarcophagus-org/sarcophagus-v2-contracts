@@ -38,7 +38,7 @@ contract ThirdPartyFacet {
         // Make sure the sarco is cleanable
         if (
             block.timestamp <
-            LibUtils.getGracePeriod(sarco.resurrectionTime) +
+            s.gracePeriod +
                 sarco.resurrectionTime
         ) {
             revert LibErrors.SarcophagusNotCleanable();
