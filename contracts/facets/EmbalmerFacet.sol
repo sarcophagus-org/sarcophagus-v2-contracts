@@ -177,7 +177,7 @@ contract EmbalmerFacet {
             canBeTransferred: sarcophagus.canBeTransferred,
             minShards: sarcophagus.minShards,
             resurrectionTime: sarcophagus.resurrectionTime,
-            resurrectionWindow: s.gracePeriod,
+            gracePeriod: s.gracePeriod,
             arweaveTxIds: arweaveTxIds,
             embalmer: msg.sender,
             recipientAddress: sarcophagus.recipient,

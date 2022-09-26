@@ -78,7 +78,7 @@ describe("Contract: ArchaeologistFacet", () => {
       const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
       const archaeologist = archaeologists[0];
 
-      await registerArchaeologist(archaeologist, archaeologistFacet,);
+      await registerArchaeologist(archaeologist, archaeologistFacet);
 
       const registeredArchAddress = await viewStateFacet.getArchaeologistProfileAddressAtIndex(0);
       expect(registeredArchAddress).to.equal(archaeologist.archAddress);
@@ -424,8 +424,8 @@ describe("Contract: ArchaeologistFacet", () => {
         await sarcoToken.balanceOf(contextArchaeologist.archAddress)
       ).to.equal(
         archSarcoBalanceBefore.add(archDiggingFee)
-      )
-    })
+      );
+    });
   });
 
   describe("unwrapSarcophagus()", () => {
@@ -643,11 +643,11 @@ describe("Contract: ArchaeologistFacet", () => {
         // the future
         await time.increase(time.duration.weeks(1) + 1);
 
-        (
-          await archaeologistFacet
-            .connect(archaeologists[0].signer)
-            .unwrapSarcophagus(sarcoId, archaeologists[0].unencryptedShard)
-        ).wait();
+
+        await archaeologistFacet
+          .connect(archaeologists[0].signer)
+          .unwrapSarcophagus(sarcoId, archaeologists[0].unencryptedShard);
+
 
         const tx = archaeologistFacet
           .connect(archaeologists[0].signer)

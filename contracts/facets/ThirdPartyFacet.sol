@@ -25,7 +25,7 @@ contract ThirdPartyFacet {
         uint256 embalmerBondReward
     );
 
-    /// @notice Close a sarcophagus that has not been unwrapped before its resurrection window is passed
+    /// @notice Close a sarcophagus that has not been unwrapped within its grace period
     /// @param sarcoId The identifier of the sarcophagus to clean
     /// @param paymentAddress The address to which rewards will be sent
     function clean(bytes32 sarcoId, address paymentAddress) external {

@@ -61,14 +61,14 @@ library LibErrors {
     // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)
     error SarcophagusIsUnwrappable();
 
-    // Used when an attempt is made to clean a sarcophagus that has not exceeded its resurrection window
+    // Used when an attempt is made to clean a sarcophagus before the grace period after the resurrection time has passed
     error SarcophagusNotCleanable();
 
     error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
 
     error TooLateToUnwrap(
         uint256 resurrectionTime,
-        uint256 resurrectionWindow,
+        uint256 gracePeriod,
         uint256 currentTime
     );
 

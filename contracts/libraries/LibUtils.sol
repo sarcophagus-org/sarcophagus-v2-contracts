@@ -119,8 +119,8 @@ library LibUtils {
     }
 
     /**
-     * @notice Reverts if we're not within the resurrection window (on either
-     * side)
+     * @notice Reverts if the current block timestamp is not within the resurrection window
+     * (window = [resurrection time, resurrection time + grace period] inclusive)
      * @param resurrectionTime the resurrection time of the sarcophagus
      * (absolute, i.e. a date time stamp)
      */

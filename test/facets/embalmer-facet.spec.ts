@@ -54,7 +54,7 @@ describe("Contract: EmbalmerFacet", () => {
         );
 
         const sarco = await viewStateFacet.getSarcophagus(sarcoId);
-        expect(sarco.resurrectionWindow).to.be.gt(0);
+        expect(sarco.gracePeriod).to.be.gt(0);
       });
 
       it("stores the arweave transaction ids", async () => {

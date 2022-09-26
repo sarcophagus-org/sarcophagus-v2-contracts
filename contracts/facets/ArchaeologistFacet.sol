@@ -193,7 +193,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm that the resurrection time has passed and that the
-        // resurrection window has not passed
+        // grace period has not passed
         LibUtils.unwrapTime(s.sarcophagi[sarcoId].resurrectionTime);
 
         // Get the archaeologist's data from storage
