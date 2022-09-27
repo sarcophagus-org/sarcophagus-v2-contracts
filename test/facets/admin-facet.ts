@@ -42,7 +42,7 @@ describe("AdminFacet", () => {
       expect(gracePeriod).to.equal(newGracePeriod);
     });
 
-    it("reverts if non-deployer (owner) attempts to set the protocol fee", async () => {
+    it("reverts if non-deployer (owner) attempts to set the grace period", async () => {
       const { embalmer, adminFacet } = await createSarcoFixture({ shares, threshold }, sarcoName);
 
       const newGracePeriod = BigNumber.from("7200");
