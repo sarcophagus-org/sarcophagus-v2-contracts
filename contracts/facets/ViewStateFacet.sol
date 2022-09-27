@@ -19,6 +19,31 @@ contract ViewStateFacet {
         return s.protocolFeeBasePercentage;
     }
 
+    /// @notice Gets archaeologist profiles given a list of archaeologist addresses.
+    /// If an invalid address is included, simply leaves it out of the list.
+    /// @param addresses The list of archaeologist addresses
+    /// @return The list of archaeologist profiles
+    function getArchaeologistProfiles(address[] memory addresses)
+        external
+        view
+        returns (LibTypes.ArchaeologistProfile[] memory)
+    {
+        LibTypes.ArchaeologistProfile[]
+            memory profiles = new LibTypes.ArchaeologistProfile[](
+                s.archaeologistProfileAddresses.length
+            );
+
+        for (uint256 i = 0; i < addresses.length; i++) {
+            // Check that the archaeologist profile exists
+            if (!s.archaeologistProfiles[addresses[i]].exists) {
+                continue;
+            }
+            profiles[i] = s.archaeologistProfiles[addresses[i]];
+        }
+
+        return profiles;
+    }
+
     /// @notice Given an archaeologist address, return that archaeologist's
     /// profile
     /// @param archaeologist The archaeologist account's address
@@ -69,11 +94,7 @@ contract ViewStateFacet {
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose
     /// reward is being returned
-    function getRewards(address archaeologist)
-        external
-        view
-        returns (uint256)
-    {
+    function getRewards(address archaeologist) external view returns (uint256) {
         return s.archaeologistRewards[archaeologist];
     }
 
