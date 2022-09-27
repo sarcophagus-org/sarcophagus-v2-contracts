@@ -47,14 +47,15 @@ describe("Contract: EmbalmerFacet", () => {
         expect(createTx).to.emit(embalmerFacet, "CreateSarcophagus");
       });
 
-      it("sets a resurrection window", async () => {
+      it("sets the correct gracePeriod", async () => {
         const { sarcoId, viewStateFacet } = await createSarcoFixture(
           { shares, threshold },
           sarcoName
         );
 
         const sarco = await viewStateFacet.getSarcophagus(sarcoId);
-        expect(sarco.resurrectionWindow).to.be.gt(0);
+        const gracePeriod = await viewStateFacet.getGracePeriod();
+        expect(sarco.gracePeriod).to.be.eq(gracePeriod);
       });
 
       it("stores the arweave transaction ids", async () => {

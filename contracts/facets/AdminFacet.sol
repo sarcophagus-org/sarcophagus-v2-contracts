@@ -28,4 +28,12 @@ contract AdminFacet {
         LibDiamond.enforceIsContractOwner();
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
     }
+
+    /// @notice Updates the resurrection grace period
+    /// @param gracePeriod to set
+    /// @dev Can only be called by the diamond owner.
+    function setGracePeriod(uint256 gracePeriod) external {
+        LibDiamond.enforceIsContractOwner();
+        s.gracePeriod = gracePeriod;
+    }
 }

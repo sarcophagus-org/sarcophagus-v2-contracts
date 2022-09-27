@@ -11,6 +11,7 @@ contract AppStorageInit {
     function init(
         IERC20 sarcoToken,
         uint256 protocolFeeBasePercentage,
+        uint256 gracePeriod,
         ICurses curses
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
@@ -18,6 +19,7 @@ contract AppStorageInit {
         // Add the ERC20 token to app storage (Sarco)
         s.sarcoToken = sarcoToken;
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
+        s.gracePeriod = gracePeriod;
         s.curses = curses;
     }
 }

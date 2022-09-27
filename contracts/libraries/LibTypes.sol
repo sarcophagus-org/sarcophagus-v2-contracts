@@ -97,7 +97,7 @@ library LibTypes {
         bool canBeTransferred;
         uint8 minShards;
         uint256 resurrectionTime;
-        uint256 resurrectionWindow;
+        uint256 gracePeriod;
         string[] arweaveTxIds;
         address embalmer;
         address recipientAddress;

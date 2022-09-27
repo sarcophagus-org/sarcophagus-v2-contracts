@@ -19,6 +19,13 @@ contract ViewStateFacet {
         return s.protocolFeeBasePercentage;
     }
 
+    /// @notice Gets the grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time passes
+    /// @return The resurrection grace period
+    function getGracePeriod() external view returns (uint256) {
+        return s.gracePeriod;
+    }
+
+
     /// @notice Given an archaeologist address, return that archaeologist's
     /// profile
     /// @param archaeologist The archaeologist account's address
