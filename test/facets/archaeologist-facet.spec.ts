@@ -78,7 +78,7 @@ describe("Contract: ArchaeologistFacet", () => {
       const { archaeologists, archaeologistFacet, viewStateFacet } = await archeologistsFixture(1);
       const archaeologist = archaeologists[0];
 
-      await registerArchaeologist(archaeologist, archaeologistFacet,);
+      await registerArchaeologist(archaeologist, archaeologistFacet);
 
       const registeredArchAddress = await viewStateFacet.getArchaeologistProfileAddressAtIndex(0);
       expect(registeredArchAddress).to.equal(archaeologist.archAddress);
@@ -394,12 +394,12 @@ describe("Contract: ArchaeologistFacet", () => {
       const archDiggingFee = BigNumber.from("1000000000000");
 
       // Setup arch + unwrap so rewards are received
-      const { archaeologists, archaeologistFacet, sarcoId, sarcoToken, viewStateFacet } =
+      const { archaeologists, archaeologistFacet, sarcoId, sarcoToken, viewStateFacet, resurrectionTime } =
         await createSarcoFixture({ shares, threshold, archMinDiggingFee: archDiggingFee }, "Test Sarco");
 
       const contextArchaeologist = archaeologists[0];
 
-      await time.increase(time.duration.weeks(1) + 1);
+      await time.increaseTo(resurrectionTime);
 
       await archaeologistFacet
         .connect(contextArchaeologist.signer)
@@ -424,8 +424,8 @@ describe("Contract: ArchaeologistFacet", () => {
         await sarcoToken.balanceOf(contextArchaeologist.archAddress)
       ).to.equal(
         archSarcoBalanceBefore.add(archDiggingFee)
-      )
-    })
+      );
+    });
   });
 
   describe("unwrapSarcophagus()", () => {
@@ -434,12 +434,12 @@ describe("Contract: ArchaeologistFacet", () => {
 
     context("Successful unwrap", () => {
       it("should store the unencrypted shard on the contract", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, viewStateFacet } =
+        const { archaeologists, archaeologistFacet, sarcoId, viewStateFacet, resurrectionTime } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Set the evm timestamp of the next block to be 1 week and 1 second in
         // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
         // Have archaeologist unwrap
         await archaeologistFacet
@@ -458,7 +458,7 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should free up the archaeologist's cursed bond", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, viewStateFacet } =
+        const { archaeologists, archaeologistFacet, sarcoId, viewStateFacet, resurrectionTime } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Get the cursed bond amount of the first archaeologist before initialize
@@ -466,9 +466,7 @@ describe("Contract: ArchaeologistFacet", () => {
           archaeologists[0].archAddress
         );
 
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
         // Have archaeologist unwrap
         await archaeologistFacet
@@ -488,12 +486,10 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should add this sarcophagus to the archaeologist's successful sarcophagi", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, viewStateFacet } =
+        const { archaeologists, archaeologistFacet, sarcoId, viewStateFacet, resurrectionTime } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
         // Have archaeologist unwrap
         await archaeologistFacet
@@ -509,7 +505,7 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should transfer the digging fee to the archaeologist's reward pool without transferring tokens", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, sarcoToken, viewStateFacet } =
+        const { archaeologists, archaeologistFacet, sarcoId, sarcoToken, viewStateFacet, resurrectionTime } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Calculate the digging fee for the first archaeologist
@@ -521,9 +517,7 @@ describe("Contract: ArchaeologistFacet", () => {
           archaeologists[0].archAddress
         );
 
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
         // Have archaeologist unwrap
         await archaeologistFacet
@@ -543,14 +537,12 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should emit UnwrapSarcophagus()", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId } = await createSarcoFixture(
+        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
         // Have archaeologist unwrap
         const tx = archaeologistFacet
@@ -565,16 +557,14 @@ describe("Contract: ArchaeologistFacet", () => {
 
     context("Failed unwrap", () => {
       it("should revert if the sarcophagus does not exist", async () => {
-        const { archaeologists, archaeologistFacet } = await createSarcoFixture(
+        const { archaeologists, archaeologistFacet, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
         const falseIdentifier = ethers.utils.solidityKeccak256(["string"], ["falseIdentifier"]);
 
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
         // Have archaeologist unwrap
         const tx = archaeologistFacet
@@ -585,14 +575,12 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should revert if the sender is not an archaeologist on this sarcophagus", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, recipient } = await createSarcoFixture(
+        const { archaeologists, archaeologistFacet, sarcoId, recipient, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
         // Have archaeologist unwrap
         const tx = archaeologistFacet
@@ -616,14 +604,21 @@ describe("Contract: ArchaeologistFacet", () => {
         await expect(tx).to.be.revertedWith("TooEarlyToUnwrap");
       });
 
-      it("should revert if unwrap is called after the resurrection window has expired", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId } = await createSarcoFixture(
+      it("should revert if unwrap is called after the grace period has elapsed", async () => {
+        const {
+          archaeologists,
+          archaeologistFacet,
+          sarcoId,
+          resurrectionTime,
+          viewStateFacet
+        } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
-        // Set the evm timestamp of the next block to be 2 weeks in the future
-        await time.increase(time.duration.weeks(2));
+        // increase time beyond resurrection time + grace period to expire sarcophagus
+        const gracePeriod = await viewStateFacet.getGracePeriod();
+        await time.increaseTo(resurrectionTime + +gracePeriod + 1);
 
         // Have archaeologist unwrap
         const tx = archaeologistFacet
@@ -634,20 +629,16 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should revert if this archaeologist has already unwrapped this sarcophagus", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId } = await createSarcoFixture(
+        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
-        (
-          await archaeologistFacet
-            .connect(archaeologists[0].signer)
-            .unwrapSarcophagus(sarcoId, archaeologists[0].unencryptedShard)
-        ).wait();
+        await archaeologistFacet
+          .connect(archaeologists[0].signer)
+          .unwrapSarcophagus(sarcoId, archaeologists[0].unencryptedShard);
 
         const tx = archaeologistFacet
           .connect(archaeologists[0].signer)
@@ -657,14 +648,12 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should revert if the hash of the unencrypted shard does not match the hashed shard stored on the sarcophagus", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId } = await createSarcoFixture(
+        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
-        // Set the evm timestamp of the next block to be 1 week and 1 second in
-        // the future
-        await time.increase(time.duration.weeks(1) + 1);
+        await time.increaseTo(resurrectionTime);
 
         // Have archaeologist unwrap
         const tx = archaeologistFacet
@@ -740,7 +729,7 @@ describe("Contract: ArchaeologistFacet", () => {
           oldArchaeologistFreeBondBefore,
           oldArchaeologistFreeBondAfter,
           oldArchaeologistCursedBondBefore,
-          oldArchaeologistCursedBondAfter,
+          oldArchaeologistCursedBondAfter
         } = await finalizeTransferFixture();
 
         // Check that the difference betwwen the old and new cursed bonds is equal to
@@ -762,7 +751,7 @@ describe("Contract: ArchaeologistFacet", () => {
           newArchaeologistCursedBondAfter,
           newArchaeologistFreeBondBefore,
           newArchaeologistFreeBondAfter,
-          bondAmount,
+          bondAmount
         } = await finalizeTransferFixture();
 
         // Check that the difference betwwen the old and new cursed bonds is equal to
@@ -786,7 +775,7 @@ describe("Contract: ArchaeologistFacet", () => {
           newArchaeologist,
           sarcoId,
           arweaveTxIds,
-          viewStateFacet,
+          viewStateFacet
         } = await finalizeTransferFixture();
 
         const tokenId = (
@@ -828,7 +817,7 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should revert if the resurrection time has passed", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, arweaveTxIds } =
+        const { archaeologists, archaeologistFacet, sarcoId, arweaveTxIds, resurrectionTime } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         const unnamedSigners = await ethers.getUnnamedSigners();
@@ -837,7 +826,7 @@ describe("Contract: ArchaeologistFacet", () => {
         const oldArchaeologist = archaeologists[1].signer;
         const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxIds[1], "string");
 
-        await time.increase(time.duration.weeks(2));
+        await time.increaseTo(resurrectionTime + 1);
 
         const tx = archaeologistFacet
           .connect(newArchaeologist)
