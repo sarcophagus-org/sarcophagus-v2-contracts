@@ -22,7 +22,8 @@ struct AppStorage {
     address[] archaeologistProfileAddresses;
     mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;
     // archaeologist stats
-    mapping(address => mapping(bytes32 => bool)) archaeologistSuccesses;
+    mapping(address => mapping(bytes32 => bool)) archaeologistSarcoSuccesses;
+    mapping(address => bytes32[]) archaeologistSuccesses;
     mapping(address => bytes32[]) archaeologistCancels;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;

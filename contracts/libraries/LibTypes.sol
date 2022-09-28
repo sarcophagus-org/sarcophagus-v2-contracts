@@ -110,4 +110,13 @@ library LibTypes {
         uint256 resurrectionTime;
         uint256 diggingFeesPaid;
     }
+
+    // Only used in the ViewStateFacet to return statistics data.
+    // Contains a list of sarcoIds for each category. We could simply return the counts of the
+    // arrays but we are already storing the lists of sarcoIds so we may as well use them.
+    struct ArchaeologistStatistics {
+        bytes32[] successes;
+        bytes32[] cancels;
+        bytes32[] accusals;
+    }
 }

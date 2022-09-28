@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "../libraries/LibTypes.sol";
+import "hardhat/console.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract ViewStateFacet {
@@ -30,7 +31,7 @@ contract ViewStateFacet {
     {
         LibTypes.ArchaeologistProfile[]
             memory profiles = new LibTypes.ArchaeologistProfile[](
-                s.archaeologistProfileAddresses.length
+                addresses.length
             );
 
         for (uint256 i = 0; i < addresses.length; i++) {
@@ -42,6 +43,33 @@ contract ViewStateFacet {
         }
 
         return profiles;
+    }
+
+    /// @notice Gets statistics for each archaeologist
+    /// Contains a list of sarcoIds for each category. We could simply return the counts of the
+    /// arrays but we are already storing the lists of sarcoIds so we may as well use them.
+    /// @param addresses The list of archaeologist addresses
+    /// @return The list of archaeologist statistics
+    function getArchaeologistsStatistics(address[] memory addresses)
+        external
+        view
+        returns (LibTypes.ArchaeologistStatistics[] memory)
+    {
+        LibTypes.ArchaeologistStatistics[]
+            memory statsList = new LibTypes.ArchaeologistStatistics[](
+                addresses.length
+            );
+        console.log("here");
+
+        for (uint256 i = 0; i < addresses.length; i++) {
+            statsList[i] = LibTypes.ArchaeologistStatistics(
+                s.archaeologistSuccesses[addresses[i]],
+                s.archaeologistCancels[addresses[i]],
+                s.archaeologistAccusals[addresses[i]]
+            );
+        }
+
+        return statsList;
     }
 
     /// @notice Gets the grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time passes
@@ -120,7 +148,7 @@ contract ViewStateFacet {
         address archaeologist,
         bytes32 sarcoId
     ) external view returns (bool) {
-        return s.archaeologistSuccesses[archaeologist][sarcoId];
+        return s.archaeologistSarcoSuccesses[archaeologist][sarcoId];
     }
 
     /// @notice Returns the number of accusations for an archaeologist.
