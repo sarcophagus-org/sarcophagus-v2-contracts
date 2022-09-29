@@ -49,7 +49,7 @@ library LibUtils {
      *
      * @param unencryptedShardDoubleHash the double hash of the unencrypted shard
      * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard
-     * @param maximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
+     * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
      * @param v signature element
      * @param r signature element
      * @param s signature element
