@@ -6,7 +6,7 @@ import { SarcophagusState } from "../../types";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { buryFixture } from "../fixtures/bury-fixture";
 import { rewrapFixture } from "../fixtures/rewrap-fixture";
-import { calculateCursedBond, getAttributeFromURI, sign, signMultiple, toSarco } from "../utils/helpers";
+import { calculateCursedBond, sign, toSarco } from "../utils/helpers";
 import time from "../utils/time";
 
 describe("Contract: EmbalmerFacet", () => {
@@ -44,7 +44,7 @@ describe("Contract: EmbalmerFacet", () => {
           sarcoName
         );
 
-        expect(createTx).to.emit(embalmerFacet, "CreateSarcophagus");
+        await expect(createTx).to.emit(embalmerFacet, "CreateSarcophagus");
       });
 
       it("stores the arweave transaction ids", async () => {
@@ -175,6 +175,16 @@ describe("Contract: EmbalmerFacet", () => {
             .sub(expectedTotalProtocolFees)
         );
       });
+
+      it("should set the correct maxRewrapInterval on a sarcophagus", async () => {
+        const { sarcoId, viewStateFacet, maximumRewrapInterval } = await createSarcoFixture(
+          { shares, threshold },
+          sarcoName
+        );
+
+        const sarco = await viewStateFacet.getSarcophagus(sarcoId);
+        expect(sarco.maximumRewrapInterval).to.be.eq(maximumRewrapInterval);
+      });
     });
 
     context("Failed createSarcophagus", () => {
@@ -302,7 +312,7 @@ describe("Contract: EmbalmerFacet", () => {
           embalmer,
           recipient,
           arweaveTxIds,
-          maximumRewrapInterval,
+          maximumRewrapInterval
         } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
 
         // Create a sarcophagus as the embalmer
@@ -331,7 +341,7 @@ describe("Contract: EmbalmerFacet", () => {
           embalmer,
           recipient,
           arweaveTxIds,
-          maximumRewrapInterval,
+          maximumRewrapInterval
         } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
 
         // Create a sarcophagus as the embalmer
@@ -390,12 +400,12 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("reverts if the embalmer does not provide enough digging fee", async () => {
         // Set min digging fees for each archaeologist profile to 10
-        const { archaeologists, embalmer, embalmerFacet, sarcoId, recipient, arweaveTxIds, maximumRewrapInterval, } =
+        const { archaeologists, embalmer, embalmerFacet, sarcoId, recipient, arweaveTxIds, maximumRewrapInterval } =
           await createSarcoFixture({
             shares,
             threshold,
             archMinDiggingFee: BigNumber.from("10"),
-            skipCreateTx: true,
+            skipCreateTx: true
           }, sarcoName);
 
         // set one of the archaeologist's digging fees too low
@@ -418,34 +428,6 @@ describe("Contract: EmbalmerFacet", () => {
         await expect(tx).to.be.revertedWith("DiggingFeeTooLow");
       });
 
-      it("reverts if the resurrection time is too far in the future", async () => {
-        // Default max rewrap time is 4 weeks
-        const { archaeologists, embalmer, embalmerFacet, sarcoId, recipient, arweaveTxIds, maximumRewrapInterval } =
-          await createSarcoFixture({
-            shares,
-            threshold,
-            skipCreateTx: true
-          }, sarcoName);
-
-        // Set resurrection time to be 4 weeks and 1 day away
-        const tx = embalmerFacet.connect(embalmer).createSarcophagus(
-          sarcoId,
-          {
-            name: sarcoName,
-            recipient: recipient.address,
-            // todo: revisit
-            resurrectionTime: (await time.latest()) + time.duration.weeks(4) + time.duration.days(1),
-            maximumRewrapInterval,
-            canBeTransferred: true,
-            minShards: threshold
-          },
-          archaeologists,
-          arweaveTxIds
-        );
-
-        await expect(tx).to.be.revertedWith("ResurrectionTimeTooFarInFuture");
-      });
-
       it("reverts if any signature provided by a regular archaeologist is from the wrong archaeologist", async () => {
         const {
           embalmer,
@@ -455,7 +437,7 @@ describe("Contract: EmbalmerFacet", () => {
           recipient,
           resurrectionTime,
           arweaveTxIds,
-          maximumRewrapInterval,
+          maximumRewrapInterval
         } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
 
         const signers = await ethers.getSigners();
@@ -496,11 +478,79 @@ describe("Contract: EmbalmerFacet", () => {
           maximumRewrapInterval,
         } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
 
-        const sigWithBadData = await sign(archaeologists[0].signer, [archaeologists[0].unencryptedShardDoubleHash, "some nonsense"], ["bytes32", "string"]);
+        const sigWithBadData = await sign(archaeologists[0].signer, [arweaveTxIds[1], archaeologists[0].unencryptedShardDoubleHash, "100"],
+          ["string", "bytes32", "uint256"]);
         archaeologists[0].v = sigWithBadData.v;
         archaeologists[0].r = sigWithBadData.r;
         archaeologists[0].s = sigWithBadData.s;
 
+        const tx = embalmerFacet.connect(embalmer).createSarcophagus(
+          sarcoId,
+          {
+            name: sarcoName,
+            recipient: recipient.address,
+            resurrectionTime,
+            maximumRewrapInterval,
+            canBeTransferred: true,
+            minShards: threshold
+          },
+          archaeologists,
+          arweaveTxIds
+        );
+
+        await expect(tx).to.be.revertedWith("SignatureFromWrongAccount");
+      });
+
+      it("should fail to create a sarcophagus with a resurrectionTime that exceeds the maxRewrapInterval", async () => {
+        const {
+          sarcoId,
+          embalmerFacet,
+          embalmer,
+          archaeologists,
+          recipient,
+          arweaveTxIds,
+          maximumRewrapInterval
+        } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
+
+        // Initialise the sarco with resurrection time 1 minute beyond maximum
+        const resurrectionTime = (await time.latest()) + maximumRewrapInterval + time.duration.minutes(1);
+
+        const tx = embalmerFacet.connect(embalmer).createSarcophagus(
+          sarcoId,
+          {
+            name: sarcoName,
+            recipient: recipient.address,
+            resurrectionTime,
+            maximumRewrapInterval,
+            canBeTransferred: true,
+            minShards: threshold
+          },
+          archaeologists,
+          arweaveTxIds
+        );
+
+        await expect(tx).to.be.revertedWith("ResurrectionTimeTooFarInFuture");
+      });
+      it("should fail to create a sarcophagus where an archaeologist hasn't agreed to the supplied maxRewrapInterval", async () => {
+        const {
+          sarcoId,
+          embalmerFacet,
+          embalmer,
+          archaeologists,
+          recipient,
+          arweaveTxIds,
+          maximumRewrapInterval,
+          resurrectionTime
+        } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
+        // change archaeologists[0]'s signature to use the wrong maximumRewrapInterval
+        const disagreableArchaeologistSigner = await ethers.getSigner(archaeologists[0].archAddress);
+        const disagreeingSignature = await sign(disagreableArchaeologistSigner,
+          [arweaveTxIds[1], archaeologists[0].unencryptedShardDoubleHash,
+            (maximumRewrapInterval + time.duration.minutes(1)).toString()],
+          ["string", "bytes32", "uint256"]);
+        archaeologists[0].r = disagreeingSignature.r;
+        archaeologists[0].s = disagreeingSignature.s;
+        archaeologists[0].v = disagreeingSignature.v;
         const tx = embalmerFacet.connect(embalmer).createSarcophagus(
           sarcoId,
           {
@@ -556,7 +606,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("emits an event", async () => {
         const { tx, embalmerFacet } = await rewrapFixture({ shares, threshold }, sarcoName);
-        expect(tx).to.emit(embalmerFacet, "RewrapSarcophagus");
+        await expect(tx).to.emit(embalmerFacet, "RewrapSarcophagus");
       });
 
       it("adds digging fees to the archaeologist's total digging fees paid", async () => {
@@ -636,6 +686,39 @@ describe("Contract: EmbalmerFacet", () => {
 
         await expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
       });
+
+      it("should fail to rewrap a sarcophagus with a new resurrection time in excess of the maxRewrapInterval", async () => {
+        const {
+          sarcoId,
+          embalmerFacet,
+          embalmer,
+          archaeologists,
+          recipient,
+          arweaveTxIds,
+          maximumRewrapInterval,
+          resurrectionTime
+        } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
+
+        await embalmerFacet.connect(embalmer).createSarcophagus(
+          sarcoId,
+          {
+            name: sarcoName,
+            recipient: recipient.address,
+            resurrectionTime,
+            maximumRewrapInterval,
+            canBeTransferred: true,
+            minShards: threshold
+          },
+          archaeologists,
+          arweaveTxIds
+        );
+
+        const tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId,
+          await time.latest() + maximumRewrapInterval + time.duration.minutes(1));
+
+        await expect(tx).to.be.revertedWith("NewResurrectionTimeTooLarge");
+
+      });
     });
   });
 
@@ -685,7 +768,7 @@ describe("Contract: EmbalmerFacet", () => {
 
       it("should emit BurySarcophagus()", async () => {
         const { tx, embalmerFacet, sarcoId } = await buryFixture({ shares, threshold }, sarcoName);
-        expect(tx).to.emit(embalmerFacet, "BurySarcophagus").withArgs(sarcoId);
+        await expect(tx).to.emit(embalmerFacet, "BurySarcophagus").withArgs(sarcoId);
       });
     });
 
