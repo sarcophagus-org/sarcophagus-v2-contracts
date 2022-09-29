@@ -43,7 +43,7 @@ library LibErrors {
 
     error ResurrectionTimeInPast(uint256 resurrectionTime);
 
-    error ResurrectionTimeTooFarInFuture(uint256 resurrectionTime, address archaeologist);
+    error ResurrectionTimeTooFarInFuture(uint256 resurrectionTime, uint256 sarcophagusMaximumRewrapInterval);
 
     error SarcophagusAlreadyExists(bytes32 sarcoId);
 
