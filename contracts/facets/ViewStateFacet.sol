@@ -59,13 +59,12 @@ contract ViewStateFacet {
             memory statsList = new LibTypes.ArchaeologistStatistics[](
                 addresses.length
             );
-        console.log("here");
 
         for (uint256 i = 0; i < addresses.length; i++) {
             statsList[i] = LibTypes.ArchaeologistStatistics(
                 s.archaeologistSuccesses[addresses[i]],
-                s.archaeologistCancels[addresses[i]],
-                s.archaeologistAccusals[addresses[i]]
+                s.archaeologistAccusals[addresses[i]],
+                s.archaeologistCleanups[addresses[i]]
             );
         }
 
@@ -157,7 +156,7 @@ contract ViewStateFacet {
     function getArchaeologistAccusals(address archaeologist)
         external
         view
-        returns (bytes32[] memory)
+        returns (uint256)
     {
         return s.archaeologistAccusals[archaeologist];
     }
@@ -168,7 +167,7 @@ contract ViewStateFacet {
     function getArchaeologistCleanups(address archaeologist)
         external
         view
-        returns (bytes32[] memory)
+        returns (uint256)
     {
         return s.archaeologistCleanups[archaeologist];
     }

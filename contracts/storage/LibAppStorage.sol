@@ -23,10 +23,9 @@ struct AppStorage {
     mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;
     // archaeologist stats
     mapping(address => mapping(bytes32 => bool)) archaeologistSarcoSuccesses;
-    mapping(address => bytes32[]) archaeologistSuccesses;
-    mapping(address => bytes32[]) archaeologistCancels;
-    mapping(address => bytes32[]) archaeologistAccusals;
-    mapping(address => bytes32[]) archaeologistCleanups;
+    mapping(address => uint256) archaeologistSuccesses;
+    mapping(address => uint256) archaeologistAccusals;
+    mapping(address => uint256) archaeologistCleanups;
     // Track how much archaeologists have made. To be credited and debited
     // as archaeologists fulfill their duties and withdraw their rewards
     mapping(address => uint256) archaeologistRewards;

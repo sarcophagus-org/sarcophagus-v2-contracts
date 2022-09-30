@@ -68,7 +68,7 @@ contract ThirdPartyFacet {
                 LibBonds.decreaseCursedBond(archAddresses[i], cursedBond);
 
                 // Save the failure to unwrap against the archaeologist
-                s.archaeologistCleanups[archAddresses[i]].push(sarcoId);
+                s.archaeologistCleanups[archAddresses[i]]++;
             }
         }
 
@@ -158,7 +158,7 @@ contract ThirdPartyFacet {
                 LibBonds.decreaseCursedBond(matchingArchAddr, cursedBond);
 
                 // Save the accusal against the archaeologist
-                s.archaeologistAccusals[matchingArchAddr].push(sarcoId);
+                s.archaeologistAccusals[matchingArchAddr]++;
             } else {
                 revert LibErrors.AccuseIncorrectProof();
             }

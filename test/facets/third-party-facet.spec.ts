@@ -23,7 +23,7 @@ describe("Contract: ThirdPartyFacet", () => {
           thirdParty,
           thirdPartyFacet,
           viewStateFacet,
-          resurrectionTime
+          resurrectionTime,
         } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Increase time to when sarco can be unwrapped
@@ -56,10 +56,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // ie, rewards of failed archaeologists
         const sumDiggingFees = archaeologists
           .slice(1) // archaeologists[0] did their job, so not included
-          .reduce(
-            (acc, arch) => [acc[0].add(arch.diggingFee)],
-            [BigNumber.from("0")]
-          );
+          .reduce((acc, arch) => [acc[0].add(arch.diggingFee)], [BigNumber.from("0")]);
 
         const totalDiggingFees = sumDiggingFees[0];
 
@@ -136,10 +133,8 @@ describe("Contract: ThirdPartyFacet", () => {
       });
 
       it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
+        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // increase time beyond resurrection time + grace period to expire sarcophagus
         const gracePeriod = await viewStateFacet.getGracePeriod();
@@ -150,7 +145,7 @@ describe("Contract: ThirdPartyFacet", () => {
         await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus");
       });
 
-      it("Should add all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
+      it("Should increment count for all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
         const {
           archaeologists,
           archaeologistFacet,
@@ -173,15 +168,30 @@ describe("Contract: ThirdPartyFacet", () => {
         const gracePeriod = await viewStateFacet.getGracePeriod();
         await time.increase(+gracePeriod + 1);
 
+        // Get the clean up count of each archaeologist before cleaning
+        const cleanupsBefore: BigNumber[] = [];
+        for (const arch of archaeologists) {
+          cleanupsBefore.push(await viewStateFacet.getArchaeologistCleanups(arch.archAddress));
+        }
+
+        // Clean the sarcophagus
         await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
-        for await (const arch of archaeologists) {
-          const archCleanups = await viewStateFacet.getArchaeologistCleanups(arch.archAddress);
+        // Get the clean up count of each archaeologist after cleaning
+        const cleanupsAfter: BigNumber[] = [];
+        for (const arch of archaeologists) {
+          cleanupsAfter.push(await viewStateFacet.getArchaeologistCleanups(arch.archAddress));
+        }
 
+        // For each archaeologist, if the arch was accused expect the count to have increased by 1
+        for (let i = 0; i < archaeologists.length; i++) {
+          const arch = archaeologists[i];
           if (arch.archAddress === unaccusedArchaeologist.archAddress) {
-            expect(archCleanups).not.contains(sarcoId);
+            // expect clean up count after to be the same as clean up count before
+            expect(cleanupsBefore[i].eq(cleanupsAfter[i])).to.be.true;
           } else {
-            expect(archCleanups).contains(sarcoId);
+            // expect cleanup count after to be clean up count before + 1
+            expect(cleanupsBefore[i].add(1).eq(cleanupsAfter[i])).to.be.true;
           }
         }
       });
@@ -219,10 +229,8 @@ describe("Contract: ThirdPartyFacet", () => {
       });
 
       it("Should revert with SarcophagusDoesNotExist if cleaning an already cleaned sarcophagus", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
+        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // increase time beyond resurrection time + grace period to expire sarcophagus
         const gracePeriod = await viewStateFacet.getGracePeriod();
@@ -423,31 +431,43 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const accusedArchs = archaeologists.slice(1, threshold + 1);
 
+        // Get each archaeologist's accusal count before accuse
+        const accusalsBefore = [];
+        for (const arch of accusedArchs) {
+          accusalsBefore.push(await viewStateFacet.getArchaeologistAccusals(arch.archAddress));
+        }
+
+        // Accuse archaeologists
         await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
-        for await (const arch of accusedArchs) {
-          const archAccusals = await viewStateFacet.getArchaeologistAccusals(arch.archAddress);
+        // Get each archaeologist's accusal count after accuse
+        const accusalsAfter = [];
+        for (const arch of accusedArchs) {
+          accusalsAfter.push(await viewStateFacet.getArchaeologistAccusals(arch.archAddress));
+        }
 
-          expect(archAccusals).contains(sarcoId);
+        // For each accused archaeologist, check that their accusal count has increased by 1
+        for (let i = 0; i < accusedArchs.length; i++) {
+          expect(accusalsAfter[i].eq(accusalsBefore[i].add(1))).to.be.true;
         }
 
         const goodArchAccusals = await viewStateFacet.getArchaeologistAccusals(
           archaeologists[0].archAddress
         );
-        expect(goodArchAccusals).not.contains(sarcoId);
+
+        // For each good archaeologist, check that their accusal count has NOT increased
+        expect(goodArchAccusals.eq(accusalsBefore[0])).to.be.true;
       });
     });
 
     context("Reverts", () => {
       it("Should revert with SarcophagusIsUnwrappable() if called after resurrection time has passed (ie, accuse cannot fly because the sarco can be legally unwrapped)", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, resurrectionTime } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
+        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, resurrectionTime } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
         await time.increaseTo(resurrectionTime);
@@ -486,7 +506,9 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const tx2 = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard).replace("a", "b")),
+          archaeologists
+            .slice(0, threshold)
+            .map(a => hashBytes(a.unencryptedShard).replace("a", "b")),
           thirdParty.address
         );
         await expect(tx2).to.be.revertedWith("AccuseIncorrectProof");
