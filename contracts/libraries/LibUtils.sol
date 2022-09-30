@@ -49,6 +49,7 @@ library LibUtils {
      *
      * @param unencryptedShardDoubleHash the double hash of the unencrypted shard
      * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard
+     * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
      * @param v signature element
      * @param r signature element
      * @param s signature element
@@ -57,6 +58,7 @@ library LibUtils {
     function verifyArchaeologistSignature(
         bytes32 unencryptedShardDoubleHash,
         string memory arweaveTxId,
+        uint256 agreedMaximumRewrapInterval,
         uint8 v,
         bytes32 r,
         bytes32 s,
@@ -66,7 +68,7 @@ library LibUtils {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(unencryptedShardDoubleHash, arweaveTxId))
+                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval))
             )
         );
 
@@ -163,20 +165,6 @@ library LibUtils {
                 .unencryptedShardDoubleHash != 0;
     }
 
-    function revertIfArchProfileIs(bool existing, address archaeologist)
-        internal
-        view
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        if (existing ? s.archaeologistProfiles[archaeologist].exists : !s.archaeologistProfiles[archaeologist].exists) {
-            revert LibErrors.ArchaeologistProfileExistsShouldBe(
-                !existing,
-                archaeologist
-            );
-        }
-    }
-
     /// @notice Checks if an archaeologist profile exists and
     /// reverts if so
     ///
@@ -185,7 +173,14 @@ library LibUtils {
         internal
         view
     {
-        revertIfArchProfileIs(true, archaeologist);
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        if (s.archaeologistProfiles[archaeologist].exists) {
+            revert LibErrors.ArchaeologistProfileExistsShouldBe(
+                false,
+                archaeologist
+            );
+        }
     }
 
     /// @notice Checks if an archaeologist profile doesn't exist and
@@ -196,7 +191,14 @@ library LibUtils {
         internal
         view
     {
-        revertIfArchProfileIs(false, archaeologist);
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        if (!s.archaeologistProfiles[archaeologist].exists) {
+            revert LibErrors.ArchaeologistProfileExistsShouldBe(
+                true,
+                archaeologist
+            );
+        }
     }
 
     /// @notice Checks if digging fee the embalmer has supplied for
@@ -213,23 +215,6 @@ library LibUtils {
 
         if (diggingFee < s.archaeologistProfiles[archaeologist].minimumDiggingFee) {
             revert LibErrors.DiggingFeeTooLow(diggingFee, archaeologist);
-        }
-    }
-
-    /// @notice Checks if the resurrection time supplied for the sarcophagus
-    /// is within the window that an archaeologist will accept
-    ///
-    /// @param resurrectionTime the resurrectionTime supplied for the sarcophagus
-    /// @param archaeologist the archaeologist to check the max rewrap interval of
-    function revertIfResurrectionTimeTooFarInFuture(uint256 resurrectionTime, address archaeologist)
-        internal
-        view
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        uint256 maxResurrectionTime = block.timestamp + s.archaeologistProfiles[archaeologist].maximumRewrapInterval;
-
-        if (resurrectionTime > maxResurrectionTime) {
-            revert LibErrors.ResurrectionTimeTooFarInFuture(resurrectionTime, archaeologist);
         }
     }
 
