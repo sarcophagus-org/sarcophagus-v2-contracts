@@ -14,6 +14,8 @@ struct AppStorage {
     uint256 protocolFeeBasePercentage;
     // The amount of protocol fees currently stored on the contract
     uint256 totalProtocolFees;
+    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time
+    uint256 gracePeriod;
     // sarcophagi
     bytes32[] sarcophagusIdentifiers;
     // archaeologist profiles

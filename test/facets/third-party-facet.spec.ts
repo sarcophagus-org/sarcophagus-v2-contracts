@@ -22,20 +22,23 @@ describe("Contract: ThirdPartyFacet", () => {
           embalmer,
           thirdParty,
           thirdPartyFacet,
+          viewStateFacet,
+          resurrectionTime
         } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Increase time to when sarco can be unwrapped
-        await time.increase(time.duration.weeks(1));
+        await time.increaseTo(resurrectionTime);
 
         const unaccusedArchaeologist = archaeologists[0];
 
         // unaccusedArchaeologist will fulfil their duty
-        archaeologistFacet
+        await archaeologistFacet
           .connect(unaccusedArchaeologist.signer)
           .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
 
-        // Increasing by this much so that the sarco is definitely expired
-        await time.increase(time.duration.years(1));
+        // increase time beyond grace period to expire sarcophagus
+        const gracePeriod = await viewStateFacet.getGracePeriod();
+        await time.increase(+gracePeriod + 1);
 
         const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
         const paymentAccountBalanceBefore = await sarcoToken.balanceOf(thirdParty.address);
@@ -82,6 +85,7 @@ describe("Contract: ThirdPartyFacet", () => {
           thirdParty,
           thirdPartyFacet,
           viewStateFacet,
+          resurrectionTime,
         } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Cursed and free bonds before cleaning:
@@ -94,20 +98,19 @@ describe("Contract: ThirdPartyFacet", () => {
         }
 
         // Increase time to when sarco can be unwrapped
-        await time.increase(time.duration.weeks(1));
+        await time.increaseTo(resurrectionTime);
 
         // Have one arch actually do the unwrapping
         const unaccusedArchaeologist = archaeologists[0];
-        const unwrapTx = await archaeologistFacet
+        await archaeologistFacet
           .connect(unaccusedArchaeologist.signer)
           .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
-        await unwrapTx.wait();
 
-        // Increasing by this much so that the sarco is definitely expired
-        await time.increase(time.duration.years(1));
+        // increase time beyond grace period to expire sarcophagus
+        const gracePeriod = await viewStateFacet.getGracePeriod();
+        await time.increase(+gracePeriod + 1);
 
-        const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-        await tx.wait();
+        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
         // Cursed and free bonds after cleaning:
         const cursedBondsAfter = [];
@@ -133,13 +136,14 @@ describe("Contract: ThirdPartyFacet", () => {
       });
 
       it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
-        // Increasing by this much so that the sarco is definitely expired
-        await time.increase(time.duration.years(1));
+        // increase time beyond resurrection time + grace period to expire sarcophagus
+        const gracePeriod = await viewStateFacet.getGracePeriod();
+        await time.increaseTo(resurrectionTime + +gracePeriod + 1);
 
         const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
@@ -154,21 +158,22 @@ describe("Contract: ThirdPartyFacet", () => {
           thirdParty,
           thirdPartyFacet,
           viewStateFacet,
+          resurrectionTime,
         } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         const unaccusedArchaeologist = archaeologists[0];
 
         // Have one arch actually do the unwrapping
-        await time.increase(time.duration.weeks(1));
+        await time.increaseTo(resurrectionTime);
         await archaeologistFacet
           .connect(unaccusedArchaeologist.signer)
           .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
 
-        // Increasing by this much so that the sarco is definitely expired
-        await time.increase(time.duration.years(1));
+        // increase time beyond grace period to expire sarcophagus
+        const gracePeriod = await viewStateFacet.getGracePeriod();
+        await time.increase(+gracePeriod + 1);
 
-        const tx = await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-        await tx.wait();
+        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
         for await (const arch of archaeologists) {
           const archCleanups = await viewStateFacet.getArchaeologistCleanups(arch.archAddress);
@@ -183,8 +188,8 @@ describe("Contract: ThirdPartyFacet", () => {
     });
 
     context("Reverts", () => {
-      it("Should revert if cleaning is attempted before sacro can be unwrapped, or attempted within its resurrection grace period", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+      it("Should revert if cleaning is attempted before sarco can be unwrapped, or attempted within its resurrection grace period", async () => {
+        const { sarcoId, thirdParty, thirdPartyFacet, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
@@ -194,7 +199,7 @@ describe("Contract: ThirdPartyFacet", () => {
         await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
 
         // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
-        await time.increase(time.duration.weeks(1));
+        await time.increaseTo(resurrectionTime);
 
         const cleanTxAgain = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
         await expect(cleanTxAgain).to.be.revertedWith("SarcophagusNotCleanable()");
@@ -214,16 +219,17 @@ describe("Contract: ThirdPartyFacet", () => {
       });
 
       it("Should revert with SarcophagusDoesNotExist if cleaning an already cleaned sarcophagus", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
-        // Increasing time up to so sarco is cleanable
-        await time.increase(time.duration.years(1));
+        // increase time beyond resurrection time + grace period to expire sarcophagus
+        const gracePeriod = await viewStateFacet.getGracePeriod();
+        await time.increaseTo(resurrectionTime + +gracePeriod + 1);
 
         // Clean the sarco once...
-        (await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address)).wait();
+        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
         // ... and try again
         const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
@@ -257,12 +263,11 @@ describe("Contract: ThirdPartyFacet", () => {
         let sarco = await viewStateFacet.getSarcophagus(sarcoId);
         expect(sarco.state).to.be.eq(1); // 1 is "Exists"
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(
+        await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await tx.wait();
 
         sarco = await viewStateFacet.getSarcophagus(sarcoId);
         expect(sarco.state).to.be.eq(2); // 2 is "Done"
@@ -280,12 +285,11 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const accusedArchs = archaeologists.slice(0, threshold);
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(
+        await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await tx.wait();
 
         // Set up amounts that should have been transferred to accuser and embalmer
         const totalDiggingFeesCursedBond = accusedArchs.reduce(
@@ -329,12 +333,11 @@ describe("Contract: ThirdPartyFacet", () => {
           freeBondsBefore.push(await viewStateFacet.getFreeBond(arch.archAddress));
         }
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(
+        await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await tx.wait();
 
         // Cursed and free bonds after accuse:
         const cursedBondsAfter = [];
@@ -368,13 +371,12 @@ describe("Contract: ThirdPartyFacet", () => {
           freeBondsBefore.push(await viewStateFacet.getFreeBond(arch.archAddress));
         }
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(
+        await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           // archaeologists[0], archaeologists[1] are unnaccused:
           archaeologists.slice(2, threshold + 2).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await tx.wait();
 
         // Cursed and free bonds after accuse:
         const cursedBondsAfter = [];
@@ -401,12 +403,11 @@ describe("Contract: ThirdPartyFacet", () => {
           archaeologists[0].archAddress
         );
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(
+        await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           archaeologists.slice(1, threshold + 1).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await tx.wait();
 
         const unaccusedArchaeologistBalAfter = await sarcoToken.balanceOf(
           archaeologists[0].archAddress
@@ -422,12 +423,11 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const accusedArchs = archaeologists.slice(1, threshold + 1);
 
-        const tx = await thirdPartyFacet.connect(thirdParty).accuse(
+        await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
           accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await tx.wait();
 
         for await (const arch of accusedArchs) {
           const archAccusals = await viewStateFacet.getArchaeologistAccusals(arch.archAddress);
@@ -444,13 +444,13 @@ describe("Contract: ThirdPartyFacet", () => {
 
     context("Reverts", () => {
       it("Should revert with SarcophagusIsUnwrappable() if called after resurrection time has passed (ie, accuse cannot fly because the sarco can be legally unwrapped)", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, resurrectionTime } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
         );
 
         // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
-        await time.increase(time.duration.weeks(1));
+        await time.increaseTo(resurrectionTime);
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
@@ -512,13 +512,11 @@ describe("Contract: ThirdPartyFacet", () => {
           "Test Sarco"
         );
 
-        (
-          await thirdPartyFacet.connect(thirdParty).accuse(
-            sarcoId,
-            archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
-            thirdParty.address
-          )
-        ).wait();
+        await thirdPartyFacet.connect(thirdParty).accuse(
+          sarcoId,
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          thirdParty.address
+        );
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,

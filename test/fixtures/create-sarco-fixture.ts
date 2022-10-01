@@ -7,9 +7,8 @@ import {
   EmbalmerFacet,
   IERC20,
   ThirdPartyFacet,
-  ViewStateFacet
+  ViewStateFacet,
 } from "../../typechain";
-import { sign } from "../utils/helpers";
 import time from "../utils/time";
 import { spawnArchaologistsWithSignatures, TestArchaeologist } from "./spawn-archaeologists";
 
@@ -153,6 +152,7 @@ export const createSarcoFixture = (
             name: sarcoName,
             recipient: recipient.address,
             resurrectionTime,
+            maximumRewrapInterval: maxRewrapInterval,
             canBeTransferred: true,
             minShards: config.threshold,
           },
@@ -180,6 +180,7 @@ export const createSarcoFixture = (
         createTx,
         resurrectionTime,
         diamond,
+        maximumRewrapInterval: maxRewrapInterval,
         archMinDiggingFee: config.archMinDiggingFee,
         sarcoToken: sarcoToken as IERC20,
         curses: curses as CursesMock,
@@ -187,7 +188,7 @@ export const createSarcoFixture = (
         archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
         thirdPartyFacet: thirdPartyFacet as ThirdPartyFacet,
         viewStateFacet: viewStateFacet as ViewStateFacet,
-        adminFacet: adminFacet as AdminFacet
+        adminFacet: adminFacet as AdminFacet,
       };
     }
   )();

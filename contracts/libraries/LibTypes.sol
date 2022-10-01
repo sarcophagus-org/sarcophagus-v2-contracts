@@ -81,6 +81,7 @@ library LibTypes {
         string name;
         address recipient;
         uint256 resurrectionTime;
+        uint256 maximumRewrapInterval;
         bool canBeTransferred;
         uint8 minShards;
     }
@@ -97,7 +98,7 @@ library LibTypes {
         bool canBeTransferred;
         uint8 minShards;
         uint256 resurrectionTime;
-        uint256 resurrectionWindow;
+        uint256 maximumRewrapInterval;
         string[] arweaveTxIds;
         address embalmer;
         address recipientAddress;

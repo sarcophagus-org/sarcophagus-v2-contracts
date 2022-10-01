@@ -49,6 +49,7 @@ library LibUtils {
      *
      * @param unencryptedShardDoubleHash the double hash of the unencrypted shard
      * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard
+     * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
      * @param v signature element
      * @param r signature element
      * @param s signature element
@@ -57,6 +58,7 @@ library LibUtils {
     function verifyArchaeologistSignature(
         bytes32 unencryptedShardDoubleHash,
         string memory arweaveTxId,
+        uint256 agreedMaximumRewrapInterval,
         uint8 v,
         bytes32 r,
         bytes32 s,
@@ -66,7 +68,7 @@ library LibUtils {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(unencryptedShardDoubleHash, arweaveTxId))
+                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval))
             )
         );
 
@@ -119,44 +121,8 @@ library LibUtils {
     }
 
     /**
-     * @notice Calculates the grace period that an archaeologist has after a
-     * sarcophagus has reached its resurrection time
-     * @param resurrectionTime the resurrection timestamp of a sarcophagus
-     * @return the grace period
-     * @dev The grace period is dependent on how far out the resurrection time
-     * is. The longer out the resurrection time, the longer the grace period.
-     * There is a minimum grace period of 30 minutes, otherwise, it's
-     * calculated as 1% of the time between now and resurrection time.
-     */
-    function getGracePeriod(uint256 resurrectionTime)
-        internal
-        view
-        returns (uint256)
-    {
-        // set a minimum window of 30 minutes
-        uint16 minimumResurrectionWindow = 30 minutes;
-
-        // calculate 1% of the relative time between now and the resurrection
-        // time
-        uint256 gracePeriod = (
-            resurrectionTime > block.timestamp
-                ? resurrectionTime - block.timestamp
-                : block.timestamp - resurrectionTime
-        ) / 100;
-
-        // if our calculated grace period is less than the minimum time, we'll
-        // use the minimum time instead
-        if (gracePeriod < minimumResurrectionWindow) {
-            gracePeriod = minimumResurrectionWindow;
-        }
-
-        // return that grace period
-        return gracePeriod;
-    }
-
-    /**
-     * @notice Reverts if we're not within the resurrection window (on either
-     * side)
+     * @notice Reverts if the current block timestamp is not within the resurrection window
+     * (window = [resurrection time, resurrection time + grace period] inclusive)
      * @param resurrectionTime the resurrection time of the sarcophagus
      * (absolute, i.e. a date time stamp)
      */
@@ -168,14 +134,13 @@ library LibUtils {
                 block.timestamp
             );
         }
-
-        uint256 resurrectionWindow = getGracePeriod(resurrectionTime);
+        AppStorage storage s = LibAppStorage.getAppStorage();
 
         // revert if too late
-        if (resurrectionTime + resurrectionWindow < block.timestamp) {
+        if (resurrectionTime + s.gracePeriod < block.timestamp) {
             revert LibErrors.TooLateToUnwrap(
                 resurrectionTime,
-                resurrectionWindow,
+                s.gracePeriod,
                 block.timestamp
             );
         }
@@ -200,20 +165,6 @@ library LibUtils {
                 .unencryptedShardDoubleHash != 0;
     }
 
-    function revertIfArchProfileIs(bool existing, address archaeologist)
-        internal
-        view
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        if (existing ? s.archaeologistProfiles[archaeologist].exists : !s.archaeologistProfiles[archaeologist].exists) {
-            revert LibErrors.ArchaeologistProfileExistsShouldBe(
-                !existing,
-                archaeologist
-            );
-        }
-    }
-
     /// @notice Checks if an archaeologist profile exists and
     /// reverts if so
     ///
@@ -222,7 +173,14 @@ library LibUtils {
         internal
         view
     {
-        revertIfArchProfileIs(true, archaeologist);
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        if (s.archaeologistProfiles[archaeologist].exists) {
+            revert LibErrors.ArchaeologistProfileExistsShouldBe(
+                false,
+                archaeologist
+            );
+        }
     }
 
     /// @notice Checks if an archaeologist profile doesn't exist and
@@ -233,7 +191,14 @@ library LibUtils {
         internal
         view
     {
-        revertIfArchProfileIs(false, archaeologist);
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        if (!s.archaeologistProfiles[archaeologist].exists) {
+            revert LibErrors.ArchaeologistProfileExistsShouldBe(
+                true,
+                archaeologist
+            );
+        }
     }
 
     /// @notice Checks if digging fee the embalmer has supplied for
@@ -250,23 +215,6 @@ library LibUtils {
 
         if (diggingFee < s.archaeologistProfiles[archaeologist].minimumDiggingFee) {
             revert LibErrors.DiggingFeeTooLow(diggingFee, archaeologist);
-        }
-    }
-
-    /// @notice Checks if the resurrection time supplied for the sarcophagus
-    /// is within the window that an archaeologist will accept
-    ///
-    /// @param resurrectionTime the resurrectionTime supplied for the sarcophagus
-    /// @param archaeologist the archaeologist to check the max rewrap interval of
-    function revertIfResurrectionTimeTooFarInFuture(uint256 resurrectionTime, address archaeologist)
-        internal
-        view
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        uint256 maxResurrectionTime = block.timestamp + s.archaeologistProfiles[archaeologist].maximumRewrapInterval;
-
-        if (resurrectionTime > maxResurrectionTime) {
-            revert LibErrors.ResurrectionTimeTooFarInFuture(resurrectionTime, archaeologist);
         }
     }
 
