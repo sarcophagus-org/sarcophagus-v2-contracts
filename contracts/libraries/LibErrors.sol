@@ -51,9 +51,11 @@ library LibErrors {
 
     error SenderNotEmbalmer(address sender, address embalmer);
 
-    error SignatureFromWrongAccount(
-        address hopefulAddress,
-        address actualAddress
+    error InvalidSignature(
+    // address recovered from signature via ecrecover
+        address recoveredAddress,
+    // address we expected to have signed the data
+        address expectedAddress
     );
 
     error SignerNotArchaeologistOnSarcophagus(bytes32 sarcoId, address signer);

@@ -72,10 +72,10 @@ library LibUtils {
 
         // Generate the address from the signature.
         // ecrecover should always return a valid address.
-        address hopefulAddress = ecrecover(messageHash, v, r, s);
+        address recoveredAddress = ecrecover(messageHash, v, r, s);
 
-        if (hopefulAddress != account) {
-            revert LibErrors.SignatureFromWrongAccount(hopefulAddress, account);
+        if (recoveredAddress != account) {
+            revert LibErrors.InvalidSignature(recoveredAddress, account);
         }
     }
 
@@ -298,12 +298,7 @@ library LibUtils {
     /// @param _sarcoId the sarcophagus id.
     /// @param _archaeologist the archaeologist address.
     /// @return the token id.
-    function generateTokenId(bytes32 _sarcoId, address _archaeologist)
-        private
-        returns (
-            // pure
-            uint256
-        )
+    function generateTokenId(bytes32 _sarcoId, address _archaeologist) private pure returns (uint256)
     {
         // Return the hash of the sarcoId and the archaeologist address as an uint256
         return uint256(keccak256(abi.encode(_sarcoId, _archaeologist)));
