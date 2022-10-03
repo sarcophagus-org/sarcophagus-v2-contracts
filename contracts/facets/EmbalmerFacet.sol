@@ -131,22 +131,20 @@ contract EmbalmerFacet {
                 );
             }
 
-            // Validate archaeologist profile value requirements are met
-            LibUtils.revertIfDiggingFeeTooLow(arch.diggingFee, arch.archAddress);
-
-            totalDiggingFees += arch.diggingFee;
-
             // Validate the archaeologist has signed off on the sarcophagus parameters: double hashed key share,
             // arweaveTxId[1] (tx storing share on arweave), maximumRewrapInterval for sarcophagus
             LibUtils.verifyArchaeologistSignature(
                 arch.unencryptedShardDoubleHash,
                 arweaveTxIds[1],
                 sarcophagus.maximumRewrapInterval,
+                arch.diggingFee,
                 arch.v,
                 arch.r,
                 arch.s,
                 arch.archAddress
             );
+
+            totalDiggingFees += arch.diggingFee;
 
             LibTypes.ArchaeologistStorage memory archaeologistStorage = LibTypes
                 .ArchaeologistStorage({

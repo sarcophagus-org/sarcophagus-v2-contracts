@@ -59,6 +59,7 @@ library LibUtils {
         bytes32 unencryptedShardDoubleHash,
         string memory arweaveTxId,
         uint256 agreedMaximumRewrapInterval,
+        uint256 diggingFee,
         uint8 v,
         bytes32 r,
         bytes32 s,
@@ -68,7 +69,7 @@ library LibUtils {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval))
+                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval, diggingFee))
             )
         );
 
@@ -198,23 +199,6 @@ library LibUtils {
                 true,
                 archaeologist
             );
-        }
-    }
-
-    /// @notice Checks if digging fee the embalmer has supplied for
-    /// an archaeologist is greater than or equal to the arch's min digging fee
-    /// on their profile
-    ///
-    /// @param diggingFee the digging fee supplied by the embalmer
-    /// @param archaeologist the archaeologist to check minimum digging fee of
-    function revertIfDiggingFeeTooLow(uint256 diggingFee, address archaeologist)
-        internal
-        view
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        if (diggingFee < s.archaeologistProfiles[archaeologist].minimumDiggingFee) {
-            revert LibErrors.DiggingFeeTooLow(diggingFee, archaeologist);
         }
     }
 

@@ -425,7 +425,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("DiggingFeeTooLow");
+        await expect(tx).to.be.revertedWith("InvalidSignature");
       });
 
       it("reverts if any signature provided by a regular archaeologist is from the wrong archaeologist", async () => {
@@ -463,7 +463,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("SignatureFromWrongAccount");
+        await expect(tx).to.be.revertedWith("InvalidSignature");
       });
 
       it("reverts if any archaeologist signature includes the wrong data", async () => {
@@ -498,7 +498,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("SignatureFromWrongAccount");
+        await expect(tx).to.be.revertedWith("InvalidSignature");
       });
 
       it("should fail to create a sarcophagus with a resurrectionTime that exceeds the maxRewrapInterval", async () => {
@@ -565,7 +565,7 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("SignatureFromWrongAccount");
+        await expect(tx).to.be.revertedWith("InvalidSignature");
       });
     });
   });
