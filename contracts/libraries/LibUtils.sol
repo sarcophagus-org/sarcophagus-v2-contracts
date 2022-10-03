@@ -59,6 +59,7 @@ library LibUtils {
         bytes32 unencryptedShardDoubleHash,
         string memory arweaveTxId,
         uint256 agreedMaximumRewrapInterval,
+        uint256 diggingFee,
         uint8 v,
         bytes32 r,
         bytes32 s,
@@ -68,16 +69,16 @@ library LibUtils {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval))
+                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval, diggingFee))
             )
         );
 
         // Generate the address from the signature.
         // ecrecover should always return a valid address.
-        address hopefulAddress = ecrecover(messageHash, v, r, s);
+        address recoveredAddress = ecrecover(messageHash, v, r, s);
 
-        if (hopefulAddress != account) {
-            revert LibErrors.SignatureFromWrongAccount(hopefulAddress, account);
+        if (recoveredAddress != account) {
+            revert LibErrors.InvalidSignature(recoveredAddress, account);
         }
     }
 
@@ -201,23 +202,6 @@ library LibUtils {
         }
     }
 
-    /// @notice Checks if digging fee the embalmer has supplied for
-    /// an archaeologist is greater than or equal to the arch's min digging fee
-    /// on their profile
-    ///
-    /// @param diggingFee the digging fee supplied by the embalmer
-    /// @param archaeologist the archaeologist to check minimum digging fee of
-    function revertIfDiggingFeeTooLow(uint256 diggingFee, address archaeologist)
-        internal
-        view
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        if (diggingFee < s.archaeologistProfiles[archaeologist].minimumDiggingFee) {
-            revert LibErrors.DiggingFeeTooLow(diggingFee, archaeologist);
-        }
-    }
-
     /// @notice Gets an archaeologist given the sarcophagus identifier and the
     /// archaeologist's address.
     /// @param sarcoId the identifier of the sarcophagus
@@ -246,12 +230,7 @@ library LibUtils {
     /// @param _sarcoId the sarcophagus id.
     /// @param _archaeologist the archaeologist address.
     /// @return the token id.
-    function generateTokenId(bytes32 _sarcoId, address _archaeologist)
-        private
-        returns (
-            // pure
-            uint256
-        )
+    function generateTokenId(bytes32 _sarcoId, address _archaeologist) private pure returns (uint256)
     {
         // Return the hash of the sarcoId and the archaeologist address as an uint256
         return uint256(keccak256(abi.encode(_sarcoId, _archaeologist)));
