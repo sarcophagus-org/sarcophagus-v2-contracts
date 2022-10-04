@@ -220,7 +220,7 @@ contract ArchaeologistFacet {
 
         // Save the successful sarcophagus against the archaeologist
         s.archaeologistSarcoSuccesses[msg.sender][sarcoId] = true;
-        s.archaeologistSuccesses[msg.sender]++;
+        s.archaeologistSuccesses[msg.sender].push(sarcoId);
 
         // Transfer the digging fee to the archaeologist's reward pool
         s.archaeologistRewards[msg.sender] += archaeologistData.diggingFee;

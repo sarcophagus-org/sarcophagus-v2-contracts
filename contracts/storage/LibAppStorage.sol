@@ -21,11 +21,16 @@ struct AppStorage {
     // archaeologist profiles
     address[] archaeologistProfileAddresses;
     mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;
-    // archaeologist stats
+
+    // archaeologistSarcoSuccesses is needed by the clean function
+    // to lookup whether an archaeologist has completed an unwrapping
     mapping(address => mapping(bytes32 => bool)) archaeologistSarcoSuccesses;
-    mapping(address => uint256) archaeologistSuccesses;
-    mapping(address => uint256) archaeologistAccusals;
-    mapping(address => uint256) archaeologistCleanups;
+
+    // Archaeologist reputation statistics
+    mapping(address => bytes32[]) archaeologistSuccesses;
+    mapping(address => bytes32[]) archaeologistAccusals;
+    mapping(address => bytes32[]) archaeologistCleanups;
+
     // Track how much archaeologists have made. To be credited and debited
     // as archaeologists fulfill their duties and withdraw their rewards
     mapping(address => uint256) archaeologistRewards;

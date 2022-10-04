@@ -171,7 +171,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // Get the clean up count of each archaeologist before cleaning
         const cleanupsBefore: BigNumber[] = [];
         for (const arch of archaeologists) {
-          cleanupsBefore.push(await viewStateFacet.getArchaeologistCleanups(arch.archAddress));
+          cleanupsBefore.push(await viewStateFacet.getArchaeologistCleanupsCount(arch.archAddress));
         }
 
         // Clean the sarcophagus
@@ -180,7 +180,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // Get the clean up count of each archaeologist after cleaning
         const cleanupsAfter: BigNumber[] = [];
         for (const arch of archaeologists) {
-          cleanupsAfter.push(await viewStateFacet.getArchaeologistCleanups(arch.archAddress));
+          cleanupsAfter.push(await viewStateFacet.getArchaeologistCleanupsCount(arch.archAddress));
         }
 
         // For each archaeologist, if the arch was accused expect the count to have increased by 1
@@ -434,7 +434,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // Get each archaeologist's accusal count before accuse
         const accusalsBefore = [];
         for (const arch of accusedArchs) {
-          accusalsBefore.push(await viewStateFacet.getArchaeologistAccusals(arch.archAddress));
+          accusalsBefore.push(await viewStateFacet.getArchaeologistAccusalsCount(arch.archAddress));
         }
 
         // Accuse archaeologists
@@ -447,7 +447,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // Get each archaeologist's accusal count after accuse
         const accusalsAfter = [];
         for (const arch of accusedArchs) {
-          accusalsAfter.push(await viewStateFacet.getArchaeologistAccusals(arch.archAddress));
+          accusalsAfter.push(await viewStateFacet.getArchaeologistAccusalsCount(arch.archAddress));
         }
 
         // For each accused archaeologist, check that their accusal count has increased by 1
@@ -455,7 +455,7 @@ describe("Contract: ThirdPartyFacet", () => {
           expect(accusalsAfter[i].eq(accusalsBefore[i].add(1))).to.be.true;
         }
 
-        const goodArchAccusals = await viewStateFacet.getArchaeologistAccusals(
+        const goodArchAccusals = await viewStateFacet.getArchaeologistAccusalsCount(
           archaeologists[0].archAddress
         );
 

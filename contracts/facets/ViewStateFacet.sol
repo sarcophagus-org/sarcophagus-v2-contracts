@@ -45,32 +45,6 @@ contract ViewStateFacet {
         return profiles;
     }
 
-    /// @notice Gets statistics for each archaeologist
-    /// Contains a list of sarcoIds for each category. We could simply return the counts of the
-    /// arrays but we are already storing the lists of sarcoIds so we may as well use them.
-    /// @param addresses The list of archaeologist addresses
-    /// @return The list of archaeologist statistics
-    function getArchaeologistsStatistics(address[] memory addresses)
-        external
-        view
-        returns (LibTypes.ArchaeologistStatistics[] memory)
-    {
-        LibTypes.ArchaeologistStatistics[]
-            memory statsList = new LibTypes.ArchaeologistStatistics[](
-                addresses.length
-            );
-
-        for (uint256 i = 0; i < addresses.length; i++) {
-            statsList[i] = LibTypes.ArchaeologistStatistics(
-                s.archaeologistSuccesses[addresses[i]],
-                s.archaeologistAccusals[addresses[i]],
-                s.archaeologistCleanups[addresses[i]]
-            );
-        }
-
-        return statsList;
-    }
-
     /// @notice Gets the grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time passes
     /// @return The resurrection grace period
     function getGracePeriod() external view returns (uint256) {
@@ -143,6 +117,9 @@ contract ViewStateFacet {
         return s.archaeologistProfiles[archaeologist].cursedBond;
     }
 
+    /// @notice Returns whether an archaeologist completed an unwrap for a sarcophagus
+    /// @param archaeologist The address of the archaeologist
+    /// @param sarcoId the sarcophagus to check if unwrapping occured
     function getArchaeologistSuccessOnSarcophagus(
         address archaeologist,
         bytes32 sarcoId
@@ -150,26 +127,113 @@ contract ViewStateFacet {
         return s.archaeologistSarcoSuccesses[archaeologist][sarcoId];
     }
 
-    /// @notice Returns the number of accusations for an archaeologist.
-    /// @param archaeologist The address of the archaeologist whose accusations
-    /// are being returned
-    function getArchaeologistAccusals(address archaeologist)
+    /// @notice Returns the number of successful unwraps for an archaeologist.
+    /// @param archaeologist The address of the archaeologist whose success
+    //  count is being returned
+    function getArchaeologistSuccessesCount(address archaeologist)
         external
         view
         returns (uint256)
     {
-        return s.archaeologistAccusals[archaeologist];
+        return s.archaeologistSuccesses[archaeologist].length;
+    }
+
+    /// @notice Returns the sarcophagus unique identifier for a given
+    /// archaeologist and index of the successfully unwrapped sarcophagi
+    /// @param archaeologist The address of an archaeologist
+    /// @param index The index of the archaeologist's unwrapped sarcophagi
+    /// @return the identifier associated with the index of the archaeologist's
+    /// unwrapped sarcophagi
+    function archaeologistSuccessesIdentifier(
+        address archaeologist,
+        uint256 index
+    )
+        external
+        view
+        returns (bytes32)
+    {
+        return s.archaeologistSuccesses[archaeologist][index];
+    }
+
+    /// @notice Returns the number of accusations for an archaeologist.
+    /// @param archaeologist The address of the archaeologist whose accusations
+    /// count is being returned
+    function getArchaeologistAccusalsCount(address archaeologist)
+        external
+        view
+        returns (uint256)
+    {
+        return s.archaeologistAccusals[archaeologist].length;
+    }
+
+    /// @notice Returns the sarcophagus unique identifier for a given
+    /// archaeologist and index of the accused sarcophagi
+    /// @param archaeologist The address of an archaeologist
+    /// @param index The index of the archaeologist's accused sarcophagi
+    /// @return the identifier associated with the index of the archaeologist's
+    /// accused sarcophagi
+    function archaeologistAccusalsIdentifier(
+        address archaeologist,
+        uint256 index
+    )
+        external
+        view
+        returns (bytes32)
+    {
+        return s.archaeologistAccusals[archaeologist][index];
     }
 
     /// @notice Returns the number of cleanups for an archaeologist.
     /// @param archaeologist The address of the archaeologist whose cleanups
-    /// are being returned
-    function getArchaeologistCleanups(address archaeologist)
+    /// count is being returned
+    function getArchaeologistCleanupsCount(address archaeologist)
         external
         view
         returns (uint256)
     {
-        return s.archaeologistCleanups[archaeologist];
+        return s.archaeologistCleanups[archaeologist].length;
+    }
+
+    /// @notice Returns the sarcophagus unique identifier for a given
+    /// archaeologist and index of the leaned-up sarcophagi
+    /// @param archaeologist The address of an archaeologist
+    /// @param index The index of the archaeologist's leaned-up sarcophagi
+    /// @return the identifier associated with the index of the archaeologist's
+    /// cleaned-up sarcophagi
+    function archaeologistCleanupsIdentifier(
+        address archaeologist,
+        uint256 index
+    )
+        external
+        view
+        returns (bytes32)
+    {
+        return s.archaeologistCleanups[archaeologist][index];
+    }
+
+    /// @notice Gets all reputation statistics for each archaeologist
+    /// Contains a list of counts for each category.
+    /// @param addresses The list of archaeologist addresses
+    /// @return The list of archaeologist statistics
+    function getArchaeologistsStatistics(address[] memory addresses)
+        external
+        view
+        returns (LibTypes.ArchaeologistStatistics[] memory)
+    {
+        LibTypes.ArchaeologistStatistics[]
+        memory statsList = new LibTypes.ArchaeologistStatistics[](
+            addresses.length
+        );
+
+        for (uint256 i = 0; i < addresses.length; i++) {
+            statsList[i] = LibTypes.ArchaeologistStatistics(
+                this.getArchaeologistSuccessesCount(addresses[i]),
+                this.getArchaeologistAccusalsCount(addresses[i]),
+                this.getArchaeologistCleanupsCount(addresses[i])
+            );
+        }
+
+        return statsList;
     }
 
     /// @notice Returns a sarcophagus.
