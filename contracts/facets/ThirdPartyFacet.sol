@@ -36,11 +36,7 @@ contract ThirdPartyFacet {
         }
 
         // Make sure the sarco is cleanable
-        if (
-            block.timestamp <
-            s.gracePeriod +
-                sarco.resurrectionTime
-        ) {
+        if (block.timestamp < s.gracePeriod + sarco.resurrectionTime) {
             revert LibErrors.SarcophagusNotCleanable();
         }
 
@@ -52,7 +48,7 @@ contract ThirdPartyFacet {
         uint256 totalDiggingFee;
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
-            bool didNotUnwrap = s.archaeologistSuccesses[archAddresses[i]][
+            bool didNotUnwrap = s.archaeologistSarcoSuccesses[archAddresses[i]][
                 sarcoId
             ] == false;
 
@@ -122,7 +118,10 @@ contract ThirdPartyFacet {
         }
 
         if (unencryptedShardHashes.length < sarco.minShards) {
-            revert LibErrors.AccuseNotEnoughProof(unencryptedShardHashes.length, sarco.minShards);
+            revert LibErrors.AccuseNotEnoughProof(
+                unencryptedShardHashes.length,
+                sarco.minShards
+            );
         }
 
         address[] memory accusedArchAddresses = new address[](
@@ -239,10 +238,7 @@ contract ThirdPartyFacet {
 
         // transfer the cursed half, plus digging fee to the
         // embalmer
-        s.sarcoToken.transfer(
-            sarc.embalmer,
-            totalDiggingFee + halfToEmbalmer
-        );
+        s.sarcoToken.transfer(sarc.embalmer, totalDiggingFee + halfToEmbalmer);
 
         // transfer the other half of the cursed bond to the transaction caller
         s.sarcoToken.transfer(paymentAddress, halfToSender);

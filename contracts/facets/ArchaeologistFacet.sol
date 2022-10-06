@@ -65,8 +65,8 @@ contract ArchaeologistFacet {
         LibUtils.revertIfArchProfileExists(msg.sender);
 
         // create a new archaeologist
-        LibTypes.ArchaeologistProfile memory newArch =
-            LibTypes.ArchaeologistProfile({
+        LibTypes.ArchaeologistProfile memory newArch = LibTypes
+            .ArchaeologistProfile({
                 exists: true,
                 peerId: peerId,
                 minimumDiggingFee: minimumDiggingFee,
@@ -110,7 +110,8 @@ contract ArchaeologistFacet {
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
 
         // create a new archaeologist
-        LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];
+        LibTypes.ArchaeologistProfile storage existingArch = s
+            .archaeologistProfiles[msg.sender];
         existingArch.peerId = peerId;
         existingArch.minimumDiggingFee = minimumDiggingFee;
         existingArch.maximumRewrapInterval = maximumRewrapInterval;
@@ -218,7 +219,8 @@ contract ArchaeologistFacet {
         LibBonds.freeArchaeologist(sarcoId, msg.sender);
 
         // Save the successful sarcophagus against the archaeologist
-        s.archaeologistSuccesses[msg.sender][sarcoId] = true;
+        s.archaeologistSarcoSuccesses[msg.sender][sarcoId] = true;
+        s.archaeologistSuccesses[msg.sender].push(sarcoId);
 
         // Transfer the digging fee to the archaeologist's reward pool
         s.archaeologistRewards[msg.sender] += archaeologistData.diggingFee;
@@ -293,7 +295,8 @@ contract ArchaeologistFacet {
 
         // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
         newArchData.diggingFee = oldArchData.diggingFee;
-        newArchData.unencryptedShardDoubleHash = oldArchData.unencryptedShardDoubleHash;
+        newArchData.unencryptedShardDoubleHash = oldArchData
+            .unencryptedShardDoubleHash;
         newArchData.unencryptedShard = "";
 
         // Set the old archaeologist's data in the sarcophagusArchaeologists
