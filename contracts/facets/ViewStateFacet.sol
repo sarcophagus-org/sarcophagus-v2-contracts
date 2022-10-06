@@ -51,6 +51,12 @@ contract ViewStateFacet {
         return s.gracePeriod;
     }
 
+    /// @notice Gets the expiration threshold after which a sarcophagus must be renegotiated
+    /// @return The expiration threshold
+    function getExpirationThreshold() external view returns (uint256) {
+        return s.expirationThreshold;
+    }
+
     /// @notice Given an archaeologist address, return that archaeologist's
     /// profile
     /// @param archaeologist The archaeologist account's address
