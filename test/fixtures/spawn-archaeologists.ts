@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, BigNumberish } from "ethers";
 import { ethers, getUnnamedAccounts } from "hardhat";
 import { sign } from "../utils/helpers";
-import { SignatureWithAccount } from "../../types";
+import { SignatureWithAccount } from "../types";
 import { BytesLike } from "ethers/lib/utils";
 import { ArchaeologistFacet, IERC20 } from "../../typechain";
 

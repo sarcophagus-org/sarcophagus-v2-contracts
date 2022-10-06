@@ -2,7 +2,7 @@ import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
-import { SarcophagusState } from "../../types";
+import { SarcophagusState } from "../types";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { buryFixture } from "../fixtures/bury-fixture";
 import { rewrapFixture } from "../fixtures/rewrap-fixture";
@@ -613,7 +613,6 @@ describe("Contract: EmbalmerFacet", () => {
           maximumRewrapInterval,
           timestamp
         } = await createSarcoFixture({ shares, threshold, skipCreateTx: true }, sarcoName);
-
 
         const expirationThreshold = await viewStateFacet.getExpirationThreshold();
 

@@ -15,10 +15,9 @@
     "./test",
     "./typechain",
     "./deploy",
-    "./types"
+    "./test/types"
   ],
   "files": [
     "./hardhat.config.ts",
-    "./test/fixtures/DeployedContracts.ts"
   ],
 }

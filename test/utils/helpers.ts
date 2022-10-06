@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
 import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
-import { SignatureWithAccount } from "../../types";
+import { SignatureWithAccount } from "../types";
 import { TestArchaeologist } from "../fixtures/spawn-archaeologists";
 
 const flat = (data: string | string[]): string[] => {
