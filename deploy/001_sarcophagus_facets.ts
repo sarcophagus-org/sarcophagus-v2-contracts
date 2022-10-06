@@ -40,6 +40,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Protocol fee defaults to 1% (100bps)
   const protocolFeeBasePercentage = process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "1";
   const gracePeriod = process.env.GRACE_PERIOD_SECONDS || "3600";
+  const expirationThreshold = process.env.EXPIRATION_THRESHOLD_SECONDS || "3600";
 
   await diamond.deploy("Diamond", {
     from: deployer,
@@ -54,7 +55,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     execute: {
       contract: "AppStorageInit",
       methodName: "init",
-      args: [sarcoTokenAddress, protocolFeeBasePercentage, gracePeriod, cursesAddress],
+      args: [sarcoTokenAddress, protocolFeeBasePercentage, gracePeriod, expirationThreshold, cursesAddress],
     },
     log: true,
   });

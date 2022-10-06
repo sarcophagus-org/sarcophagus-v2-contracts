@@ -78,4 +78,7 @@ library LibErrors {
         bytes unencryptedShard,
         bytes32 doubleHashedShard
     );
+
+    error SarcophagusParametersExpired(uint256 timestamp);
 }
+

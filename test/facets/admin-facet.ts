@@ -51,5 +51,26 @@ describe("AdminFacet", () => {
       ).to.be.revertedWith("LibDiamond: Must be contract owner");
     });
   });
+
+  describe("setExpirationThreshold", () => {
+    it("allows deployer of diamond contract to update the expirationThreshold", async () => {
+      const { deployer, adminFacet, viewStateFacet } = await createSarcoFixture({ shares, threshold }, sarcoName);
+
+      const newExpirationThreshold = BigNumber.from("7200");
+      await adminFacet.connect(deployer).setExpirationThreshold(newExpirationThreshold);
+      const expirationThreshold = await viewStateFacet.connect(deployer).getExpirationThreshold();
+
+      expect(expirationThreshold).to.equal(newExpirationThreshold);
+    });
+
+    it("reverts if non-deployer (owner) attempts to set the expirationThreshold", async () => {
+      const { embalmer, adminFacet } = await createSarcoFixture({ shares, threshold }, sarcoName);
+
+      const newExpirationThreshold = BigNumber.from("7200");
+      await expect(
+        adminFacet.connect(embalmer).setExpirationThreshold(newExpirationThreshold)
+      ).to.be.revertedWith("LibDiamond: Must be contract owner");
+    });
+  });
 });
 

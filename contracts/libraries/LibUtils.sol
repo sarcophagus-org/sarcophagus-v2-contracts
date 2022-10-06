@@ -50,6 +50,8 @@ library LibUtils {
      * @param unencryptedShardDoubleHash the double hash of the unencrypted shard
      * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard
      * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
+     * @param timestamp that the archaeologist has agreed to for the sarcophagus
+     * @param diggingFee that the archaeologist has agreed to for the sarcophagus
      * @param v signature element
      * @param r signature element
      * @param s signature element
@@ -59,6 +61,7 @@ library LibUtils {
         bytes32 unencryptedShardDoubleHash,
         string memory arweaveTxId,
         uint256 agreedMaximumRewrapInterval,
+        uint256 timestamp,
         uint256 diggingFee,
         uint8 v,
         bytes32 r,
@@ -69,7 +72,7 @@ library LibUtils {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval, diggingFee))
+                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval, diggingFee, timestamp))
             )
         );
 

@@ -74,6 +74,13 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusAlreadyExists(sarcoId);
         }
 
+        // Confirm that the agreed upon sarcophagus parameters have not expired
+        if (sarcophagus.timestamp + s.expirationThreshold < block.timestamp ) {
+            revert LibErrors.SarcophagusParametersExpired(
+                sarcophagus.timestamp
+            );
+        }
+
         // Confirm that the resurrection time is in the future
         if (sarcophagus.resurrectionTime <= block.timestamp) {
             revert LibErrors.ResurrectionTimeInPast(
@@ -137,6 +144,7 @@ contract EmbalmerFacet {
                 arch.unencryptedShardDoubleHash,
                 arweaveTxIds[1],
                 sarcophagus.maximumRewrapInterval,
+                sarcophagus.timestamp,
                 arch.diggingFee,
                 arch.v,
                 arch.r,

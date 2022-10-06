@@ -16,6 +16,8 @@ struct AppStorage {
     uint256 totalProtocolFees;
     // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time
     uint256 gracePeriod;
+    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated
+    uint256 expirationThreshold;
     // sarcophagi
     bytes32[] sarcophagusIdentifiers;
     // archaeologist profiles

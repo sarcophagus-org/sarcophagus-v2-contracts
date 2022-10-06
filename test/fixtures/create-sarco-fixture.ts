@@ -40,7 +40,7 @@ export const createSarcoFixture = (
     archMinDiggingFee?: BigNumber;
   },
   sarcoName = "test init",
-  maxRewrapInterval: number = time.duration.weeks(4)
+  maxRewrapInterval: number = time.duration.weeks(4),
 ) =>
   deployments.createFixture(
     async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {
@@ -88,7 +88,7 @@ export const createSarcoFixture = (
       // we could add a random salt to this
       const sarcoId = ethers.utils.solidityKeccak256(["string"], [sarcoName]);
       const arweaveTxIds = config.arweaveTxIds || ["FilePayloadTxId", "EncryptedShardTxId"];
-
+      const timestamp = await time.latest();
       const [archaeologists, signatures] = await spawnArchaologistsWithSignatures(
         shards,
         arweaveTxIds[1] || 'fakeArweaveTxId',
@@ -96,6 +96,7 @@ export const createSarcoFixture = (
         (sarcoToken as IERC20).connect(deployer),
         diamond.address,
         maxRewrapInterval,
+        timestamp,
         config.archMinDiggingFee
       );
 
@@ -155,6 +156,7 @@ export const createSarcoFixture = (
             maximumRewrapInterval: maxRewrapInterval,
             canBeTransferred: true,
             minShards: config.threshold,
+            timestamp
           },
           archaeologists,
           arweaveTxIds
@@ -180,6 +182,7 @@ export const createSarcoFixture = (
         createTx,
         resurrectionTime,
         diamond,
+        timestamp,
         maximumRewrapInterval: maxRewrapInterval,
         archMinDiggingFee: config.archMinDiggingFee,
         sarcoToken: sarcoToken as IERC20,

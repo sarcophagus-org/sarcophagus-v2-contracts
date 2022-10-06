@@ -36,4 +36,12 @@ contract AdminFacet {
         LibDiamond.enforceIsContractOwner();
         s.gracePeriod = gracePeriod;
     }
+
+    /// @notice Updates the expirationThreshold used during sarcophagus creation
+    /// @param expirationThreshold to set
+    /// @dev Can only be called by the diamond owner.
+    function setExpirationThreshold(uint256 expirationThreshold) external {
+        LibDiamond.enforceIsContractOwner();
+        s.expirationThreshold = expirationThreshold;
+    }
 }

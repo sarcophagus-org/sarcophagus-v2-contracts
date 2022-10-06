@@ -84,6 +84,7 @@ library LibTypes {
         uint256 maximumRewrapInterval;
         bool canBeTransferred;
         uint8 minShards;
+        uint256 timestamp;
     }
 
     // The ArchaeologistStorage struct could be contained in this Sarcophagus
