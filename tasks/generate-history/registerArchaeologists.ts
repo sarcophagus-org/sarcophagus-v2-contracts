@@ -32,11 +32,10 @@ export async function registerArchaeologists(
   const archaeologistSigners: SignerWithAddress[] = [];
   for (let i = 0; i < count; i++) {
     const account = accounts[i];
-    // Minimum digging fee is an integer between 10 and 15
-    const minimumDiggingFee = range(10, 15);
+    const minimumDiggingFee = 10;
 
-    // Maximum rewrap interval is a random number as seconds between 1 week and 4 weeks
-    const maximumRewrapInterval = range(604800, 2419200);
+    // 1 week
+    const maximumRewrapInterval = 604800;
 
     // Be sure to provide plenty of free bond for the archaeologist
     const freeBond = 10000;

@@ -35,6 +35,10 @@ export async function createSarcophagi(
   const { randomBytes, hexlify, keccak256 } = ethers.utils;
   const { getSigners } = ethers;
 
+  const timestamp = (await ethers.provider.getBlock("latest")).timestamp;
+  const maximumRewrapInterval = 604800;
+  const diggingFee = 100;
+
   const embalmer = (await getSigners())[0];
   const recipientAddress = (await getSigners())[0].address;
 
@@ -92,19 +96,31 @@ export async function createSarcophagi(
 
       // Double hash this archaeologist's shard
       const doubleHashedShard = keccak256(keccak256(shardsMap[archaeologistSigner.address]));
-
+      // arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval, diggingFee, timestamp
       try {
         // The archaeologist signs the double hashed shard and a fake arweave transaction id
         const signature = await signHre(
           hre,
           selectedArchaeologistSigners[i],
-          [doubleHashedShard, fakeShardTxId],
-          ["bytes32", "string"]
+          [
+            fakeShardTxId,
+            doubleHashedShard,
+            maximumRewrapInterval.toString(),
+            diggingFee.toString(),
+            timestamp.toString(),
+          ],
+          ["string", "bytes32", "uint256", "uint256", "uint256"]
         );
+        // const signature = await signHre(
+        //   hre,
+        //   selectedArchaeologistSigners[i],
+        //   [doubleHashedShard, fakeShardTxId],
+        //   ["bytes32", "string"]
+        // );
 
         archaeologists.push({
           archAddress: selectedArchaeologistSigners[i].address,
-          diggingFee: BigNumber.from(100),
+          diggingFee: diggingFee,
           unencryptedShardDoubleHash: doubleHashedShard,
           v: signature.v,
           r: signature.r,
@@ -129,7 +145,9 @@ export async function createSarcophagi(
           recipient: recipientAddress,
           resurrectionTime: BigNumber.from(resurrectionTime),
           canBeTransferred: false,
+          maximumRewrapInterval,
           minShards,
+          timestamp,
         },
         archaeologists,
         [fakePayloadTxId, fakeShardTxId]
