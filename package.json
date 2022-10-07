@@ -1,5 +1,5 @@
 {
-  "name": "sarcophagus-v2-contracts",
+  "name": "@sarcophagus-org/sarcophagus-v2-contracts",
   "version": "0.1.0",
   "engines": {
     "node": ">=16.15.0"
