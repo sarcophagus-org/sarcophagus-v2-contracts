@@ -2,7 +2,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { split } from "shamirs-secret-sharing-ts";
-import { EmbalmerFacet } from "../../typechain";
 import { generateHistoryConfig } from "./config";
 import { range, signHre } from "./helpers";
 
@@ -44,10 +43,7 @@ export async function createSarcophagi(
 
   // Get the contracts
   const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const embalmerFacet: EmbalmerFacet = await hre.ethers.getContractAt(
-    "EmbalmerFacet",
-    diamond.address
-  );
+  const embalmerFacet = await hre.ethers.getContractAt("EmbalmerFacet", diamond.address);
   const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
 
   console.log();

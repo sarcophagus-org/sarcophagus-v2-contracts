@@ -1,7 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { ArchaeologistFacet } from "../../typechain";
 import { generateHistoryConfig } from "./config";
 import { range } from "./helpers";
 
@@ -22,10 +21,7 @@ export async function registerArchaeologists(
 
   // Get the contract
   const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const archaeologistFacet: ArchaeologistFacet = await hre.ethers.getContractAt(
-    "ArchaeologistFacet",
-    diamond.address
-  );
+  const archaeologistFacet = await hre.ethers.getContractAt("ArchaeologistFacet", diamond.address);
   const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
 
   console.log("Registering archaeologists...");

@@ -1,5 +1,4 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { ThirdPartyFacet } from "../../typechain";
 import { generateHistoryConfig } from "./config";
 import { SarcophagusData } from "./createSarcophagi";
 
@@ -17,10 +16,7 @@ export async function accuseSarcophagus(
 
   // Get the contracts
   const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const thirdPartyFacet: ThirdPartyFacet = await hre.ethers.getContractAt(
-    "ThirdPartyFacet",
-    diamond.address
-  );
+  const thirdPartyFacet = await hre.ethers.getContractAt("ThirdPartyFacet", diamond.address);
   const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
 
   // Pick random sarcophagi to accuse

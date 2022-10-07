@@ -1,6 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { ArchaeologistFacet, ViewStateFacet } from "../../typechain";
 import { generateHistoryConfig } from "./config";
 import { SarcophagusData } from "./createSarcophagi";
 
@@ -19,14 +18,8 @@ export async function unwrapSarcophagi(
 ): Promise<void> {
   const archaeologistUnwrapChance = generateHistoryConfig.archaeologistUnwrapChance;
   const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const archaeologistFacet: ArchaeologistFacet = await hre.ethers.getContractAt(
-    "ArchaeologistFacet",
-    diamond.address
-  );
-  const viewStateFacet: ViewStateFacet = await hre.ethers.getContractAt(
-    "ViewStateFacet",
-    diamond.address
-  );
+  const archaeologistFacet = await hre.ethers.getContractAt("ArchaeologistFacet", diamond.address);
+  const viewStateFacet = await hre.ethers.getContractAt("ViewStateFacet", diamond.address);
 
   console.log();
   console.log("Unwrapping sarcophagi...");
