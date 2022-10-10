@@ -8,6 +8,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test",
+    "start": "npx hardhat compile && npx hardhat node",
+    "history": "npx hardhat generate-history --network localhost",
     "compile": "npx hardhat compile"
   },
   "repository": {
