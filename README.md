@@ -43,7 +43,7 @@ npm i @sarcophagus-org/sarcophagus-v2-contracts
 ```
 
 ## Updating
-Increment the `version` at the top of package.json
+Update the `version` at the top of package.json. Increment the third number (PATCH version) for bugfixes, the second number (MINOR version) for backwards compatible functionality additions, and the first number (MAJOR version) for breaking API changes. 
 ```shell
 npm i
 npm run prepublish
