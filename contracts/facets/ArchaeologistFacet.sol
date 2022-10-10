@@ -54,7 +54,7 @@ contract ArchaeologistFacet {
     /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee
     /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept
     /// for a resurrection
-    /// freeBond How much bond the archaeologist wants to deposit during the register call (if any)
+    /// @param freeBond How much bond the archaeologist wants to deposit during the register call (if any)
     function registerArchaeologist(
         string memory peerId,
         uint256 minimumDiggingFee,

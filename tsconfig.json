@@ -19,6 +19,10 @@
   ],
   "files": [
     "./hardhat.config.ts",
-    "./test/fixtures/DeployedContracts.ts"
+    "./test/fixtures/DeployedContracts.ts",
+    "./tasks/generate-history/registerArchaeologists.ts",
+    "./tasks/generate-history/unwrapSarcophagi.ts",
+    "./tasks/generate-history/accuseSarcophagus.ts",
+    "./tasks/generate-history/createSarcophagi.ts"
   ],
 }
