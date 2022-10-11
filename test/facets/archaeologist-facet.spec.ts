@@ -6,7 +6,12 @@ import { ethers } from "hardhat";
 import { archeologistsFixture } from "../fixtures/archaeologists-fixture";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { finalizeTransferFixture } from "../fixtures/finalize-transfer-fixture";
-import { calculateCursedBond, registerArchaeologist, sign, updateArchaeologist } from "../utils/helpers";
+import {
+  calculateCursedBond,
+  registerArchaeologist,
+  sign,
+  updateArchaeologist,
+} from "../utils/helpers";
 import time from "../utils/time";
 
 describe("Contract: ArchaeologistFacet", () => {
@@ -93,9 +98,7 @@ describe("Contract: ArchaeologistFacet", () => {
       const freeBond = "90";
 
       // hopefully someday chai will support to.be.changed.by matchers for contracts/bignums
-      const sarcoContractBalanceBefore = await sarcoToken.balanceOf(
-        archaeologistFacet.address
-      );
+      const sarcoContractBalanceBefore = await sarcoToken.balanceOf(archaeologistFacet.address);
 
       await registerArchaeologist(
         archaeologist,
@@ -105,12 +108,11 @@ describe("Contract: ArchaeologistFacet", () => {
         freeBond
       );
 
-      const sarcoContractBalanceAfter = await sarcoToken.balanceOf(
-        archaeologistFacet.address
-      );
+      const sarcoContractBalanceAfter = await sarcoToken.balanceOf(archaeologistFacet.address);
 
-      expect(sarcoContractBalanceAfter.sub(sarcoContractBalanceBefore))
-        .to.equal(BigNumber.from(freeBond));
+      expect(sarcoContractBalanceAfter.sub(sarcoContractBalanceBefore)).to.equal(
+        BigNumber.from(freeBond)
+      );
     });
   });
 
@@ -164,9 +166,7 @@ describe("Contract: ArchaeologistFacet", () => {
         freeBond
       );
 
-      const sarcoContractBalanceBefore = await sarcoToken.balanceOf(
-        archaeologistFacet.address
-      );
+      const sarcoContractBalanceBefore = await sarcoToken.balanceOf(archaeologistFacet.address);
 
       await updateArchaeologist(
         archaeologist,
@@ -176,25 +176,20 @@ describe("Contract: ArchaeologistFacet", () => {
         freeBond
       );
 
-      const sarcoContractBalanceAfter = await sarcoToken.balanceOf(
-        archaeologistFacet.address
-      );
+      const sarcoContractBalanceAfter = await sarcoToken.balanceOf(archaeologistFacet.address);
 
-      expect(sarcoContractBalanceAfter.sub(sarcoContractBalanceBefore))
-        .to.equal(BigNumber.from(freeBond));
+      expect(sarcoContractBalanceAfter.sub(sarcoContractBalanceBefore)).to.equal(
+        BigNumber.from(freeBond)
+      );
     });
 
     it("reverts when an archaeologist is not registered", async () => {
       const { archaeologists, archaeologistFacet } = await archeologistsFixture(1);
       const archaeologist = archaeologists[0];
 
-      await expect(updateArchaeologist(
-        archaeologist,
-        archaeologistFacet,
-        "150",
-        "150",
-        "150"
-      )).to.be.revertedWith("ArchaeologistProfileExistsShouldBe");
+      await expect(
+        updateArchaeologist(archaeologist, archaeologistFacet, "150", "150", "150")
+      ).to.be.revertedWith("ArchaeologistProfileExistsShouldBe");
     });
   });
 
@@ -272,8 +267,7 @@ describe("Contract: ArchaeologistFacet", () => {
   describe("withdrawFreeBond()", () => {
     context("with an unregistered archaeologist", () => {
       it("reverts when withdrawing free bond", async () => {
-        const { archaeologists, archaeologistFacet } =
-          await archeologistsFixture(1);
+        const { archaeologists, archaeologistFacet } = await archeologistsFixture(1);
         const archaeologist = archaeologists[0];
 
         await expect(
@@ -394,8 +388,17 @@ describe("Contract: ArchaeologistFacet", () => {
       const archDiggingFee = BigNumber.from("1000000000000");
 
       // Setup arch + unwrap so rewards are received
-      const { archaeologists, archaeologistFacet, sarcoId, sarcoToken, viewStateFacet, resurrectionTime } =
-        await createSarcoFixture({ shares, threshold, archMinDiggingFee: archDiggingFee }, "Test Sarco");
+      const {
+        archaeologists,
+        archaeologistFacet,
+        sarcoId,
+        sarcoToken,
+        viewStateFacet,
+        resurrectionTime,
+      } = await createSarcoFixture(
+        { shares, threshold, archMinDiggingFee: archDiggingFee },
+        "Test Sarco"
+      );
 
       const contextArchaeologist = archaeologists[0];
 
@@ -411,18 +414,16 @@ describe("Contract: ArchaeologistFacet", () => {
 
       const archSarcoBalanceBefore = await sarcoToken.balanceOf(contextArchaeologist.archAddress);
 
-      await archaeologistFacet
-        .connect(contextArchaeologist.signer)
-        .withdrawReward();
+      await archaeologistFacet.connect(contextArchaeologist.signer).withdrawReward();
 
       // expect rewards to be depleted after claiming
-      const rewardsAfterWithdrawal = await viewStateFacet.getRewards(contextArchaeologist.archAddress);
+      const rewardsAfterWithdrawal = await viewStateFacet.getRewards(
+        contextArchaeologist.archAddress
+      );
       expect(rewardsAfterWithdrawal).to.equal(0);
 
       // expect archs sarco token balance to increase by rewards amount
-      expect(
-        await sarcoToken.balanceOf(contextArchaeologist.archAddress)
-      ).to.equal(
+      expect(await sarcoToken.balanceOf(contextArchaeologist.archAddress)).to.equal(
         archSarcoBalanceBefore.add(archDiggingFee)
       );
     });
@@ -479,9 +480,7 @@ describe("Contract: ArchaeologistFacet", () => {
         );
 
         // Check that the cursed bond amount has been freed up.
-        expect(cursedBondAmountBefore).to.equal(
-          calculateCursedBond(archaeologists[0].diggingFee)
-        );
+        expect(cursedBondAmountBefore).to.equal(calculateCursedBond(archaeologists[0].diggingFee));
         expect(cursedBondAmountAfter).to.equal(0);
       });
 
@@ -505,17 +504,21 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should transfer the digging fee to the archaeologist's reward pool without transferring tokens", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, sarcoToken, viewStateFacet, resurrectionTime } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+        const {
+          archaeologists,
+          archaeologistFacet,
+          sarcoId,
+          sarcoToken,
+          viewStateFacet,
+          resurrectionTime,
+        } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Calculate the digging fee for the first archaeologist
         const totalFees = archaeologists[0].diggingFee;
 
         // Get the sarco balance of the first archaeologist before unwrap
         const sarcoBalanceBefore = await sarcoToken.balanceOf(archaeologists[0].archAddress);
-        const archRewardsBefore = await viewStateFacet.getRewards(
-          archaeologists[0].archAddress
-        );
+        const archRewardsBefore = await viewStateFacet.getRewards(archaeologists[0].archAddress);
 
         await time.increaseTo(resurrectionTime);
 
@@ -526,9 +529,7 @@ describe("Contract: ArchaeologistFacet", () => {
 
         // Get the sarco balance of the first archaeologist after unwrap
         const sarcoBalanceAfter = await sarcoToken.balanceOf(archaeologists[0].archAddress);
-        const archRewardsAfter = await viewStateFacet.getRewards(
-          archaeologists[0].archAddress
-        );
+        const archRewardsAfter = await viewStateFacet.getRewards(archaeologists[0].archAddress);
 
         // Check that the difference between the before and after rewards is
         // equal to the total fees, and actual token balance is unchanged
@@ -537,10 +538,8 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should emit UnwrapSarcophagus()", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
+        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         await time.increaseTo(resurrectionTime);
 
@@ -575,10 +574,8 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should revert if the sender is not an archaeologist on this sarcophagus", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, recipient, resurrectionTime } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
+        const { archaeologists, archaeologistFacet, sarcoId, recipient, resurrectionTime } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         await time.increaseTo(resurrectionTime);
 
@@ -605,16 +602,8 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should revert if unwrap is called after the grace period has elapsed", async () => {
-        const {
-          archaeologists,
-          archaeologistFacet,
-          sarcoId,
-          resurrectionTime,
-          viewStateFacet
-        } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
+        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime, viewStateFacet } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // increase time beyond resurrection time + grace period to expire sarcophagus
         const gracePeriod = await viewStateFacet.getGracePeriod();
@@ -629,10 +618,8 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should revert if this archaeologist has already unwrapped this sarcophagus", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
+        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         await time.increaseTo(resurrectionTime);
 
@@ -648,10 +635,8 @@ describe("Contract: ArchaeologistFacet", () => {
       });
 
       it("should revert if the hash of the unencrypted shard does not match the hashed shard stored on the sarcophagus", async () => {
-        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
+        const { archaeologists, archaeologistFacet, sarcoId, resurrectionTime } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         await time.increaseTo(resurrectionTime);
 
@@ -697,9 +682,15 @@ describe("Contract: ArchaeologistFacet", () => {
           newArchaeologist.archAddress
         );
 
-        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(ethers.constants.HashZero);
-        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(ethers.constants.HashZero);
-        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(ethers.constants.HashZero);
+        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(
+          ethers.constants.HashZero
+        );
+        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(
+          ethers.constants.HashZero
+        );
+        expect(newArchaeologistData.unencryptedShardDoubleHash).to.not.equal(
+          ethers.constants.HashZero
+        );
 
         // Check that the old archaeologist's values are reset to default values
         const oldArchaeologistData = await viewStateFacet.getSarcophagusArchaeologist(
@@ -729,7 +720,7 @@ describe("Contract: ArchaeologistFacet", () => {
           oldArchaeologistFreeBondBefore,
           oldArchaeologistFreeBondAfter,
           oldArchaeologistCursedBondBefore,
-          oldArchaeologistCursedBondAfter
+          oldArchaeologistCursedBondAfter,
         } = await finalizeTransferFixture();
 
         // Check that the difference betwwen the old and new cursed bonds is equal to
@@ -751,7 +742,7 @@ describe("Contract: ArchaeologistFacet", () => {
           newArchaeologistCursedBondAfter,
           newArchaeologistFreeBondBefore,
           newArchaeologistFreeBondAfter,
-          bondAmount
+          bondAmount,
         } = await finalizeTransferFixture();
 
         // Check that the difference betwwen the old and new cursed bonds is equal to
@@ -775,7 +766,7 @@ describe("Contract: ArchaeologistFacet", () => {
           newArchaeologist,
           sarcoId,
           arweaveTxIds,
-          viewStateFacet
+          viewStateFacet,
         } = await finalizeTransferFixture();
 
         const tokenId = (

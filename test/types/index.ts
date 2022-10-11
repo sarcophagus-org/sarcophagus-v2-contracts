@@ -6,7 +6,6 @@ export enum SarcophagusState {
   Done,
 }
 
-
 export interface SignatureWithAccount extends Signature {
   account: string;
 }

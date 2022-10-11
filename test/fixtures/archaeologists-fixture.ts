@@ -39,7 +39,7 @@ export const archeologistsFixture = (count: number) =>
           diggingFee: ethers.utils.parseEther("10"),
           v: BigNumber.from(0),
           r: "",
-          s: ""
+          s: "",
         });
 
         // Transfer 10,000 sarco tokens to each archaeologist to be put into free

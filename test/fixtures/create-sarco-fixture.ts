@@ -40,7 +40,7 @@ export const createSarcoFixture = (
     archMinDiggingFee?: BigNumber;
   },
   sarcoName = "test init",
-  maxRewrapInterval: number = time.duration.weeks(4),
+  maxRewrapInterval: number = time.duration.weeks(4)
 ) =>
   deployments.createFixture(
     async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {
@@ -79,7 +79,8 @@ export const createSarcoFixture = (
 
       // Set up the data for the sarcophagus
       // 64-byte key:
-      const outerLayerPrivateKey = "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
+      const outerLayerPrivateKey =
+        "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
 
       const secret = Buffer.from(outerLayerPrivateKey);
       const shards: Buffer[] = sss.split(secret, config);
@@ -91,7 +92,7 @@ export const createSarcoFixture = (
       const timestamp = await time.latest();
       const [archaeologists, signatures] = await spawnArchaologistsWithSignatures(
         shards,
-        arweaveTxIds[1] || 'fakeArweaveTxId',
+        arweaveTxIds[1] || "fakeArweaveTxId",
         archaeologistFacet as ArchaeologistFacet,
         (sarcoToken as IERC20).connect(deployer),
         diamond.address,
@@ -120,7 +121,7 @@ export const createSarcoFixture = (
             diggingFee: ethers.utils.parseEther("10"),
             v: BigNumber.from(0),
             r: "",
-            s: ""
+            s: "",
           });
 
           // Transfer 10,000 sarco tokens to each archaeologist to be put into free
@@ -131,12 +132,14 @@ export const createSarcoFixture = (
 
           await sarcoToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
 
-          await archaeologistFacet.connect(acc).registerArchaeologist(
-            "myFakePeerId",
-            ethers.utils.parseEther("10"),
-            maxRewrapInterval,
-            ethers.utils.parseEther("5000")
-          );
+          await archaeologistFacet
+            .connect(acc)
+            .registerArchaeologist(
+              "myFakePeerId",
+              ethers.utils.parseEther("10"),
+              maxRewrapInterval,
+              ethers.utils.parseEther("5000")
+            );
         }
       }
 
@@ -156,7 +159,7 @@ export const createSarcoFixture = (
             maximumRewrapInterval: maxRewrapInterval,
             canBeTransferred: true,
             minShards: config.threshold,
-            timestamp
+            timestamp,
           },
           archaeologists,
           arweaveTxIds

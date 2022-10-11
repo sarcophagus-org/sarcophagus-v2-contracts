@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
+const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   let sarcoTokenAddress: string;
   let cursesAddress: string;
 
@@ -12,12 +12,12 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
   if (hre.hardhatArguments.network === "develop" || !hre.hardhatArguments.network) {
     const sarcoTokenMock = await deploy("SarcoTokenMock", {
       from: deployer,
-      log: true
+      log: true,
     });
     sarcoTokenAddress = sarcoTokenMock.address;
     const cursesMock = await deploy("CursesMock", {
       from: deployer,
-      log: true
+      log: true,
     });
     cursesAddress = cursesMock.address;
   } else if (["goerli", "goerli-fork"].includes(hre.hardhatArguments.network)) {
@@ -48,14 +48,20 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
       "ArchaeologistFacet",
       "ThirdPartyFacet",
       "ViewStateFacet",
-      "AdminFacet"
+      "AdminFacet",
     ],
     execute: {
       contract: "AppStorageInit",
       methodName: "init",
-      args: [sarcoTokenAddress, protocolFeeBasePercentage, gracePeriod, expirationThreshold, cursesAddress]
+      args: [
+        sarcoTokenAddress,
+        protocolFeeBasePercentage,
+        gracePeriod,
+        expirationThreshold,
+        cursesAddress,
+      ],
     },
-    log: true
+    log: true,
   });
 };
 
