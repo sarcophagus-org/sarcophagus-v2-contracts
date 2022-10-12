@@ -27,7 +27,7 @@ export const finalizeTransferFixture = async () => {
   const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxIds[1], "string");
 
   const oldArchaeologistFees = {
-    diggingFee: archaeologists[1].diggingFee
+    diggingFee: archaeologists[1].diggingFee,
   };
 
   // Calculate the old arch's bond amount

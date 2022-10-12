@@ -15,8 +15,7 @@ import "hardhat-contract-sizer";
 dotenv.config();
 
 // Defining this manually since ethers cannot be access from within the hardhat config
-const hashZero =
-  "0x0000000000000000000000000000000000000000000000000000000000000000";
+const hashZero = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -29,8 +28,8 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 /**
- * Generates fake historical data on the app for testing. 
- * 
+ * Generates fake historical data on the app for testing.
+ *
  * Config for this task can be found in tasks/generate-history/config.ts
  *
  * IMPORTANT: If you are running a node on localhost using `npx hardhat node` then you must run this
@@ -42,7 +41,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * The purpose of generating this data is so that we can have some metrics on the archaeologists on
  * chain. This task is expensive and modifies the block timestamps and therefore cannot be run
  * anywhere other than localhost.
- * 
+ *
  * Note that since this task modifies the block timestamps it will only work once, since subsequent
  * attempts to create a sarcophagus will cause the contract to think a sarcophagus is being created in
  * the past. To run this command again, simply restart the node.
@@ -54,10 +53,22 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * the list.
  */
 task("generate-history", "Generates fake historical data for testing")
-  .addOptionalParam("archaeologistCount", "The number of archaeologists to register. Defaults to 20.")
-  .addOptionalParam("sarcophagusCount", "The number of sarcophagi to create. This uses a random number of archaeologists that have been registered. Defaults to 10.")
-  .addOptionalParam("accusedSarcophagusCount", "The number of sarcophagi to accuse. All archaeologists on each sarcophagus will be accused. Defaults to 2 sarcophagi.")
-  .addOptionalParam("archaeologistUnwrapChance", "The probability that an archaeologist will unwrap the sarcpohagi they are associated with. Defaults to 0.85.")
+  .addOptionalParam(
+    "archaeologistCount",
+    "The number of archaeologists to register. Defaults to 20."
+  )
+  .addOptionalParam(
+    "sarcophagusCount",
+    "The number of sarcophagi to create. This uses a random number of archaeologists that have been registered. Defaults to 10."
+  )
+  .addOptionalParam(
+    "accusedSarcophagusCount",
+    "The number of sarcophagi to accuse. All archaeologists on each sarcophagus will be accused. Defaults to 2 sarcophagi."
+  )
+  .addOptionalParam(
+    "archaeologistUnwrapChance",
+    "The probability that an archaeologist will unwrap the sarcpohagi they are associated with. Defaults to 0.85."
+  )
   .setAction(generateHistory);
 
 // You need to export an object to set up your config
@@ -75,8 +86,7 @@ const config: HardhatUserConfig = {
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     goerli: {
       chainId: 5,

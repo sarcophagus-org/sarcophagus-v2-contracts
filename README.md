@@ -32,3 +32,21 @@ This repository contains the smart contracts (and corresponding deployment scrip
 `npx hardhat deploy --network <networkName>`
 Setup and/or add networks in the hardhat config file, `hardhat.config.ts`. 
 You can then replace `<networkName>` with whichever network you'd like to deploy to (`localhost` for the local network spun up by `npx hardhat node`).
+
+
+# NPM Package
+The core contracts in this repository are published in an NPM package for easy use within other repositories.
+
+To install the npm package, run:
+ ```shell
+npm i @sarcophagus-org/sarcophagus-v2-contracts
+```
+
+## Updating
+Update the `version` at the top of package.json. Increment the third number (PATCH version) for bugfixes, the second number (MINOR version) for backwards compatible functionality additions, and the first number (MAJOR version) for breaking API changes. 
+```shell
+npm i
+npm run prepublish
+npm publish
+```
+Commit updated version to git

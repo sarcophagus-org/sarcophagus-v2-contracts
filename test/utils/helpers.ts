@@ -2,12 +2,12 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
 import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
-import { SignatureWithAccount } from "../../types";
+import { SignatureWithAccount } from "../types";
 import { TestArchaeologist } from "../fixtures/spawn-archaeologists";
 
 const flat = (data: string | string[]): string[] => {
-  return data instanceof Array ? data : [data]
-}
+  return data instanceof Array ? data : [data];
+};
 
 /**
  * Signs a message as any EVM compatible type and returns the signature and the
@@ -89,8 +89,8 @@ export const getArchaeologistSarcoBalances = async (
 };
 
 export const toSarco = (amount: number): BigNumber => {
-  return BigNumber.from((amount * (10**18)).toString())
-}
+  return BigNumber.from((amount * 10 ** 18).toString());
+};
 
 /**
  * Gets a list of archaeologist sarco rewards.
@@ -115,19 +115,7 @@ export const getArchaeologistSarcoRewards = async (
 };
 
 // TODO: update if calculate cursed bond algorithm changes (or possibly this function will be removed)
-export const calculateCursedBond = (diggingFee: BigNumber): BigNumber =>
-  diggingFee;
-
-export const getAttributeFromURI = (uri: string, attributeName: string): number => {
-  const uriPrefix = "data:application/json;base64,";
-  const base64Uri = uri.replace(uriPrefix, "");
-  const decodedUri = Buffer.from(base64Uri, "base64").toString("utf8");
-  const nftMetadata = JSON.parse(decodedUri);
-  const resurrectionTime = nftMetadata.attributes.find(
-    (x: any) => x.trait_type === attributeName
-  ).value;
-  return parseInt(resurrectionTime);
-};
+export const calculateCursedBond = (diggingFee: BigNumber): BigNumber => diggingFee;
 
 export const registerArchaeologist = async (
   archaeologist: TestArchaeologist,
@@ -140,7 +128,7 @@ export const registerArchaeologist = async (
   freeBond = freeBond || "0";
   minDiggingFee = minDiggingFee || "100";
   minRewrapInterval = minRewrapInterval || "10000";
-  peerId = peerId || "myfakelibp2pPeerId"
+  peerId = peerId || "myfakelibp2pPeerId";
 
   await archaeologistFacet
     .connect(archaeologist.signer)
@@ -150,7 +138,7 @@ export const registerArchaeologist = async (
       BigNumber.from(minRewrapInterval),
       BigNumber.from(freeBond)
     );
-}
+};
 
 export const updateArchaeologist = async (
   archaeologist: TestArchaeologist,
@@ -168,4 +156,4 @@ export const updateArchaeologist = async (
       BigNumber.from(minRewrapInterval),
       BigNumber.from(freeBond || 0)
     );
-}
+};
