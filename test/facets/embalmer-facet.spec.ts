@@ -17,8 +17,14 @@ describe("Contract: EmbalmerFacet", () => {
   describe("createSarcophagus()", () => {
     context("Successful creation", () => {
       it("should transfer fees in sarco token from the embalmer to the contract", async () => {
-        const { sarcoToken, embalmer, archaeologists, embalmerBalanceBeforeCreate } =
-          await createSarcoFixture({ shares, threshold }, sarcoName);
+        const {
+          deployer,
+          sarcoToken,
+          embalmer,
+          archaeologists,
+          embalmerBalanceBeforeCreate,
+          viewStateFacet,
+        } = await createSarcoFixture({ shares, threshold }, sarcoName);
 
         const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
 
@@ -28,7 +34,11 @@ describe("Contract: EmbalmerFacet", () => {
           ethers.constants.Zero
         );
 
-        const percentage = Number.parseInt(process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "0") / 100;
+        const protocolFee: BigNumber = await viewStateFacet
+          .connect(deployer)
+          .getProtocolFeeBasePercentage();
+
+        const percentage = protocolFee.toNumber() / 100;
         const totalDiggingFeesNumber = Number.parseFloat(
           ethers.utils.formatEther(totalDiggingFees)
         );
