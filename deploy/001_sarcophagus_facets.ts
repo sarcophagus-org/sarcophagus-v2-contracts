@@ -9,7 +9,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
 
   // Get the address of the SarcoToken contract
-  if (hre.hardhatArguments.network === "develop" || !hre.hardhatArguments.network) {
+  if (
+    hre.hardhatArguments.network === "develop" ||
+    hre.hardhatArguments.network === "localhost" ||
+    !hre.hardhatArguments.network
+  ) {
     const sarcoTokenMock = await deploy("SarcoTokenMock", {
       from: deployer,
       log: true,

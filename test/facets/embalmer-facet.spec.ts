@@ -23,10 +23,20 @@ describe("Contract: EmbalmerFacet", () => {
         const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
 
         // Calculate the total fees (all digging fees)
-        const totalFees = archaeologists.reduce(
+        const totalDiggingFees: BigNumber = archaeologists.reduce(
           (acc, arch) => acc.add(calculateCursedBond(arch.diggingFee)),
-          BigNumber.from("0")
+          ethers.constants.Zero
         );
+
+        const percentage = Number.parseInt(process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "0") / 100;
+        const totalDiggingFeesNumber = Number.parseFloat(
+          ethers.utils.formatEther(totalDiggingFees)
+        );
+
+        const additionalCost = ethers.utils.parseEther(
+          (percentage * totalDiggingFeesNumber).toString()
+        );
+        const totalFees = totalDiggingFees.add(additionalCost);
 
         expect(embalmerBalanceAfter.toString()).to.equal(
           embalmerBalanceBeforeCreate.sub(totalFees).toString()
@@ -764,7 +774,7 @@ describe("Contract: EmbalmerFacet", () => {
           oneArchaeologist.archAddress
         );
 
-        expect(archData.diggingFeesPaid).to.be.equal(20);
+        expect(ethers.utils.parseEther("20").eq(archData.diggingFeesPaid as BigNumber)).to.be.true;
       });
     });
 

@@ -1,5 +1,5 @@
 import { BigNumber, ContractTransaction } from "ethers";
-import { deployments, ethers } from "hardhat";
+import { deployments } from "hardhat";
 import {
   AdminFacet,
   ArchaeologistFacet,
@@ -96,7 +96,7 @@ export const createSarcoFixture = (
         archaeologistFacet as ArchaeologistFacet,
         (sarcoToken as IERC20).connect(deployer),
         diamond.address,
-        maxRewrapInterval,
+        BigNumber.from(maxRewrapInterval),
         timestamp,
         config.archMinDiggingFee
       );

@@ -41,9 +41,9 @@ export async function spawnArchaologistsWithSignatures(
   archaeologistFacet: ArchaeologistFacet,
   sarcoToken: IERC20,
   diamondAddress: string,
-  maxRewrapInterval: number,
+  maxRewrapInterval: BigNumber,
   timestamp: number,
-  archMinDiggingFee: BigNumber = BigNumber.from("10")
+  archMinDiggingFee: BigNumber = ethers.utils.parseEther("10")
 ): Promise<[TestArchaeologist[], SignatureWithAccount[]]> {
   const unnamedAccounts = await getUnnamedAccounts();
   const archs: TestArchaeologist[] = [];
@@ -58,6 +58,7 @@ export async function spawnArchaologistsWithSignatures(
   ) {
     const shardDoubleHash = doubleHashFromShard(shards[shardI]);
     const acc = await ethers.getSigner(unnamedAccounts[accountI]);
+
     const signature = await sign(
       acc,
       [
