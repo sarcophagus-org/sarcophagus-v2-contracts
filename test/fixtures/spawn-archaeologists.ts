@@ -41,7 +41,7 @@ export async function spawnArchaologistsWithSignatures(
   archaeologistFacet: ArchaeologistFacet,
   sarcoToken: IERC20,
   diamondAddress: string,
-  maxRewrapInterval: BigNumber,
+  maxRewrapInterval: number,
   timestamp: number,
   archMinDiggingFee: BigNumber = ethers.utils.parseEther("10")
 ): Promise<[TestArchaeologist[], SignatureWithAccount[]]> {

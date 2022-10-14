@@ -96,7 +96,7 @@ export const createSarcoFixture = (
         archaeologistFacet as ArchaeologistFacet,
         (sarcoToken as IERC20).connect(deployer),
         diamond.address,
-        BigNumber.from(maxRewrapInterval),
+        maxRewrapInterval,
         timestamp,
         config.archMinDiggingFee
       );
