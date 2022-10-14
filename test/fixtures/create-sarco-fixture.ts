@@ -1,5 +1,5 @@
 import { BigNumber, ContractTransaction } from "ethers";
-import { deployments, ethers } from "hardhat";
+import { deployments } from "hardhat";
 import {
   AdminFacet,
   ArchaeologistFacet,
