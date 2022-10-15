@@ -5,20 +5,7 @@
     "strict": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "declaration": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "declaration": true
   },
-  "allowJs": false,
-  "include": [
-    "./scripts",
-    "./test",
-    "./typechain",
-    "./deploy",
-    "./types"
-  ],
-  "files": [
-    "./hardhat.config.ts",
-    "./test/fixtures/DeployedContracts.ts"
-  ],
+  "include": ["./typechain"]
 }

@@ -5,12 +5,7 @@ module.exports = {
     mocha: true,
     node: true,
   },
-  plugins: [
-    "@typescript-eslint",
-    "import",
-    "prettier",
-    "node"
-  ],
+  plugins: ["@typescript-eslint", "import", "prettier", "node"],
   extends: [
     "plugin:prettier/recommended",
     "plugin:node/recommended",
@@ -21,10 +16,7 @@ module.exports = {
     ecmaVersion: "latest",
   },
   rules: {
-    "node/no-unsupported-features/es-syntax": [
-      "error",
-      { ignores: ["modules"] }
-    ],
+    "node/no-unsupported-features/es-syntax": ["error", { ignores: ["modules"] }],
     "node/no-unpublished-require": 0,
     "node/no-unpublished-import": 0,
     "comma-dangle": "off",
@@ -63,7 +55,6 @@ module.exports = {
     "import/resolver": {
       typescript: {
         extensions: [".js", ".ts", ".d.ts"],
-
       },
       node: {
         extensions: [".js", ".ts", ".d.ts"],
