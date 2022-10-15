@@ -1,5 +1,5 @@
 // Transfer 10,000 sarco tokens to the embalmer
-const amountToTransfer =
+const amountToTransfer = "10000000000000000000000";
 const hre = require("hardhat");
 
 (async () => {
@@ -10,9 +10,9 @@ const hre = require("hardhat");
   const unsignedAccounts = await hre.getUnnamedAccounts();
   await sarcoToken.transfer(
     unsignedAccounts[0],
-    hre.ethers.BigNumber.from("10000000000000000000000")
+    hre.ethers.BigNumber.from(amountToTransfer)
   );
 
-  const newBalance = await sarcoToken.balanceOf(unsignedAccounts[0])
+  const newBalance = await sarcoToken.balanceOf(unsignedAccounts[0]);
   console.log("embalmer balance:", newBalance.toString());
 })();
