@@ -31,7 +31,6 @@ export const rewrapFixture = async (
     viewStateFacet,
     embalmerFacet,
     sarcoId,
-    curses,
     resurrectionTime: oldResurrectionTime,
   } = await createSarcoFixture({ ...config }, sarcoName);
 
@@ -81,6 +80,5 @@ export const rewrapFixture = async (
     totalProtocolFeesBeforeRewrap,
     contractBalanceBefore,
     tx,
-    curses,
   };
 };

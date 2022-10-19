@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./LibAppStorage.sol";
-import "../interfaces/ICurses.sol";
 
 contract AppStorageInit {
     /// @notice Initializes the app with default state values
@@ -12,8 +11,7 @@ contract AppStorageInit {
         IERC20 sarcoToken,
         uint256 protocolFeeBasePercentage,
         uint256 gracePeriod,
-        uint256 expirationThreshold,
-        ICurses curses
+        uint256 expirationThreshold
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
@@ -22,6 +20,5 @@ contract AppStorageInit {
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
         s.gracePeriod = gracePeriod;
         s.expirationThreshold = expirationThreshold;
-        s.curses = curses;
     }
 }

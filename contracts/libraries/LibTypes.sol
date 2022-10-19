@@ -64,7 +64,6 @@ library LibTypes {
         uint256 diggingFeesPaid;
         bytes32 unencryptedShardDoubleHash;
         bytes unencryptedShard;
-        uint256 curseTokenId;
     }
 
     // ArchaeologistProfile is used to store archaeologist profile data
