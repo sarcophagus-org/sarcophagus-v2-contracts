@@ -1,0 +1,1343 @@
+{
+  "address": "0x6Eb4E921C2E3610C29f3e6e55432891D5832Ebe8",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "archaeologistAccusalsIdentifier",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "archaeologistCleanupsIdentifier",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "archaeologistSuccessesIdentifier",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getArchaeologistAccusalsCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getArchaeologistCleanupsCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getArchaeologistProfile",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "exists",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "peerId",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minimumDiggingFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximumRewrapInterval",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "freeBond",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "cursedBond",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct LibTypes.ArchaeologistProfile",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getArchaeologistProfileAddressAtIndex",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getArchaeologistProfileAddresses",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "addresses",
+          "type": "address[]"
+        }
+      ],
+      "name": "getArchaeologistProfiles",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "exists",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "peerId",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minimumDiggingFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximumRewrapInterval",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "freeBond",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "cursedBond",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct LibTypes.ArchaeologistProfile[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getArchaeologistSarcophagi",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getArchaeologistSuccessOnSarcophagus",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getArchaeologistSuccessesCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "addresses",
+          "type": "address[]"
+        }
+      ],
+      "name": "getArchaeologistsStatistics",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "successes",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "accusals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "cleanups",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct LibTypes.ArchaeologistStatistics[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getCursedBond",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "embalmer",
+          "type": "address"
+        }
+      ],
+      "name": "getEmbalmerSarcophagi",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getExpirationThreshold",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getFreeBond",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getGracePeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getProtocolFeeBasePercentage",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "name": "getRecipientSarcophagi",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getRewards",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSarcophagus",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "enum LibTypes.SarcophagusState",
+              "name": "state",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bool",
+              "name": "canBeTransferred",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint8",
+              "name": "minShards",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "resurrectionTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximumRewrapInterval",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string[]",
+              "name": "arweaveTxIds",
+              "type": "string[]"
+            },
+            {
+              "internalType": "address",
+              "name": "embalmer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipientAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "archaeologists",
+              "type": "address[]"
+            }
+          ],
+          "internalType": "struct LibTypes.Sarcophagus",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "getSarcophagusArchaeologist",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "diggingFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "diggingFeesPaid",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "unencryptedShardDoubleHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "unencryptedShard",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct LibTypes.ArchaeologistStorage",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTotalProtocolFees",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xf92619a050a8fef0fbe0c90a8110b4b7e2235c2393a04da60e4fbe9e9665d873",
+  "receipt": {
+    "to": "0x4e59b44847b379578588920cA78FbF26c0B4956C",
+    "from": "0x16C5D075eC8F7fcA5FD893023CCFb45a0f7CDe8a",
+    "contractAddress": null,
+    "transactionIndex": 27,
+    "gasUsed": "2186287",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x49ee9b02cd5b483f938db39f18937043e267df5bb18559dcea217cfc81da3bf1",
+    "transactionHash": "0xf92619a050a8fef0fbe0c90a8110b4b7e2235c2393a04da60e4fbe9e9665d873",
+    "logs": [],
+    "blockNumber": 7798997,
+    "cumulativeGasUsed": "15998375",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "bb81ff8fd5e003ac11af6c87c560a8a6",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"archaeologistAccusalsIdentifier\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"archaeologistCleanupsIdentifier\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"archaeologistSuccessesIdentifier\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getArchaeologistAccusalsCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getArchaeologistCleanupsCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getArchaeologistProfile\",\"outputs\":[{\"components\":[{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cursedBond\",\"type\":\"uint256\"}],\"internalType\":\"struct LibTypes.ArchaeologistProfile\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"getArchaeologistProfileAddressAtIndex\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getArchaeologistProfileAddresses\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"addresses\",\"type\":\"address[]\"}],\"name\":\"getArchaeologistProfiles\",\"outputs\":[{\"components\":[{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cursedBond\",\"type\":\"uint256\"}],\"internalType\":\"struct LibTypes.ArchaeologistProfile[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getArchaeologistSarcophagi\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"getArchaeologistSuccessOnSarcophagus\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getArchaeologistSuccessesCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"addresses\",\"type\":\"address[]\"}],\"name\":\"getArchaeologistsStatistics\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"successes\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"accusals\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cleanups\",\"type\":\"uint256\"}],\"internalType\":\"struct LibTypes.ArchaeologistStatistics[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getCursedBond\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"embalmer\",\"type\":\"address\"}],\"name\":\"getEmbalmerSarcophagi\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getExpirationThreshold\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getFreeBond\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getGracePeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getProtocolFeeBasePercentage\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"}],\"name\":\"getRecipientSarcophagi\",\"outputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"\",\"type\":\"bytes32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getRewards\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"getSarcophagus\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"enum LibTypes.SarcophagusState\",\"name\":\"state\",\"type\":\"uint8\"},{\"internalType\":\"bool\",\"name\":\"canBeTransferred\",\"type\":\"bool\"},{\"internalType\":\"uint8\",\"name\":\"minShards\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"string[]\",\"name\":\"arweaveTxIds\",\"type\":\"string[]\"},{\"internalType\":\"address\",\"name\":\"embalmer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipientAddress\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"archaeologists\",\"type\":\"address[]\"}],\"internalType\":\"struct LibTypes.Sarcophagus\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"getSarcophagusArchaeologist\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"diggingFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"diggingFeesPaid\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"unencryptedShardDoubleHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"unencryptedShard\",\"type\":\"bytes\"}],\"internalType\":\"struct LibTypes.ArchaeologistStorage\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalProtocolFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"archaeologistAccusalsIdentifier(address,uint256)\":{\"params\":{\"archaeologist\":\"The address of an archaeologist\",\"index\":\"The index of the archaeologist's accused sarcophagi\"},\"returns\":{\"_0\":\"the identifier associated with the index of the archaeologist's accused sarcophagi\"}},\"archaeologistCleanupsIdentifier(address,uint256)\":{\"params\":{\"archaeologist\":\"The address of an archaeologist\",\"index\":\"The index of the archaeologist's leaned-up sarcophagi\"},\"returns\":{\"_0\":\"the identifier associated with the index of the archaeologist's cleaned-up sarcophagi\"}},\"archaeologistSuccessesIdentifier(address,uint256)\":{\"params\":{\"archaeologist\":\"The address of an archaeologist\",\"index\":\"The index of the archaeologist's unwrapped sarcophagi\"},\"returns\":{\"_0\":\"the identifier associated with the index of the archaeologist's unwrapped sarcophagi\"}},\"getArchaeologistAccusalsCount(address)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist whose accusations count is being returned\"}},\"getArchaeologistCleanupsCount(address)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist whose cleanups count is being returned\"}},\"getArchaeologistProfile(address)\":{\"params\":{\"archaeologist\":\"The archaeologist account's address\"},\"returns\":{\"_0\":\"the Archaeologist object\"}},\"getArchaeologistProfileAddressAtIndex(uint256)\":{\"params\":{\"index\":\"The index of the registered archaeologist\"},\"returns\":{\"_0\":\"address of the archaeologist\"}},\"getArchaeologistProfileAddresses()\":{\"returns\":{\"_0\":\"addresses of registered archaeologists\"}},\"getArchaeologistProfiles(address[])\":{\"params\":{\"addresses\":\"The list of archaeologist addresses\"},\"returns\":{\"_0\":\"The list of archaeologist profiles\"}},\"getArchaeologistSarcophagi(address)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist whose sarcophagi are being returned\"}},\"getArchaeologistSuccessOnSarcophagus(address,bytes32)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist\",\"sarcoId\":\"the sarcophagus to check if unwrapping occured\"}},\"getArchaeologistSuccessesCount(address)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist whose success\"}},\"getArchaeologistsStatistics(address[])\":{\"params\":{\"addresses\":\"The list of archaeologist addresses\"},\"returns\":{\"_0\":\"The list of archaeologist statistics\"}},\"getCursedBond(address)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist whose cursed bond is being returned\"}},\"getEmbalmerSarcophagi(address)\":{\"params\":{\"embalmer\":\"The address of the embalmer whose sarcophagi are being returned\"}},\"getExpirationThreshold()\":{\"returns\":{\"_0\":\"The expiration threshold\"}},\"getFreeBond(address)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist whose free bond is being returned\"}},\"getGracePeriod()\":{\"returns\":{\"_0\":\"The resurrection grace period\"}},\"getProtocolFeeBasePercentage()\":{\"returns\":{\"_0\":\"The protocol fee base percentage - protocolFeeBasePercentage\"}},\"getRecipientSarcophagi(address)\":{\"params\":{\"recipient\":\"The address of the recipient whose sarcophagi are being returned\"}},\"getRewards(address)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist whose reward is being returned\"}},\"getSarcophagus(bytes32)\":{\"params\":{\"sarcoId\":\"The identifier of the sarcophagus being returned\"}},\"getSarcophagusArchaeologist(bytes32,address)\":{\"params\":{\"archaeologist\":\"The address of the archaeologist whose data is being returned\",\"sarcoId\":\"The identifier of the sarcophagus whose data is being returned\"}},\"getTotalProtocolFees()\":{\"returns\":{\"_0\":\"The total protocol fees\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"archaeologistAccusalsIdentifier(address,uint256)\":{\"notice\":\"Returns the sarcophagus unique identifier for a given archaeologist and index of the accused sarcophagi\"},\"archaeologistCleanupsIdentifier(address,uint256)\":{\"notice\":\"Returns the sarcophagus unique identifier for a given archaeologist and index of the leaned-up sarcophagi\"},\"archaeologistSuccessesIdentifier(address,uint256)\":{\"notice\":\"Returns the sarcophagus unique identifier for a given archaeologist and index of the successfully unwrapped sarcophagi\"},\"getArchaeologistAccusalsCount(address)\":{\"notice\":\"Returns the number of accusations for an archaeologist.\"},\"getArchaeologistCleanupsCount(address)\":{\"notice\":\"Returns the number of cleanups for an archaeologist.\"},\"getArchaeologistProfile(address)\":{\"notice\":\"Given an archaeologist address, return that archaeologist's profile\"},\"getArchaeologistProfileAddressAtIndex(uint256)\":{\"notice\":\"Given an index (of the full archaeologist array), return the archaeologist address at that index\"},\"getArchaeologistProfileAddresses()\":{\"notice\":\"Return the list of registereed archaeologist addresses.\"},\"getArchaeologistProfiles(address[])\":{\"notice\":\"Gets archaeologist profiles given a list of archaeologist addresses. If an invalid address is included, simply leaves it out of the list.\"},\"getArchaeologistSarcophagi(address)\":{\"notice\":\"Given an archaeologist's address, returns the identifiers of all sarcophagi that the archaeologist has participated in.\"},\"getArchaeologistSuccessOnSarcophagus(address,bytes32)\":{\"notice\":\"Returns whether an archaeologist completed an unwrap for a sarcophagus\"},\"getArchaeologistSuccessesCount(address)\":{\"notice\":\"Returns the number of successful unwraps for an archaeologist.\"},\"getArchaeologistsStatistics(address[])\":{\"notice\":\"Gets all reputation statistics for each archaeologist Contains a list of counts for each category.\"},\"getCursedBond(address)\":{\"notice\":\"Returns the amount of cursed bond stored in the contract for an archaeologist.\"},\"getEmbalmerSarcophagi(address)\":{\"notice\":\"Given an embalmer's address, returns the identifiers of all sarcophagi that the embalmer has created.\"},\"getExpirationThreshold()\":{\"notice\":\"Gets the expiration threshold after which a sarcophagus must be renegotiated\"},\"getFreeBond(address)\":{\"notice\":\"Returns the amount of free bond stored in the contract for an archaeologist.\"},\"getGracePeriod()\":{\"notice\":\"Gets the grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time passes\"},\"getProtocolFeeBasePercentage()\":{\"notice\":\"Get the protocol fee base percentage from the contract.\"},\"getRecipientSarcophagi(address)\":{\"notice\":\"Given a recipient's address, returns the identifiers of all sarcophagi that the recipient has participated in.\"},\"getRewards(address)\":{\"notice\":\"Returns the amount of rewards stored in the contract for an archaeologist.\"},\"getSarcophagus(bytes32)\":{\"notice\":\"Returns a sarcophagus.\"},\"getSarcophagusArchaeologist(bytes32,address)\":{\"notice\":\"Returns the data stored on a sarcophagus for an archaeologist.\"},\"getTotalProtocolFees()\":{\"notice\":\"Gets the total protocol fees from the contract.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/facets/ViewStateFacet.sol\":\"ViewStateFacet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) external returns (bool);\\n}\\n\",\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\"},\"contracts/facets/ViewStateFacet.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport \\\"hardhat/console.sol\\\";\\nimport {AppStorage} from \\\"../storage/LibAppStorage.sol\\\";\\n\\ncontract ViewStateFacet {\\n    AppStorage internal s;\\n\\n    /// @notice Gets the total protocol fees from the contract.\\n    /// @return The total protocol fees\\n    function getTotalProtocolFees() external view returns (uint256) {\\n        return s.totalProtocolFees;\\n    }\\n\\n    /// @notice Get the protocol fee base percentage from the contract.\\n    /// @return The protocol fee base percentage - protocolFeeBasePercentage\\n    function getProtocolFeeBasePercentage() external view returns (uint256) {\\n        return s.protocolFeeBasePercentage;\\n    }\\n\\n    /// @notice Gets archaeologist profiles given a list of archaeologist addresses.\\n    /// If an invalid address is included, simply leaves it out of the list.\\n    /// @param addresses The list of archaeologist addresses\\n    /// @return The list of archaeologist profiles\\n    function getArchaeologistProfiles(address[] memory addresses)\\n        external\\n        view\\n        returns (LibTypes.ArchaeologistProfile[] memory)\\n    {\\n        LibTypes.ArchaeologistProfile[]\\n            memory profiles = new LibTypes.ArchaeologistProfile[](\\n                addresses.length\\n            );\\n\\n        for (uint256 i = 0; i < addresses.length; i++) {\\n            // Check that the archaeologist profile exists\\n            if (!s.archaeologistProfiles[addresses[i]].exists) {\\n                continue;\\n            }\\n            profiles[i] = s.archaeologistProfiles[addresses[i]];\\n        }\\n\\n        return profiles;\\n    }\\n\\n    /// @notice Gets the grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time passes\\n    /// @return The resurrection grace period\\n    function getGracePeriod() external view returns (uint256) {\\n        return s.gracePeriod;\\n    }\\n\\n    /// @notice Gets the expiration threshold after which a sarcophagus must be renegotiated\\n    /// @return The expiration threshold\\n    function getExpirationThreshold() external view returns (uint256) {\\n        return s.expirationThreshold;\\n    }\\n\\n    /// @notice Given an archaeologist address, return that archaeologist's\\n    /// profile\\n    /// @param archaeologist The archaeologist account's address\\n    /// @return the Archaeologist object\\n    function getArchaeologistProfile(address archaeologist)\\n        external\\n        view\\n        returns (LibTypes.ArchaeologistProfile memory)\\n    {\\n        return s.archaeologistProfiles[archaeologist];\\n    }\\n\\n    /// @notice Return the list of registereed archaeologist addresses.\\n    /// @return addresses of registered archaeologists\\n    function getArchaeologistProfileAddresses()\\n        external\\n        view\\n        returns (address[] memory)\\n    {\\n        return s.archaeologistProfileAddresses;\\n    }\\n\\n    /// @notice Given an index (of the full archaeologist array), return the\\n    /// archaeologist address at that index\\n    /// @param index The index of the registered archaeologist\\n    /// @return address of the archaeologist\\n    function getArchaeologistProfileAddressAtIndex(uint256 index)\\n        external\\n        view\\n        returns (address)\\n    {\\n        return s.archaeologistProfileAddresses[index];\\n    }\\n\\n    /// @notice Returns the amount of free bond stored in the contract for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being returned\\n    function getFreeBond(address archaeologist)\\n        external\\n        view\\n        returns (uint256)\\n    {\\n        return s.archaeologistProfiles[archaeologist].freeBond;\\n    }\\n\\n    /// @notice Returns the amount of rewards stored in the contract for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// reward is being returned\\n    function getRewards(address archaeologist) external view returns (uint256) {\\n        return s.archaeologistRewards[archaeologist];\\n    }\\n\\n    /// @notice Returns the amount of cursed bond stored in the contract for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being returned\\n    function getCursedBond(address archaeologist)\\n        external\\n        view\\n        returns (uint256)\\n    {\\n        return s.archaeologistProfiles[archaeologist].cursedBond;\\n    }\\n\\n    /// @notice Returns whether an archaeologist completed an unwrap for a sarcophagus\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param sarcoId the sarcophagus to check if unwrapping occured\\n    function getArchaeologistSuccessOnSarcophagus(\\n        address archaeologist,\\n        bytes32 sarcoId\\n    ) external view returns (bool) {\\n        return s.archaeologistSarcoSuccesses[archaeologist][sarcoId];\\n    }\\n\\n    /// @notice Returns the number of successful unwraps for an archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose success\\n    //  count is being returned\\n    function getArchaeologistSuccessesCount(address archaeologist)\\n        external\\n        view\\n        returns (uint256)\\n    {\\n        return s.archaeologistSuccesses[archaeologist].length;\\n    }\\n\\n    /// @notice Returns the sarcophagus unique identifier for a given\\n    /// archaeologist and index of the successfully unwrapped sarcophagi\\n    /// @param archaeologist The address of an archaeologist\\n    /// @param index The index of the archaeologist's unwrapped sarcophagi\\n    /// @return the identifier associated with the index of the archaeologist's\\n    /// unwrapped sarcophagi\\n    function archaeologistSuccessesIdentifier(\\n        address archaeologist,\\n        uint256 index\\n    )\\n        external\\n        view\\n        returns (bytes32)\\n    {\\n        return s.archaeologistSuccesses[archaeologist][index];\\n    }\\n\\n    /// @notice Returns the number of accusations for an archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose accusations\\n    /// count is being returned\\n    function getArchaeologistAccusalsCount(address archaeologist)\\n        external\\n        view\\n        returns (uint256)\\n    {\\n        return s.archaeologistAccusals[archaeologist].length;\\n    }\\n\\n    /// @notice Returns the sarcophagus unique identifier for a given\\n    /// archaeologist and index of the accused sarcophagi\\n    /// @param archaeologist The address of an archaeologist\\n    /// @param index The index of the archaeologist's accused sarcophagi\\n    /// @return the identifier associated with the index of the archaeologist's\\n    /// accused sarcophagi\\n    function archaeologistAccusalsIdentifier(\\n        address archaeologist,\\n        uint256 index\\n    )\\n        external\\n        view\\n        returns (bytes32)\\n    {\\n        return s.archaeologistAccusals[archaeologist][index];\\n    }\\n\\n    /// @notice Returns the number of cleanups for an archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose cleanups\\n    /// count is being returned\\n    function getArchaeologistCleanupsCount(address archaeologist)\\n        external\\n        view\\n        returns (uint256)\\n    {\\n        return s.archaeologistCleanups[archaeologist].length;\\n    }\\n\\n    /// @notice Returns the sarcophagus unique identifier for a given\\n    /// archaeologist and index of the leaned-up sarcophagi\\n    /// @param archaeologist The address of an archaeologist\\n    /// @param index The index of the archaeologist's leaned-up sarcophagi\\n    /// @return the identifier associated with the index of the archaeologist's\\n    /// cleaned-up sarcophagi\\n    function archaeologistCleanupsIdentifier(\\n        address archaeologist,\\n        uint256 index\\n    )\\n        external\\n        view\\n        returns (bytes32)\\n    {\\n        return s.archaeologistCleanups[archaeologist][index];\\n    }\\n\\n    /// @notice Gets all reputation statistics for each archaeologist\\n    /// Contains a list of counts for each category.\\n    /// @param addresses The list of archaeologist addresses\\n    /// @return The list of archaeologist statistics\\n    function getArchaeologistsStatistics(address[] memory addresses)\\n        external\\n        view\\n        returns (LibTypes.ArchaeologistStatistics[] memory)\\n    {\\n        LibTypes.ArchaeologistStatistics[]\\n        memory statsList = new LibTypes.ArchaeologistStatistics[](\\n            addresses.length\\n        );\\n\\n        for (uint256 i = 0; i < addresses.length; i++) {\\n            statsList[i] = LibTypes.ArchaeologistStatistics(\\n                this.getArchaeologistSuccessesCount(addresses[i]),\\n                this.getArchaeologistAccusalsCount(addresses[i]),\\n                this.getArchaeologistCleanupsCount(addresses[i])\\n            );\\n        }\\n\\n        return statsList;\\n    }\\n\\n    /// @notice Returns a sarcophagus.\\n    /// @param sarcoId The identifier of the sarcophagus being returned\\n    function getSarcophagus(bytes32 sarcoId)\\n        external\\n        view\\n        returns (LibTypes.Sarcophagus memory)\\n    {\\n        return s.sarcophagi[sarcoId];\\n    }\\n\\n    /// @notice Given an embalmer's address, returns the identifiers of all\\n    /// sarcophagi that the embalmer has created.\\n    /// @param embalmer The address of the embalmer whose sarcophagi are being\\n    /// returned\\n    function getEmbalmerSarcophagi(address embalmer)\\n        external\\n        view\\n        returns (bytes32[] memory)\\n    {\\n        return s.embalmerSarcophagi[embalmer];\\n    }\\n\\n    /// @notice Given an archaeologist's address, returns the identifiers of all\\n    /// sarcophagi that the archaeologist has participated in.\\n    /// @param archaeologist The address of the archaeologist whose sarcophagi\\n    /// are being returned\\n    function getArchaeologistSarcophagi(address archaeologist)\\n        external\\n        view\\n        returns (bytes32[] memory)\\n    {\\n        return s.archaeologistSarcophagi[archaeologist];\\n    }\\n\\n    /// @notice Given a recipient's address, returns the identifiers of all\\n    /// sarcophagi that the recipient has participated in.\\n    /// @param recipient The address of the recipient whose sarcophagi are being\\n    /// returned\\n    function getRecipientSarcophagi(address recipient)\\n        external\\n        view\\n        returns (bytes32[] memory)\\n    {\\n        return s.recipientSarcophagi[recipient];\\n    }\\n\\n    /// @notice Returns the data stored on a sarcophagus for an archaeologist.\\n    /// @param sarcoId The identifier of the sarcophagus whose data is being\\n    /// returned\\n    /// @param archaeologist The address of the archaeologist whose data is\\n    /// being returned\\n    function getSarcophagusArchaeologist(bytes32 sarcoId, address archaeologist)\\n        external\\n        view\\n        returns (LibTypes.ArchaeologistStorage memory)\\n    {\\n        return s.sarcophagusArchaeologists[sarcoId][archaeologist];\\n    }\\n}\\n\",\"keccak256\":\"0x9c576241a76437365aaf0df4b326698db03d11832c8c8e4fb29f66208b843b23\",\"license\":\"Unlicense\"},\"contracts/libraries/LibTypes.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title A collection of defined structs\\n * @notice This library defines the various data models that the Sarcophagus\\n * system uses\\n */\\nlibrary LibTypes {\\n    // DoesNotExist must come first on the list to be the default value\\n    enum SarcophagusState {\\n        DoesNotExist,\\n        Exists,\\n        Done\\n    }\\n\\n    // A struct of just the signature. This is used primarily by the\\n    // finalizeSarcophagus function for the arweave archaeologist. Note that,\\n    // unlike the regular archaeologists, the sarcophagus already stores the\\n    // single arweave archaeologist's address so there is no need to pass in the\\n    // address to the finalizeSarcophagus function.\\n    struct Signature {\\n        uint8 v;\\n        bytes32 r;\\n        bytes32 s;\\n    }\\n\\n    // Signature struct created to make passing in the signature argmuments into\\n    // finalizedSarcophagus easier and to avoid the \\\"stack too deep\\\" error.\\n    // Also attaching arachaeologist addresses so we can tie the signature back\\n    // to the address in finalizeSarcophagus.\\n    struct SignatureWithAccount {\\n        address account;\\n        uint8 v;\\n        bytes32 r;\\n        bytes32 s;\\n    }\\n\\n    // SelectedArchaeologistData is the struct that is passed into the\\n    // initializeSarcophagus function. Even though we don't need each storage\\n    // fee of the archaeologist, the storage fee is included in the struct to\\n    // reduce the stack size within the function, preventing the \\\"stack too\\n    // deep\\\" error.\\n    struct SelectedArchaeologistData {\\n        address archAddress;\\n        uint256 diggingFee;\\n        bytes32 unencryptedShardDoubleHash;\\n        uint8 v;\\n        bytes32 r;\\n        bytes32 s;\\n    }\\n\\n    // ArchaeologistStorage is the struct that is stored in AppStorage under the\\n    // sarcophagusArchaeologists mapping.\\n    //\\n    // The archaeologist address is left out since each archaeologist's address\\n    // is stored on the sarcophagus object as an array.\\n    //\\n    // The storage fee is left out because we only need to store the storage fee\\n    // of the archaeologist uploading to arweave, which will be stored directly\\n    // on the sarcophagus.\\n    struct ArchaeologistStorage {\\n        uint256 diggingFee;\\n        uint256 diggingFeesPaid;\\n        bytes32 unencryptedShardDoubleHash;\\n        bytes unencryptedShard;\\n    }\\n\\n    // ArchaeologistProfile is used to store archaeologist profile data\\n    struct ArchaeologistProfile {\\n        bool exists;\\n        string peerId;\\n        uint256 minimumDiggingFee;\\n        uint256 maximumRewrapInterval;\\n        uint256 freeBond;\\n        uint256 cursedBond;\\n    }\\n\\n    struct SarcophagusMemory {\\n        string name;\\n        address recipient;\\n        uint256 resurrectionTime;\\n        uint256 maximumRewrapInterval;\\n        bool canBeTransferred;\\n        uint8 minShards;\\n        uint256 timestamp;\\n    }\\n\\n    // The ArchaeologistStorage struct could be contained in this Sarcophagus\\n    // struct as a mapping, but it was put into it's own mapping\\n    // (sarcophagusArchaeologists) directly in AppStorage. Instead the\\n    // sarcophagus stores the addresses of each archaeologist added to it. This\\n    // was done to simplify the creation of a sarcophagus object in\\n    // initializeSarcophagus.\\n    struct Sarcophagus {\\n        string name;\\n        SarcophagusState state;\\n        bool canBeTransferred;\\n        uint8 minShards;\\n        uint256 resurrectionTime;\\n        uint256 maximumRewrapInterval;\\n        string[] arweaveTxIds;\\n        address embalmer;\\n        address recipientAddress;\\n        address[] archaeologists;\\n    }\\n\\n    struct MetadataAttributes {\\n        string sarcophagusName;\\n        uint256 diggingFee;\\n        uint256 resurrectionTime;\\n        uint256 diggingFeesPaid;\\n    }\\n\\n    // Only used in the ViewStateFacet to return statistics data.\\n    // Contains a list of sarcoIds for each category. We could simply return the counts of the\\n    // arrays but we are already storing the lists of sarcoIds so we may as well use them.\\n    struct ArchaeologistStatistics {\\n        uint256 successes;\\n        uint256 accusals;\\n        uint256 cleanups;\\n    }\\n}\\n\",\"keccak256\":\"0x6252c757b997627ca2c647dca874efa82a9dedf62ee0a14df015a73ee68a2725\",\"license\":\"Unlicense\"},\"contracts/storage/LibAppStorage.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\n\\n// Global storage for the app. Can be accessed in facets and in libraries\\nstruct AppStorage {\\n    IERC20 sarcoToken;\\n    // The percentage (i.e. 1 = 1%) of a sarcophagus' total digging fees that will be collected on\\n    // createSarcophagus and rewrapSarcophagus, paid by the embalmer\\n    uint256 protocolFeeBasePercentage;\\n    // The amount of protocol fees currently stored on the contract\\n    uint256 totalProtocolFees;\\n    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time\\n    uint256 gracePeriod;\\n    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated\\n    uint256 expirationThreshold;\\n    // sarcophagi\\n    bytes32[] sarcophagusIdentifiers;\\n    // archaeologist profiles\\n    address[] archaeologistProfileAddresses;\\n    mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;\\n\\n    // archaeologistSarcoSuccesses is needed by the clean function\\n    // to lookup whether an archaeologist has completed an unwrapping\\n    mapping(address => mapping(bytes32 => bool)) archaeologistSarcoSuccesses;\\n\\n    // Archaeologist reputation statistics\\n    mapping(address => bytes32[]) archaeologistSuccesses;\\n    mapping(address => bytes32[]) archaeologistAccusals;\\n    mapping(address => bytes32[]) archaeologistCleanups;\\n\\n    // Track how much archaeologists have made. To be credited and debited\\n    // as archaeologists fulfill their duties and withdraw their rewards\\n    mapping(address => uint256) archaeologistRewards;\\n    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;\\n    // sarcophagus ownerships\\n    mapping(address => bytes32[]) embalmerSarcophagi;\\n    mapping(address => bytes32[]) archaeologistSarcophagi;\\n    mapping(address => bytes32[]) recipientSarcophagi;\\n    // Mapping of unencrypted shard double hashes to archaeologists who are\\n    // responsible for them. Needed to optimise Accuse algo - unencrypted shard is\\n    // double hashed and used as a constant O(1) lookup here\\n    mapping(bytes32 => address) doubleHashedShardArchaeologists;\\n    // A mapping used to store an archaeologist's data on a sarcophagus.\\n    // Digging fees, storage fees, and the hashed shards of the\\n    // archaeologists all need to be stored per sarcophagus. This mapping of a\\n    // mapping stores the archaeologist's data we need per sarcophagus.\\n    // Example usage (to retrieve the digging fees an archaeologist may claim on some sarcophagus):\\n    //   LibTypes.ArchaeologistStorage bondedArchaeologist = sarcophagusArchaeologists[sarcoId][archAddress];\\n    //   uint256 diggingFees = bondedArchaeologist.diggingFees;\\n    mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;\\n}\\n\\nlibrary LibAppStorage {\\n    function getAppStorage() internal pure returns (AppStorage storage s) {\\n        // Set the position of our struct in contract storage\\n        // Since AppStorage s is the first and only state variable declared in\\n        // facets its position in contract storage is 0\\n        assembly {\\n            s.slot := 0\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x8344e9d5a7574c1602c4f854e19aa58c255311a057346307663fa56e8b6f5f08\",\"license\":\"Unlicense\"},\"hardhat/console.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity >= 0.4.22 <0.9.0;\\n\\nlibrary console {\\n\\taddress constant CONSOLE_ADDRESS = address(0x000000000000000000636F6e736F6c652e6c6f67);\\n\\n\\tfunction _sendLogPayload(bytes memory payload) private view {\\n\\t\\tuint256 payloadLength = payload.length;\\n\\t\\taddress consoleAddress = CONSOLE_ADDRESS;\\n\\t\\tassembly {\\n\\t\\t\\tlet payloadStart := add(payload, 32)\\n\\t\\t\\tlet r := staticcall(gas(), consoleAddress, payloadStart, payloadLength, 0, 0)\\n\\t\\t}\\n\\t}\\n\\n\\tfunction log() internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log()\\\"));\\n\\t}\\n\\n\\tfunction logInt(int p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(int)\\\", p0));\\n\\t}\\n\\n\\tfunction logUint(uint p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint)\\\", p0));\\n\\t}\\n\\n\\tfunction logString(string memory p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string)\\\", p0));\\n\\t}\\n\\n\\tfunction logBool(bool p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool)\\\", p0));\\n\\t}\\n\\n\\tfunction logAddress(address p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes(bytes memory p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes1(bytes1 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes1)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes2(bytes2 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes2)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes3(bytes3 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes3)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes4(bytes4 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes4)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes5(bytes5 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes5)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes6(bytes6 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes6)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes7(bytes7 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes7)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes8(bytes8 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes8)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes9(bytes9 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes9)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes10(bytes10 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes10)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes11(bytes11 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes11)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes12(bytes12 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes12)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes13(bytes13 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes13)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes14(bytes14 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes14)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes15(bytes15 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes15)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes16(bytes16 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes16)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes17(bytes17 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes17)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes18(bytes18 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes18)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes19(bytes19 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes19)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes20(bytes20 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes20)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes21(bytes21 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes21)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes22(bytes22 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes22)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes23(bytes23 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes23)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes24(bytes24 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes24)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes25(bytes25 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes25)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes26(bytes26 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes26)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes27(bytes27 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes27)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes28(bytes28 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes28)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes29(bytes29 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes29)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes30(bytes30 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes30)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes31(bytes31 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes31)\\\", p0));\\n\\t}\\n\\n\\tfunction logBytes32(bytes32 p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bytes32)\\\", p0));\\n\\t}\\n\\n\\tfunction log(uint p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint)\\\", p0));\\n\\t}\\n\\n\\tfunction log(string memory p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string)\\\", p0));\\n\\t}\\n\\n\\tfunction log(bool p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool)\\\", p0));\\n\\t}\\n\\n\\tfunction log(address p0) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address)\\\", p0));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(address p0, address p1) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address)\\\", p0, p1));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, uint p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,uint)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, string memory p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,string)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, bool p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,bool)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, address p2) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,address)\\\", p0, p1, p2));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, uint p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,uint,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, string memory p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,string,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, bool p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,bool,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(uint p0, address p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(uint,address,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, uint p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,uint,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, string memory p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,string,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, bool p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,bool,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(string memory p0, address p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(string,address,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, uint p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,uint,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, string memory p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,string,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, bool p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,bool,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(bool p0, address p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(bool,address,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, uint p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,uint,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, string memory p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,string,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, bool p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,bool,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, uint p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,uint,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, uint p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,uint,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, uint p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,uint,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, uint p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,uint,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, string memory p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,string,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, string memory p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,string,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, string memory p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,string,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, string memory p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,string,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, bool p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,bool,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, bool p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,bool,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, bool p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,bool,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, bool p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,bool,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, address p2, uint p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,address,uint)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, address p2, string memory p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,address,string)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, address p2, bool p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,address,bool)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n\\tfunction log(address p0, address p1, address p2, address p3) internal view {\\n\\t\\t_sendLogPayload(abi.encodeWithSignature(\\\"log(address,address,address,address)\\\", p0, p1, p2, p3));\\n\\t}\\n\\n}\\n\",\"keccak256\":\"0x72b6a1d297cd3b033d7c2e4a7e7864934bb767db6453623f1c3082c6534547f4\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061268e806100206000396000f3fe608060405234801561001057600080fd5b50600436106101585760003560e01c80638fbd55d2116100c3578063daa4d21b1161007c578063daa4d21b14610475578063dbd18388146104a5578063dc231f43146104c3578063de116f06146104f3578063ef60e4e714610523578063fb6fffb51461055357610158565b80638fbd55d2146103795780639c545639146103a95780639fdaded1146103c7578063a9328dcc146103e5578063c34e9bff14610415578063d31dedd11461044557610158565b80636b74d55a116101155780636b74d55a1461026b5780636ba5c8ef1461029b5780636c99bedc146102cb57806379ee54f7146102fb5780637aa9fd2f1461032b57806387927ce61461034957610158565b8063256909021461015d578063284f34de1461018d5780633fbb8930146101bd57806342e10bc8146101db5780634d0b67671461020b57806357babbaf1461023b575b600080fd5b610177600480360381019061017291906117ce565b610583565b6040516101849190611814565b60405180910390f35b6101a760048036038101906101a2919061185b565b6105d1565b6040516101b491906118b4565b60405180910390f35b6101c5610639565b6040516101d2919061198d565b60405180910390f35b6101f560048036038101906101f091906117ce565b6106ca565b6040516102029190611afb565b60405180910390f35b610225600480360381019061022091906117ce565b6107fb565b6040516102329190611bdb565b60405180910390f35b61025560048036038101906102509190611bfd565b610895565b6040516102629190611c39565b60405180910390f35b61028560048036038101906102809190611d9c565b6108df565b6040516102929190611ed6565b60405180910390f35b6102b560048036038101906102b09190611f24565b610b55565b6040516102c29190611f73565b60405180910390f35b6102e560048036038101906102e0919061185b565b610bbf565b6040516102f291906118b4565b60405180910390f35b610315600480360381019061031091906117ce565b610c27565b6040516103229190611814565b60405180910390f35b610333610c72565b6040516103409190611814565b60405180910390f35b610363600480360381019061035e91906117ce565b610c7e565b6040516103709190611814565b60405180910390f35b610393600480360381019061038e91906117ce565b610ccc565b6040516103a09190611814565b60405180910390f35b6103b1610d1a565b6040516103be9190611814565b60405180910390f35b6103cf610d26565b6040516103dc9190611814565b60405180910390f35b6103ff60048036038101906103fa9190611d9c565b610d32565b60405161040c91906120d9565b60405180910390f35b61042f600480360381019061042a91906117ce565b610f83565b60405161043c9190611bdb565b60405180910390f35b61045f600480360381019061045a91906117ce565b61101d565b60405161046c9190611814565b60405180910390f35b61048f600480360381019061048a91906117ce565b61106b565b60405161049c9190611814565b60405180910390f35b6104ad6110b9565b6040516104ba9190611814565b60405180910390f35b6104dd60048036038101906104d891906120fb565b6110c5565b6040516104ea91906121f3565b60405180910390f35b61050d60048036038101906105089190612215565b6111e3565b60405161051a91906124ee565b60405180910390f35b61053d600480360381019061053891906117ce565b611540565b60405161054a9190611bdb565b60405180910390f35b61056d6004803603810190610568919061185b565b6115da565b60405161057a91906118b4565b60405180910390f35b60008060090160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020805490509050919050565b60008060090160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020828154811061062657610625612510565b5b9060005260206000200154905092915050565b606060006006018054806020026020016040519081016040528092919081815260200182805480156106c057602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019060010190808311610676575b5050505050905090565b6106d2611642565b600060070160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206040518060c00160405290816000820160009054906101000a900460ff1615151515815260200160018201805461074a9061256e565b80601f01602080910402602001604051908101604052809291908181526020018280546107769061256e565b80156107c35780601f10610798576101008083540402835291602001916107c3565b820191906000526020600020905b8154815290600101906020018083116107a657829003601f168201915b505050505081526020016002820154815260200160038201548152602001600482015481526020016005820154815250509050919050565b6060600060100160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002080548060200260200160405190810160405280929190818152602001828054801561088957602002820191906000526020600020905b815481526020019060010190808311610875575b50505050509050919050565b60008060060182815481106108ad576108ac612510565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050919050565b60606000825167ffffffffffffffff8111156108fe576108fd611c59565b5b60405190808252806020026020018201604052801561093757816020015b61092461167a565b81526020019060019003908161091c5790505b50905060005b8351811015610b4b5760405180606001604052803073ffffffffffffffffffffffffffffffffffffffff1663256909028785815181106109805761097f612510565b5b60200260200101516040518263ffffffff1660e01b81526004016109a49190611c39565b602060405180830381865afa1580156109c1573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906109e591906125b4565b81526020013073ffffffffffffffffffffffffffffffffffffffff1663daa4d21b878581518110610a1957610a18612510565b5b60200260200101516040518263ffffffff1660e01b8152600401610a3d9190611c39565b602060405180830381865afa158015610a5a573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a7e91906125b4565b81526020013073ffffffffffffffffffffffffffffffffffffffff1663d31dedd1878581518110610ab257610ab1612510565b5b60200260200101516040518263ffffffff1660e01b8152600401610ad69190611c39565b602060405180830381865afa158015610af3573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b1791906125b4565b815250828281518110610b2d57610b2c612510565b5b60200260200101819052508080610b4390612610565b91505061093d565b5080915050919050565b60008060080160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600083815260200190815260200160002060009054906101000a900460ff16905092915050565b600080600a0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208281548110610c1457610c13612510565b5b9060005260206000200154905092915050565b600080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b60008060040154905090565b60008060070160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600501549050919050565b60008060070160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600401549050919050565b60008060020154905090565b60008060010154905090565b60606000825167ffffffffffffffff811115610d5157610d50611c59565b5b604051908082528060200260200182016040528015610d8a57816020015b610d77611642565b815260200190600190039081610d6f5790505b50905060005b8351811015610f795760006007016000858381518110610db357610db2612510565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff1615610f665760006007016000858381518110610e2557610e24612510565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206040518060c00160405290816000820160009054906101000a900460ff16151515158152602001600182018054610e9d9061256e565b80601f0160208091040260200160405190810160405280929190818152602001828054610ec99061256e565b8015610f165780601f10610eeb57610100808354040283529160200191610f16565b820191906000526020600020905b815481529060010190602001808311610ef957829003601f168201915b50505050508152602001600282015481526020016003820154815260200160048201548152602001600582015481525050828281518110610f5a57610f59612510565b5b60200260200101819052505b8080610f7190612610565b915050610d90565b5080915050919050565b60606000600e0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002080548060200260200160405190810160405280929190818152602001828054801561101157602002820191906000526020600020905b815481526020019060010190808311610ffd575b50505050509050919050565b600080600b0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020805490509050919050565b600080600a0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020805490509050919050565b60008060030154905090565b6110cd61169b565b6000601201600084815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206040518060800160405290816000820154815260200160018201548152602001600282015481526020016003820180546111599061256e565b80601f01602080910402602001604051908101604052809291908181526020018280546111859061256e565b80156111d25780601f106111a7576101008083540402835291602001916111d2565b820191906000526020600020905b8154815290600101906020018083116111b557829003601f168201915b505050505081525050905092915050565b6111eb6116c6565b6000600d0160008381526020019081526020016000206040518061014001604052908160008201805461121d9061256e565b80601f01602080910402602001604051908101604052809291908181526020018280546112499061256e565b80156112965780601f1061126b57610100808354040283529160200191611296565b820191906000526020600020905b81548152906001019060200180831161127957829003601f168201915b505050505081526020016001820160009054906101000a900460ff1660028111156112c4576112c3612242565b5b60028111156112d6576112d5612242565b5b81526020016001820160019054906101000a900460ff161515151581526020016001820160029054906101000a900460ff1660ff1660ff168152602001600282015481526020016003820154815260200160048201805480602002602001604051908101604052809291908181526020016000905b828210156113f757838290600052602060002001805461136a9061256e565b80601f01602080910402602001604051908101604052809291908181526020018280546113969061256e565b80156113e35780601f106113b8576101008083540402835291602001916113e3565b820191906000526020600020905b8154815290600101906020018083116113c657829003601f168201915b50505050508152602001906001019061134b565b5050505081526020016005820160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020016006820160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020016007820180548060200260200160405190810160405280929190818152602001828054801561153057602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190600101908083116114e6575b5050505050815250509050919050565b60606000600f0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208054806020026020016040519081016040528092919081815260200182805480156115ce57602002820191906000526020600020905b8154815260200190600101908083116115ba575b50505050509050919050565b600080600b0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020828154811061162f5761162e612510565b5b9060005260206000200154905092915050565b6040518060c0016040528060001515815260200160608152602001600081526020016000815260200160008152602001600081525090565b60405180606001604052806000815260200160008152602001600081525090565b6040518060800160405280600081526020016000815260200160008019168152602001606081525090565b60405180610140016040528060608152602001600060028111156116ed576116ec612242565b5b8152602001600015158152602001600060ff168152602001600081526020016000815260200160608152602001600073ffffffffffffffffffffffffffffffffffffffff168152602001600073ffffffffffffffffffffffffffffffffffffffff168152602001606081525090565b6000604051905090565b600080fd5b600080fd5b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600061179b82611770565b9050919050565b6117ab81611790565b81146117b657600080fd5b50565b6000813590506117c8816117a2565b92915050565b6000602082840312156117e4576117e3611766565b5b60006117f2848285016117b9565b91505092915050565b6000819050919050565b61180e816117fb565b82525050565b60006020820190506118296000830184611805565b92915050565b611838816117fb565b811461184357600080fd5b50565b6000813590506118558161182f565b92915050565b6000806040838503121561187257611871611766565b5b6000611880858286016117b9565b925050602061189185828601611846565b9150509250929050565b6000819050919050565b6118ae8161189b565b82525050565b60006020820190506118c960008301846118a5565b92915050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b61190481611790565b82525050565b600061191683836118fb565b60208301905092915050565b6000602082019050919050565b600061193a826118cf565b61194481856118da565b935061194f836118eb565b8060005b83811015611980578151611967888261190a565b975061197283611922565b925050600181019050611953565b5085935050505092915050565b600060208201905081810360008301526119a7818461192f565b905092915050565b60008115159050919050565b6119c4816119af565b82525050565b600081519050919050565b600082825260208201905092915050565b60005b83811015611a045780820151818401526020810190506119e9565b83811115611a13576000848401525b50505050565b6000601f19601f8301169050919050565b6000611a35826119ca565b611a3f81856119d5565b9350611a4f8185602086016119e6565b611a5881611a19565b840191505092915050565b611a6c816117fb565b82525050565b600060c083016000830151611a8a60008601826119bb565b5060208301518482036020860152611aa28282611a2a565b9150506040830151611ab76040860182611a63565b506060830151611aca6060860182611a63565b506080830151611add6080860182611a63565b5060a0830151611af060a0860182611a63565b508091505092915050565b60006020820190508181036000830152611b158184611a72565b905092915050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b611b528161189b565b82525050565b6000611b648383611b49565b60208301905092915050565b6000602082019050919050565b6000611b8882611b1d565b611b928185611b28565b9350611b9d83611b39565b8060005b83811015611bce578151611bb58882611b58565b9750611bc083611b70565b925050600181019050611ba1565b5085935050505092915050565b60006020820190508181036000830152611bf58184611b7d565b905092915050565b600060208284031215611c1357611c12611766565b5b6000611c2184828501611846565b91505092915050565b611c3381611790565b82525050565b6000602082019050611c4e6000830184611c2a565b92915050565b600080fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b611c9182611a19565b810181811067ffffffffffffffff82111715611cb057611caf611c59565b5b80604052505050565b6000611cc361175c565b9050611ccf8282611c88565b919050565b600067ffffffffffffffff821115611cef57611cee611c59565b5b602082029050602081019050919050565b600080fd5b6000611d18611d1384611cd4565b611cb9565b90508083825260208201905060208402830185811115611d3b57611d3a611d00565b5b835b81811015611d645780611d5088826117b9565b845260208401935050602081019050611d3d565b5050509392505050565b600082601f830112611d8357611d82611c54565b5b8135611d93848260208601611d05565b91505092915050565b600060208284031215611db257611db1611766565b5b600082013567ffffffffffffffff811115611dd057611dcf61176b565b5b611ddc84828501611d6e565b91505092915050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b606082016000820151611e276000850182611a63565b506020820151611e3a6020850182611a63565b506040820151611e4d6040850182611a63565b50505050565b6000611e5f8383611e11565b60608301905092915050565b6000602082019050919050565b6000611e8382611de5565b611e8d8185611df0565b9350611e9883611e01565b8060005b83811015611ec9578151611eb08882611e53565b9750611ebb83611e6b565b925050600181019050611e9c565b5085935050505092915050565b60006020820190508181036000830152611ef08184611e78565b905092915050565b611f018161189b565b8114611f0c57600080fd5b50565b600081359050611f1e81611ef8565b92915050565b60008060408385031215611f3b57611f3a611766565b5b6000611f49858286016117b9565b9250506020611f5a85828601611f0f565b9150509250929050565b611f6d816119af565b82525050565b6000602082019050611f886000830184611f64565b92915050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b600060c083016000830151611fd260008601826119bb565b5060208301518482036020860152611fea8282611a2a565b9150506040830151611fff6040860182611a63565b5060608301516120126060860182611a63565b5060808301516120256080860182611a63565b5060a083015161203860a0860182611a63565b508091505092915050565b600061204f8383611fba565b905092915050565b6000602082019050919050565b600061206f82611f8e565b6120798185611f99565b93508360208202850161208b85611faa565b8060005b858110156120c757848403895281516120a88582612043565b94506120b383612057565b925060208a0199505060018101905061208f565b50829750879550505050505092915050565b600060208201905081810360008301526120f38184612064565b905092915050565b6000806040838503121561211257612111611766565b5b600061212085828601611f0f565b9250506020612131858286016117b9565b9150509250929050565b600081519050919050565b600082825260208201905092915050565b60006121628261213b565b61216c8185612146565b935061217c8185602086016119e6565b61218581611a19565b840191505092915050565b60006080830160008301516121a86000860182611a63565b5060208301516121bb6020860182611a63565b5060408301516121ce6040860182611b49565b50606083015184820360608601526121e68282612157565b9150508091505092915050565b6000602082019050818103600083015261220d8184612190565b905092915050565b60006020828403121561222b5761222a611766565b5b600061223984828501611f0f565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b6003811061228257612281612242565b5b50565b600081905061229382612271565b919050565b60006122a382612285565b9050919050565b6122b381612298565b82525050565b600060ff82169050919050565b6122cf816122b9565b82525050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b600061230d8383611a2a565b905092915050565b6000602082019050919050565b600061232d826122d5565b61233781856122e0565b935083602082028501612349856122f1565b8060005b8581101561238557848403895281516123668582612301565b945061237183612315565b925060208a0199505060018101905061234d565b50829750879550505050505092915050565b600082825260208201905092915050565b60006123b3826118cf565b6123bd8185612397565b93506123c8836118eb565b8060005b838110156123f95781516123e0888261190a565b97506123eb83611922565b9250506001810190506123cc565b5085935050505092915050565b60006101408301600083015184820360008601526124248282611a2a565b915050602083015161243960208601826122aa565b50604083015161244c60408601826119bb565b50606083015161245f60608601826122c6565b5060808301516124726080860182611a63565b5060a083015161248560a0860182611a63565b5060c083015184820360c086015261249d8282612322565b91505060e08301516124b260e08601826118fb565b506101008301516124c76101008601826118fb565b506101208301518482036101208601526124e182826123a8565b9150508091505092915050565b600060208201905081810360008301526125088184612406565b905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061258657607f821691505b6020821081036125995761259861253f565b5b50919050565b6000815190506125ae8161182f565b92915050565b6000602082840312156125ca576125c9611766565b5b60006125d88482850161259f565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b600061261b826117fb565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff820361264d5761264c6125e1565b5b60018201905091905056fea264697066735822122009dca8f9bc6bc15614ff348be9ed4d1f01dc4130044dde7b541ba8cfa4878ed364736f6c634300080d0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106101585760003560e01c80638fbd55d2116100c3578063daa4d21b1161007c578063daa4d21b14610475578063dbd18388146104a5578063dc231f43146104c3578063de116f06146104f3578063ef60e4e714610523578063fb6fffb51461055357610158565b80638fbd55d2146103795780639c545639146103a95780639fdaded1146103c7578063a9328dcc146103e5578063c34e9bff14610415578063d31dedd11461044557610158565b80636b74d55a116101155780636b74d55a1461026b5780636ba5c8ef1461029b5780636c99bedc146102cb57806379ee54f7146102fb5780637aa9fd2f1461032b57806387927ce61461034957610158565b8063256909021461015d578063284f34de1461018d5780633fbb8930146101bd57806342e10bc8146101db5780634d0b67671461020b57806357babbaf1461023b575b600080fd5b610177600480360381019061017291906117ce565b610583565b6040516101849190611814565b60405180910390f35b6101a760048036038101906101a2919061185b565b6105d1565b6040516101b491906118b4565b60405180910390f35b6101c5610639565b6040516101d2919061198d565b60405180910390f35b6101f560048036038101906101f091906117ce565b6106ca565b6040516102029190611afb565b60405180910390f35b610225600480360381019061022091906117ce565b6107fb565b6040516102329190611bdb565b60405180910390f35b61025560048036038101906102509190611bfd565b610895565b6040516102629190611c39565b60405180910390f35b61028560048036038101906102809190611d9c565b6108df565b6040516102929190611ed6565b60405180910390f35b6102b560048036038101906102b09190611f24565b610b55565b6040516102c29190611f73565b60405180910390f35b6102e560048036038101906102e0919061185b565b610bbf565b6040516102f291906118b4565b60405180910390f35b610315600480360381019061031091906117ce565b610c27565b6040516103229190611814565b60405180910390f35b610333610c72565b6040516103409190611814565b60405180910390f35b610363600480360381019061035e91906117ce565b610c7e565b6040516103709190611814565b60405180910390f35b610393600480360381019061038e91906117ce565b610ccc565b6040516103a09190611814565b60405180910390f35b6103b1610d1a565b6040516103be9190611814565b60405180910390f35b6103cf610d26565b6040516103dc9190611814565b60405180910390f35b6103ff60048036038101906103fa9190611d9c565b610d32565b60405161040c91906120d9565b60405180910390f35b61042f600480360381019061042a91906117ce565b610f83565b60405161043c9190611bdb565b60405180910390f35b61045f600480360381019061045a91906117ce565b61101d565b60405161046c9190611814565b60405180910390f35b61048f600480360381019061048a91906117ce565b61106b565b60405161049c9190611814565b60405180910390f35b6104ad6110b9565b6040516104ba9190611814565b60405180910390f35b6104dd60048036038101906104d891906120fb565b6110c5565b6040516104ea91906121f3565b60405180910390f35b61050d60048036038101906105089190612215565b6111e3565b60405161051a91906124ee565b60405180910390f35b61053d600480360381019061053891906117ce565b611540565b60405161054a9190611bdb565b60405180910390f35b61056d6004803603810190610568919061185b565b6115da565b60405161057a91906118b4565b60405180910390f35b60008060090160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020805490509050919050565b60008060090160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020828154811061062657610625612510565b5b9060005260206000200154905092915050565b606060006006018054806020026020016040519081016040528092919081815260200182805480156106c057602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019060010190808311610676575b5050505050905090565b6106d2611642565b600060070160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206040518060c00160405290816000820160009054906101000a900460ff1615151515815260200160018201805461074a9061256e565b80601f01602080910402602001604051908101604052809291908181526020018280546107769061256e565b80156107c35780601f10610798576101008083540402835291602001916107c3565b820191906000526020600020905b8154815290600101906020018083116107a657829003601f168201915b505050505081526020016002820154815260200160038201548152602001600482015481526020016005820154815250509050919050565b6060600060100160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002080548060200260200160405190810160405280929190818152602001828054801561088957602002820191906000526020600020905b815481526020019060010190808311610875575b50505050509050919050565b60008060060182815481106108ad576108ac612510565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050919050565b60606000825167ffffffffffffffff8111156108fe576108fd611c59565b5b60405190808252806020026020018201604052801561093757816020015b61092461167a565b81526020019060019003908161091c5790505b50905060005b8351811015610b4b5760405180606001604052803073ffffffffffffffffffffffffffffffffffffffff1663256909028785815181106109805761097f612510565b5b60200260200101516040518263ffffffff1660e01b81526004016109a49190611c39565b602060405180830381865afa1580156109c1573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906109e591906125b4565b81526020013073ffffffffffffffffffffffffffffffffffffffff1663daa4d21b878581518110610a1957610a18612510565b5b60200260200101516040518263ffffffff1660e01b8152600401610a3d9190611c39565b602060405180830381865afa158015610a5a573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a7e91906125b4565b81526020013073ffffffffffffffffffffffffffffffffffffffff1663d31dedd1878581518110610ab257610ab1612510565b5b60200260200101516040518263ffffffff1660e01b8152600401610ad69190611c39565b602060405180830381865afa158015610af3573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b1791906125b4565b815250828281518110610b2d57610b2c612510565b5b60200260200101819052508080610b4390612610565b91505061093d565b5080915050919050565b60008060080160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600083815260200190815260200160002060009054906101000a900460ff16905092915050565b600080600a0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208281548110610c1457610c13612510565b5b9060005260206000200154905092915050565b600080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b60008060040154905090565b60008060070160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600501549050919050565b60008060070160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600401549050919050565b60008060020154905090565b60008060010154905090565b60606000825167ffffffffffffffff811115610d5157610d50611c59565b5b604051908082528060200260200182016040528015610d8a57816020015b610d77611642565b815260200190600190039081610d6f5790505b50905060005b8351811015610f795760006007016000858381518110610db357610db2612510565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff1615610f665760006007016000858381518110610e2557610e24612510565b5b602002602001015173ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206040518060c00160405290816000820160009054906101000a900460ff16151515158152602001600182018054610e9d9061256e565b80601f0160208091040260200160405190810160405280929190818152602001828054610ec99061256e565b8015610f165780601f10610eeb57610100808354040283529160200191610f16565b820191906000526020600020905b815481529060010190602001808311610ef957829003601f168201915b50505050508152602001600282015481526020016003820154815260200160048201548152602001600582015481525050828281518110610f5a57610f59612510565b5b60200260200101819052505b8080610f7190612610565b915050610d90565b5080915050919050565b60606000600e0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002080548060200260200160405190810160405280929190818152602001828054801561101157602002820191906000526020600020905b815481526020019060010190808311610ffd575b50505050509050919050565b600080600b0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020805490509050919050565b600080600a0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020805490509050919050565b60008060030154905090565b6110cd61169b565b6000601201600084815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206040518060800160405290816000820154815260200160018201548152602001600282015481526020016003820180546111599061256e565b80601f01602080910402602001604051908101604052809291908181526020018280546111859061256e565b80156111d25780601f106111a7576101008083540402835291602001916111d2565b820191906000526020600020905b8154815290600101906020018083116111b557829003601f168201915b505050505081525050905092915050565b6111eb6116c6565b6000600d0160008381526020019081526020016000206040518061014001604052908160008201805461121d9061256e565b80601f01602080910402602001604051908101604052809291908181526020018280546112499061256e565b80156112965780601f1061126b57610100808354040283529160200191611296565b820191906000526020600020905b81548152906001019060200180831161127957829003601f168201915b505050505081526020016001820160009054906101000a900460ff1660028111156112c4576112c3612242565b5b60028111156112d6576112d5612242565b5b81526020016001820160019054906101000a900460ff161515151581526020016001820160029054906101000a900460ff1660ff1660ff168152602001600282015481526020016003820154815260200160048201805480602002602001604051908101604052809291908181526020016000905b828210156113f757838290600052602060002001805461136a9061256e565b80601f01602080910402602001604051908101604052809291908181526020018280546113969061256e565b80156113e35780601f106113b8576101008083540402835291602001916113e3565b820191906000526020600020905b8154815290600101906020018083116113c657829003601f168201915b50505050508152602001906001019061134b565b5050505081526020016005820160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020016006820160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020016007820180548060200260200160405190810160405280929190818152602001828054801561153057602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190600101908083116114e6575b5050505050815250509050919050565b60606000600f0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208054806020026020016040519081016040528092919081815260200182805480156115ce57602002820191906000526020600020905b8154815260200190600101908083116115ba575b50505050509050919050565b600080600b0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020828154811061162f5761162e612510565b5b9060005260206000200154905092915050565b6040518060c0016040528060001515815260200160608152602001600081526020016000815260200160008152602001600081525090565b60405180606001604052806000815260200160008152602001600081525090565b6040518060800160405280600081526020016000815260200160008019168152602001606081525090565b60405180610140016040528060608152602001600060028111156116ed576116ec612242565b5b8152602001600015158152602001600060ff168152602001600081526020016000815260200160608152602001600073ffffffffffffffffffffffffffffffffffffffff168152602001600073ffffffffffffffffffffffffffffffffffffffff168152602001606081525090565b6000604051905090565b600080fd5b600080fd5b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600061179b82611770565b9050919050565b6117ab81611790565b81146117b657600080fd5b50565b6000813590506117c8816117a2565b92915050565b6000602082840312156117e4576117e3611766565b5b60006117f2848285016117b9565b91505092915050565b6000819050919050565b61180e816117fb565b82525050565b60006020820190506118296000830184611805565b92915050565b611838816117fb565b811461184357600080fd5b50565b6000813590506118558161182f565b92915050565b6000806040838503121561187257611871611766565b5b6000611880858286016117b9565b925050602061189185828601611846565b9150509250929050565b6000819050919050565b6118ae8161189b565b82525050565b60006020820190506118c960008301846118a5565b92915050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b61190481611790565b82525050565b600061191683836118fb565b60208301905092915050565b6000602082019050919050565b600061193a826118cf565b61194481856118da565b935061194f836118eb565b8060005b83811015611980578151611967888261190a565b975061197283611922565b925050600181019050611953565b5085935050505092915050565b600060208201905081810360008301526119a7818461192f565b905092915050565b60008115159050919050565b6119c4816119af565b82525050565b600081519050919050565b600082825260208201905092915050565b60005b83811015611a045780820151818401526020810190506119e9565b83811115611a13576000848401525b50505050565b6000601f19601f8301169050919050565b6000611a35826119ca565b611a3f81856119d5565b9350611a4f8185602086016119e6565b611a5881611a19565b840191505092915050565b611a6c816117fb565b82525050565b600060c083016000830151611a8a60008601826119bb565b5060208301518482036020860152611aa28282611a2a565b9150506040830151611ab76040860182611a63565b506060830151611aca6060860182611a63565b506080830151611add6080860182611a63565b5060a0830151611af060a0860182611a63565b508091505092915050565b60006020820190508181036000830152611b158184611a72565b905092915050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b611b528161189b565b82525050565b6000611b648383611b49565b60208301905092915050565b6000602082019050919050565b6000611b8882611b1d565b611b928185611b28565b9350611b9d83611b39565b8060005b83811015611bce578151611bb58882611b58565b9750611bc083611b70565b925050600181019050611ba1565b5085935050505092915050565b60006020820190508181036000830152611bf58184611b7d565b905092915050565b600060208284031215611c1357611c12611766565b5b6000611c2184828501611846565b91505092915050565b611c3381611790565b82525050565b6000602082019050611c4e6000830184611c2a565b92915050565b600080fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b611c9182611a19565b810181811067ffffffffffffffff82111715611cb057611caf611c59565b5b80604052505050565b6000611cc361175c565b9050611ccf8282611c88565b919050565b600067ffffffffffffffff821115611cef57611cee611c59565b5b602082029050602081019050919050565b600080fd5b6000611d18611d1384611cd4565b611cb9565b90508083825260208201905060208402830185811115611d3b57611d3a611d00565b5b835b81811015611d645780611d5088826117b9565b845260208401935050602081019050611d3d565b5050509392505050565b600082601f830112611d8357611d82611c54565b5b8135611d93848260208601611d05565b91505092915050565b600060208284031215611db257611db1611766565b5b600082013567ffffffffffffffff811115611dd057611dcf61176b565b5b611ddc84828501611d6e565b91505092915050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b606082016000820151611e276000850182611a63565b506020820151611e3a6020850182611a63565b506040820151611e4d6040850182611a63565b50505050565b6000611e5f8383611e11565b60608301905092915050565b6000602082019050919050565b6000611e8382611de5565b611e8d8185611df0565b9350611e9883611e01565b8060005b83811015611ec9578151611eb08882611e53565b9750611ebb83611e6b565b925050600181019050611e9c565b5085935050505092915050565b60006020820190508181036000830152611ef08184611e78565b905092915050565b611f018161189b565b8114611f0c57600080fd5b50565b600081359050611f1e81611ef8565b92915050565b60008060408385031215611f3b57611f3a611766565b5b6000611f49858286016117b9565b9250506020611f5a85828601611f0f565b9150509250929050565b611f6d816119af565b82525050565b6000602082019050611f886000830184611f64565b92915050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b600060c083016000830151611fd260008601826119bb565b5060208301518482036020860152611fea8282611a2a565b9150506040830151611fff6040860182611a63565b5060608301516120126060860182611a63565b5060808301516120256080860182611a63565b5060a083015161203860a0860182611a63565b508091505092915050565b600061204f8383611fba565b905092915050565b6000602082019050919050565b600061206f82611f8e565b6120798185611f99565b93508360208202850161208b85611faa565b8060005b858110156120c757848403895281516120a88582612043565b94506120b383612057565b925060208a0199505060018101905061208f565b50829750879550505050505092915050565b600060208201905081810360008301526120f38184612064565b905092915050565b6000806040838503121561211257612111611766565b5b600061212085828601611f0f565b9250506020612131858286016117b9565b9150509250929050565b600081519050919050565b600082825260208201905092915050565b60006121628261213b565b61216c8185612146565b935061217c8185602086016119e6565b61218581611a19565b840191505092915050565b60006080830160008301516121a86000860182611a63565b5060208301516121bb6020860182611a63565b5060408301516121ce6040860182611b49565b50606083015184820360608601526121e68282612157565b9150508091505092915050565b6000602082019050818103600083015261220d8184612190565b905092915050565b60006020828403121561222b5761222a611766565b5b600061223984828501611f0f565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b6003811061228257612281612242565b5b50565b600081905061229382612271565b919050565b60006122a382612285565b9050919050565b6122b381612298565b82525050565b600060ff82169050919050565b6122cf816122b9565b82525050565b600081519050919050565b600082825260208201905092915050565b6000819050602082019050919050565b600061230d8383611a2a565b905092915050565b6000602082019050919050565b600061232d826122d5565b61233781856122e0565b935083602082028501612349856122f1565b8060005b8581101561238557848403895281516123668582612301565b945061237183612315565b925060208a0199505060018101905061234d565b50829750879550505050505092915050565b600082825260208201905092915050565b60006123b3826118cf565b6123bd8185612397565b93506123c8836118eb565b8060005b838110156123f95781516123e0888261190a565b97506123eb83611922565b9250506001810190506123cc565b5085935050505092915050565b60006101408301600083015184820360008601526124248282611a2a565b915050602083015161243960208601826122aa565b50604083015161244c60408601826119bb565b50606083015161245f60608601826122c6565b5060808301516124726080860182611a63565b5060a083015161248560a0860182611a63565b5060c083015184820360c086015261249d8282612322565b91505060e08301516124b260e08601826118fb565b506101008301516124c76101008601826118fb565b506101208301518482036101208601526124e182826123a8565b9150508091505092915050565b600060208201905081810360008301526125088184612406565b905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061258657607f821691505b6020821081036125995761259861253f565b5b50919050565b6000815190506125ae8161182f565b92915050565b6000602082840312156125ca576125c9611766565b5b60006125d88482850161259f565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b600061261b826117fb565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff820361264d5761264c6125e1565b5b60018201905091905056fea264697066735822122009dca8f9bc6bc15614ff348be9ed4d1f01dc4130044dde7b541ba8cfa4878ed364736f6c634300080d0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "archaeologistAccusalsIdentifier(address,uint256)": {
+        "params": {
+          "archaeologist": "The address of an archaeologist",
+          "index": "The index of the archaeologist's accused sarcophagi"
+        },
+        "returns": {
+          "_0": "the identifier associated with the index of the archaeologist's accused sarcophagi"
+        }
+      },
+      "archaeologistCleanupsIdentifier(address,uint256)": {
+        "params": {
+          "archaeologist": "The address of an archaeologist",
+          "index": "The index of the archaeologist's leaned-up sarcophagi"
+        },
+        "returns": {
+          "_0": "the identifier associated with the index of the archaeologist's cleaned-up sarcophagi"
+        }
+      },
+      "archaeologistSuccessesIdentifier(address,uint256)": {
+        "params": {
+          "archaeologist": "The address of an archaeologist",
+          "index": "The index of the archaeologist's unwrapped sarcophagi"
+        },
+        "returns": {
+          "_0": "the identifier associated with the index of the archaeologist's unwrapped sarcophagi"
+        }
+      },
+      "getArchaeologistAccusalsCount(address)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist whose accusations count is being returned"
+        }
+      },
+      "getArchaeologistCleanupsCount(address)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist whose cleanups count is being returned"
+        }
+      },
+      "getArchaeologistProfile(address)": {
+        "params": {
+          "archaeologist": "The archaeologist account's address"
+        },
+        "returns": {
+          "_0": "the Archaeologist object"
+        }
+      },
+      "getArchaeologistProfileAddressAtIndex(uint256)": {
+        "params": {
+          "index": "The index of the registered archaeologist"
+        },
+        "returns": {
+          "_0": "address of the archaeologist"
+        }
+      },
+      "getArchaeologistProfileAddresses()": {
+        "returns": {
+          "_0": "addresses of registered archaeologists"
+        }
+      },
+      "getArchaeologistProfiles(address[])": {
+        "params": {
+          "addresses": "The list of archaeologist addresses"
+        },
+        "returns": {
+          "_0": "The list of archaeologist profiles"
+        }
+      },
+      "getArchaeologistSarcophagi(address)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist whose sarcophagi are being returned"
+        }
+      },
+      "getArchaeologistSuccessOnSarcophagus(address,bytes32)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist",
+          "sarcoId": "the sarcophagus to check if unwrapping occured"
+        }
+      },
+      "getArchaeologistSuccessesCount(address)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist whose success"
+        }
+      },
+      "getArchaeologistsStatistics(address[])": {
+        "params": {
+          "addresses": "The list of archaeologist addresses"
+        },
+        "returns": {
+          "_0": "The list of archaeologist statistics"
+        }
+      },
+      "getCursedBond(address)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist whose cursed bond is being returned"
+        }
+      },
+      "getEmbalmerSarcophagi(address)": {
+        "params": {
+          "embalmer": "The address of the embalmer whose sarcophagi are being returned"
+        }
+      },
+      "getExpirationThreshold()": {
+        "returns": {
+          "_0": "The expiration threshold"
+        }
+      },
+      "getFreeBond(address)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist whose free bond is being returned"
+        }
+      },
+      "getGracePeriod()": {
+        "returns": {
+          "_0": "The resurrection grace period"
+        }
+      },
+      "getProtocolFeeBasePercentage()": {
+        "returns": {
+          "_0": "The protocol fee base percentage - protocolFeeBasePercentage"
+        }
+      },
+      "getRecipientSarcophagi(address)": {
+        "params": {
+          "recipient": "The address of the recipient whose sarcophagi are being returned"
+        }
+      },
+      "getRewards(address)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist whose reward is being returned"
+        }
+      },
+      "getSarcophagus(bytes32)": {
+        "params": {
+          "sarcoId": "The identifier of the sarcophagus being returned"
+        }
+      },
+      "getSarcophagusArchaeologist(bytes32,address)": {
+        "params": {
+          "archaeologist": "The address of the archaeologist whose data is being returned",
+          "sarcoId": "The identifier of the sarcophagus whose data is being returned"
+        }
+      },
+      "getTotalProtocolFees()": {
+        "returns": {
+          "_0": "The total protocol fees"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "archaeologistAccusalsIdentifier(address,uint256)": {
+        "notice": "Returns the sarcophagus unique identifier for a given archaeologist and index of the accused sarcophagi"
+      },
+      "archaeologistCleanupsIdentifier(address,uint256)": {
+        "notice": "Returns the sarcophagus unique identifier for a given archaeologist and index of the leaned-up sarcophagi"
+      },
+      "archaeologistSuccessesIdentifier(address,uint256)": {
+        "notice": "Returns the sarcophagus unique identifier for a given archaeologist and index of the successfully unwrapped sarcophagi"
+      },
+      "getArchaeologistAccusalsCount(address)": {
+        "notice": "Returns the number of accusations for an archaeologist."
+      },
+      "getArchaeologistCleanupsCount(address)": {
+        "notice": "Returns the number of cleanups for an archaeologist."
+      },
+      "getArchaeologistProfile(address)": {
+        "notice": "Given an archaeologist address, return that archaeologist's profile"
+      },
+      "getArchaeologistProfileAddressAtIndex(uint256)": {
+        "notice": "Given an index (of the full archaeologist array), return the archaeologist address at that index"
+      },
+      "getArchaeologistProfileAddresses()": {
+        "notice": "Return the list of registereed archaeologist addresses."
+      },
+      "getArchaeologistProfiles(address[])": {
+        "notice": "Gets archaeologist profiles given a list of archaeologist addresses. If an invalid address is included, simply leaves it out of the list."
+      },
+      "getArchaeologistSarcophagi(address)": {
+        "notice": "Given an archaeologist's address, returns the identifiers of all sarcophagi that the archaeologist has participated in."
+      },
+      "getArchaeologistSuccessOnSarcophagus(address,bytes32)": {
+        "notice": "Returns whether an archaeologist completed an unwrap for a sarcophagus"
+      },
+      "getArchaeologistSuccessesCount(address)": {
+        "notice": "Returns the number of successful unwraps for an archaeologist."
+      },
+      "getArchaeologistsStatistics(address[])": {
+        "notice": "Gets all reputation statistics for each archaeologist Contains a list of counts for each category."
+      },
+      "getCursedBond(address)": {
+        "notice": "Returns the amount of cursed bond stored in the contract for an archaeologist."
+      },
+      "getEmbalmerSarcophagi(address)": {
+        "notice": "Given an embalmer's address, returns the identifiers of all sarcophagi that the embalmer has created."
+      },
+      "getExpirationThreshold()": {
+        "notice": "Gets the expiration threshold after which a sarcophagus must be renegotiated"
+      },
+      "getFreeBond(address)": {
+        "notice": "Returns the amount of free bond stored in the contract for an archaeologist."
+      },
+      "getGracePeriod()": {
+        "notice": "Gets the grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time passes"
+      },
+      "getProtocolFeeBasePercentage()": {
+        "notice": "Get the protocol fee base percentage from the contract."
+      },
+      "getRecipientSarcophagi(address)": {
+        "notice": "Given a recipient's address, returns the identifiers of all sarcophagi that the recipient has participated in."
+      },
+      "getRewards(address)": {
+        "notice": "Returns the amount of rewards stored in the contract for an archaeologist."
+      },
+      "getSarcophagus(bytes32)": {
+        "notice": "Returns a sarcophagus."
+      },
+      "getSarcophagusArchaeologist(bytes32,address)": {
+        "notice": "Returns the data stored on a sarcophagus for an archaeologist."
+      },
+      "getTotalProtocolFees()": {
+        "notice": "Gets the total protocol fees from the contract."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 3130,
+        "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+        "label": "s",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_struct(AppStorage)4640_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_bytes32)dyn_storage": {
+        "base": "t_bytes32",
+        "encoding": "dynamic_array",
+        "label": "bytes32[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_string_storage)dyn_storage": {
+        "base": "t_string_storage",
+        "encoding": "dynamic_array",
+        "label": "string[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_bytes_storage": {
+        "encoding": "bytes",
+        "label": "bytes",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IERC20)663": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_enum(SarcophagusState)4003": {
+        "encoding": "inplace",
+        "label": "enum LibTypes.SarcophagusState",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bytes32[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_bytes32)dyn_storage"
+      },
+      "t_mapping(t_address,t_mapping(t_bytes32,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(bytes32 => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_bytes32,t_bool)"
+      },
+      "t_mapping(t_address,t_struct(ArchaeologistProfile)4054_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct LibTypes.ArchaeologistProfile)",
+        "numberOfBytes": "32",
+        "value": "t_struct(ArchaeologistProfile)4054_storage"
+      },
+      "t_mapping(t_address,t_struct(ArchaeologistStorage)4041_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct LibTypes.ArchaeologistStorage)",
+        "numberOfBytes": "32",
+        "value": "t_struct(ArchaeologistStorage)4041_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_bytes32,t_address)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_bytes32,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes32,t_mapping(t_address,t_struct(ArchaeologistStorage)4041_storage))": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => mapping(address => struct LibTypes.ArchaeologistStorage))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_struct(ArchaeologistStorage)4041_storage)"
+      },
+      "t_mapping(t_bytes32,t_struct(Sarcophagus)4093_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct LibTypes.Sarcophagus)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Sarcophagus)4093_storage"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(AppStorage)4640_storage": {
+        "encoding": "inplace",
+        "label": "struct AppStorage",
+        "members": [
+          {
+            "astId": 4564,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "sarcoToken",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IERC20)663"
+          },
+          {
+            "astId": 4566,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "protocolFeeBasePercentage",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4568,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "totalProtocolFees",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4570,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "gracePeriod",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4572,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "expirationThreshold",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4575,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "sarcophagusIdentifiers",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_array(t_bytes32)dyn_storage"
+          },
+          {
+            "astId": 4578,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologistProfileAddresses",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_array(t_address)dyn_storage"
+          },
+          {
+            "astId": 4583,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologistProfiles",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_struct(ArchaeologistProfile)4054_storage)"
+          },
+          {
+            "astId": 4589,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologistSarcoSuccesses",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_mapping(t_bytes32,t_bool))"
+          },
+          {
+            "astId": 4594,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologistSuccesses",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 4599,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologistAccusals",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 4604,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologistCleanups",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 4608,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologistRewards",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 4613,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "sarcophagi",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_bytes32,t_struct(Sarcophagus)4093_storage)"
+          },
+          {
+            "astId": 4618,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "embalmerSarcophagi",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 4623,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologistSarcophagi",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 4628,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "recipientSarcophagi",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 4632,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "doubleHashedShardArchaeologists",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_mapping(t_bytes32,t_address)"
+          },
+          {
+            "astId": 4639,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "sarcophagusArchaeologists",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_mapping(t_bytes32,t_mapping(t_address,t_struct(ArchaeologistStorage)4041_storage))"
+          }
+        ],
+        "numberOfBytes": "608"
+      },
+      "t_struct(ArchaeologistProfile)4054_storage": {
+        "encoding": "inplace",
+        "label": "struct LibTypes.ArchaeologistProfile",
+        "members": [
+          {
+            "astId": 4043,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "exists",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool"
+          },
+          {
+            "astId": 4045,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "peerId",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 4047,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "minimumDiggingFee",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4049,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "maximumRewrapInterval",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4051,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "freeBond",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4053,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "cursedBond",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "192"
+      },
+      "t_struct(ArchaeologistStorage)4041_storage": {
+        "encoding": "inplace",
+        "label": "struct LibTypes.ArchaeologistStorage",
+        "members": [
+          {
+            "astId": 4034,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "diggingFee",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4036,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "diggingFeesPaid",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4038,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "unencryptedShardDoubleHash",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 4040,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "unencryptedShard",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bytes_storage"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_struct(Sarcophagus)4093_storage": {
+        "encoding": "inplace",
+        "label": "struct LibTypes.Sarcophagus",
+        "members": [
+          {
+            "astId": 4071,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "name",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 4074,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "state",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_enum(SarcophagusState)4003"
+          },
+          {
+            "astId": 4076,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "canBeTransferred",
+            "offset": 1,
+            "slot": "1",
+            "type": "t_bool"
+          },
+          {
+            "astId": 4078,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "minShards",
+            "offset": 2,
+            "slot": "1",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 4080,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "resurrectionTime",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4082,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "maximumRewrapInterval",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 4085,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "arweaveTxIds",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_array(t_string_storage)dyn_storage"
+          },
+          {
+            "astId": 4087,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "embalmer",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_address"
+          },
+          {
+            "astId": 4089,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "recipientAddress",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_address"
+          },
+          {
+            "astId": 4092,
+            "contract": "contracts/facets/ViewStateFacet.sol:ViewStateFacet",
+            "label": "archaeologists",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_array(t_address)dyn_storage"
+          }
+        ],
+        "numberOfBytes": "256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}
