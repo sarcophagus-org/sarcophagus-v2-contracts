@@ -73,6 +73,15 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
+    "keyv": "^4.5.0",
     "shamirs-secret-sharing-ts": "^1.0.2"
+  },
+  "overrides": {
+    "@nomiclabs/hardhat-waffle": {
+      "@nomiclabs/hardhat-ethers": "$@nomiclabs/hardhat-ethers"
+    },
+    "@openzeppelin/hardhat-upgrades": {
+      "@nomiclabs/hardhat-ethers": "$@nomiclabs/hardhat-ethers"
+    }
   }
 }
