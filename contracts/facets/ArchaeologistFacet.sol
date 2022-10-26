@@ -15,8 +15,7 @@ contract ArchaeologistFacet {
         bytes32 sarcoId,
         string arweaveTxId,
         address oldArchaeologist,
-        address newArchaeologist,
-        uint256 curseTokenId
+        address newArchaeologist
     );
 
     event UnwrapSarcophagus(bytes32 indexed sarcoId, bytes unencryptedShard);
@@ -316,8 +315,7 @@ contract ArchaeologistFacet {
             sarcoId,
             arweaveTxId,
             oldArchaeologist,
-            msg.sender,
-            newArchData.curseTokenId
+            msg.sender
         );
     }
 }

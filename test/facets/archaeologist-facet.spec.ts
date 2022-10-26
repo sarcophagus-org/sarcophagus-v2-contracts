@@ -769,10 +769,6 @@ describe("Contract: ArchaeologistFacet", () => {
           viewStateFacet,
         } = await finalizeTransferFixture();
 
-        const tokenId = (
-          await viewStateFacet.getSarcophagusArchaeologist(sarcoId, newArchaeologist.archAddress)
-        ).curseTokenId;
-
         await expect(tx)
           .emit(archaeologistFacet, "FinalizeTransfer")
           .withArgs(
@@ -780,7 +776,6 @@ describe("Contract: ArchaeologistFacet", () => {
             arweaveTxIds[1],
             oldArchaeologist.address,
             newArchaeologist.archAddress,
-            tokenId
           );
       });
     });

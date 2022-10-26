@@ -159,8 +159,7 @@ contract EmbalmerFacet {
                     diggingFee: arch.diggingFee,
                     diggingFeesPaid: 0,
                     unencryptedShardDoubleHash: arch.unencryptedShardDoubleHash,
-                    unencryptedShard: "",
-                    curseTokenId: 0
+                    unencryptedShard: ""
                 });
 
             // Map the double-hashed share to this archaeologist's address for easier referencing on accuse

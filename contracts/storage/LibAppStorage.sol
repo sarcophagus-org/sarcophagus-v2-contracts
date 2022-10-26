@@ -2,13 +2,11 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../interfaces/ICurses.sol";
 import "../libraries/LibTypes.sol";
 
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
     IERC20 sarcoToken;
-    ICurses curses;
     // The percentage (i.e. 1 = 1%) of a sarcophagus' total digging fees that will be collected on
     // createSarcophagus and rewrapSarcophagus, paid by the embalmer
     uint256 protocolFeeBasePercentage;

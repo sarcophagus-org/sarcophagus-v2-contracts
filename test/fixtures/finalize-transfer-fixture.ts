@@ -18,7 +18,6 @@ export const finalizeTransferFixture = async () => {
     arweaveTxIds,
     unbondedArchaeologists,
     diamond,
-    curses,
   } = await createSarcoFixture({ shares: 5, threshold: 3, addUnbondedArchs: 1 }, "Test Sarco");
 
   const newArchaeologist = unbondedArchaeologists[0];
@@ -45,11 +44,6 @@ export const finalizeTransferFixture = async () => {
   const newArchaeologistFreeBondBefore = await viewStateFacet.getFreeBond(
     newArchaeologist.archAddress
   );
-
-  // Transfer ownership of the curses ERC1155 contract to the diamond
-  const cursesOwnerAddress = await curses.owner();
-  const cursesOwnerSigner = await ethers.getSigner(cursesOwnerAddress);
-  await curses.connect(cursesOwnerSigner).transferOwnership(diamond.address);
 
   // Actually have the new archaeologist finalize the transfer
   const tx = archaeologistFacet
@@ -88,6 +82,5 @@ export const finalizeTransferFixture = async () => {
     newArchaeologistFreeBondBefore,
     newArchaeologistFreeBondAfter,
     bondAmount,
-    curses,
   };
 };

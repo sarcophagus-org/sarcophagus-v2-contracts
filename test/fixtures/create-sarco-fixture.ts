@@ -3,7 +3,6 @@ import { deployments } from "hardhat";
 import {
   AdminFacet,
   ArchaeologistFacet,
-  CursesMock,
   EmbalmerFacet,
   IERC20,
   ThirdPartyFacet,
@@ -58,7 +57,6 @@ export const createSarcoFixture = (
 
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
       const sarcoToken = await ethers.getContract("SarcoTokenMock");
-      const curses = await ethers.getContract("CursesMock");
       const embalmerFacet = (await ethers.getContractAt(
         "EmbalmerFacet",
         diamond.address
@@ -73,9 +71,6 @@ export const createSarcoFixture = (
 
       // Approve the embalmer on the sarco token
       await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
-
-      // Approve the diamond contract on the 1155 curses token
-      await curses.connect(deployer).setApprovalForAll(diamond.address, true);
 
       // Set up the data for the sarcophagus
       // 64-byte key:
@@ -189,7 +184,6 @@ export const createSarcoFixture = (
         maximumRewrapInterval: maxRewrapInterval,
         archMinDiggingFee: config.archMinDiggingFee,
         sarcoToken: sarcoToken as IERC20,
-        curses: curses as CursesMock,
         embalmerFacet: embalmerFacet as EmbalmerFacet,
         archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
         thirdPartyFacet: thirdPartyFacet as ThirdPartyFacet,
