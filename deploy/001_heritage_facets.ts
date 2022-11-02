@@ -7,6 +7,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, diamond } = hre.deployments;
   const { deployer } = await hre.getNamedAccounts();
 
+  console.log('deployer: ', deployer)
+
   // Get the address of the HeritageToken contract
   if (
     hre.hardhatArguments.network === "develop" ||

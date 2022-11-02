@@ -34,7 +34,7 @@ export const createVaultFixture = (
     threshold: number;
     skipCreateTx?: boolean;
     skipAwaitCreateTx?: boolean;
-    addUnbondedArchs?: number;
+    addUnbondedSignatories?: number;
     arweaveTxIds?: string[];
     signatoryMinDiggingFee?: BigNumber;
   },
@@ -47,6 +47,7 @@ export const createVaultFixture = (
       await deployments.fixture();
 
       const namedAccounts = await getNamedAccounts();
+      
       const deployer = await ethers.getSigner(namedAccounts.deployer);
 
       // Get the entities interacting with the contracts
@@ -66,12 +67,13 @@ export const createVaultFixture = (
       const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
       const adminFacet = await ethers.getContractAt("AdminFacet", diamond.address);
 
+      
       // Transfer 100,000 heritage tokens to the vaultOwner
-      await heritageToken.transfer(vaultOwner.address, ethers.utils.parseEther("100000"));
-
+      let txTransfer = await heritageToken.transfer(vaultOwner.address, ethers.utils.parseEther("100000"));
+      
       // Approve the vaultOwner on the heritage token
-      await heritageToken.connect(vaultOwner).approve(diamond.address, ethers.constants.MaxUint256);
-
+      let txApprov = await heritageToken.connect(vaultOwner).approve(diamond.address, ethers.constants.MaxUint256);
+      
       // Set up the data for the vault
       // 64-byte key:
       const outerLayerPrivateKey =
@@ -98,12 +100,12 @@ export const createVaultFixture = (
 
       const unbondedSignatories: TestSignatory[] = [];
 
-      if (config.addUnbondedArchs !== undefined) {
+      if (config.addUnbondedSignatories !== undefined) {
         // use indices from tail-end of unnamed accounts that have not been
         // taken by signatories initialization above
         // (in spawnSignatoriesWithSignatures).
         const startI = unnamedAccounts.length - signatories.length - 1;
-        const endI = startI - config.addUnbondedArchs;
+        const endI = startI - config.addUnbondedSignatories;
 
         for (let i = startI; i > endI; i--) {
           const acc = await ethers.getSigner(unnamedAccounts[i]);
@@ -137,13 +139,14 @@ export const createVaultFixture = (
             );
         }
       }
-
+      
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
       const vaultOwnerBalanceBeforeCreate = await heritageToken.balanceOf(vaultOwner.address);
-
+      console.log('Got here: ', heritageToken.address, ', vowFacet: ', vaultOwnerFacet.address, ', vOwn: ', vaultOwner.address, ', config: ', config )
       // Create a vault as the vaultOwner
       let createTx: Promise<ContractTransaction> | undefined;
+      try{
       if (!config.skipCreateTx) {
         createTx = vaultOwnerFacet.connect(vaultOwner).createVault(
           vaultId,
@@ -161,9 +164,14 @@ export const createVaultFixture = (
         );
       }
 
+    }catch(err){
+      console.error('Error crreating: ',err)
+    }
+
       if (config.skipAwaitCreateTx !== true) {
         await createTx;
       }
+    
 
       return {
         vaultId,

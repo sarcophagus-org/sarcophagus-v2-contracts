@@ -1,9 +1,9 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
-import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
+import { SignatoryFacet, HeritageTokenMock, ViewStateFacet } from "../../typechain";
 import { SignatureWithAccount } from "../types";
-import { TestArchaeologist } from "../fixtures/spawn-archaeologists";
+import { TestSignatory } from "../fixtures/spawn-signatories";
 
 const flat = (data: string | string[]): string[] => {
   return data instanceof Array ? data : [data];
@@ -45,8 +45,8 @@ export async function signMultiple(
   const signatures: SignatureWithAccount[] = [];
 
   for (const signer of signers) {
-    // Sign a message and add to signatures. Only sign if the archaeologist
-    // is not the arweave archaeologist
+    // Sign a message and add to signatures. Only sign if the signatory
+    // is not the arweave signatory
     const signature = await sign(signer, message, "bytes32");
 
     signatures.push(Object.assign(signature, { account: signer.address }));
@@ -67,20 +67,20 @@ export const increaseNextBlockTimestamp = async (sec: number): Promise<void> => 
 };
 
 /**
- * Gets a list of archaeologist sarco balances.
+ * Gets a list of signatory heritageToken balances.
  *
- * @param archaeologists A list of archaeologist signers
- * @returns a list of archaeologist sarco balanaces
+ * @param signatories A list of signatory signers
+ * @returns a list of signatory heritageToken balanaces
  */
-export const getArchaeologistSarcoBalances = async (
-  archaeologists: SignerWithAddress[],
-  sarcoToken: SarcoTokenMock
+export const getSignatoryVaultBalances = async (
+  signatories: SignerWithAddress[],
+  heritageToken: HeritageTokenMock
 ): Promise<{ address: string; balance: BigNumber }[]> => {
   const balances: { address: string; balance: BigNumber }[] = [];
-  for (const arch of archaeologists) {
-    const balance = await sarcoToken.balanceOf(arch.address);
+  for (const signatory of signatories) {
+    const balance = await heritageToken.balanceOf(signatory.address);
     balances.push({
-      address: arch.address,
+      address: signatory.address,
       balance: balance,
     });
   }
@@ -88,25 +88,25 @@ export const getArchaeologistSarcoBalances = async (
   return balances;
 };
 
-export const toSarco = (amount: number): BigNumber => {
+export const toVault = (amount: number): BigNumber => {
   return BigNumber.from((amount * 10 ** 18).toString());
 };
 
 /**
- * Gets a list of archaeologist sarco rewards.
+ * Gets a list of signatory heritageToken rewards.
  *
- * @param archaeologists A list of archaeologist signers
- * @returns a list of archaeologist sarco rewards
+ * @param signatories A list of signatory signers
+ * @returns a list of signatory heritageToken rewards
  */
-export const getArchaeologistSarcoRewards = async (
-  archaeologists: SignerWithAddress[],
+export const getSignatoryVaultRewards = async (
+  signatories: SignerWithAddress[],
   viewStateFacet: ViewStateFacet
 ): Promise<{ address: string; reward: BigNumber }[]> => {
   const rewards: { address: string; reward: BigNumber }[] = [];
-  for (const arch of archaeologists) {
-    const reward = await viewStateFacet.getRewards(arch.address);
+  for (const signatory of signatories) {
+    const reward = await viewStateFacet.getRewards(signatory.address);
     rewards.push({
-      address: arch.address,
+      address: signatory.address,
       reward: reward,
     });
   }
@@ -117,9 +117,9 @@ export const getArchaeologistSarcoRewards = async (
 // TODO: update if calculate cursed bond algorithm changes (or possibly this function will be removed)
 export const calculateCursedBond = (diggingFee: BigNumber): BigNumber => diggingFee;
 
-export const registerArchaeologist = async (
-  archaeologist: TestArchaeologist,
-  archaeologistFacet: ArchaeologistFacet,
+export const registerSignatory = async (
+  signatory: TestSignatory,
+  signatoryFacet: SignatoryFacet,
   minDiggingFee?: string,
   minRewrapInterval?: string,
   freeBond?: string,
@@ -130,9 +130,9 @@ export const registerArchaeologist = async (
   minRewrapInterval = minRewrapInterval || "10000";
   peerId = peerId || "myfakelibp2pPeerId";
 
-  await archaeologistFacet
-    .connect(archaeologist.signer)
-    .registerArchaeologist(
+  await signatoryFacet
+    .connect(signatory.signer)
+    .registerSignatory(
       peerId,
       BigNumber.from(minDiggingFee),
       BigNumber.from(minRewrapInterval),
@@ -140,17 +140,17 @@ export const registerArchaeologist = async (
     );
 };
 
-export const updateArchaeologist = async (
-  archaeologist: TestArchaeologist,
-  archaeologistFacet: ArchaeologistFacet,
+export const updateSignatory = async (
+  signatory: TestSignatory,
+  signatoryFacet: SignatoryFacet,
   minDiggingFee: string,
   minRewrapInterval: string,
   freeBond?: string,
   peerId?: string
 ): Promise<void> => {
-  await archaeologistFacet
-    .connect(archaeologist.signer)
-    .updateArchaeologist(
+  await signatoryFacet
+    .connect(signatory.signer)
+    .updateSignatory(
       peerId || "myfakelibp2pPeerId",
       BigNumber.from(minDiggingFee),
       BigNumber.from(minRewrapInterval),

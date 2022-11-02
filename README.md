@@ -52,6 +52,25 @@ npm publish
 Commit updated version to git
 
 
+## Upgrading Contracts
+
+### When testing with `npx hardhat test`
+Contracts are recompiled and redeployed every time tests are run this way, so the most recently saved contract code is always run.
+This is still the case even if `--network` is specified.
+
+### Deployed contracts
+To upgrade contracts that have already been deployed, simply run `npx hardhat deploy --network <networkName>` again.
+This does not re-deploy all facets - only those that have code changes.
+
+### Simulating an upgrade locally
+- Have a local node running `npx hardhat node`
+- Deploy the contracts `npx hardhat deploy --network localhost`
+- In `scripts/run.ts`, uncomment the `createSarcoScript` line
+- Run `npx hardhat run scripts/run.ts`. A sarchophagus would have been created on the locally running network.
+- Comment out the `createSarcoScript` line if needed.
+- Edit contract code, modify `run.ts` as needed to confirm changes have NOT been reflected.
+- Run `npx hardhat deploy --network localhost`. This will redeploy updated contract facets.
+- Modify `run.ts` as needed to confirm changes have now been reflected. Verify the diamond contract address remains same.
 
 
 ## Terms
