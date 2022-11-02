@@ -20,284 +20,284 @@ contract ViewStateFacet {
         return s.protocolFeeBasePercentage;
     }
 
-    /// @notice Gets archaeologist profiles given a list of archaeologist addresses.
+    /// @notice Gets signatory profiles given a list of signatory addresses.
     /// If an invalid address is included, simply leaves it out of the list.
-    /// @param addresses The list of archaeologist addresses
-    /// @return The list of archaeologist profiles
-    function getArchaeologistProfiles(address[] memory addresses)
+    /// @param addresses The list of signatory addresses
+    /// @return The list of signatory profiles
+    function getSignatoryProfiles(address[] memory addresses)
         external
         view
-        returns (LibTypes.ArchaeologistProfile[] memory)
+        returns (LibTypes.SignatoryProfile[] memory)
     {
-        LibTypes.ArchaeologistProfile[]
-            memory profiles = new LibTypes.ArchaeologistProfile[](
+        LibTypes.SignatoryProfile[]
+            memory profiles = new LibTypes.SignatoryProfile[](
                 addresses.length
             );
 
         for (uint256 i = 0; i < addresses.length; i++) {
-            // Check that the archaeologist profile exists
-            if (!s.archaeologistProfiles[addresses[i]].exists) {
+            // Check that the signatory profile exists
+            if (!s.signatoryProfiles[addresses[i]].exists) {
                 continue;
             }
-            profiles[i] = s.archaeologistProfiles[addresses[i]];
+            profiles[i] = s.signatoryProfiles[addresses[i]];
         }
 
         return profiles;
     }
 
-    /// @notice Gets the grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time passes
+    /// @notice Gets the grace period an signatory is given to resurrect a vault after the resurrection time passes
     /// @return The resurrection grace period
     function getGracePeriod() external view returns (uint256) {
         return s.gracePeriod;
     }
 
-    /// @notice Gets the expiration threshold after which a sarcophagus must be renegotiated
+    /// @notice Gets the expiration threshold after which a vault must be renegotiated
     /// @return The expiration threshold
     function getExpirationThreshold() external view returns (uint256) {
         return s.expirationThreshold;
     }
 
-    /// @notice Given an archaeologist address, return that archaeologist's
+    /// @notice Given an signatory address, return that signatory's
     /// profile
-    /// @param archaeologist The archaeologist account's address
-    /// @return the Archaeologist object
-    function getArchaeologistProfile(address archaeologist)
+    /// @param signatory The signatory account's address
+    /// @return the Signatory object
+    function getSignatoryProfile(address signatory)
         external
         view
-        returns (LibTypes.ArchaeologistProfile memory)
+        returns (LibTypes.SignatoryProfile memory)
     {
-        return s.archaeologistProfiles[archaeologist];
+        return s.signatoryProfiles[signatory];
     }
 
-    /// @notice Return the list of registereed archaeologist addresses.
-    /// @return addresses of registered archaeologists
-    function getArchaeologistProfileAddresses()
+    /// @notice Return the list of registereed signatory addresses.
+    /// @return addresses of registered signatories
+    function getSignatoryProfileAddresses()
         external
         view
         returns (address[] memory)
     {
-        return s.archaeologistProfileAddresses;
+        return s.signatoryProfileAddresses;
     }
 
-    /// @notice Given an index (of the full archaeologist array), return the
-    /// archaeologist address at that index
-    /// @param index The index of the registered archaeologist
-    /// @return address of the archaeologist
-    function getArchaeologistProfileAddressAtIndex(uint256 index)
+    /// @notice Given an index (of the full signatory array), return the
+    /// signatory address at that index
+    /// @param index The index of the registered signatory
+    /// @return address of the signatory
+    function getSignatoryProfileAddressAtIndex(uint256 index)
         external
         view
         returns (address)
     {
-        return s.archaeologistProfileAddresses[index];
+        return s.signatoryProfileAddresses[index];
     }
 
     /// @notice Returns the amount of free bond stored in the contract for an
-    /// archaeologist.
-    /// @param archaeologist The address of the archaeologist whose
+    /// signatory.
+    /// @param signatory The address of the signatory whose
     /// free bond is being returned
-    function getFreeBond(address archaeologist)
+    function getFreeBond(address signatory)
         external
         view
         returns (uint256)
     {
-        return s.archaeologistProfiles[archaeologist].freeBond;
+        return s.signatoryProfiles[signatory].freeBond;
     }
 
     /// @notice Returns the amount of rewards stored in the contract for an
-    /// archaeologist.
-    /// @param archaeologist The address of the archaeologist whose
+    /// signatory.
+    /// @param signatory The address of the signatory whose
     /// reward is being returned
-    function getRewards(address archaeologist) external view returns (uint256) {
-        return s.archaeologistRewards[archaeologist];
+    function getRewards(address signatory) external view returns (uint256) {
+        return s.signatoryRewards[signatory];
     }
 
     /// @notice Returns the amount of cursed bond stored in the contract for an
-    /// archaeologist.
-    /// @param archaeologist The address of the archaeologist whose
+    /// signatory.
+    /// @param signatory The address of the signatory whose
     /// cursed bond is being returned
-    function getCursedBond(address archaeologist)
+    function getCursedBond(address signatory)
         external
         view
         returns (uint256)
     {
-        return s.archaeologistProfiles[archaeologist].cursedBond;
+        return s.signatoryProfiles[signatory].cursedBond;
     }
 
-    /// @notice Returns whether an archaeologist completed an unwrap for a sarcophagus
-    /// @param archaeologist The address of the archaeologist
-    /// @param sarcoId the sarcophagus to check if unwrapping occured
-    function getArchaeologistSuccessOnSarcophagus(
-        address archaeologist,
-        bytes32 sarcoId
+    /// @notice Returns whether an signatory completed an unwrap for a vault
+    /// @param signatory The address of the signatory
+    /// @param vaultId the vault to check if unwrapping occured
+    function getSignatorySuccessOnVault(
+        address signatory,
+        bytes32 vaultId
     ) external view returns (bool) {
-        return s.archaeologistSarcoSuccesses[archaeologist][sarcoId];
+        return s.signatoryVaultSuccesses[signatory][vaultId];
     }
 
-    /// @notice Returns the number of successful unwraps for an archaeologist.
-    /// @param archaeologist The address of the archaeologist whose success
+    /// @notice Returns the number of successful unwraps for an signatory.
+    /// @param signatory The address of the signatory whose success
     //  count is being returned
-    function getArchaeologistSuccessesCount(address archaeologist)
+    function getSignatorySuccessesCount(address signatory)
         external
         view
         returns (uint256)
     {
-        return s.archaeologistSuccesses[archaeologist].length;
+        return s.signatorySuccesses[signatory].length;
     }
 
-    /// @notice Returns the sarcophagus unique identifier for a given
-    /// archaeologist and index of the successfully unwrapped sarcophagi
-    /// @param archaeologist The address of an archaeologist
-    /// @param index The index of the archaeologist's unwrapped sarcophagi
-    /// @return the identifier associated with the index of the archaeologist's
-    /// unwrapped sarcophagi
-    function archaeologistSuccessesIdentifier(
-        address archaeologist,
+    /// @notice Returns the vault unique identifier for a given
+    /// signatory and index of the successfully unwrapped vaults
+    /// @param signatory The address of an signatory
+    /// @param index The index of the signatory's unwrapped vaults
+    /// @return the identifier associated with the index of the signatory's
+    /// unwrapped vaults
+    function signatorySuccessesIdentifier(
+        address signatory,
         uint256 index
     )
         external
         view
         returns (bytes32)
     {
-        return s.archaeologistSuccesses[archaeologist][index];
+        return s.signatorySuccesses[signatory][index];
     }
 
-    /// @notice Returns the number of accusations for an archaeologist.
-    /// @param archaeologist The address of the archaeologist whose accusations
+    /// @notice Returns the number of accusations for an signatory.
+    /// @param signatory The address of the signatory whose accusations
     /// count is being returned
-    function getArchaeologistAccusalsCount(address archaeologist)
+    function getSignatoryAccusalsCount(address signatory)
         external
         view
         returns (uint256)
     {
-        return s.archaeologistAccusals[archaeologist].length;
+        return s.signatoryAccusals[signatory].length;
     }
 
-    /// @notice Returns the sarcophagus unique identifier for a given
-    /// archaeologist and index of the accused sarcophagi
-    /// @param archaeologist The address of an archaeologist
-    /// @param index The index of the archaeologist's accused sarcophagi
-    /// @return the identifier associated with the index of the archaeologist's
-    /// accused sarcophagi
-    function archaeologistAccusalsIdentifier(
-        address archaeologist,
+    /// @notice Returns the vault unique identifier for a given
+    /// signatory and index of the accused vaults
+    /// @param signatory The address of an signatory
+    /// @param index The index of the signatory's accused vaults
+    /// @return the identifier associated with the index of the signatory's
+    /// accused vaults
+    function signatoryAccusalsIdentifier(
+        address signatory,
         uint256 index
     )
         external
         view
         returns (bytes32)
     {
-        return s.archaeologistAccusals[archaeologist][index];
+        return s.signatoryAccusals[signatory][index];
     }
 
-    /// @notice Returns the number of cleanups for an archaeologist.
-    /// @param archaeologist The address of the archaeologist whose cleanups
+    /// @notice Returns the number of cleanups for an signatory.
+    /// @param signatory The address of the signatory whose cleanups
     /// count is being returned
-    function getArchaeologistCleanupsCount(address archaeologist)
+    function getSignatoryCleanupsCount(address signatory)
         external
         view
         returns (uint256)
     {
-        return s.archaeologistCleanups[archaeologist].length;
+        return s.signatoryCleanups[signatory].length;
     }
 
-    /// @notice Returns the sarcophagus unique identifier for a given
-    /// archaeologist and index of the leaned-up sarcophagi
-    /// @param archaeologist The address of an archaeologist
-    /// @param index The index of the archaeologist's leaned-up sarcophagi
-    /// @return the identifier associated with the index of the archaeologist's
-    /// cleaned-up sarcophagi
-    function archaeologistCleanupsIdentifier(
-        address archaeologist,
+    /// @notice Returns the vault unique identifier for a given
+    /// signatory and index of the leaned-up vaults
+    /// @param signatory The address of an signatory
+    /// @param index The index of the signatory's leaned-up vaults
+    /// @return the identifier associated with the index of the signatory's
+    /// cleaned-up vaults
+    function signatoryCleanupsIdentifier(
+        address signatory,
         uint256 index
     )
         external
         view
         returns (bytes32)
     {
-        return s.archaeologistCleanups[archaeologist][index];
+        return s.signatoryCleanups[signatory][index];
     }
 
-    /// @notice Gets all reputation statistics for each archaeologist
+    /// @notice Gets all reputation statistics for each signatory
     /// Contains a list of counts for each category.
-    /// @param addresses The list of archaeologist addresses
-    /// @return The list of archaeologist statistics
-    function getArchaeologistsStatistics(address[] memory addresses)
+    /// @param addresses The list of signatory addresses
+    /// @return The list of signatory statistics
+    function getSignatoriesStatistics(address[] memory addresses)
         external
         view
-        returns (LibTypes.ArchaeologistStatistics[] memory)
+        returns (LibTypes.SignatoryStatistics[] memory)
     {
-        LibTypes.ArchaeologistStatistics[]
-        memory statsList = new LibTypes.ArchaeologistStatistics[](
+        LibTypes.SignatoryStatistics[]
+        memory statsList = new LibTypes.SignatoryStatistics[](
             addresses.length
         );
 
         for (uint256 i = 0; i < addresses.length; i++) {
-            statsList[i] = LibTypes.ArchaeologistStatistics(
-                this.getArchaeologistSuccessesCount(addresses[i]),
-                this.getArchaeologistAccusalsCount(addresses[i]),
-                this.getArchaeologistCleanupsCount(addresses[i])
+            statsList[i] = LibTypes.SignatoryStatistics(
+                this.getSignatorySuccessesCount(addresses[i]),
+                this.getSignatoryAccusalsCount(addresses[i]),
+                this.getSignatoryCleanupsCount(addresses[i])
             );
         }
 
         return statsList;
     }
 
-    /// @notice Returns a sarcophagus.
-    /// @param sarcoId The identifier of the sarcophagus being returned
-    function getSarcophagus(bytes32 sarcoId)
+    /// @notice Returns a vault.
+    /// @param vaultId The identifier of the vault being returned
+    function getVault(bytes32 vaultId)
         external
         view
-        returns (LibTypes.Sarcophagus memory)
+        returns (LibTypes.Vault memory)
     {
-        return s.sarcophagi[sarcoId];
+        return s.vaults[vaultId];
     }
 
-    /// @notice Given an embalmer's address, returns the identifiers of all
-    /// sarcophagi that the embalmer has created.
-    /// @param embalmer The address of the embalmer whose sarcophagi are being
+    /// @notice Given an vaultOwner's address, returns the identifiers of all
+    /// vaults that the vaultOwner has created.
+    /// @param vaultOwner The address of the vaultOwner whose vaults are being
     /// returned
-    function getEmbalmerSarcophagi(address embalmer)
+    function getEmbalmerVaults(address vaultOwner)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.embalmerSarcophagi[embalmer];
+        return s.vaultOwnerVaults[vaultOwner];
     }
 
-    /// @notice Given an archaeologist's address, returns the identifiers of all
-    /// sarcophagi that the archaeologist has participated in.
-    /// @param archaeologist The address of the archaeologist whose sarcophagi
+    /// @notice Given an signatory's address, returns the identifiers of all
+    /// vaults that the signatory has participated in.
+    /// @param signatory The address of the signatory whose vaults
     /// are being returned
-    function getArchaeologistSarcophagi(address archaeologist)
+    function getSignatoryVaults(address signatory)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.archaeologistSarcophagi[archaeologist];
+        return s.signatoryVaults[signatory];
     }
 
     /// @notice Given a recipient's address, returns the identifiers of all
-    /// sarcophagi that the recipient has participated in.
-    /// @param recipient The address of the recipient whose sarcophagi are being
+    /// vaults that the recipient has participated in.
+    /// @param recipient The address of the recipient whose vaults are being
     /// returned
-    function getRecipientSarcophagi(address recipient)
+    function getRecipientVaults(address recipient)
         external
         view
         returns (bytes32[] memory)
     {
-        return s.recipientSarcophagi[recipient];
+        return s.recipientVaults[recipient];
     }
 
-    /// @notice Returns the data stored on a sarcophagus for an archaeologist.
-    /// @param sarcoId The identifier of the sarcophagus whose data is being
+    /// @notice Returns the data stored on a vault for an signatory.
+    /// @param vaultId The identifier of the vault whose data is being
     /// returned
-    /// @param archaeologist The address of the archaeologist whose data is
+    /// @param signatory The address of the signatory whose data is
     /// being returned
-    function getSarcophagusArchaeologist(bytes32 sarcoId, address archaeologist)
+    function getVaultSignatory(bytes32 vaultId, address signatory)
         external
         view
-        returns (LibTypes.ArchaeologistStorage memory)
+        returns (LibTypes.SignatoryStorage memory)
     {
-        return s.sarcophagusArchaeologists[sarcoId][archaeologist];
+        return s.vaultSignatories[vaultId][signatory];
     }
 }

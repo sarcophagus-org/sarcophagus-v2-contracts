@@ -6,51 +6,51 @@ import "../libraries/LibTypes.sol";
 
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
-    IERC20 sarcoToken;
-    // The percentage (i.e. 1 = 1%) of a sarcophagus' total digging fees that will be collected on
-    // createSarcophagus and rewrapSarcophagus, paid by the embalmer
+    IERC20 heritageToken;
+    // The percentage (i.e. 1 = 1%) of a vault' total digging fees that will be collected on
+    // createVault and rewrapVault, paid by the vaultOwner
     uint256 protocolFeeBasePercentage;
     // The amount of protocol fees currently stored on the contract
     uint256 totalProtocolFees;
-    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time
+    // grace period an signatory is given to resurrect a vault after the resurrection time
     uint256 gracePeriod;
-    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated
+    // threshold after which signatory signatures on vault params expire and the vault must be renegotiated
     uint256 expirationThreshold;
-    // sarcophagi
-    bytes32[] sarcophagusIdentifiers;
-    // archaeologist profiles
-    address[] archaeologistProfileAddresses;
-    mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;
+    // vaults
+    bytes32[] vaultIdentifiers;
+    // signatory profiles
+    address[] signatoryProfileAddresses;
+    mapping(address => LibTypes.SignatoryProfile) signatoryProfiles;
 
-    // archaeologistSarcoSuccesses is needed by the clean function
-    // to lookup whether an archaeologist has completed an unwrapping
-    mapping(address => mapping(bytes32 => bool)) archaeologistSarcoSuccesses;
+    // signatoryVaultSuccesses is needed by the clean function
+    // to lookup whether an signatory has completed an unwrapping
+    mapping(address => mapping(bytes32 => bool)) signatoryVaultSuccesses;
 
-    // Archaeologist reputation statistics
-    mapping(address => bytes32[]) archaeologistSuccesses;
-    mapping(address => bytes32[]) archaeologistAccusals;
-    mapping(address => bytes32[]) archaeologistCleanups;
+    // Signatory reputation statistics
+    mapping(address => bytes32[]) signatorySuccesses;
+    mapping(address => bytes32[]) signatoryAccusals;
+    mapping(address => bytes32[]) signatoryCleanups;
 
-    // Track how much archaeologists have made. To be credited and debited
-    // as archaeologists fulfill their duties and withdraw their rewards
-    mapping(address => uint256) archaeologistRewards;
-    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
-    // sarcophagus ownerships
-    mapping(address => bytes32[]) embalmerSarcophagi;
-    mapping(address => bytes32[]) archaeologistSarcophagi;
-    mapping(address => bytes32[]) recipientSarcophagi;
-    // Mapping of unencrypted shard double hashes to archaeologists who are
+    // Track how much signatories have made. To be credited and debited
+    // as signatories fulfill their duties and withdraw their rewards
+    mapping(address => uint256) signatoryRewards;
+    mapping(bytes32 => LibTypes.Vault) vaults;
+    // vault ownerships
+    mapping(address => bytes32[]) vaultOwnerVaults;
+    mapping(address => bytes32[]) signatoryVaults;
+    mapping(address => bytes32[]) recipientVaults;
+    // Mapping of unencrypted shard double hashes to signatories who are
     // responsible for them. Needed to optimise Accuse algo - unencrypted shard is
     // double hashed and used as a constant O(1) lookup here
-    mapping(bytes32 => address) doubleHashedShardArchaeologists;
-    // A mapping used to store an archaeologist's data on a sarcophagus.
+    mapping(bytes32 => address) doubleHashedShardSignatories;
+    // A mapping used to store an signatory's data on a vault.
     // Digging fees, storage fees, and the hashed shards of the
-    // archaeologists all need to be stored per sarcophagus. This mapping of a
-    // mapping stores the archaeologist's data we need per sarcophagus.
-    // Example usage (to retrieve the digging fees an archaeologist may claim on some sarcophagus):
-    //   LibTypes.ArchaeologistStorage bondedArchaeologist = sarcophagusArchaeologists[sarcoId][archAddress];
-    //   uint256 diggingFees = bondedArchaeologist.diggingFees;
-    mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;
+    // signatories all need to be stored per vault. This mapping of a
+    // mapping stores the signatory's data we need per vault.
+    // Example usage (to retrieve the digging fees an signatory may claim on some vault):
+    //   LibTypes.SignatoryStorage bondedSignatory = vaultSignatories[vaultId][archAddress];
+    //   uint256 diggingFees = bondedSignatory.diggingFees;
+    mapping(bytes32 => mapping(address => LibTypes.SignatoryStorage)) vaultSignatories;
 }
 
 library LibAppStorage {

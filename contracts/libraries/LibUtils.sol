@@ -6,9 +6,9 @@ import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 
 /**
- * @title Utility functions used within the Sarcophagus system
+ * @title Utility functions used within the Heritage system
  * @notice This library implements various functions that are used throughout
- * Sarcophagus, mainly to DRY up the codebase
+ * Heritage, mainly to DRY up the codebase
  * @dev these functions are all stateless, public, pure/view
  */
 library LibUtils {
@@ -32,32 +32,32 @@ library LibUtils {
         require(doubleHash == keccak256(singleHash), "hashes do not match");
     }
 
-    function archaeologistUnwrappedCheck(bytes32 sarcoId, address archaeologist)
+    function signatoryUnwrappedCheck(bytes32 vaultId, address signatory)
         internal
         view
     {
         if (
-            getArchaeologist(sarcoId, archaeologist).unencryptedShard.length > 0
+            getSignatory(vaultId, signatory).unencryptedShard.length > 0
         ) {
-            revert LibErrors.ArchaeologistAlreadyUnwrapped(archaeologist);
+            revert LibErrors.SignatoryAlreadyUnwrapped(signatory);
         }
     }
 
     /**
-     * @notice The archaeologist needs to sign off on two pieces of data
+     * @notice The signatory needs to sign off on two pieces of data
      * to guarantee their unrwap will be successful
      *
      * @param unencryptedShardDoubleHash the double hash of the unencrypted shard
      * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard
-     * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
-     * @param timestamp that the archaeologist has agreed to for the sarcophagus
-     * @param diggingFee that the archaeologist has agreed to for the sarcophagus
+     * @param agreedMaximumRewrapInterval that the signatory has agreed to for the vault
+     * @param timestamp that the signatory has agreed to for the vault
+     * @param diggingFee that the signatory has agreed to for the vault
      * @param v signature element
      * @param r signature element
      * @param s signature element
      * @param account address to confirm signature of data came from
      */
-    function verifyArchaeologistSignature(
+    function verifySignatorySignature(
         bytes32 unencryptedShardDoubleHash,
         string memory arweaveTxId,
         uint256 agreedMaximumRewrapInterval,
@@ -127,7 +127,7 @@ library LibUtils {
     /**
      * @notice Reverts if the current block timestamp is not within the resurrection window
      * (window = [resurrection time, resurrection time + grace period] inclusive)
-     * @param resurrectionTime the resurrection time of the sarcophagus
+     * @param resurrectionTime the resurrection time of the vault
      * (absolute, i.e. a date time stamp)
      */
     function unwrapTime(uint256 resurrectionTime) internal view {
@@ -150,77 +150,77 @@ library LibUtils {
         }
     }
 
-    /// @notice Checks if the archaeologist exists on the sarcophagus.
-    /// @param sarcoId the identifier of the sarcophagus
-    /// @param archaeologist the address of the archaeologist
-    /// @return The boolean true if the archaeologist exists on the sarcophagus
-    function archaeologistExistsOnSarc(bytes32 sarcoId, address archaeologist)
+    /// @notice Checks if the signatory exists on the vault.
+    /// @param vaultId the identifier of the vault
+    /// @param signatory the address of the signatory
+    /// @return The boolean true if the signatory exists on the vault
+    function signatoryExistsOnSarc(bytes32 vaultId, address signatory)
         internal
         view
         returns (bool)
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // If the doubleHashedShard on an archaeologist is 0 (which is its default value),
-        // then the archaeologist doesn't exist on the sarcophagus
+        // If the doubleHashedShard on an signatory is 0 (which is its default value),
+        // then the signatory doesn't exist on the vault
         return
             s
-            .sarcophagusArchaeologists[sarcoId][archaeologist]
+            .vaultSignatories[vaultId][signatory]
                 .unencryptedShardDoubleHash != 0;
     }
 
-    /// @notice Checks if an archaeologist profile exists and
+    /// @notice Checks if an signatory profile exists and
     /// reverts if so
     ///
-    /// @param archaeologist the archaeologist address to check existence of
-    function revertIfArchProfileExists(address archaeologist)
+    /// @param signatory the signatory address to check existence of
+    function revertIfSignatoryProfileExists(address signatory)
         internal
         view
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        if (s.archaeologistProfiles[archaeologist].exists) {
-            revert LibErrors.ArchaeologistProfileExistsShouldBe(
+        if (s.signatoryProfiles[signatory].exists) {
+            revert LibErrors.SignatoryProfileExistsShouldBe(
                 false,
-                archaeologist
+                signatory
             );
         }
     }
 
-    /// @notice Checks if an archaeologist profile doesn't exist and
+    /// @notice Checks if an signatory profile doesn't exist and
     /// reverts if so
     ///
-    /// @param archaeologist the archaeologist address to check lack of existence of
-    function revertIfArchProfileDoesNotExist(address archaeologist)
+    /// @param signatory the signatory address to check lack of existence of
+    function revertIfSignatoryProfileDoesNotExist(address signatory)
         internal
         view
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        if (!s.archaeologistProfiles[archaeologist].exists) {
-            revert LibErrors.ArchaeologistProfileExistsShouldBe(
+        if (!s.signatoryProfiles[signatory].exists) {
+            revert LibErrors.SignatoryProfileExistsShouldBe(
                 true,
-                archaeologist
+                signatory
             );
         }
     }
 
-    /// @notice Gets an archaeologist given the sarcophagus identifier and the
-    /// archaeologist's address.
-    /// @param sarcoId the identifier of the sarcophagus
-    /// @param archaeologist the address of the archaeologist
-    /// @return The archaeologist
-    function getArchaeologist(bytes32 sarcoId, address archaeologist)
+    /// @notice Gets an signatory given the vault identifier and the
+    /// signatory's address.
+    /// @param vaultId the identifier of the vault
+    /// @param signatory the address of the signatory
+    /// @return The signatory
+    function getSignatory(bytes32 vaultId, address signatory)
         internal
         view
-        returns (LibTypes.ArchaeologistStorage memory)
+        returns (LibTypes.SignatoryStorage memory)
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        return s.sarcophagusArchaeologists[sarcoId][archaeologist];
+        return s.vaultSignatories[vaultId][signatory];
     }
 
-    /// @notice Calculates the protocol fees to be taken from the embalmer.
+    /// @notice Calculates the protocol fees to be taken from the testator.
     /// @return The protocol fees amount
     function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();

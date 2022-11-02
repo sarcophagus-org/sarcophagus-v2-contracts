@@ -1,17 +1,17 @@
 import { deployments } from "hardhat";
-import { ArchaeologistFacet, IERC20, ViewStateFacet } from "../../typechain";
-import { TestArchaeologist } from "./spawn-archaeologists";
+import { SignatoryFacet, IERC20, ViewStateFacet } from "../../typechain";
+import { TestSignatory } from "./spawn-signatories";
 import { BigNumber } from "ethers";
 
 /**
  * A fixture to simply deploy contracts and return a set number of
- * archaeologists with balances and approvals.
+ * signatories with balances and approvals.
  *
- * Used when testing archaeologist functions that don't depend on
- * a sarcophagus.
+ * Used when testing signatory functions that don't depend on
+ * a vault.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const archeologistsFixture = (count: number) =>
+export const signatoriesFixture = (count: number) =>
   deployments.createFixture(
     async ({ deployments, getNamedAccounts, getUnnamedAccounts, ethers }) => {
       // Deploy contracts
@@ -21,18 +21,18 @@ export const archeologistsFixture = (count: number) =>
       const unnamedAccounts = await getUnnamedAccounts();
 
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
-      const sarcoToken = await ethers.getContract("SarcoTokenMock");
+      const heritageToken = await ethers.getContract("HeritageTokenMock");
 
-      const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
+      const signatoryFacet = await ethers.getContractAt("SignatoryFacet", diamond.address);
       const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
 
-      const archaeologists: TestArchaeologist[] = [];
+      const signatories: TestSignatory[] = [];
 
       for (let i = unnamedAccounts.length - 1; i >= unnamedAccounts.length - count; i--) {
         const acc = await ethers.getSigner(unnamedAccounts[i]);
 
-        archaeologists.push({
-          archAddress: acc.address,
+        signatories.push({
+          signatoryAddress: acc.address,
           unencryptedShardDoubleHash: "",
           unencryptedShard: [],
           signer: acc,
@@ -42,18 +42,18 @@ export const archeologistsFixture = (count: number) =>
           s: "",
         });
 
-        // Transfer 10,000 sarco tokens to each archaeologist to be put into free
+        // Transfer 10,000 heritage tokens to each signatory to be put into free
         // bond, and approve spending
-        await sarcoToken.transfer(acc.address, ethers.utils.parseEther("10000"));
+        await heritageToken.transfer(acc.address, ethers.utils.parseEther("10000"));
 
-        await sarcoToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
+        await heritageToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
       }
 
       return {
-        sarcoToken: sarcoToken as IERC20,
-        archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
+        heritageToken: heritageToken as IERC20,
+        signatoryFacet: signatoryFacet as SignatoryFacet,
         viewStateFacet: viewStateFacet as ViewStateFacet,
-        archaeologists,
+        signatories,
       };
     }
   )();

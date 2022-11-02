@@ -1,15 +1,15 @@
 import { BigNumber, ContractTransaction } from "ethers";
 import time from "../utils/time";
-import { createSarcoFixture } from "./create-sarco-fixture";
+import { createVaultFixture } from "./create-vault-fixture";
 
 /**
- * A fixture to initialize and finalize a sarcophagus to set up a test that
+ * A fixture to initialize and finalize a vault to set up a test that
  * performs a rewrapping.
  *
  * Defaults new resurrection time to 1 week from rewrap time.
  *
  * config has optional flags for skipping the rewrap
- * contract call, skipping finalising the sarcophagus, and not awaiting
+ * contract call, skipping finalising the vault, and not awaiting
  * the transaction Promise.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -19,20 +19,20 @@ export const rewrapFixture = async (
     threshold: number;
     skipRewrap?: boolean;
     skipAwaitRewrapTx?: boolean;
-    archMinDiggingFee?: BigNumber;
+    signatoryMinDiggingFee?: BigNumber;
   },
-  sarcoName = "test init",
+  vaultName = "test init",
   newResurrectionDuration?: number
 ) => {
   const {
-    sarcoToken,
-    embalmer,
-    archaeologists,
+    heritageToken,
+    vaultOwner,
+    signatories,
     viewStateFacet,
-    embalmerFacet,
-    sarcoId,
+    vaultOwnerFacet,
+    vaultId,
     resurrectionTime: oldResurrectionTime,
-  } = await createSarcoFixture({ ...config }, sarcoName);
+  } = await createVaultFixture({ ...config }, vaultName);
 
   // Advance to a minute before resurrection time
   await time.increase(time.duration.weeks(1) - 60);
@@ -43,23 +43,23 @@ export const rewrapFixture = async (
       ? currentTime + time.duration.weeks(1) // Default new resurrection time to 1 week from current time
       : currentTime + newResurrectionDuration;
 
-  // Get the embalmer's balance before rewrap
-  const embalmerBalanceBeforeRewrap = await sarcoToken.balanceOf(embalmer.address);
+  // Get the vaultOwner's balance before rewrap
+  const vaultOwnerBalanceBeforeRewrap = await heritageToken.balanceOf(vaultOwner.address);
 
   // Get the total protocol fees on the contract before rewrap
   const totalProtocolFeesBeforeRewrap = await viewStateFacet.getTotalProtocolFees();
 
-  // Get the contract's sarco balance before rewrap
-  const contractBalanceBefore = await sarcoToken.balanceOf(viewStateFacet.address);
+  // Get the contract's vault balance before rewrap
+  const contractBalanceBefore = await heritageToken.balanceOf(viewStateFacet.address);
 
-  // Calculate the sarco balances for each archaeologist before unwrap
-  const archBalancesBefore = await Promise.all(
-    archaeologists.map(async archaeologist => await sarcoToken.balanceOf(archaeologist.archAddress))
+  // Calculate the vault balances for each signatory before unwrap
+  const signatoryBalancesBefore = await Promise.all(
+    signatories.map(async signatory => await heritageToken.balanceOf(signatory.signatoryAddress))
   );
 
   let tx: Promise<ContractTransaction> | undefined;
   if (config.skipRewrap !== true) {
-    tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, _newResurrectionTime);
+    tx = vaultOwnerFacet.connect(vaultOwner).rewrapVault(vaultId, _newResurrectionTime);
   }
 
   if (config.skipAwaitRewrapTx !== true) {
@@ -68,15 +68,15 @@ export const rewrapFixture = async (
 
   return {
     viewStateFacet,
-    sarcoId,
+    vaultId,
     oldResurrectionTime,
     newResurrectionTime: _newResurrectionTime,
-    archaeologists,
-    sarcoToken,
-    archBalancesBefore,
-    embalmer,
-    embalmerBalanceBeforeRewrap,
-    embalmerFacet,
+    signatories,
+    heritageToken,
+    signatoryBalancesBefore,
+    vaultOwner,
+    vaultOwnerBalanceBeforeRewrap,
+    vaultOwnerFacet,
     totalProtocolFeesBeforeRewrap,
     contractBalanceBefore,
     tx,

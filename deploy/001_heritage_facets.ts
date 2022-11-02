@@ -2,28 +2,28 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  let sarcoTokenAddress: string;
+  let heritageTokenAddress: string;
 
   const { deploy, diamond } = hre.deployments;
   const { deployer } = await hre.getNamedAccounts();
 
-  // Get the address of the SarcoToken contract
+  // Get the address of the HeritageToken contract
   if (
     hre.hardhatArguments.network === "develop" ||
     hre.hardhatArguments.network === "localhost" ||
     !hre.hardhatArguments.network
   ) {
-    const sarcoTokenMock = await deploy("SarcoTokenMock", {
+    const heritageTokenMock = await deploy("HeritageTokenMock", {
       from: deployer,
       log: true,
     });
-    sarcoTokenAddress = sarcoTokenMock.address;
+    heritageTokenAddress = heritageTokenMock.address;
   } else if (["goerli", "goerli-fork"].includes(hre.hardhatArguments.network)) {
-    sarcoTokenAddress = process.env.SARCO_TOKEN_ADDRESS_GOERLI || "";
+    heritageTokenAddress = process.env.HERITAGE_TOKEN_ADDRESS_GOERLI || "";
   } else if (["mainnet", "mainnet-fork"].includes(hre.hardhatArguments.network)) {
-    sarcoTokenAddress = process.env.SARCO_TOKEN_ADDRESS_MAINNET || "";
+    heritageTokenAddress = process.env.HERITAGE_TOKEN_ADDRESS_MAINNET || "";
   } else {
-    throw Error(`Sarcophagus is not set up for this network: ${hre.hardhatArguments.network}`);
+    throw Error(`Heritage is not set up for this network: ${hre.hardhatArguments.network}`);
   }
 
   // Deploy the facets. Note that running diamond.deploy again will not redeploy
@@ -40,8 +40,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     owner: deployer,
     facets: [
-      "EmbalmerFacet",
-      "ArchaeologistFacet",
+      "VaultOwnerFacet",
+      "SignatoryFacet",
       "ThirdPartyFacet",
       "ViewStateFacet",
       "AdminFacet",
@@ -50,7 +50,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       contract: "AppStorageInit",
       methodName: "init",
       args: [
-        sarcoTokenAddress,
+        heritageTokenAddress,
         protocolFeeBasePercentage,
         gracePeriod,
         expirationThreshold

@@ -1,6 +1,6 @@
 {
-  "name": "@sarcophagus-org/sarcophagus-v2-contracts",
-  "version": "0.2.0",
+  "name": "heritage-contracts",
+  "version": "0.0.1",
   "engines": {
     "node": ">=16.15.0"
   },
@@ -23,15 +23,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sarcophagus-org/sarcophagus-v2-contracts.git"
+    "url": "git+https://github.com/layinka/heritage-contracts.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sarcophagus-org/sarcophagus-v2-contracts/issues"
+    "url": "https://github.com/layinka/heritage-contracts.git/issues"
   },
-  "homepage": "https://github.com/sarcophagus-org/sarcophagus-v2-contracts#readme",
+  "homepage": "https://github.com/layinka/heritage-contracts.git#readme",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.13",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",

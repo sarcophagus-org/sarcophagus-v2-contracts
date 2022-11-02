@@ -38,36 +38,36 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * npx hardhat generate-history --network localhost
  * ```
  *
- * The purpose of generating this data is so that we can have some metrics on the archaeologists on
+ * The purpose of generating this data is so that we can have some metrics on the signatories on
  * chain. This task is expensive and modifies the block timestamps and therefore cannot be run
  * anywhere other than localhost.
  *
  * Note that since this task modifies the block timestamps it will only work once, since subsequent
- * attempts to create a sarcophagus will cause the contract to think a sarcophagus is being created in
+ * attempts to create a vault will cause the contract to think a vault is being created in
  * the past. To run this command again, simply restart the node.
  *
- * Also note that the archaeologists being registered here will NOT appear on the list of
- * archaeologists in the web app. This is because each archaeologist must have an archaeologist
+ * Also note that the signatories being registered here will NOT appear on the list of
+ * signatories in the web app. This is because each signatory must have an signatory
  * service running in order to appear on the list. The web app may be modified temporarily to show
- * offline archaeologists for testing purposes, in which case these archaeologists will appear on
+ * offline signatories for testing purposes, in which case these signatories will appear on
  * the list.
  */
 task("generate-history", "Generates fake historical data for testing")
   .addOptionalParam(
-    "archaeologistCount",
-    "The number of archaeologists to register. Defaults to 20."
+    "signatoryCount",
+    "The number of signatories to register. Defaults to 20."
   )
   .addOptionalParam(
-    "sarcophagusCount",
-    "The number of sarcophagi to create. This uses a random number of archaeologists that have been registered. Defaults to 10."
+    "vaultCount",
+    "The number of vaults to create. This uses a random number of signatories that have been registered. Defaults to 10."
   )
   .addOptionalParam(
-    "accusedSarcophagusCount",
-    "The number of sarcophagi to accuse. All archaeologists on each sarcophagus will be accused. Defaults to 2 sarcophagi."
+    "accusedVaultCount",
+    "The number of vaults to accuse. All signatories on each vault will be accused. Defaults to 2 vaults."
   )
   .addOptionalParam(
-    "archaeologistUnwrapChance",
-    "The probability that an archaeologist will unwrap the sarcpohagi they are associated with. Defaults to 0.85."
+    "signatoryUnwrapChance",
+    "The probability that an signatory will unwrap the vaults they are associated with. Defaults to 0.85."
   )
   .setAction(generateHistory);
 
@@ -75,7 +75,7 @@ task("generate-history", "Generates fake historical data for testing")
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.13",
+  solidity: "0.8.17",
   namedAccounts: {
     deployer: {
       default: 0,

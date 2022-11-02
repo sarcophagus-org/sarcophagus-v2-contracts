@@ -1,17 +1,17 @@
-import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
+import { createVaultFixture } from "../fixtures/create-vault-fixture";
 import { BigNumber } from "ethers";
 import { expect } from "chai";
 
 const shares = 5;
 const threshold = 3;
-const sarcoName = "test init";
+const vaultName = "test init";
 
 describe("AdminFacet", () => {
   describe("setProtocolFee", () => {
     it("allows deployer of diamond contract to set the protocol fee", async () => {
-      const { deployer, adminFacet, viewStateFacet } = await createSarcoFixture(
+      const { deployer, adminFacet, viewStateFacet } = await createVaultFixture(
         { shares, threshold },
-        sarcoName
+        vaultName
       );
 
       const newProtocolFee = BigNumber.from("12");
@@ -22,19 +22,19 @@ describe("AdminFacet", () => {
     });
 
     it("reverts if non-deployer (owner) attempts to set the protocol fee", async () => {
-      const { embalmer, adminFacet } = await createSarcoFixture({ shares, threshold }, sarcoName);
+      const { vaultOwner, adminFacet } = await createVaultFixture({ shares, threshold }, vaultName);
 
       const protocolFee = BigNumber.from("12");
       await expect(
-        adminFacet.connect(embalmer).setProtocolFeeBasePercentage(protocolFee)
+        adminFacet.connect(vaultOwner).setProtocolFeeBasePercentage(protocolFee)
       ).to.be.revertedWith("LibDiamond: Must be contract owner");
     });
   });
   describe("setGracePeriod", () => {
     it("allows deployer of diamond contract to update the grace period", async () => {
-      const { deployer, adminFacet, viewStateFacet } = await createSarcoFixture(
+      const { deployer, adminFacet, viewStateFacet } = await createVaultFixture(
         { shares, threshold },
-        sarcoName
+        vaultName
       );
 
       const newGracePeriod = BigNumber.from("7200");
@@ -45,10 +45,10 @@ describe("AdminFacet", () => {
     });
 
     it("reverts if non-deployer (owner) attempts to set the grace period", async () => {
-      const { embalmer, adminFacet } = await createSarcoFixture({ shares, threshold }, sarcoName);
+      const { vaultOwner, adminFacet } = await createVaultFixture({ shares, threshold }, vaultName);
 
       const newGracePeriod = BigNumber.from("7200");
-      await expect(adminFacet.connect(embalmer).setGracePeriod(newGracePeriod)).to.be.revertedWith(
+      await expect(adminFacet.connect(vaultOwner).setGracePeriod(newGracePeriod)).to.be.revertedWith(
         "LibDiamond: Must be contract owner"
       );
     });
@@ -56,9 +56,9 @@ describe("AdminFacet", () => {
 
   describe("setExpirationThreshold", () => {
     it("allows deployer of diamond contract to update the expirationThreshold", async () => {
-      const { deployer, adminFacet, viewStateFacet } = await createSarcoFixture(
+      const { deployer, adminFacet, viewStateFacet } = await createVaultFixture(
         { shares, threshold },
-        sarcoName
+        vaultName
       );
 
       const newExpirationThreshold = BigNumber.from("7200");
@@ -69,11 +69,11 @@ describe("AdminFacet", () => {
     });
 
     it("reverts if non-deployer (owner) attempts to set the expirationThreshold", async () => {
-      const { embalmer, adminFacet } = await createSarcoFixture({ shares, threshold }, sarcoName);
+      const { vaultOwner, adminFacet } = await createVaultFixture({ shares, threshold }, vaultName);
 
       const newExpirationThreshold = BigNumber.from("7200");
       await expect(
-        adminFacet.connect(embalmer).setExpirationThreshold(newExpirationThreshold)
+        adminFacet.connect(vaultOwner).setExpirationThreshold(newExpirationThreshold)
       ).to.be.revertedWith("LibDiamond: Must be contract owner");
     });
   });

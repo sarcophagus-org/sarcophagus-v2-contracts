@@ -1,15 +1,15 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { accuseSarcophagus } from "./accuseSarcophagus";
-import { createSarcophagi } from "./createSarcophagi";
+import { accuseVault } from "./accuseVault";
+import { createVaults } from "./createVaults";
 import { increaseTo } from "./helpers";
-import { registerArchaeologists } from "./registerArchaeologists";
-import { unwrapSarcophagi } from "./unwrapSarcophagi";
+import { registerSignatories } from "./registerSignatories";
+import { unwrapVaults } from "./unwrapVaults";
 
 export interface GenerateHistoryTaskArgs {
-  archaeologistCount: string;
-  sarcophagusCount: string;
-  accusedSarcophagusCount: string;
-  archaeologistUnwrapChance: string;
+  signatoryCount: string;
+  vaultCount: string;
+  accusedVaultCount: string;
+  signatoryUnwrapChance: string;
 }
 
 /**
@@ -26,28 +26,28 @@ export async function generateHistory(
   }
 
   // Set for an adequate time in the future
-  const sarcophagusLifeTime = 10_000;
-  const resurrectionTime = Math.floor(Date.now() / 1000) + sarcophagusLifeTime;
+  const vaultLifeTime = 10_000;
+  const resurrectionTime = Math.floor(Date.now() / 1000) + vaultLifeTime;
 
-  // Register some archaeologists
-  const archaeologistSigners = await registerArchaeologists(hre);
+  // Register some signatories
+  const signatorySigners = await registerSignatories(hre);
 
-  // Create some sarcophagi
-  const sarcophagiData = await createSarcophagi(hre, archaeologistSigners, resurrectionTime);
+  // Create some vaults
+  const vaultsData = await createVaults(hre, signatorySigners, resurrectionTime);
 
-  // Accuse the archaeologists on some sarcophagi
-  const accusedSarcophagi = await accuseSarcophagus(hre, sarcophagiData);
+  // Accuse the signatories on some vaults
+  const accusedVaults = await accuseVault(hre, vaultsData);
 
   // Adjust block timestamp so that unwrap will succeed
   // NOTE: This will cause unwrap to only work once. Running this command a second time requires the
   // local chain to be restarted.
   await increaseTo(hre, resurrectionTime + 100);
 
-  // Filter out the accuased sarcophagi for unwrapping
-  const unaccusedSarcophagiData = sarcophagiData.filter(
-    sarcophagus => !accusedSarcophagi.includes(sarcophagus.sarcoId)
+  // Filter out the accuased vaults for unwrapping
+  const unaccusedVaultsData = vaultsData.filter(
+    sarcophagus => !accusedVaults.includes(sarcophagus.sarcoId)
   );
 
   // Unwrap some sarcohpagi
-  await unwrapSarcophagi(hre, archaeologistSigners, unaccusedSarcophagiData);
+  await unwrapVaults(hre, signatorySigners, unaccusedVaultsData);
 }

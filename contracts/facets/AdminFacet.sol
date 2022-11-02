@@ -18,7 +18,7 @@ contract AdminFacet {
         s.totalProtocolFees = 0;
 
         // Transfer the protocol fee amount to the sender after setting state
-        s.sarcoToken.transfer(msg.sender, totalProtocolFees);
+        s.heritageToken.transfer(msg.sender, totalProtocolFees);
     }
 
     /// @notice Sets the protocol fee base percentage, used to calculate protocol fees
@@ -37,7 +37,7 @@ contract AdminFacet {
         s.gracePeriod = gracePeriod;
     }
 
-    /// @notice Updates the expirationThreshold used during sarcophagus creation
+    /// @notice Updates the expirationThreshold used during vault creation
     /// @param expirationThreshold to set
     /// @dev Can only be called by the diamond owner.
     function setExpirationThreshold(uint256 expirationThreshold) external {

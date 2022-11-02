@@ -4,10 +4,10 @@ import { ethers, getUnnamedAccounts } from "hardhat";
 import { sign } from "../utils/helpers";
 import { SignatureWithAccount } from "../types";
 import { BytesLike } from "ethers/lib/utils";
-import { ArchaeologistFacet, IERC20 } from "../../typechain";
+import { SignatoryFacet, IERC20 } from "../../typechain";
 
-export interface TestArchaeologist {
-  archAddress: string;
+export interface TestSignatory {
+  signatoryAddress: string;
   signer: SignerWithAddress;
   diggingFee: BigNumber;
   unencryptedShardDoubleHash: string;
@@ -26,7 +26,7 @@ function doubleHashFromShard(shard: Buffer): string {
 }
 
 /**
- * Generates and returns [shards.length] archaeologists
+ * Generates and returns [shards.length] signatories
  * with the data needed to register and call create (signatures)
  *
  * Defaults:
@@ -35,20 +35,20 @@ function doubleHashFromShard(shard: Buffer): string {
  * Digging Fees: 10
  * MaxRewrapInterval: 4 weeks
  * */
-export async function spawnArchaologistsWithSignatures(
+export async function spawnSignatoriesWithSignatures(
   shards: Buffer[],
   arweaveTxId: string,
-  archaeologistFacet: ArchaeologistFacet,
-  sarcoToken: IERC20,
+  signatoryFacet: SignatoryFacet,
+  heritageToken: IERC20,
   diamondAddress: string,
   maxRewrapInterval: number,
   timestamp: number,
-  archMinDiggingFee: BigNumber = ethers.utils.parseEther("10")
-): Promise<[TestArchaeologist[], SignatureWithAccount[]]> {
+  signatoryMinDiggingFee: BigNumber = ethers.utils.parseEther("10")
+): Promise<[TestSignatory[], SignatureWithAccount[]]> {
   const unnamedAccounts = await getUnnamedAccounts();
-  const archs: TestArchaeologist[] = [];
+  const signatories: TestSignatory[] = [];
   const signatures: SignatureWithAccount[] = [];
-  // Use tail-end of unnamed accounts list to populate archaeologists.
+  // Use tail-end of unnamed accounts list to populate signatories.
   // This allows callers outside this function, but in same test context,
   // to grab accounts from the head-end without worrying about overlap.
   for (
@@ -65,35 +65,35 @@ export async function spawnArchaologistsWithSignatures(
         arweaveTxId,
         shardDoubleHash,
         maxRewrapInterval.toString(),
-        archMinDiggingFee.toString(),
+        signatoryMinDiggingFee.toString(),
         timestamp.toString(),
       ],
       ["string", "bytes32", "uint256", "uint256", "uint256"]
     );
 
-    archs.push({
-      archAddress: acc.address,
+    signatories.push({
+      signatoryAddress: acc.address,
       unencryptedShardDoubleHash: shardDoubleHash,
       unencryptedShard: shards[shardI],
       signer: acc,
-      diggingFee: archMinDiggingFee,
+      diggingFee: signatoryMinDiggingFee,
       v: signature.v,
       r: signature.r,
       s: signature.s,
     });
 
-    // Transfer 10,000 sarco tokens to each archaeologist to be put into free
+    // Transfer 10,000 heritage tokens to each signatory to be put into free
     // bond, and approve spending
-    await sarcoToken.transfer(acc.address, ethers.utils.parseEther("10000"));
+    await heritageToken.transfer(acc.address, ethers.utils.parseEther("10000"));
 
-    await sarcoToken.connect(acc).approve(diamondAddress, ethers.constants.MaxUint256);
+    await heritageToken.connect(acc).approve(diamondAddress, ethers.constants.MaxUint256);
 
-    // Deposit 5000 tokens for each archaeologist so they're ready to be bonded
-    await archaeologistFacet
+    // Deposit 5000 tokens for each signatory so they're ready to be bonded
+    await signatoryFacet
       .connect(acc)
-      .registerArchaeologist(
+      .registerSignatory(
         "myFakePeerId",
-        archMinDiggingFee,
+        signatoryMinDiggingFee,
         maxRewrapInterval,
         ethers.utils.parseEther("5000")
       );
@@ -101,5 +101,5 @@ export async function spawnArchaologistsWithSignatures(
     signatures.push({ ...signature, account: acc.address });
   }
 
-  return [archs, signatures];
+  return [signatories, signatures];
 }

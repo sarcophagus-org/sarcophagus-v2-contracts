@@ -2,33 +2,33 @@ import { BigNumber, ContractTransaction } from "ethers";
 import { deployments } from "hardhat";
 import {
   AdminFacet,
-  ArchaeologistFacet,
-  EmbalmerFacet,
+  SignatoryFacet,
+  VaultOwnerFacet,
   IERC20,
   ThirdPartyFacet,
   ViewStateFacet,
 } from "../../typechain";
 import time from "../utils/time";
-import { spawnArchaologistsWithSignatures, TestArchaeologist } from "./spawn-archaeologists";
+import { spawnSignatoriesWithSignatures, TestSignatory } from "./spawn-signatories";
 
 const sss = require("shamirs-secret-sharing");
 
 /**
  * A fixture to set up a test that requires a successful creation on a
- * transferable sarcophagus. Deploys all contracts required for the system,
- * and creates a sarcophagus with given config and name, with archaeologists
+ * transferable vault. Deploys all contracts required for the system,
+ * and creates a vault with given config and name, with signatories
  * created and pre-configured for it.
  *
  * Resurrection time is set to 1 week.
  * maxRewrapInterval defaults to 1 week.
  *
  * Optionally, creating may be skipped. It's also possible to
- * indicate to return a specified number of archaeologists not bonded to the
- * sarcophagus that is setup, and not await the createSarcophagus
+ * indicate to return a specified number of signatories not bonded to the
+ * vault that is setup, and not await the createVault
  * transaction Promises.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const createSarcoFixture = (
+export const createVaultFixture = (
   config: {
     shares: number;
     threshold: number;
@@ -36,9 +36,9 @@ export const createSarcoFixture = (
     skipAwaitCreateTx?: boolean;
     addUnbondedArchs?: number;
     arweaveTxIds?: string[];
-    archMinDiggingFee?: BigNumber;
+    signatoryMinDiggingFee?: BigNumber;
   },
-  sarcoName = "test init",
+  vaultName = "test init",
   maxRewrapInterval: number = time.duration.weeks(4)
 ) =>
   deployments.createFixture(
@@ -51,28 +51,28 @@ export const createSarcoFixture = (
 
       // Get the entities interacting with the contracts
       const unnamedAccounts = await getUnnamedAccounts();
-      const embalmer = await ethers.getSigner(unnamedAccounts[0]);
+      const vaultOwner = await ethers.getSigner(unnamedAccounts[0]);
       const recipient = await ethers.getSigner(unnamedAccounts[1]);
       const thirdParty = await ethers.getSigner(unnamedAccounts[2]);
 
       const diamond = await ethers.getContract("Diamond_DiamondProxy");
-      const sarcoToken = await ethers.getContract("SarcoTokenMock");
-      const embalmerFacet = (await ethers.getContractAt(
-        "EmbalmerFacet",
+      const heritageToken = await ethers.getContract("HeritageTokenMock");
+      const vaultOwnerFacet = (await ethers.getContractAt(
+        "VaultOwnerFacet",
         diamond.address
-      )) as EmbalmerFacet;
-      const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
+      )) as VaultOwnerFacet;
+      const signatoryFacet = await ethers.getContractAt("SignatoryFacet", diamond.address);
       const thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamond.address);
       const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
       const adminFacet = await ethers.getContractAt("AdminFacet", diamond.address);
 
-      // Transfer 100,000 sarco tokens to the embalmer
-      await sarcoToken.transfer(embalmer.address, ethers.utils.parseEther("100000"));
+      // Transfer 100,000 heritage tokens to the vaultOwner
+      await heritageToken.transfer(vaultOwner.address, ethers.utils.parseEther("100000"));
 
-      // Approve the embalmer on the sarco token
-      await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
+      // Approve the vaultOwner on the heritage token
+      await heritageToken.connect(vaultOwner).approve(diamond.address, ethers.constants.MaxUint256);
 
-      // Set up the data for the sarcophagus
+      // Set up the data for the vault
       // 64-byte key:
       const outerLayerPrivateKey =
         "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
@@ -80,36 +80,36 @@ export const createSarcoFixture = (
       const secret = Buffer.from(outerLayerPrivateKey);
       const shards: Buffer[] = sss.split(secret, config);
 
-      // TODO -- need to determine how sarco name will be genned, b/c it needs to be unique
+      // TODO -- need to determine how vault name will be genned, b/c it needs to be unique
       // we could add a random salt to this
-      const sarcoId = ethers.utils.solidityKeccak256(["string"], [sarcoName]);
+      const vaultId = ethers.utils.solidityKeccak256(["string"], [vaultName]);
       const arweaveTxIds = config.arweaveTxIds || ["FilePayloadTxId", "EncryptedShardTxId"];
       const timestamp = await time.latest();
-      const [archaeologists, signatures] = await spawnArchaologistsWithSignatures(
+      const [signatories, signatures] = await spawnSignatoriesWithSignatures(
         shards,
         arweaveTxIds[1] || "fakeArweaveTxId",
-        archaeologistFacet as ArchaeologistFacet,
-        (sarcoToken as IERC20).connect(deployer),
+        signatoryFacet as SignatoryFacet,
+        (heritageToken as IERC20).connect(deployer),
         diamond.address,
         maxRewrapInterval,
         timestamp,
-        config.archMinDiggingFee
+        config.signatoryMinDiggingFee
       );
 
-      const unbondedArchaeologists: TestArchaeologist[] = [];
+      const unbondedSignatories: TestSignatory[] = [];
 
       if (config.addUnbondedArchs !== undefined) {
         // use indices from tail-end of unnamed accounts that have not been
-        // taken by archaeologists initialization above
-        // (in spawnArchaologistsWithSignatures).
-        const startI = unnamedAccounts.length - archaeologists.length - 1;
+        // taken by signatories initialization above
+        // (in spawnSignatoriesWithSignatures).
+        const startI = unnamedAccounts.length - signatories.length - 1;
         const endI = startI - config.addUnbondedArchs;
 
         for (let i = startI; i > endI; i--) {
           const acc = await ethers.getSigner(unnamedAccounts[i]);
 
-          unbondedArchaeologists.push({
-            archAddress: acc.address,
+          unbondedSignatories.push({
+            signatoryAddress: acc.address,
             unencryptedShardDoubleHash: "",
             unencryptedShard: [],
             signer: acc,
@@ -119,17 +119,17 @@ export const createSarcoFixture = (
             s: "",
           });
 
-          // Transfer 10,000 sarco tokens to each archaeologist to be put into free
+          // Transfer 10,000 heritage tokens to each signatory to be put into free
           // bond, and approve spending
-          await (sarcoToken as IERC20)
+          await (heritageToken as IERC20)
             .connect(deployer)
             .transfer(acc.address, ethers.utils.parseEther("10000"));
 
-          await sarcoToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
+          await heritageToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
 
-          await archaeologistFacet
+          await signatoryFacet
             .connect(acc)
-            .registerArchaeologist(
+            .registerSignatory(
               "myFakePeerId",
               ethers.utils.parseEther("10"),
               maxRewrapInterval,
@@ -140,15 +140,15 @@ export const createSarcoFixture = (
 
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
-      const embalmerBalanceBeforeCreate = await sarcoToken.balanceOf(embalmer.address);
+      const vaultOwnerBalanceBeforeCreate = await heritageToken.balanceOf(vaultOwner.address);
 
-      // Create a sarcophagus as the embalmer
+      // Create a vault as the vaultOwner
       let createTx: Promise<ContractTransaction> | undefined;
       if (!config.skipCreateTx) {
-        createTx = embalmerFacet.connect(embalmer).createSarcophagus(
-          sarcoId,
+        createTx = vaultOwnerFacet.connect(vaultOwner).createVault(
+          vaultId,
           {
-            name: sarcoName,
+            name: vaultName,
             recipient: recipient.address,
             resurrectionTime,
             maximumRewrapInterval: maxRewrapInterval,
@@ -156,7 +156,7 @@ export const createSarcoFixture = (
             minShards: config.threshold,
             timestamp,
           },
-          archaeologists,
+          signatories,
           arweaveTxIds
         );
       }
@@ -166,26 +166,26 @@ export const createSarcoFixture = (
       }
 
       return {
-        sarcoId,
+        vaultId,
         deployer,
-        embalmer,
+        vaultOwner,
         recipient,
         thirdParty,
-        archaeologists,
-        unbondedArchaeologists,
+        signatories,
+        unbondedSignatories,
         signatures,
         arweaveTxIds,
-        embalmerBalanceBeforeCreate,
+        vaultOwnerBalanceBeforeCreate,
         shards,
         createTx,
         resurrectionTime,
         diamond,
         timestamp,
         maximumRewrapInterval: maxRewrapInterval,
-        archMinDiggingFee: config.archMinDiggingFee,
-        sarcoToken: sarcoToken as IERC20,
-        embalmerFacet: embalmerFacet as EmbalmerFacet,
-        archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
+        signatoryMinDiggingFee: config.signatoryMinDiggingFee,
+        heritageToken: heritageToken as IERC20,
+        vaultOwnerFacet: vaultOwnerFacet as VaultOwnerFacet,
+        signatoryFacet: signatoryFacet as SignatoryFacet,
         thirdPartyFacet: thirdPartyFacet as ThirdPartyFacet,
         viewStateFacet: viewStateFacet as ViewStateFacet,
         adminFacet: adminFacet as AdminFacet,

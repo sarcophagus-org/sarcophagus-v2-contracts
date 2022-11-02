@@ -6,10 +6,10 @@ import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 
 library LibBonds {
-    /// @notice Calculates the cursed bond that an archaeologist needs to lock
+    /// @notice Calculates the cursed bond that an signatory needs to lock
     /// up
     /// @dev The cursed bond amount is the digging fee
-    /// @param diggingFee The digging fee of the sarcophagus
+    /// @param diggingFee The digging fee of the vault
     /// @return The amount of cursed bond
     function calculateCursedBond(uint256 diggingFee)
         internal
@@ -23,142 +23,142 @@ library LibBonds {
     }
 
     /// @notice Decreases the amount stored in the freeBond mapping for an
-    /// archaeologist. Reverts if the archaeologist's free bond is lower than
+    /// signatory. Reverts if the signatory's free bond is lower than
     /// the amount.
-    /// @param archaeologist The address of the archaeologist whose
+    /// @param signatory The address of the signatory whose
     /// free bond is being decreased
     /// @param amount The amount to decrease the free bond by
-    function decreaseFreeBond(address archaeologist, uint256 amount) internal {
+    function decreaseFreeBond(address signatory, uint256 amount) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Revert if the amount is greater than the current free bond
-        if (amount > s.archaeologistProfiles[archaeologist].freeBond) {
+        if (amount > s.signatoryProfiles[signatory].freeBond) {
             revert LibErrors.NotEnoughFreeBond(
-                s.archaeologistProfiles[archaeologist].freeBond,
+                s.signatoryProfiles[signatory].freeBond,
                 amount
             );
         }
 
         // Decrease the free bond amount
-        s.archaeologistProfiles[archaeologist].freeBond -= amount;
+        s.signatoryProfiles[signatory].freeBond -= amount;
     }
 
     /// @notice Increases the amount stored in the freeBond mapping for an
-    /// archaeologist.
-    /// @param archaeologist The address of the archaeologist whose
+    /// signatory.
+    /// @param signatory The address of the signatory whose
     /// free bond is being decreased
     /// @param amount The amount to decrease the free bond by
-    function increaseFreeBond(address archaeologist, uint256 amount) internal {
+    function increaseFreeBond(address signatory, uint256 amount) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Increase the free bond amount
-        s.archaeologistProfiles[archaeologist].freeBond += amount;
+        s.signatoryProfiles[signatory].freeBond += amount;
     }
 
     /// @notice Decreases the amount stored in the cursedBond mapping for an
-    /// archaeologist. Reverts if the archaeologist's cursed bond is lower than
+    /// signatory. Reverts if the signatory's cursed bond is lower than
     /// the amount.
-    /// @param archaeologist The address of the archaeologist whose
+    /// @param signatory The address of the signatory whose
     /// cursed bond is being decreased
     /// @param amount The amount to decrease the cursed bond by
-    function decreaseCursedBond(address archaeologist, uint256 amount)
+    function decreaseCursedBond(address signatory, uint256 amount)
         internal
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Revert if the amount is greater than the current cursed bond
-        if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {
+        if (amount > s.signatoryProfiles[signatory].cursedBond) {
             revert LibErrors.NotEnoughCursedBond(
-                s.archaeologistProfiles[archaeologist].cursedBond,
+                s.signatoryProfiles[signatory].cursedBond,
                 amount
             );
         }
 
         // Decrease the cursed bond amount
-        s.archaeologistProfiles[archaeologist].cursedBond -= amount;
+        s.signatoryProfiles[signatory].cursedBond -= amount;
     }
 
     /// @notice Increases the amount stored in the cursedBond mapping for an
-    /// archaeologist.
-    /// @param archaeologist The address of the archaeologist whose
+    /// signatory.
+    /// @param signatory The address of the signatory whose
     /// cursed bond is being decreased
     /// @param amount The amount to decrease the cursed bond by
-    function increaseCursedBond(address archaeologist, uint256 amount)
+    function increaseCursedBond(address signatory, uint256 amount)
         internal
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Increase the cursed bond amount
-        s.archaeologistProfiles[archaeologist].cursedBond += amount;
+        s.signatoryProfiles[signatory].cursedBond += amount;
     }
 
-    /// @notice Locks up the archaeologist's bond, decreasing the
-    /// archaeologist's free bond by an amount and increasing the
-    /// archaeologist's cursed bond by the same amount.
-    /// @param archaeologist The address of the archaeologist
+    /// @notice Locks up the signatory's bond, decreasing the
+    /// signatory's free bond by an amount and increasing the
+    /// signatory's cursed bond by the same amount.
+    /// @param signatory The address of the signatory
     /// @param amount The amount to lock up
-    function lockUpBond(address archaeologist, uint256 amount) internal {
+    function lockUpBond(address signatory, uint256 amount) internal {
         // Decrease the free bond amount
-        decreaseFreeBond(archaeologist, amount);
+        decreaseFreeBond(signatory, amount);
 
         // Increase the cursed bond amount
-        increaseCursedBond(archaeologist, amount);
+        increaseCursedBond(signatory, amount);
     }
 
-    /// @notice Unlocks the archaeologist's bond, increasing the
-    /// archaeologist's free bond by an amount and decreasing the
-    /// archaeologist's cursed bond by the same amount.
-    /// @param archaeologist The address of the archaeologist
+    /// @notice Unlocks the signatory's bond, increasing the
+    /// signatory's free bond by an amount and decreasing the
+    /// signatory's cursed bond by the same amount.
+    /// @param signatory The address of the signatory
     /// @param amount The amount to unlock
-    function unlockBond(address archaeologist, uint256 amount) internal {
+    function unlockBond(address signatory, uint256 amount) internal {
         // Decrease the cursed bond amount
-        decreaseCursedBond(archaeologist, amount);
+        decreaseCursedBond(signatory, amount);
 
         // Increase the free bond amount
-        increaseFreeBond(archaeologist, amount);
+        increaseFreeBond(signatory, amount);
     }
 
-    /// @notice Calculates an archaeologist's cursed bond and curses them (locks
+    /// @notice Calculates an signatory's cursed bond and curses them (locks
     /// up the free bond).
-    /// @param sarcoId the identifier of the sarcophagus to bond the archaeologist with
-    /// @param archaeologist the address of the archaeologist to curse
-    function curseArchaeologist(bytes32 sarcoId, address archaeologist)
+    /// @param vaultId the identifier of the vault to bond the signatory with
+    /// @param signatory the address of the signatory to curse
+    function curseSignatory(bytes32 vaultId, address signatory)
         internal
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // Get the archaeologist's data from storage
-        LibTypes.ArchaeologistStorage memory archaeologistData = s
-            .sarcophagusArchaeologists[sarcoId][archaeologist];
+        // Get the signatory's data from storage
+        LibTypes.SignatoryStorage memory signatoryData = s
+            .vaultSignatories[vaultId][signatory];
 
-        // Calculate the amount of cursed bond the archaeologists needs to lock up
+        // Calculate the amount of cursed bond the signatories needs to lock up
         uint256 cursedBondAmount = calculateCursedBond(
-            archaeologistData.diggingFee
+            signatoryData.diggingFee
         );
 
-        // Lock up the archaeologist's bond by the cursed bond amount
-        lockUpBond(archaeologist, cursedBondAmount);
+        // Lock up the signatory's bond by the cursed bond amount
+        lockUpBond(signatory, cursedBondAmount);
     }
 
-    /// @notice Calculates an archaeologist's cursed bond and frees them
+    /// @notice Calculates an signatory's cursed bond and frees them
     /// (unlocks the cursed bond).
-    /// @param sarcoId the identifier of the sarcophagus to free the archaologist from
-    /// @param archaeologist the address of the archaeologist to free
-    function freeArchaeologist(bytes32 sarcoId, address archaeologist)
+    /// @param vaultId the identifier of the vault to free the archaologist from
+    /// @param signatory the address of the signatory to free
+    function freeSignatory(bytes32 vaultId, address signatory)
         internal
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // Get the archaeologist's data from storage
-        LibTypes.ArchaeologistStorage memory archaeologistData = s
-            .sarcophagusArchaeologists[sarcoId][archaeologist];
+        // Get the signatory's data from storage
+        LibTypes.SignatoryStorage memory signatoryData = s
+            .vaultSignatories[vaultId][signatory];
 
-        // Calculate the amount of cursed bond the archaeologists needs to lock up
+        // Calculate the amount of cursed bond the signatories needs to lock up
         uint256 cursedBondAmount = calculateCursedBond(
-            archaeologistData.diggingFee
+            signatoryData.diggingFee
         );
 
-        // Free up the archaeologist's locked bond
-        unlockBond(archaeologist, cursedBondAmount);
+        // Free up the signatory's locked bond
+        unlockBond(signatory, cursedBondAmount);
     }
 }

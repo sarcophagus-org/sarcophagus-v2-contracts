@@ -1,6 +1,6 @@
 import { Signature } from "ethers";
 
-export enum SarcophagusState {
+export enum VaultState {
   DoesNotExist,
   Exists,
   Done,

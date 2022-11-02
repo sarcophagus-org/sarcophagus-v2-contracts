@@ -1,10 +1,10 @@
 import { ContractTransaction } from "ethers";
-import { createSarcoFixture } from "./create-sarco-fixture";
+import { createVaultFixture } from "./create-vault-fixture";
 
 /**
- * A fixture to intialize and finalize a sarcophagus to set up a test that
- * performs a sarcophagus bury. config has optional flags for skipping the bury
- * contract call, skipping finalising the sarcophagus, and not awaiting
+ * A fixture to intialize and finalize a vault to set up a test that
+ * performs a vault bury. config has optional flags for skipping the bury
+ * contract call, skipping finalising the vault, and not awaiting
  * the transaction Promise.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -16,37 +16,37 @@ export const buryFixture = async (
     skipFinalize?: boolean;
     dontAwaitTransaction?: boolean;
   },
-  sarcoName: string
+  vaultName: string
 ) => {
   const {
-    sarcoId,
-    archaeologists,
-    sarcoToken,
-    embalmer,
-    embalmerBalanceBeforeCreate: embalmerBalanceBeforeCreate,
-    embalmerFacet,
+    vaultId,
+    signatories,
+    heritageToken,
+    vaultOwner,
+    vaultOwnerBalanceBeforeCreate: vaultOwnerBalanceBeforeCreate,
+    vaultOwnerFacet,
     viewStateFacet,
-  } = await createSarcoFixture(config, sarcoName);
+  } = await createVaultFixture(config, vaultName);
 
-  // Get the sarco balance of the regular archaeologist before bury
-  const regularArchaeologist = archaeologists[1];
-  const regularArchaeologistBalance = await sarcoToken.balanceOf(archaeologists[1].archAddress);
+  // Get the vault balance of the regular signatory before bury
+  const regularSignatory = signatories[1];
+  const regularSignatoryBalance = await heritageToken.balanceOf(signatories[1].signatoryAddress);
 
-  // Get the regular archaeologist's free bond before bury
-  const regularArchaeologistFreeBondBefore = await viewStateFacet.getFreeBond(
-    regularArchaeologist.archAddress
+  // Get the regular signatory's free bond before bury
+  const regularSignatoryFreeBondBefore = await viewStateFacet.getFreeBond(
+    regularSignatory.signatoryAddress
   );
 
-  // Get the regular archaeologist's cursed bond before bury
-  const regularArchaeologistCursedBondBefore = await viewStateFacet.getCursedBond(
-    regularArchaeologist.archAddress
+  // Get the regular signatory's cursed bond before bury
+  const regularSignatoryCursedBondBefore = await viewStateFacet.getCursedBond(
+    regularSignatory.signatoryAddress
   );
 
-  const embalmerBalanceBeforeBury = await sarcoToken.balanceOf(embalmer.address);
+  const vaultOwnerBalanceBeforeBury = await heritageToken.balanceOf(vaultOwner.address);
 
   let tx: Promise<ContractTransaction> | undefined;
   if (config.skipBury !== true) {
-    tx = embalmerFacet.connect(embalmer).burySarcophagus(sarcoId);
+    tx = vaultOwnerFacet.connect(vaultOwner).buryVault(vaultId);
   }
 
   if (config.dontAwaitTransaction !== true) {
@@ -55,17 +55,17 @@ export const buryFixture = async (
 
   return {
     viewStateFacet,
-    sarcoId,
-    regularArchaeologist,
-    regularArchaeologistFreeBondBefore,
-    regularArchaeologistCursedBondBefore,
-    sarcoToken,
-    regularArchaeologistBalance,
-    embalmer,
-    archaeologists,
-    embalmerBalanceBeforeBury,
-    embalmerBalanceBeforeCreate,
+    vaultId,
+    regularSignatory,
+    regularSignatoryFreeBondBefore,
+    regularSignatoryCursedBondBefore,
+    heritageToken,
+    regularSignatoryBalance,
+    vaultOwner,
+    signatories,
+    vaultOwnerBalanceBeforeBury,
+    vaultOwnerBalanceBeforeCreate,
     tx,
-    embalmerFacet,
+    vaultOwnerFacet,
   };
 };

@@ -2,10 +2,10 @@ import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import time from "../utils/time";
 import { calculateCursedBond } from "../utils/helpers";
-import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
+import { createVaultFixture } from "../fixtures/create-vault-fixture";
 import { BigNumber } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
-import { hashBytes } from "../fixtures/spawn-archaeologists";
+import { hashBytes } from "../fixtures/spawn-signatories";
 
 describe("Contract: ThirdPartyFacet", () => {
   const shares = 5;
@@ -13,180 +13,180 @@ describe("Contract: ThirdPartyFacet", () => {
 
   describe("clean()", () => {
     context("When successful", () => {
-      it("Should distribute sum of cursed bonds of bad-acting archaeologists to embalmer and the address specified by cleaner", async () => {
+      it("Should distribute sum of cursed bonds of bad-acting signatories to vaultOwner and the address specified by cleaner", async () => {
         const {
-          archaeologists,
-          archaeologistFacet,
-          sarcoId,
-          sarcoToken,
-          embalmer,
+          signatories,
+          signatoryFacet,
+          vaultId,
+          vaultToken,
+          vaultOwner,
           thirdParty,
           thirdPartyFacet,
           viewStateFacet,
           resurrectionTime,
-        } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
+        } = await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        // Increase time to when sarco can be unwrapped
+        // Increase time to when vault can be unwrapped
         await time.increaseTo(resurrectionTime);
 
-        const unaccusedArchaeologist = archaeologists[0];
+        const unaccusedSignatory = signatories[0];
 
-        // unaccusedArchaeologist will fulfil their duty
-        await archaeologistFacet
-          .connect(unaccusedArchaeologist.signer)
-          .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
+        // unaccusedSignatory will fulfil their duty
+        await signatoryFacet
+          .connect(unaccusedSignatory.signer)
+          .unwrapVault(vaultId, unaccusedSignatory.unencryptedShard);
 
-        // increase time beyond grace period to expire sarcophagus
+        // increase time beyond grace period to expire vault
         const gracePeriod = await viewStateFacet.getGracePeriod();
         await time.increase(+gracePeriod + 1);
 
-        const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
-        const paymentAccountBalanceBefore = await sarcoToken.balanceOf(thirdParty.address);
+        const vaultOwnerBalanceBefore = await vaultToken.balanceOf(vaultOwner.address);
+        const paymentAccountBalanceBefore = await vaultToken.balanceOf(thirdParty.address);
 
         // before cleaning...
         expect(paymentAccountBalanceBefore).to.eq(0);
 
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
+        await thirdPartyFacet.connect(thirdParty).clean(vaultId, thirdParty.address);
 
-        const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-        const paymentAccountBalanceAfter = await sarcoToken.balanceOf(thirdParty.address);
+        const vaultOwnerBalanceAfter = await vaultToken.balanceOf(vaultOwner.address);
+        const paymentAccountBalanceAfter = await vaultToken.balanceOf(thirdParty.address);
 
         // after cleaning, calculate sum, and verify on exact amounts instead
-        // Set up amounts that should have been transferred to accuser and embalmer
-        // ie, rewards of failed archaeologists
-        const sumDiggingFees = archaeologists
-          .slice(1) // archaeologists[0] did their job, so not included
+        // Set up amounts that should have been transferred to accuser and vaultOwner
+        // ie, rewards of failed signatories
+        const sumDiggingFees = signatories
+          .slice(1) // signatories[0] did their job, so not included
           .reduce((acc, arch) => [acc[0].add(arch.diggingFee)], [BigNumber.from("0")]);
 
         const totalDiggingFees = sumDiggingFees[0];
 
         const cursedBond = calculateCursedBond(totalDiggingFees);
-        const toEmbalmer = cursedBond.div(2);
-        const toCleaner = cursedBond.sub(toEmbalmer);
+        const tovaultOwner = cursedBond.div(2);
+        const toCleaner = cursedBond.sub(tovaultOwner);
 
-        // Check that embalmer and accuser now have balance that includes the amount that should have been transferred to them
+        // Check that vaultOwner and accuser now have balance that includes the amount that should have been transferred to them
 
-        // embalmer should receive half cursed bond, PLUS digging fees of failed archs
-        const embalmerReward = toEmbalmer.add(totalDiggingFees);
+        // vaultOwner should receive half cursed bond, PLUS digging fees of failed archs
+        const vaultOwnerReward = tovaultOwner.add(totalDiggingFees);
 
-        expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
+        expect(vaultOwnerBalanceAfter.eq(vaultOwnerBalanceBefore.add(vaultOwnerReward))).to.be.true;
         expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toCleaner))).to.be
           .true;
       });
 
-      it("Should reduce cursed bonds on storage of archaeologists after distributing their value, without increasing free bond of bad-acting ones", async () => {
+      it("Should reduce cursed bonds on storage of signatories after distributing their value, without increasing free bond of bad-acting ones", async () => {
         const {
-          archaeologists,
-          archaeologistFacet,
-          sarcoId,
+          signatories,
+          signatoryFacet,
+          vaultId,
           thirdParty,
           thirdPartyFacet,
           viewStateFacet,
           resurrectionTime,
-        } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
+        } = await createVaultFixture({ shares, threshold }, "Test Vault");
 
         // Cursed and free bonds before cleaning:
         const cursedBondsBefore = [];
         const freeBondsBefore = [];
 
-        for await (const arch of archaeologists) {
+        for await (const arch of signatories) {
           cursedBondsBefore.push(await viewStateFacet.getCursedBond(arch.archAddress));
           freeBondsBefore.push(await viewStateFacet.getFreeBond(arch.archAddress));
         }
 
-        // Increase time to when sarco can be unwrapped
+        // Increase time to when vault can be unwrapped
         await time.increaseTo(resurrectionTime);
 
         // Have one arch actually do the unwrapping
-        const unaccusedArchaeologist = archaeologists[0];
-        await archaeologistFacet
-          .connect(unaccusedArchaeologist.signer)
-          .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
+        const unaccusedSignatory = signatories[0];
+        await signatoryFacet
+          .connect(unaccusedSignatory.signer)
+          .unwrapVault(vaultId, unaccusedSignatory.unencryptedShard);
 
-        // increase time beyond grace period to expire sarcophagus
+        // increase time beyond grace period to expire vault
         const gracePeriod = await viewStateFacet.getGracePeriod();
         await time.increase(+gracePeriod + 1);
 
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
+        await thirdPartyFacet.connect(thirdParty).clean(vaultId, thirdParty.address);
 
         // Cursed and free bonds after cleaning:
         const cursedBondsAfter = [];
         const freeBondsAfter = [];
 
-        for await (const arch of archaeologists) {
+        for await (const arch of signatories) {
           cursedBondsAfter.push(await viewStateFacet.getCursedBond(arch.archAddress));
           freeBondsAfter.push(await viewStateFacet.getFreeBond(arch.archAddress));
         }
 
-        // Check that good archaeologist's free bonds have been increased
+        // Check that good signatory's free bonds have been increased
         expect(freeBondsBefore[0].lt(freeBondsAfter[0])).to.be.true;
 
         for (let i = 0; i < cursedBondsBefore.length; i++) {
-          // Check that all archaeologists' cursed bonds have been reduced
+          // Check that all signatories' cursed bonds have been reduced
           expect(cursedBondsBefore[i].gt(cursedBondsAfter[i])).to.be.true;
 
           if (i !== 0) {
-            // Check that accused archaeologist's free bonds have NOT been increased
+            // Check that accused signatory's free bonds have NOT been increased
             expect(freeBondsBefore[i].eq(freeBondsAfter[i])).to.be.true;
           }
         }
       });
 
-      it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("Should emit CleanUpVault on successful cleanup", async () => {
+        const { vaultId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        // increase time beyond resurrection time + grace period to expire sarcophagus
+        // increase time beyond resurrection time + grace period to expire vault
         const gracePeriod = await viewStateFacet.getGracePeriod();
         await time.increaseTo(resurrectionTime + +gracePeriod + 1);
 
-        const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
+        const tx = thirdPartyFacet.connect(thirdParty).clean(vaultId, thirdParty.address);
 
-        await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus");
+        await expect(tx).to.emit(thirdPartyFacet, "CleanUpVault");
       });
 
-      it("Should increment count for all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
+      it("Should increment count for all defaulting signatories to signatoryCleanups storage on successful cleanup", async () => {
         const {
-          archaeologists,
-          archaeologistFacet,
-          sarcoId,
+          signatories,
+          signatoryFacet,
+          vaultId,
           thirdParty,
           thirdPartyFacet,
           viewStateFacet,
           resurrectionTime,
-        } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
+        } = await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        const unaccusedArchaeologist = archaeologists[0];
+        const unaccusedSignatory = signatories[0];
 
         // Have one arch actually do the unwrapping
         await time.increaseTo(resurrectionTime);
-        await archaeologistFacet
-          .connect(unaccusedArchaeologist.signer)
-          .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
+        await signatoryFacet
+          .connect(unaccusedSignatory.signer)
+          .unwrapVault(vaultId, unaccusedSignatory.unencryptedShard);
 
-        // increase time beyond grace period to expire sarcophagus
+        // increase time beyond grace period to expire vault
         const gracePeriod = await viewStateFacet.getGracePeriod();
         await time.increase(+gracePeriod + 1);
 
-        // Get the clean up count of each archaeologist before cleaning
+        // Get the clean up count of each signatory before cleaning
         const cleanupsBefore: BigNumber[] = [];
-        for (const arch of archaeologists) {
-          cleanupsBefore.push(await viewStateFacet.getArchaeologistCleanupsCount(arch.archAddress));
+        for (const arch of signatories) {
+          cleanupsBefore.push(await viewStateFacet.getSignatoryCleanupsCount(arch.archAddress));
         }
 
-        // Clean the sarcophagus
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
+        // Clean the vault
+        await thirdPartyFacet.connect(thirdParty).clean(vaultId, thirdParty.address);
 
-        // Get the clean up count of each archaeologist after cleaning
+        // Get the clean up count of each signatory after cleaning
         const cleanupsAfter: BigNumber[] = [];
-        for (const arch of archaeologists) {
-          cleanupsAfter.push(await viewStateFacet.getArchaeologistCleanupsCount(arch.archAddress));
+        for (const arch of signatories) {
+          cleanupsAfter.push(await viewStateFacet.getSignatoryCleanupsCount(arch.archAddress));
         }
 
-        // For each archaeologist, if the arch was accused expect the count to have increased by 1
-        for (let i = 0; i < archaeologists.length; i++) {
-          const arch = archaeologists[i];
-          if (arch.archAddress === unaccusedArchaeologist.archAddress) {
+        // For each signatory, if the arch was accused expect the count to have increased by 1
+        for (let i = 0; i < signatories.length; i++) {
+          const arch = signatories[i];
+          if (arch.archAddress === unaccusedSignatory.archAddress) {
             // expect clean up count after to be the same as clean up count before
             expect(cleanupsBefore[i].eq(cleanupsAfter[i])).to.be.true;
           } else {
@@ -198,108 +198,108 @@ describe("Contract: ThirdPartyFacet", () => {
     });
 
     context("Reverts", () => {
-      it("Should revert if cleaning is attempted before sarco can be unwrapped, or attempted within its resurrection grace period", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, resurrectionTime } = await createSarcoFixture(
+      it("Should revert if cleaning is attempted before vault can be unwrapped, or attempted within its resurrection grace period", async () => {
+        const { vaultId, thirdParty, thirdPartyFacet, resurrectionTime } = await createVaultFixture(
           { shares, threshold },
-          "Test Sarco"
+          "Test Vault"
         );
 
         // No time advancement before clean attempt
-        const cleanTx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-        await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
+        const cleanTx = thirdPartyFacet.connect(thirdParty).clean(vaultId, thirdParty.address);
+        await expect(cleanTx).to.be.revertedWith("VaultNotCleanable()");
 
-        // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
+        // Increasing time up to just around the vault's resurrection time means it will still be within grace window
         await time.increaseTo(resurrectionTime);
 
-        const cleanTxAgain = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-        await expect(cleanTxAgain).to.be.revertedWith("SarcophagusNotCleanable()");
+        const cleanTxAgain = thirdPartyFacet.connect(thirdParty).clean(vaultId, thirdParty.address);
+        await expect(cleanTxAgain).to.be.revertedWith("VaultNotCleanable()");
       });
 
-      it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
-        const { thirdParty, thirdPartyFacet } = await createSarcoFixture(
+      it("Should revert with VaultDoesNotExist if vault identifier is unknown", async () => {
+        const { thirdParty, thirdPartyFacet } = await createVaultFixture(
           { shares, threshold },
-          "Test Sarco"
+          "Test Vault"
         );
 
         const tx = thirdPartyFacet
           .connect(thirdParty)
-          .clean(formatBytes32String("unknown-sarcoId"), thirdParty.address);
+          .clean(formatBytes32String("unknown-vaultId"), thirdParty.address);
 
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("VaultDoesNotExist");
       });
 
-      it("Should revert with SarcophagusDoesNotExist if cleaning an already cleaned sarcophagus", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("Should revert with VaultDoesNotExist if cleaning an already cleaned vault", async () => {
+        const { vaultId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        // increase time beyond resurrection time + grace period to expire sarcophagus
+        // increase time beyond resurrection time + grace period to expire vault
         const gracePeriod = await viewStateFacet.getGracePeriod();
         await time.increaseTo(resurrectionTime + +gracePeriod + 1);
 
-        // Clean the sarco once...
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
+        // Clean the vault once...
+        await thirdPartyFacet.connect(thirdParty).clean(vaultId, thirdParty.address);
 
         // ... and try again
-        const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
+        const tx = thirdPartyFacet.connect(thirdParty).clean(vaultId, thirdParty.address);
 
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("VaultDoesNotExist");
       });
     });
   });
 
   describe("accuse()", () => {
     context("when at least m unencrypted shards are provided", async () => {
-      it("Should emit AccuseArchaeologist", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+      it("Should emit AccuseSignatory", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet } = await createVaultFixture(
           { shares, threshold },
-          "Test Sarco"
+          "Test Vault"
         );
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          vaultId,
+          signatories.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
-        await expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist");
+        await expect(tx).to.emit(thirdPartyFacet, "AccuseSignatory");
       });
 
-      it("updates the sarcophagus state to DONE", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, viewStateFacet } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("updates the vault state to DONE", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet, viewStateFacet } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        let sarco = await viewStateFacet.getSarcophagus(sarcoId);
-        expect(sarco.state).to.be.eq(1); // 1 is "Exists"
+        let vault = await viewStateFacet.getVault(vaultId);
+        expect(vault.state).to.be.eq(1); // 1 is "Exists"
 
         await thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          vaultId,
+          signatories.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
-        sarco = await viewStateFacet.getSarcophagus(sarcoId);
-        expect(sarco.state).to.be.eq(2); // 2 is "Done"
+        vault = await viewStateFacet.getVault(vaultId);
+        expect(vault.state).to.be.eq(2); // 2 is "Done"
       });
 
-      it("Should distribute half the sum of the accused archaeologists' digging fees to accuser, and other half to embalmer", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, embalmer, sarcoToken } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("Should distribute half the sum of the accused signatories' digging fees to accuser, and other half to vaultOwner", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet, vaultOwner, vaultToken } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
+        const vaultOwnerBalanceBefore = await vaultToken.balanceOf(vaultOwner.address);
 
-        const paymentAccountBalanceBefore = await sarcoToken.balanceOf(thirdParty.address);
+        const paymentAccountBalanceBefore = await vaultToken.balanceOf(thirdParty.address);
 
         expect(paymentAccountBalanceBefore.eq(0)).to.be.true;
 
-        const accusedArchs = archaeologists.slice(0, threshold);
+        const accusedArchs = signatories.slice(0, threshold);
 
         await thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
+          vaultId,
           accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
-        // Set up amounts that should have been transferred to accuser and embalmer
+        // Set up amounts that should have been transferred to accuser and vaultOwner
         const totalDiggingFeesCursedBond = accusedArchs.reduce(
           (acc, arch) => [
             acc[0].add(arch.diggingFee),
@@ -311,27 +311,27 @@ describe("Contract: ThirdPartyFacet", () => {
         const totalDiggingFees = totalDiggingFeesCursedBond[0];
         const totalCursedBond = totalDiggingFeesCursedBond[1];
 
-        const toEmbalmer = totalCursedBond.div(2);
-        const toAccuser = totalCursedBond.sub(toEmbalmer);
+        const tovaultOwner = totalCursedBond.div(2);
+        const toAccuser = totalCursedBond.sub(tovaultOwner);
 
-        const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-        const paymentAccountBalanceAfter = await sarcoToken.balanceOf(thirdParty.address);
+        const vaultOwnerBalanceAfter = await vaultToken.balanceOf(vaultOwner.address);
+        const paymentAccountBalanceAfter = await vaultToken.balanceOf(thirdParty.address);
 
-        // Check that embalmer and accuser now has balance that includes the amount that should have been transferred to them
+        // Check that vaultOwner and accuser now has balance that includes the amount that should have been transferred to them
 
-        // embalmer should receive half cursed bond, PLUS  digging fees of failed archs
-        const embalmerReward = toEmbalmer.add(totalDiggingFees);
+        // vaultOwner should receive half cursed bond, PLUS  digging fees of failed archs
+        const vaultOwnerReward = tovaultOwner.add(totalDiggingFees);
 
-        expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
+        expect(vaultOwnerBalanceAfter.eq(vaultOwnerBalanceBefore.add(vaultOwnerReward))).to.be.true;
         expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toAccuser))).to.be
           .true;
       });
 
-      it("Should reduce cursed bond on storage of accused archaeologists after distributing their value, without increasing their free bond", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, viewStateFacet } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("Should reduce cursed bond on storage of accused signatories after distributing their value, without increasing their free bond", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet, viewStateFacet } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        const accusedArchs = archaeologists.slice(0, threshold);
+        const accusedArchs = signatories.slice(0, threshold);
 
         // Cursed and free bonds before accuse:
         const cursedBondsBefore = [];
@@ -342,7 +342,7 @@ describe("Contract: ThirdPartyFacet", () => {
         }
 
         await thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
+          vaultId,
           accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
@@ -356,33 +356,33 @@ describe("Contract: ThirdPartyFacet", () => {
         }
 
         for (let i = 0; i < cursedBondsAfter.length; i++) {
-          // Check that accused archaeologist's cursed bonds have been reduced
+          // Check that accused signatory's cursed bonds have been reduced
           expect(cursedBondsBefore[i].gt(cursedBondsAfter[i])).to.be.true;
 
-          // Check that accused archaeologist's free bonds have NOT been increased
+          // Check that accused signatory's free bonds have NOT been increased
           expect(freeBondsBefore[i].eq(freeBondsAfter[i])).to.be.true;
         }
       });
 
-      it("Should un-curse the bond (on storage) of unaccused archaeologists", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, viewStateFacet } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("Should un-curse the bond (on storage) of unaccused signatories", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet, viewStateFacet } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
         // Cursed and free bonds before accuse:
         const cursedBondsBefore = [];
         const freeBondsBefore = [];
 
         // Interested in just first 2 archs, which will be unaccused
-        const unaccusedArchs = archaeologists.slice(0, 2);
+        const unaccusedArchs = signatories.slice(0, 2);
         for await (const arch of unaccusedArchs) {
           cursedBondsBefore.push(await viewStateFacet.getCursedBond(arch.archAddress));
           freeBondsBefore.push(await viewStateFacet.getFreeBond(arch.archAddress));
         }
 
         await thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          // archaeologists[0], archaeologists[1] are unnaccused:
-          archaeologists.slice(2, threshold + 2).map(a => hashBytes(a.unencryptedShard)),
+          vaultId,
+          // signatories[0], signatories[1] are unnaccused:
+          signatories.slice(2, threshold + 2).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
@@ -395,118 +395,118 @@ describe("Contract: ThirdPartyFacet", () => {
         }
 
         for (let i = 0; i < cursedBondsBefore.length; i++) {
-          // Check that unaccused archaeologists' cursed bonds have been un-cursed
+          // Check that unaccused signatories' cursed bonds have been un-cursed
           expect(cursedBondsBefore[i].gt(cursedBondsAfter[i])).to.be.true;
 
-          // Check that unaccused archaeologists' free bonds have been increased
+          // Check that unaccused signatories' free bonds have been increased
           expect(freeBondsBefore[i].lt(freeBondsAfter[i])).to.be.true;
         }
       });
 
-      it("does not transfer tokens of un-accused archaeologists", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, sarcoToken } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("does not transfer tokens of un-accused signatories", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet, vaultToken } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        const unaccusedArchaeologistBalBefore = await sarcoToken.balanceOf(
-          archaeologists[0].archAddress
+        const unaccusedSignatoryBalBefore = await vaultToken.balanceOf(
+          signatories[0].archAddress
         );
 
         await thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          archaeologists.slice(1, threshold + 1).map(a => hashBytes(a.unencryptedShard)),
+          vaultId,
+          signatories.slice(1, threshold + 1).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
-        const unaccusedArchaeologistBalAfter = await sarcoToken.balanceOf(
-          archaeologists[0].archAddress
+        const unaccusedSignatoryBalAfter = await vaultToken.balanceOf(
+          signatories[0].archAddress
         );
 
-        // Check that unaccused archaeologists balances are unaffected
-        expect(unaccusedArchaeologistBalAfter.eq(unaccusedArchaeologistBalBefore)).to.be.true;
+        // Check that unaccused signatories balances are unaffected
+        expect(unaccusedSignatoryBalAfter.eq(unaccusedSignatoryBalBefore)).to.be.true;
       });
 
-      it("Should add all accused archaeologists to archaeologistAccusals storage on successful accusal", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, viewStateFacet } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("Should add all accused signatories to signatoryAccusals storage on successful accusal", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet, viewStateFacet } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        const accusedArchs = archaeologists.slice(1, threshold + 1);
+        const accusedArchs = signatories.slice(1, threshold + 1);
 
-        // Get each archaeologist's accusal count before accuse
+        // Get each signatory's accusal count before accuse
         const accusalsBefore = [];
         for (const arch of accusedArchs) {
-          accusalsBefore.push(await viewStateFacet.getArchaeologistAccusalsCount(arch.archAddress));
+          accusalsBefore.push(await viewStateFacet.getSignatoryAccusalsCount(arch.archAddress));
         }
 
-        // Accuse archaeologists
+        // Accuse signatories
         await thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
+          vaultId,
           accusedArchs.map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
-        // Get each archaeologist's accusal count after accuse
+        // Get each signatory's accusal count after accuse
         const accusalsAfter = [];
         for (const arch of accusedArchs) {
-          accusalsAfter.push(await viewStateFacet.getArchaeologistAccusalsCount(arch.archAddress));
+          accusalsAfter.push(await viewStateFacet.getSignatoryAccusalsCount(arch.archAddress));
         }
 
-        // For each accused archaeologist, check that their accusal count has increased by 1
+        // For each accused signatory, check that their accusal count has increased by 1
         for (let i = 0; i < accusedArchs.length; i++) {
           expect(accusalsAfter[i].eq(accusalsBefore[i].add(1))).to.be.true;
         }
 
-        const goodArchAccusals = await viewStateFacet.getArchaeologistAccusalsCount(
-          archaeologists[0].archAddress
+        const goodArchAccusals = await viewStateFacet.getSignatoryAccusalsCount(
+          signatories[0].archAddress
         );
 
-        // For each good archaeologist, check that their accusal count has NOT increased
+        // For each good signatory, check that their accusal count has NOT increased
         expect(goodArchAccusals.eq(accusalsBefore[0])).to.be.true;
       });
     });
 
     context("Reverts", () => {
-      it("Should revert with SarcophagusIsUnwrappable() if called after resurrection time has passed (ie, accuse cannot fly because the sarco can be legally unwrapped)", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, resurrectionTime } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+      it("Should revert with VaultIsUnwrappable() if called after resurrection time has passed (ie, accuse cannot fly because the vault can be legally unwrapped)", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet, resurrectionTime } =
+          await createVaultFixture({ shares, threshold }, "Test Vault");
 
-        // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
+        // Increasing time up to just around the vault's resurrection time means it will still be within grace window
         await time.increaseTo(resurrectionTime);
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          vaultId,
+          signatories.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
-        await expect(tx).to.be.revertedWith("SarcophagusIsUnwrappable()");
+        await expect(tx).to.be.revertedWith("VaultIsUnwrappable()");
       });
 
       it("Should revert with NotEnoughProof() if less than m unencrypted shards are provided", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+        const { signatories, vaultId, thirdParty, thirdPartyFacet } = await createVaultFixture(
           { shares, threshold },
-          "Test Sarco"
+          "Test Vault"
         );
 
-        const tx = thirdPartyFacet.connect(thirdParty).accuse(sarcoId, [], thirdParty.address);
+        const tx = thirdPartyFacet.connect(thirdParty).accuse(vaultId, [], thirdParty.address);
         await expect(tx).to.be.revertedWith("AccuseNotEnoughProof");
 
         const tx2 = thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          archaeologists.slice(0, threshold - 1).map(a => hashBytes(a.unencryptedShard)),
+          vaultId,
+          signatories.slice(0, threshold - 1).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
         await expect(tx2).to.be.revertedWith("AccuseNotEnoughProof");
       });
 
       it("Should revert with AccuseIncorrectProof if at least m unencrypted shards are provided, but one or more are invalid", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+        const { signatories, vaultId, thirdParty, thirdPartyFacet } = await createVaultFixture(
           { shares, threshold },
-          "Test Sarco"
+          "Test Vault"
         );
 
         const tx2 = thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          archaeologists
+          vaultId,
+          signatories
             .slice(0, threshold)
             .map(a => hashBytes(a.unencryptedShard).replace("a", "b")),
           thirdParty.address
@@ -514,38 +514,38 @@ describe("Contract: ThirdPartyFacet", () => {
         await expect(tx2).to.be.revertedWith("AccuseIncorrectProof");
       });
 
-      it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
-        const { archaeologists, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+      it("Should revert with VaultDoesNotExist if vault identifier is unknown", async () => {
+        const { signatories, thirdParty, thirdPartyFacet } = await createVaultFixture(
           { shares, threshold },
-          "Test Sarco"
+          "Test Vault"
         );
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
           formatBytes32String("unknown-id"),
-          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          signatories.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("VaultDoesNotExist");
       });
 
-      it("Should revert with SarcophagusDoesNotExist if calling accuse on a previously accused sarcophagus", async () => {
-        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+      it("Should revert with VaultDoesNotExist if calling accuse on a previously accused vault", async () => {
+        const { signatories, vaultId, thirdParty, thirdPartyFacet } = await createVaultFixture(
           { shares, threshold },
-          "Test Sarco"
+          "Test Vault"
         );
 
         await thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          vaultId,
+          signatories.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
 
         const tx = thirdPartyFacet.connect(thirdParty).accuse(
-          sarcoId,
-          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          vaultId,
+          signatories.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("VaultDoesNotExist");
       });
     });
   });

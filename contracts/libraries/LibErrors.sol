@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 /**
  * @title A collection of Errors
- * @notice This library defines all of the Errors that the Sarcophagus system
+ * @notice This library defines all of the Errors that the Heritage system
  * uses.
  */
 library LibErrors {
@@ -11,19 +11,19 @@ library LibErrors {
 
     error AccuseIncorrectProof();
 
-    error ArchaeologistAlreadyUnwrapped(address archaeologist);
+    error SignatoryAlreadyUnwrapped(address signatory);
 
-    error ArchaeologistListNotUnique(address[] archaeologists);
+    error SignatoryListNotUnique(address[] signatories);
 
-    error ArchaeologistNotOnSarcophagus(address archaeologist);
+    error SignatoryNotOnVault(address signatory);
 
-    error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);
+    error SignatoryProfileExistsShouldBe(bool exists, address signatory);
 
     error ArweaveTxIdsInvalid();
 
-    error DiggingFeeTooLow(uint256 diggingFee, address archaeologist);
+    error DiggingFeeTooLow(uint256 diggingFee, address signatory);
 
-    error MinShardsGreaterThanArchaeologists(uint8 minShards);
+    error MinShardsGreaterThanSignatories(uint8 minShards);
 
     error MinShardsZero();
 
@@ -33,7 +33,7 @@ library LibErrors {
 
     error NewResurrectionTimeTooLarge(uint256 newResurrectionTime);
 
-    error NoArchaeologistsProvided();
+    error NoSignatoriesProvided();
 
     error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
 
@@ -43,13 +43,13 @@ library LibErrors {
 
     error ResurrectionTimeInPast(uint256 resurrectionTime);
 
-    error ResurrectionTimeTooFarInFuture(uint256 resurrectionTime, uint256 sarcophagusMaximumRewrapInterval);
+    error ResurrectionTimeTooFarInFuture(uint256 resurrectionTime, uint256 vaultMaximumRewrapInterval);
 
-    error SarcophagusAlreadyExists(bytes32 sarcoId);
+    error VaultAlreadyExists(bytes32 vaultId);
 
-    error SarcophagusDoesNotExist(bytes32 sarcoId);
+    error VaultDoesNotExist(bytes32 vaultId);
 
-    error SenderNotEmbalmer(address sender, address embalmer);
+    error SenderNotEmbalmer(address sender, address testator);
 
     error InvalidSignature(
     // address recovered from signature via ecrecover
@@ -58,13 +58,13 @@ library LibErrors {
         address expectedAddress
     );
 
-    error SignerNotArchaeologistOnSarcophagus(bytes32 sarcoId, address signer);
+    error SignerNotSignatoryOnVault(bytes32 vaultId, address signer);
 
     // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)
-    error SarcophagusIsUnwrappable();
+    error VaultIsUnwrappable();
 
-    // Used when an attempt is made to clean a sarcophagus before the grace period after the resurrection time has passed
-    error SarcophagusNotCleanable();
+    // Used when an attempt is made to clean a vault before the grace period after the resurrection time has passed
+    error VaultNotCleanable();
 
     error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
 
@@ -79,6 +79,6 @@ library LibErrors {
         bytes32 doubleHashedShard
     );
 
-    error SarcophagusParametersExpired(uint256 timestamp);
+    error VaultParametersExpired(uint256 timestamp);
 }
 

@@ -11,50 +11,50 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ThirdPartyFacet {
     AppStorage internal s;
 
-    event AccuseArchaeologist(
-        bytes32 indexed sarcoId,
+    event AccuseSignatory(
+        bytes32 indexed vaultId,
         address indexed accuser,
         uint256 accuserBondReward,
-        uint256 embalmerBondReward
+        uint256 vaultOwnerBondReward
     );
 
-    event CleanUpSarcophagus(
-        bytes32 indexed sarcoId,
+    event CleanUpVault(
+        bytes32 indexed vaultId,
         address indexed cleaner,
         uint256 cleanerBondReward,
-        uint256 embalmerBondReward
+        uint256 vaultOwnerBondReward
     );
 
-    /// @notice Close a sarcophagus that has not been unwrapped within its grace period
-    /// @param sarcoId The identifier of the sarcophagus to clean
+    /// @notice Close a vault that has not been unwrapped within its grace period
+    /// @param vaultId The identifier of the vault to clean
     /// @param paymentAddress The address to which rewards will be sent
-    function clean(bytes32 sarcoId, address paymentAddress) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
+    function clean(bytes32 vaultId, address paymentAddress) external {
+        LibTypes.Vault storage vault = s.vaults[vaultId];
 
-        if (sarco.state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
+        if (vault.state != LibTypes.VaultState.Exists) {
+            revert LibErrors.VaultDoesNotExist(vaultId);
         }
 
-        // Make sure the sarco is cleanable
-        if (block.timestamp < s.gracePeriod + sarco.resurrectionTime) {
-            revert LibErrors.SarcophagusNotCleanable();
+        // Make sure the vault is cleanable
+        if (block.timestamp < s.gracePeriod + vault.resurrectionTime) {
+            revert LibErrors.VaultNotCleanable();
         }
 
-        // Figure out which archaeoligists did not fulfil their duties;
+        // Figure out which signatories did not fulfil their duties;
         // accumulate their digging fees
-        address[] memory archAddresses = sarco.archaeologists;
+        address[] memory signatoryAddresses = vault.signatories;
 
         uint256 totalCursedBond;
         uint256 totalDiggingFee;
 
-        for (uint256 i = 0; i < archAddresses.length; i++) {
-            bool didNotUnwrap = s.archaeologistSarcoSuccesses[archAddresses[i]][
-                sarcoId
+        for (uint256 i = 0; i < signatoryAddresses.length; i++) {
+            bool didNotUnwrap = s.signatoryVaultSuccesses[signatoryAddresses[i]][
+                vaultId
             ] == false;
 
             if (didNotUnwrap) {
-                LibTypes.ArchaeologistStorage memory defaulter = s
-                    .sarcophagusArchaeologists[sarcoId][archAddresses[i]];
+                LibTypes.SignatoryStorage memory defaulter = s
+                    .vaultSignatories[vaultId][signatoryAddresses[i]];
 
                 totalDiggingFee += defaulter.diggingFee;
 
@@ -65,71 +65,71 @@ contract ThirdPartyFacet {
                 totalCursedBond += cursedBond;
 
                 // decrease the defaulter's cursed bond
-                LibBonds.decreaseCursedBond(archAddresses[i], cursedBond);
+                LibBonds.decreaseCursedBond(signatoryAddresses[i], cursedBond);
 
-                // Save the failure to unwrap against the archaeologist
-                s.archaeologistCleanups[archAddresses[i]].push(sarcoId);
+                // Save the failure to unwrap against the signatory
+                s.signatoryCleanups[signatoryAddresses[i]].push(vaultId);
             }
         }
 
         (
             uint256 cleanerBondReward,
-            uint256 embalmerBondReward
+            uint256 vaultOwnerBondReward
         ) = _distributeLoot(
                 paymentAddress,
-                sarco,
+                vault,
                 totalCursedBond,
                 totalDiggingFee
             );
 
-        sarco.state = LibTypes.SarcophagusState.Done;
+        vault.state = LibTypes.VaultState.Done;
 
-        emit CleanUpSarcophagus(
-            sarcoId,
+        emit CleanUpVault(
+            vaultId,
             msg.sender,
             cleanerBondReward,
-            embalmerBondReward
+            vaultOwnerBondReward
         );
     }
 
     /**
-     * @notice Accuse archaeologoists of bad behaviour, by providing proof of leaked
-     * unencrypted shards before a sarcophagus is ready to be unwrapped. The minumum
-     * number of shards required to unwrap the sarcophagus should be provided for a
+     * @notice Accuse signatories of bad behaviour, by providing proof of leaked
+     * unencrypted shards before a vault is ready to be unwrapped. The minumum
+     * number of shards required to unwrap the vault should be provided for a
      * a successful accusal.
-     * of the cursed bonds of the archs back to them, and un-curses their bonds.
-     * @param sarcoId The identifier of the sarcophagus having leaked shards
+     * of the cursed bonds of the signatorys back to them, and un-curses their bonds.
+     * @param vaultId The identifier of the vault having leaked shards
      * @param unencryptedShardHashes At least 'm' unencrypted shard hashes as proof of bad behaviour
      * @param paymentAddress the address to which rewards should be sent if successful
      */
     function accuse(
-        bytes32 sarcoId,
+        bytes32 vaultId,
         bytes32[] memory unencryptedShardHashes,
         address paymentAddress
     ) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
+        LibTypes.Vault storage vault = s.vaults[vaultId];
 
-        if (sarco.state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
+        if (vault.state != LibTypes.VaultState.Exists) {
+            revert LibErrors.VaultDoesNotExist(vaultId);
         }
 
-        if (sarco.resurrectionTime < block.timestamp) {
-            revert LibErrors.SarcophagusIsUnwrappable();
+        if (vault.resurrectionTime < block.timestamp) {
+            revert LibErrors.VaultIsUnwrappable();
         }
 
-        if (unencryptedShardHashes.length < sarco.minShards) {
+        if (unencryptedShardHashes.length < vault.minShards) {
             revert LibErrors.AccuseNotEnoughProof(
                 unencryptedShardHashes.length,
-                sarco.minShards
+                vault.minShards
             );
         }
 
-        address[] memory accusedArchAddresses = new address[](
+        address[] memory accusedSignatoryAddresses = new address[](
             unencryptedShardHashes.length
         );
 
         // For each provided shard hash, check if its hash matches one on storage. If so, flag that
-        // archaeologist as accusable
+        // signatory as accusable
         uint256 diggingFeesToBeDistributed = 0;
         uint256 totalCursedBond = 0;
         uint256 pos = 0;
@@ -138,110 +138,110 @@ contract ThirdPartyFacet {
                 abi.encode(unencryptedShardHashes[i])
             );
 
-            address matchingArchAddr = s.doubleHashedShardArchaeologists[
+            address matchingSignatoryAddr = s.doubleHashedShardSignatories[
                 shardDoubleHash
             ];
 
-            LibTypes.ArchaeologistStorage storage badArch = s
-                .sarcophagusArchaeologists[sarcoId][matchingArchAddr];
+            LibTypes.SignatoryStorage storage badSignatory = s
+                .vaultSignatories[vaultId][matchingSignatoryAddr];
 
-            if (badArch.unencryptedShardDoubleHash == shardDoubleHash) {
-                accusedArchAddresses[pos++] = matchingArchAddr;
+            if (badSignatory.unencryptedShardDoubleHash == shardDoubleHash) {
+                accusedSignatoryAddresses[pos++] = matchingSignatoryAddr;
 
                 uint256 cursedBond = LibBonds.calculateCursedBond(
-                    badArch.diggingFee
+                    badSignatory.diggingFee
                 );
 
-                diggingFeesToBeDistributed += badArch.diggingFee;
+                diggingFeesToBeDistributed += badSignatory.diggingFee;
                 totalCursedBond += cursedBond;
 
-                LibBonds.decreaseCursedBond(matchingArchAddr, cursedBond);
+                LibBonds.decreaseCursedBond(matchingSignatoryAddr, cursedBond);
 
-                // Save the accusal against the archaeologist
-                s.archaeologistAccusals[matchingArchAddr].push(sarcoId);
+                // Save the accusal against the signatory
+                s.signatoryAccusals[matchingSignatoryAddr].push(vaultId);
             } else {
                 revert LibErrors.AccuseIncorrectProof();
             }
         }
 
-        // At this point, we need to filter out unaccused archs in order to reimburse them.
-        address[] memory bondedArchaeologists = s
-            .sarcophagi[sarcoId]
-            .archaeologists;
+        // At this point, we need to filter out unaccused signatorys in order to reimburse them.
+        address[] memory bondedSignatories = s
+            .vaults[vaultId]
+            .signatories;
 
-        for (uint256 i = 0; i < bondedArchaeologists.length; i++) {
-            // Need to check each archaeologist address on the sarcophagus
+        for (uint256 i = 0; i < bondedSignatories.length; i++) {
+            // Need to check each signatory address on the vault
             bool isUnaccused = true;
 
-            for (uint256 j = 0; j < accusedArchAddresses.length; j++) {
-                // For each arch address, if found in accusedArchAddresses,
-                // then don't add to unaccusedArchsAddresses
-                if (bondedArchaeologists[i] == accusedArchAddresses[j]) {
+            for (uint256 j = 0; j < accusedSignatoryAddresses.length; j++) {
+                // For each signatory address, if found in accusedSignatoryAddresses,
+                // then don't add to unaccusedSignatorysAddresses
+                if (bondedSignatories[i] == accusedSignatoryAddresses[j]) {
                     isUnaccused = false;
                     break;
                 }
             }
 
-            // If this arch address wasn't in the accused list, free it from its curse
+            // If this signatory address wasn't in the accused list, free it from its curse
             if (isUnaccused) {
-                // There are technically no rewards here, since the sarcophagus
+                // There are technically no rewards here, since the vault
                 // has been compromised, so here this effectively merely resets
-                // the state of the non-malicious archaeologists, as if they never
-                // bonded to this sarcophagus in the first place.
+                // the state of the non-malicious signatories, as if they never
+                // bonded to this vault in the first place.
                 //
                 // Of course, whatever rewards they might have gained in previous
                 // rewraps remains theirs.
-                LibBonds.freeArchaeologist(sarcoId, bondedArchaeologists[i]);
+                LibBonds.freeSignatory(vaultId, bondedSignatories[i]);
             }
         }
 
         (
             uint256 accuserBondReward,
-            uint256 embalmerBondReward
+            uint256 vaultOwnerBondReward
         ) = _distributeLoot(
                 paymentAddress,
-                sarco,
+                vault,
                 totalCursedBond,
                 diggingFeesToBeDistributed
             );
 
-        sarco.state = LibTypes.SarcophagusState.Done;
+        vault.state = LibTypes.VaultState.Done;
 
-        emit AccuseArchaeologist(
-            sarcoId,
+        emit AccuseSignatory(
+            vaultId,
             msg.sender,
             accuserBondReward,
-            embalmerBondReward
+            vaultOwnerBondReward
         );
     }
 
     /**
-     * @notice Takes a sarcophagus's cursed bond, splits it in half, and sends
-     * to paymentAddress and embalmer
+     * @notice Takes a vault's cursed bond, splits it in half, and sends
+     * to paymentAddress and vaultOwner
      * @param paymentAddress payment address for the transaction caller
-     * @param sarc the sarcophagus to operate on
-     * @param totalCursedBond the sum of cursed bonds of all archs that failed to fulfil their duties
-     * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties
+     * @param vault the vault to operate on
+     * @param totalCursedBond the sum of cursed bonds of all signatorys that failed to fulfil their duties
+     * @param totalDiggingFee the sum of digging fees of all signatorys that failed to fulfil their duties
      * @return halfToSender the amount of SARCO token going to transaction
      * sender
-     * @return halfToEmbalmer the amount of SARCO token going to embalmer
+     * @return halfToEmbalmer the amount of SARCO token going to vaultOwner
      */
     function _distributeLoot(
         address paymentAddress,
-        LibTypes.Sarcophagus storage sarc,
+        LibTypes.Vault storage vault,
         uint256 totalCursedBond,
         uint256 totalDiggingFee
     ) private returns (uint256, uint256) {
-        // split the sarcophagus's cursed bond into two halves
+        // split the vault's cursed bond into two halves
         uint256 halfToEmbalmer = totalCursedBond / 2;
         uint256 halfToSender = totalCursedBond - halfToEmbalmer;
 
         // transfer the cursed half, plus digging fee to the
-        // embalmer
-        s.sarcoToken.transfer(sarc.embalmer, totalDiggingFee + halfToEmbalmer);
+        // vaultOwner
+        s.heritageToken.transfer(vault.vaultOwner, totalDiggingFee + halfToEmbalmer);
 
         // transfer the other half of the cursed bond to the transaction caller
-        s.sarcoToken.transfer(paymentAddress, halfToSender);
+        s.heritageToken.transfer(paymentAddress, halfToSender);
 
         return (halfToSender, halfToEmbalmer);
     }

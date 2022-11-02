@@ -1,86 +1,86 @@
 import { ethers } from "hardhat";
-import { ArchaeologistFacet } from "../../typechain";
+import { SignatoryFacet } from "../../typechain";
 import { sign } from "../utils/helpers";
-import { createSarcoFixture } from "./create-sarco-fixture";
+import { createVaultFixture } from "./create-vault-fixture";
 
 /**
- * A fixture to set up the transfer of an archaeologist's R&R on a
- * sarcophagus to an unbonded archaeologist.
+ * A fixture to set up the transfer of an signatory's R&R on a
+ * vault to an unbonded signatory.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const finalizeTransferFixture = async () => {
   const {
     deployer,
-    archaeologists,
-    archaeologistFacet,
+    signatories,
+    signatoryFacet,
     viewStateFacet,
-    sarcoId,
+    vaultId,
     arweaveTxIds,
-    unbondedArchaeologists,
+    unbondedSignatories,
     diamond,
-  } = await createSarcoFixture({ shares: 5, threshold: 3, addUnbondedArchs: 1 }, "Test Sarco");
+  } = await createVaultFixture({ shares: 5, threshold: 3, addUnbondedArchs: 1 }, "Test Vault");
 
-  const newArchaeologist = unbondedArchaeologists[0];
+  const newSignatory = unbondedSignatories[0];
 
-  const oldArchaeologist = archaeologists[1].signer;
-  const oldArchaeologistSignature = await sign(oldArchaeologist, arweaveTxIds[1], "string");
+  const oldSignatory = signatories[1].signer;
+  const oldSignatorySignature = await sign(oldSignatory, arweaveTxIds[1], "string");
 
-  const oldArchaeologistFees = {
-    diggingFee: archaeologists[1].diggingFee,
+  const oldSignatoryFees = {
+    diggingFee: signatories[1].diggingFee,
   };
 
-  // Calculate the old arch's bond amount
-  const bondAmount = oldArchaeologistFees.diggingFee;
+  // Calculate the old signatory's bond amount
+  const bondAmount = oldSignatoryFees.diggingFee;
 
-  // Get the archaeologists cursed, free bond before transfer
-  const oldArchaeologistCursedBondBefore = await viewStateFacet.getCursedBond(
-    oldArchaeologist.address
+  // Get the signatories cursed, free bond before transfer
+  const oldSignatoryCursedBondBefore = await viewStateFacet.getCursedBond(
+    oldSignatory.address
   );
-  const oldArchaeologistFreeBondBefore = await viewStateFacet.getFreeBond(oldArchaeologist.address);
+  const oldSignatoryFreeBondBefore = await viewStateFacet.getFreeBond(oldSignatory.address);
 
-  const newArchaeologistCursedBondBefore = await viewStateFacet.getCursedBond(
-    newArchaeologist.archAddress
+  const newSignatoryCursedBondBefore = await viewStateFacet.getCursedBond(
+    newSignatory.signatoryAddress
   );
-  const newArchaeologistFreeBondBefore = await viewStateFacet.getFreeBond(
-    newArchaeologist.archAddress
+  const newSignatoryFreeBondBefore = await viewStateFacet.getFreeBond(
+    newSignatory.signatoryAddress
   );
 
-  // Actually have the new archaeologist finalize the transfer
-  const tx = archaeologistFacet
-    .connect(newArchaeologist.signer)
-    .finalizeTransfer(sarcoId, arweaveTxIds[1], oldArchaeologistSignature);
+  // Actually have the new signatory finalize the transfer
+  const tx = signatoryFacet
+    .connect(newSignatory.signer)
+    .finalizeTransfer(vaultId, arweaveTxIds[1], oldSignatorySignature);
 
-  // Get the archaeologists cursed, free bond before transfer
-  const oldArchaeologistCursedBondAfter = await viewStateFacet.getCursedBond(
-    oldArchaeologist.address
+  // Get the signatories cursed, free bond before transfer
+  const oldSignatoryCursedBondAfter = await viewStateFacet.getCursedBond(
+    oldSignatory.address
   );
-  const oldArchaeologistFreeBondAfter = await viewStateFacet.getFreeBond(oldArchaeologist.address);
-  const newArchaeologistCursedBondAfter = await viewStateFacet.getCursedBond(
-    newArchaeologist.archAddress
+  const oldSignatoryFreeBondAfter = await viewStateFacet.getFreeBond(oldSignatory.address);
+  const newSignatoryCursedBondAfter = await viewStateFacet.getCursedBond(
+    newSignatory.signatoryAddress
   );
-  const newArchaeologistFreeBondAfter = await viewStateFacet.getFreeBond(
-    newArchaeologist.archAddress
+  const newSignatoryFreeBondAfter = await viewStateFacet.getFreeBond(
+    newSignatory.signatoryAddress
   );
 
   return {
     tx,
     diamond,
     deployer,
-    archaeologistFacet: archaeologistFacet as ArchaeologistFacet,
+    signatoryFacet: signatoryFacet as SignatoryFacet,
     viewStateFacet,
-    archaeologists,
-    oldArchaeologist,
-    newArchaeologist,
-    sarcoId,
+    signatories,
+    oldSignatory,
+    newSignatory,
+    vaultId,
     arweaveTxIds,
-    oldArchaeologistCursedBondBefore,
-    oldArchaeologistCursedBondAfter,
-    oldArchaeologistFreeBondBefore,
-    oldArchaeologistFreeBondAfter,
-    newArchaeologistCursedBondBefore,
-    newArchaeologistCursedBondAfter,
-    newArchaeologistFreeBondBefore,
-    newArchaeologistFreeBondAfter,
+    oldSignatoryCursedBondBefore,
+    oldSignatoryCursedBondAfter,
+    oldSignatoryFreeBondBefore,
+    oldSignatoryFreeBondAfter,
+    newSignatoryCursedBondBefore,
+    newSignatoryCursedBondAfter,
+    newSignatoryFreeBondBefore,
+    newSignatoryFreeBondAfter,
     bondAmount,
   };
 };

@@ -8,7 +8,7 @@ contract AppStorageInit {
     /// @notice Initializes the app with default state values
     /// @dev Add any AppStorage struct properties here to initialize values
     function init(
-        IERC20 sarcoToken,
+        IERC20 heritageToken,
         uint256 protocolFeeBasePercentage,
         uint256 gracePeriod,
         uint256 expirationThreshold
@@ -16,7 +16,7 @@ contract AppStorageInit {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Add the ERC20 token to app storage (Sarco)
-        s.sarcoToken = sarcoToken;
+        s.heritageToken = heritageToken;
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
         s.gracePeriod = gracePeriod;
         s.expirationThreshold = expirationThreshold;
