@@ -9,25 +9,10 @@ const vaultName = "test init";
 describe("AdminFacet", () => {
   describe("setProtocolFee", () => {
     it("allows deployer of diamond contract to set the protocol fee", async () => {
-      let deployer, adminFacet, viewStateFacet;
-      try{
-        let createRes = await createVaultFixture(
-          { shares, threshold },
-          vaultName
-        );
-
-        // console.log('createRes: ', createRes)
-        // {deployer, adminFacet, viewStateFacet }
-        deployer=createRes.deployer;
-        adminFacet = createRes.adminFacet, 
-        viewStateFacet=createRes.viewStateFacet;
-      }catch(err){
-        console.error('Err: ', err)
-         
-      }
-
-      //0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-      // console.log('Res: ', deployer,',a: ', adminFacet,',v: ', viewStateFacet)
+      const {deployer, adminFacet, viewStateFacet } = await createVaultFixture(
+        { shares, threshold },
+        vaultName
+      );
 
       const newProtocolFee = BigNumber.from("12");
       await adminFacet.connect(deployer).setProtocolFeeBasePercentage(newProtocolFee);
@@ -36,14 +21,14 @@ describe("AdminFacet", () => {
       expect(newProtocolFee).to.equal(protocolFee);
     });
 
-    // it("reverts if non-deployer (owner) attempts to set the protocol fee", async () => {
-    //   const { vaultOwner, adminFacet } = await createVaultFixture({ shares, threshold }, vaultName);
+    it("reverts if non-deployer (owner) attempts to set the protocol fee", async () => {
+      const { vaultOwner, adminFacet } = await createVaultFixture({ shares, threshold }, vaultName);
 
-    //   const protocolFee = BigNumber.from("12");
-    //   await expect(
-    //     adminFacet.connect(vaultOwner).setProtocolFeeBasePercentage(protocolFee)
-    //   ).to.be.revertedWith("LibDiamond: Must be contract owner");
-    // });
+      const protocolFee = BigNumber.from("12");
+      await expect(
+        adminFacet.connect(vaultOwner).setProtocolFeeBasePercentage(protocolFee)
+      ).to.be.revertedWith("LibDiamond: Must be contract owner");
+    });
   });
   // describe("setGracePeriod", () => {
   //   it("allows deployer of diamond contract to update the grace period", async () => {

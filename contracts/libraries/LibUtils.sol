@@ -154,7 +154,7 @@ library LibUtils {
     /// @param vaultId the identifier of the vault
     /// @param signatory the address of the signatory
     /// @return The boolean true if the signatory exists on the vault
-    function signatoryExistsOnSarc(bytes32 vaultId, address signatory)
+    function signatoryExistsOnVault(bytes32 vaultId, address signatory)
         internal
         view
         returns (bool)

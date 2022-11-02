@@ -188,7 +188,7 @@ contract SignatoryFacet {
         }
 
         // Confirm that the sender is an signatory on this vault
-        if (!LibUtils.signatoryExistsOnSarc(vaultId, msg.sender)) {
+        if (!LibUtils.signatoryExistsOnVault(vaultId, msg.sender)) {
             revert LibErrors.SignatoryNotOnVault(msg.sender);
         }
 
@@ -259,7 +259,7 @@ contract SignatoryFacet {
         // vault. Failure here means that someone besides an signatory
         // on the vault signed this message or that the data being signed
         // was not the provided arweaveTxId.
-        if (!LibUtils.signatoryExistsOnSarc(vaultId, oldSignatory)) {
+        if (!LibUtils.signatoryExistsOnVault(vaultId, oldSignatory)) {
             revert LibErrors.SignerNotSignatoryOnVault(
                 vaultId,
                 oldSignatory

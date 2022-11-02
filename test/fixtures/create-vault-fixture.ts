@@ -52,6 +52,7 @@ export const createVaultFixture = (
 
       // Get the entities interacting with the contracts
       const unnamedAccounts = await getUnnamedAccounts();
+      
       const vaultOwner = await ethers.getSigner(unnamedAccounts[0]);
       const recipient = await ethers.getSigner(unnamedAccounts[1]);
       const thirdParty = await ethers.getSigner(unnamedAccounts[2]);
@@ -143,10 +144,10 @@ export const createVaultFixture = (
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
       const vaultOwnerBalanceBeforeCreate = await heritageToken.balanceOf(vaultOwner.address);
-      console.log('Got here: ', heritageToken.address, ', vowFacet: ', vaultOwnerFacet.address, ', vOwn: ', vaultOwner.address, ', config: ', config )
+      
       // Create a vault as the vaultOwner
       let createTx: Promise<ContractTransaction> | undefined;
-      try{
+      
       if (!config.skipCreateTx) {
         createTx = vaultOwnerFacet.connect(vaultOwner).createVault(
           vaultId,
@@ -164,13 +165,10 @@ export const createVaultFixture = (
         );
       }
 
-    }catch(err){
-      console.error('Error crreating: ',err)
-    }
-
       if (config.skipAwaitCreateTx !== true) {
         await createTx;
       }
+     
     
 
       return {

@@ -42,7 +42,7 @@ library LibTypes {
     // reduce the stack size within the function, preventing the "stack too
     // deep" error.
     struct SelectedSignatoryData {
-        address archAddress;
+        address signatoryAddress;
         uint256 diggingFee;
         bytes32 unencryptedShardDoubleHash;
         uint8 v;

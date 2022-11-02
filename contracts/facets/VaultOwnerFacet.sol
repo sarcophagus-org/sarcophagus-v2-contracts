@@ -126,13 +126,13 @@ contract VaultOwnerFacet {
         uint256 totalDiggingFees = 0;
 
         for (uint256 i = 0; i < selectedSignatories.length; i++) {
-            LibTypes.SelectedSignatoryData memory arch = selectedSignatories[i];
-            LibUtils.revertIfSignatoryProfileDoesNotExist(arch.archAddress);
+            LibTypes.SelectedSignatoryData memory signatory = selectedSignatories[i];
+            LibUtils.revertIfSignatoryProfileDoesNotExist(signatory.signatoryAddress);
 
             // Confirm that the signatory list is unique. This is done by
             // checking that the signatory does not already exist from
             // previous iterations in this loop.
-            if (LibUtils.signatoryExistsOnSarc(vaultId, arch.archAddress)) {
+            if (LibUtils.signatoryExistsOnVault(vaultId, signatory.signatoryAddress)) {
                 revert LibErrors.SignatoryListNotUnique(
                     cursedSignatories
                 );
@@ -141,45 +141,45 @@ contract VaultOwnerFacet {
             // Validate the signatory has signed off on the vault parameters: double hashed key share,
             // arweaveTxId[1] (tx storing share on arweave), maximumRewrapInterval for vault
             LibUtils.verifySignatorySignature(
-                arch.unencryptedShardDoubleHash,
+                signatory.unencryptedShardDoubleHash,
                 arweaveTxIds[1],
                 vault.maximumRewrapInterval,
                 vault.timestamp,
-                arch.diggingFee,
-                arch.v,
-                arch.r,
-                arch.s,
-                arch.archAddress
+                signatory.diggingFee,
+                signatory.v,
+                signatory.r,
+                signatory.s,
+                signatory.signatoryAddress
             );
 
-            totalDiggingFees += arch.diggingFee;
+            totalDiggingFees += signatory.diggingFee;
 
             LibTypes.SignatoryStorage memory signatoryStorage = LibTypes
                 .SignatoryStorage({
-                    diggingFee: arch.diggingFee,
+                    diggingFee: signatory.diggingFee,
                     diggingFeesPaid: 0,
-                    unencryptedShardDoubleHash: arch.unencryptedShardDoubleHash,
+                    unencryptedShardDoubleHash: signatory.unencryptedShardDoubleHash,
                     unencryptedShard: ""
                 });
 
             // Map the double-hashed share to this signatory's address for easier referencing on accuse
-            s.doubleHashedShardSignatories[arch.unencryptedShardDoubleHash] = arch
-                .archAddress;
+            s.doubleHashedShardSignatories[signatory.unencryptedShardDoubleHash] = signatory
+                .signatoryAddress;
 
             // Save the necessary signatory data to the vault
             s.vaultSignatories[vaultId][
-                arch.archAddress
+                signatory.signatoryAddress
             ] = signatoryStorage;
 
             // Add the vault identifier to signatory's list of vaults
-            s.signatoryVaults[arch.archAddress].push(vaultId);
+            s.signatoryVaults[signatory.signatoryAddress].push(vaultId);
 
             // Move free bond to cursed bond on signatory
-            LibBonds.curseSignatory(vaultId, arch.archAddress);
+            LibBonds.curseSignatory(vaultId, signatory.signatoryAddress);
 
             // Add the signatory address to the list of addresses to be
             // passed in to the vault object
-            cursedSignatories[i] = arch.archAddress;
+            cursedSignatories[i] = signatory.signatoryAddress;
         }
 
         // Create the vault object and store it in AppStorage
@@ -276,7 +276,7 @@ contract VaultOwnerFacet {
         uint256 totalDiggingFees = 0;
 
         for (uint256 i = 0; i < bondedSignatories.length; i++) {
-            // Get the archaeolgist's fee data
+            // Get the signatory's fee data
             LibTypes.SignatoryStorage memory signatoryData = LibUtils
                 .getSignatory(vaultId, bondedSignatories[i]);
 

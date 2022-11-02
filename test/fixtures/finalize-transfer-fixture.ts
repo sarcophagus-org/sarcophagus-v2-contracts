@@ -18,7 +18,7 @@ export const finalizeTransferFixture = async () => {
     arweaveTxIds,
     unbondedSignatories,
     diamond,
-  } = await createVaultFixture({ shares: 5, threshold: 3, addUnbondedArchs: 1 }, "Test Vault");
+  } = await createVaultFixture({ shares: 5, threshold: 3, addUnbondedSignatories: 1 }, "Test Vault");
 
   const newSignatory = unbondedSignatories[0];
 
