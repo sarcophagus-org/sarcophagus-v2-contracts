@@ -97,7 +97,7 @@ const config: HardhatUserConfig = {
 
 extendEnvironment(async (hre) => {
   hre["loadContracts"] = async (suppliedDiamondAddress) => {
-    const diamondAddress = suppliedDiamondAddress || require(`./deployments/${hre.network.name}/Diamond.json`).address;
+    const diamondAddress = suppliedDiamondAddress || require(`./deployments/${hre.network.name}/Diamond_DiamondProxy.json`).address;
     console.log(`Initializing HRE on network ${hre.network.name} with diamond address ${diamondAddress}`);
 
     if (!diamondAddress || await hre.ethers.provider.getCode(diamondAddress) === "0x")
