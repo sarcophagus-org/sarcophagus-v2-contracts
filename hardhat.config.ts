@@ -108,12 +108,10 @@ extendEnvironment(async (hre) => {
     hre["thirdPartyFacet"] = await hre.ethers.getContractAt("ThirdPartyFacet", diamondAddress);
     hre["viewStateFacet"] = await hre.ethers.getContractAt("ViewStateFacet", diamondAddress);
     hre["adminFacet"] = await hre.ethers.getContractAt("AdminFacet", diamondAddress);
-
-    // TODO: add sarcoToken
   };
 
   hre["connectSigner"] = async (suppliedPrivateKey) => {
-    const privateKey = suppliedPrivateKey; // || process.env.SIGNER;
+    const privateKey = suppliedPrivateKey;
     const signer = new hre.ethers.Wallet(privateKey, hre.ethers.provider);
     console.log(`Connecting HRE contracts to signer with address ${signer.address}`);
 
