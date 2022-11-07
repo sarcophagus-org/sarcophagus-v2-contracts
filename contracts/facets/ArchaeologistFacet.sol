@@ -11,13 +11,6 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ArchaeologistFacet {
     AppStorage internal s;
 
-    event FinalizeTransfer(
-        bytes32 sarcoId,
-        string arweaveTxId,
-        address oldArchaeologist,
-        address newArchaeologist
-    );
-
     event UnwrapSarcophagus(bytes32 indexed sarcoId, bytes unencryptedShard);
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
@@ -226,96 +219,5 @@ contract ArchaeologistFacet {
 
         // Emit an event
         emit UnwrapSarcophagus(sarcoId, unencryptedShard);
-    }
-
-    /// @notice Finalizes a transfer of roles and responsibilities between two
-    /// archaeologists. This is to be called by the new archaeologist.
-    /// @param sarcoId The identifier of the sarcophagus
-    /// @param arweaveTxId The id of the arweave transaction where the new shard
-    /// @param oldArchSignature The signature of the old archaeologist
-    /// was uploaded
-    function finalizeTransfer(
-        bytes32 sarcoId,
-        string memory arweaveTxId,
-        LibTypes.Signature memory oldArchSignature
-    ) external {
-        // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
-
-        // Confirm that the resurrection time is in the future
-        LibUtils.resurrectionInFuture(s.sarcophagi[sarcoId].resurrectionTime);
-
-        // Get the address that signed the oldArchSignature
-        address oldArchaeologist = LibUtils.recoverAddress(
-            bytes(arweaveTxId),
-            oldArchSignature.v,
-            oldArchSignature.r,
-            oldArchSignature.s
-        );
-
-        // Confirm that the oldArchaeologist is an archaeologist on this
-        // sarcophagus. Failure here means that someone besides an archaeologist
-        // on the sarcophagus signed this message or that the data being signed
-        // was not the provided arweaveTxId.
-        if (!LibUtils.archaeologistExistsOnSarc(sarcoId, oldArchaeologist)) {
-            revert LibErrors.SignerNotArchaeologistOnSarcophagus(
-                sarcoId,
-                oldArchaeologist
-            );
-        }
-
-        // Update the list of archaeologist's on the sarcophagus
-        // For each archaeologist on the sarcophagus, find the old archaeologist
-        // and replace it with the sender's address.
-        for (
-            uint256 i = 0;
-            i < s.sarcophagi[sarcoId].archaeologists.length;
-            i++
-        ) {
-            // Find the archaeologist that matches the old archaeologist's address
-            if (s.sarcophagi[sarcoId].archaeologists[i] == oldArchaeologist) {
-                s.sarcophagi[sarcoId].archaeologists[i] = msg.sender;
-
-                // Once found there is no need to continue
-                break;
-            }
-        }
-
-        // Free the old archaeologist's bond
-        LibBonds.freeArchaeologist(sarcoId, oldArchaeologist);
-
-        LibTypes.ArchaeologistStorage storage newArchData = s
-            .sarcophagusArchaeologists[sarcoId][msg.sender];
-
-        LibTypes.ArchaeologistStorage storage oldArchData = s
-            .sarcophagusArchaeologists[sarcoId][oldArchaeologist];
-
-        // Add the new archaeologist's address to the sarcohpagusArchaeologists mapping
-        newArchData.diggingFee = oldArchData.diggingFee;
-        newArchData.unencryptedShardDoubleHash = oldArchData
-            .unencryptedShardDoubleHash;
-        newArchData.unencryptedShard = "";
-
-        // Set the old archaeologist's data in the sarcophagusArchaeologists
-        // mapping to their default values
-        oldArchData.diggingFee = 0;
-        oldArchData.unencryptedShardDoubleHash = 0;
-        oldArchData.unencryptedShard = "";
-
-        // Add the arweave transaction id to arweaveTxIds on the sarcophagus
-        s.sarcophagi[sarcoId].arweaveTxIds.push(arweaveTxId);
-
-        // Curse the new archaeologist's bond
-        LibBonds.curseArchaeologist(sarcoId, msg.sender);
-
-        // Emit an event
-        emit FinalizeTransfer(
-            sarcoId,
-            arweaveTxId,
-            oldArchaeologist,
-            msg.sender
-        );
     }
 }
