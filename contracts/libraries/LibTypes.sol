@@ -120,4 +120,17 @@ library LibTypes {
         uint256 accusals;
         uint256 cleanups;
     }
+
+
+    struct BeneficiaryDetails {      
+      address  beneficiaryAddress; 
+      uint256  percent; // % multiplied by 100 e.g 25% is 2500
+      string name;      
+    }
+
+
+    // struct AssetVaultSignatoryStatus {
+    //     address  signatoryAddress;
+    //     bool signed;
+    // }
 }
