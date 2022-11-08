@@ -43,6 +43,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     owner: deployer,
     facets: [
       "VaultOwnerFacet",
+      "VaultOwnerAssetFacet",
       "SignatoryFacet",
       "ThirdPartyFacet",
       "ViewStateFacet",
@@ -58,7 +59,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         expirationThreshold
       ],
     },
-    log: true,
+    log: false,
   });
 };
 

@@ -125,7 +125,17 @@ library LibTypes {
     struct BeneficiaryDetails {      
       address  beneficiaryAddress; 
       uint256  percent; // % multiplied by 100 e.g 25% is 2500
-      string name;      
+      string name;  
+      bool claimed;    
+    }
+
+    struct CreateVaultData {
+        string name;
+        BeneficiaryDetails[] beneficiaries;
+        // uint256 resurrectionTime; // no need, Expirytime is always set to 1 month 
+        
+        uint256 timestamp;
+        
     }
 
 

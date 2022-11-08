@@ -24,14 +24,14 @@ contract HeritageAssetWillVault is Ownable {
     
     uint256 public _expiryTime;
 
-    mapping(address => bool) public _signatoriesStatus; // Mapping to find out easily if an address is a signatory of this vault
+    mapping(address => bool) _signatoriesStatus; // Mapping to find out easily if an address is a signatory of this vault
     address[] public _signatories;
     uint public _signatoriesCount;
 
-    mapping(address => bool) public _signatorieswhoHaveSignedRelease;
-    uint8 _signatorieswhoHaveSignedReleaseCount;
+    mapping(address => bool)  _signatorieswhoHaveSignedRelease;
+    uint256 public _signatorieswhoHaveSignedReleaseCount;
 
-    uint public _vaultId;
+    bytes32 public _vaultId;
     string public _name;
 
 
@@ -62,12 +62,13 @@ contract HeritageAssetWillVault is Ownable {
     }
     
     
-    constructor(address vaultOwner,uint vaultId,string memory name, LibTypes.BeneficiaryDetails[] memory beneficiaries, address[] memory signatories) payable {
+    constructor(address vaultOwner,bytes32 vaultId,string memory name, LibTypes.BeneficiaryDetails[] memory beneficiaries, address[] memory signatories) payable {
         
         _vaultId=vaultId;
         _name=name;
         _beneficiaryCount=beneficiaries.length;
         for(uint b=0; b< _beneficiaryCount; b++){
+            beneficiaries[b].claimed=false;
             _beneficiaries.push(beneficiaries[b]);
             _beneficiaryStatus[beneficiaries[b].beneficiaryAddress] = true;
             // appStorage.beneficiaryVaults[ beneficiaries[b].beneficiaryAddress ].push(vaultId);
@@ -126,13 +127,14 @@ contract HeritageAssetWillVault is Ownable {
     //     }
     // }
     
-    
-    
     // //internal function to transfer the beneficiary
     //  function transferInheritor(address _newPerson) internal {
     //     beneficiary=_newPerson;
     // }
-    
+
+    function isSignatory(address signatory) public view returns (bool) {
+        return _signatoriesStatus[signatory];
+    }    
     
     /**
     * @dev Allows the owner to withdraw from the contract
@@ -179,12 +181,16 @@ contract HeritageAssetWillVault is Ownable {
         require(balance > 0, "Not enough Coin Balance");
 
         LibTypes.BeneficiaryDetails memory benefeciary ;
-        for(uint i=0; i< _beneficiaries.length; i++){
+        uint i;
+        for(i=0; i< _beneficiaries.length; i++){
             if(_beneficiaries[i].beneficiaryAddress== sender){
                 benefeciary = _beneficiaries[i];
                 break;
             }
         }
+        require(!benefeciary.claimed, "Already Claimed");
+
+        _beneficiaries[i].claimed=true;
         uint256 claimableBalance = benefeciary.percent * balance / 100;
         _sendCoinTo(sender, tokenOrCoin, claimableBalance);
 

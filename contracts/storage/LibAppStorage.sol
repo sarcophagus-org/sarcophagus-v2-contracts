@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 
+
 // Global storage for the app. Can be accessed in facets and in libraries
 struct AppStorage {
     IERC20 heritageToken;
@@ -35,6 +36,8 @@ struct AppStorage {
     // as signatories fulfill their duties and withdraw their rewards
     mapping(address => uint256) signatoryRewards;
     mapping(bytes32 => LibTypes.Vault) vaults;
+    mapping(bytes32 => address) assetVaults;
+
     // vault ownerships
     mapping(address => bytes32[]) vaultOwnerVaults;
     mapping(address => bytes32[]) signatoryVaults;

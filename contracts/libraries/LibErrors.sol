@@ -49,7 +49,7 @@ library LibErrors {
 
     error VaultDoesNotExist(bytes32 vaultId);
 
-    error SenderNotEmbalmer(address sender, address testator);
+    error SenderNotVaultOwner(address sender, address vaultOwner);
 
     error InvalidSignature(
     // address recovered from signature via ecrecover
