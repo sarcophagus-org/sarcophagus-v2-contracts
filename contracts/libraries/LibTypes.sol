@@ -15,7 +15,8 @@ library LibTypes {
         Resurrected,
         Buried,
         Cleaned,
-        Accused
+        Accused,
+        Failed
     }
 
     // A struct of just the signature. This is used primarily by the
@@ -101,7 +102,6 @@ library LibTypes {
         SarcophagusState state;
         bool canBeTransferred;
         uint8 minShards;
-        uint8 numUnwraps;
         uint256 resurrectionTime;
         uint256 maximumRewrapInterval;
         string[] arweaveTxIds;

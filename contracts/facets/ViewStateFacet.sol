@@ -249,7 +249,33 @@ contract ViewStateFacet {
         view
         returns (LibTypes.Sarcophagus memory)
     {
-        return s.sarcophagi[sarcoId];
+        LibTypes.Sarcophagus memory sarco = s.sarcophagi[sarcoId];
+
+        uint8 unwrapsCount = 0;
+        for (uint8 i = 0; i < sarco.archaeologists.length; i++) {
+            bytes memory shard = s
+            .sarcophagusArchaeologists[sarcoId][sarco.archaeologists[i]]
+                .unencryptedShard;
+
+            if (shard.length != 0) {
+                unwrapsCount = unwrapsCount + 1;
+                sarco.state = LibTypes.SarcophagusState.Resurrecting;
+            }
+
+            if (unwrapsCount == sarco.minShards) {
+                sarco.state = LibTypes.SarcophagusState.Resurrected;
+                break;
+            }
+        }
+
+        if (
+            unwrapsCount < sarco.minShards &&
+            block.timestamp > sarco.resurrectionTime + s.gracePeriod
+        ) {
+            sarco.state = LibTypes.SarcophagusState.Failed;
+        }
+
+        return sarco;
     }
 
     /// @notice Given an embalmer's address, returns the identifiers of all
