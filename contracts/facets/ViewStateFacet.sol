@@ -250,6 +250,9 @@ contract ViewStateFacet {
         returns (LibTypes.Sarcophagus memory)
     {
         LibTypes.Sarcophagus memory sarco = s.sarcophagi[sarcoId];
+        if (sarco.state != LibTypes.SarcophagusState.Active) {
+            return sarco;
+        }
 
         uint8 unwrapsCount = 0;
         for (uint8 i = 0; i < sarco.archaeologists.length; i++) {
