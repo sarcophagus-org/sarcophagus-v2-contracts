@@ -248,9 +248,7 @@ contract EmbalmerFacet {
         external
     {
         // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
+        LibUtils.revertIfNotExists(sarcoId);
 
         // Confirm that the sender is the embalmer
         if (s.sarcophagi[sarcoId].embalmer != msg.sender) {
@@ -332,9 +330,7 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
         // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
+        LibUtils.revertIfNotExists(sarcoId);
 
         // Confirm that the sender is the embalmer
         if (s.sarcophagi[sarcoId].embalmer != msg.sender) {

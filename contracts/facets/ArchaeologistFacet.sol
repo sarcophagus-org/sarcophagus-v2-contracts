@@ -182,10 +182,7 @@ contract ArchaeologistFacet {
         // if the unencryptedShard is empty
         LibUtils.archaeologistUnwrappedCheck(sarcoId, msg.sender);
 
-        // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
+        LibUtils.revertIfNotExists(sarcoId);
 
         // Confirm that the sender is an archaeologist on this sarcophagus
         if (!LibUtils.archaeologistExistsOnSarc(sarcoId, msg.sender)) {
@@ -258,9 +255,7 @@ contract ArchaeologistFacet {
         LibTypes.Signature memory oldArchSignature
     ) external {
         // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
+        LibUtils.revertIfNotExists(sarcoId);
 
         // Confirm that the resurrection time is in the future
         LibUtils.resurrectionInFuture(s.sarcophagi[sarcoId].resurrectionTime);
