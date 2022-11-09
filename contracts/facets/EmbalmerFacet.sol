@@ -185,7 +185,7 @@ contract EmbalmerFacet {
         // Create the sarcophagus object and store it in AppStorage
         s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
             name: sarcophagus.name,
-            state: LibTypes.SarcophagusState.Exists,
+            state: LibTypes.SarcophagusState.Active,
             canBeTransferred: sarcophagus.canBeTransferred,
             minShards: sarcophagus.minShards,
             resurrectionTime: sarcophagus.resurrectionTime,
@@ -240,7 +240,7 @@ contract EmbalmerFacet {
         external
     {
         // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -324,7 +324,7 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
         // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -347,7 +347,7 @@ contract EmbalmerFacet {
         s.sarcophagi[sarcoId].resurrectionTime = 2**256 - 1;
 
         // Set sarcophagus state to done
-        s.sarcophagi[sarcoId].state = LibTypes.SarcophagusState.Done;
+        s.sarcophagi[sarcoId].state = LibTypes.SarcophagusState.Buried;
 
         // For each archaeologist on the sarcophagus,
         // 1. Unlock their cursed bond

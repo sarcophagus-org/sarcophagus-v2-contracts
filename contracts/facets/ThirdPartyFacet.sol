@@ -31,7 +31,7 @@ contract ThirdPartyFacet {
     function clean(bytes32 sarcoId, address paymentAddress) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
-        if (sarco.state != LibTypes.SarcophagusState.Exists) {
+        if (sarco.state != LibTypes.SarcophagusState.Active) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -82,7 +82,7 @@ contract ThirdPartyFacet {
                 totalDiggingFee
             );
 
-        sarco.state = LibTypes.SarcophagusState.Done;
+        sarco.state = LibTypes.SarcophagusState.Cleaned;
 
         emit CleanUpSarcophagus(
             sarcoId,
@@ -109,7 +109,7 @@ contract ThirdPartyFacet {
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
-        if (sarco.state != LibTypes.SarcophagusState.Exists) {
+        if (sarco.state != LibTypes.SarcophagusState.Active) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -205,7 +205,7 @@ contract ThirdPartyFacet {
                 diggingFeesToBeDistributed
             );
 
-        sarco.state = LibTypes.SarcophagusState.Done;
+        sarco.state = LibTypes.SarcophagusState.Accused;
 
         emit AccuseArchaeologist(
             sarcoId,

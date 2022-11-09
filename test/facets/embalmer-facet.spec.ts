@@ -887,12 +887,12 @@ describe("Contract: EmbalmerFacet", () => {
         expect(sarcophagus.resurrectionTime).to.equal(ethers.constants.MaxUint256);
       });
 
-      it("should set the sarcophagus state to done", async () => {
+      it("should set the sarcophagus state to buried", async () => {
         const { viewStateFacet, sarcoId } = await buryFixture({ shares, threshold }, sarcoName);
 
         const sarcophagus = await viewStateFacet.getSarcophagus(sarcoId);
 
-        expect(sarcophagus.state).to.equal(SarcophagusState.Done);
+        expect(sarcophagus.state).to.equal(SarcophagusState.Buried);
       });
 
       it("should free an archaeologist's bond", async () => {

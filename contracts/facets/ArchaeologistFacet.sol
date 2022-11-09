@@ -183,7 +183,7 @@ contract ArchaeologistFacet {
         LibUtils.archaeologistUnwrappedCheck(sarcoId, msg.sender);
 
         // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -240,7 +240,7 @@ contract ArchaeologistFacet {
         LibTypes.Signature memory oldArchSignature
     ) external {
         // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
