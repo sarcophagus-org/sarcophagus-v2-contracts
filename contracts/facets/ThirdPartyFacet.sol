@@ -31,7 +31,7 @@ contract ThirdPartyFacet {
     function clean(bytes32 sarcoId, address paymentAddress) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
-        LibUtils.revertIfNotExists(sarcoId);
+        LibUtils.revertIfSarcoNotExists(sarcoId);
 
         // Make sure the sarco is cleanable
         if (block.timestamp < s.gracePeriod + sarco.resurrectionTime) {
@@ -107,7 +107,7 @@ contract ThirdPartyFacet {
     ) external {
         LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
-        LibUtils.revertIfNotExists(sarcoId);
+        LibUtils.revertIfSarcoNotExists(sarcoId);
 
         if (sarco.resurrectionTime < block.timestamp) {
             revert LibErrors.SarcophagusIsUnwrappable();
