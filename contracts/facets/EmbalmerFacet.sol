@@ -183,11 +183,19 @@ contract EmbalmerFacet {
         }
 
         // Create the sarcophagus object and store it in AppStorage
+
+        // Sarco will continue to be in Active state past its resurrection window
+        // if no archaeologist ever unwraps it and it's never cleaned, buried or accused.
+        // Failure can be inferred by simply making sure to check if the Sarco has 
+        // expired when its state is Active.
+        // Note this is also true for the Resurrecting state, if at leaset one of the 
+        // archaeologists did unwrap before it was too late.
         s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
             name: sarcophagus.name,
             state: LibTypes.SarcophagusState.Active,
             canBeTransferred: sarcophagus.canBeTransferred,
             minShards: sarcophagus.minShards,
+            numUnwraps: 0,
             resurrectionTime: sarcophagus.resurrectionTime,
             maximumRewrapInterval: sarcophagus.maximumRewrapInterval,
             arweaveTxIds: arweaveTxIds,

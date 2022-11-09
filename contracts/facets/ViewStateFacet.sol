@@ -201,9 +201,9 @@ contract ViewStateFacet {
     }
 
     /// @notice Returns the sarcophagus unique identifier for a given
-    /// archaeologist and index of the leaned-up sarcophagi
+    /// archaeologist and index of the cleaned-up sarcophagi
     /// @param archaeologist The address of an archaeologist
-    /// @param index The index of the archaeologist's leaned-up sarcophagi
+    /// @param index The index of the archaeologist's cleaned-up sarcophagi
     /// @return the identifier associated with the index of the archaeologist's
     /// cleaned-up sarcophagi
     function archaeologistCleanupsIdentifier(

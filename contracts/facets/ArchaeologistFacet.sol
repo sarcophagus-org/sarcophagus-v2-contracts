@@ -224,6 +224,24 @@ contract ArchaeologistFacet {
         // Transfer the digging fee to the archaeologist's reward pool
         s.archaeologistRewards[msg.sender] += archaeologistData.diggingFee;
 
+        // Update sarcophagus state - `Resurrected` if with this unwrap, it has enough unwraps to be
+        // resurrected, or `Resurrecting` if the minShards threshold has yet to be reached
+        s.sarcophagi[sarcoId].numUnwraps = s.sarcophagi[sarcoId].numUnwraps + 1;
+        if (
+            s.sarcophagi[sarcoId].numUnwraps >= s.sarcophagi[sarcoId].minShards
+        ) {
+            s.sarcophagi[sarcoId].state = LibTypes.SarcophagusState.Resurrected;
+        } else {
+            // Sarco will continue to be in Resurrecting state past its resurrection window
+            // until someone cleans it, or it's buried or accused. Failure can be inferred by
+            // simply making sure to check if the Sarco has expired when its state is Resurrecting.
+            // Note this is also true for the Active state, if none of the archaeologists ever attempt to
+            // unwrap before it is too late.
+            s.sarcophagi[sarcoId].state = LibTypes
+                .SarcophagusState
+                .Resurrecting;
+        }
+
         // Emit an event
         emit UnwrapSarcophagus(sarcoId, unencryptedShard);
     }

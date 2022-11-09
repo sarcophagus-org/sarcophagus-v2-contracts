@@ -101,6 +101,7 @@ library LibTypes {
         SarcophagusState state;
         bool canBeTransferred;
         uint8 minShards;
+        uint8 numUnwraps;
         uint256 resurrectionTime;
         uint256 maximumRewrapInterval;
         string[] arweaveTxIds;
