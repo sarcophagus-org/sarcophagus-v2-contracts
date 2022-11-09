@@ -46,16 +46,11 @@ library LibUtils {
     /**
      * @notice Reverts if the Sarcophagus does not exist.
      * @param sarcoId Identifier of the Sarcophagus
-     * @dev A Sarcophagus "exists" if its state is `Active` OR `Resurrecting`. Any other state is interpreted as not existing.
      */
     function revertIfSarcoNotExists(bytes32 sarcoId) internal view {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        if (
-            s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active &&
-            s.sarcophagi[sarcoId].state !=
-            LibTypes.SarcophagusState.Resurrecting
-        ) {
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
     }
