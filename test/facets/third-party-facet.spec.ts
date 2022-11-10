@@ -244,7 +244,7 @@ describe("Contract: ThirdPartyFacet", () => {
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
-      it("Should revert with SarcophagusDoesNotExist if cleaning an already cleaned sarcophagus", async () => {
+      it("Should revert with SarcophagusInactive if cleaning an already cleaned sarcophagus", async () => {
         const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
@@ -258,7 +258,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // ... and try again
         const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("SarcophagusInactive");
       });
     });
   });
@@ -544,7 +544,7 @@ describe("Contract: ThirdPartyFacet", () => {
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
-      it("Should revert with SarcophagusDoesNotExist if calling accuse on a previously accused sarcophagus", async () => {
+      it("Should revert with SarcophagusInactive if calling accuse on a previously accused sarcophagus", async () => {
         const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
@@ -561,7 +561,7 @@ describe("Contract: ThirdPartyFacet", () => {
           archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("SarcophagusInactive");
       });
     });
   });

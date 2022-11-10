@@ -321,8 +321,7 @@ contract EmbalmerFacet {
 
     /// @notice Permanently closes the sarcophagus, giving it no opportunity to
     /// be resurrected.
-    /// This may only be done after finalizeSarcophagus and before the
-    /// resurrection time has passed.
+    /// This may only be done before resurrection time has passed.
     /// @dev Extends the resurrection time into infinity so that that unwrap
     /// will never be successful.
     /// @param sarcoId the identifier of the sarcophagus
