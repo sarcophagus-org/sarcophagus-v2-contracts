@@ -29,9 +29,9 @@ contract ThirdPartyFacet {
     /// @param sarcoId The identifier of the sarcophagus to clean
     /// @param paymentAddress The address to which rewards will be sent
     function clean(bytes32 sarcoId, address paymentAddress) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
+        LibUtils.revertIfSarcoInactive(sarcoId);
 
-        LibUtils.revertIfSarcoNotExists(sarcoId);
+        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
         // Make sure the sarco is cleanable
         if (block.timestamp < s.gracePeriod + sarco.resurrectionTime) {
@@ -105,9 +105,9 @@ contract ThirdPartyFacet {
         bytes32[] memory unencryptedShardHashes,
         address paymentAddress
     ) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
+        LibUtils.revertIfSarcoInactive(sarcoId);
 
-        LibUtils.revertIfSarcoNotExists(sarcoId);
+        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
         if (sarco.resurrectionTime < block.timestamp) {
             revert LibErrors.SarcophagusIsUnwrappable();

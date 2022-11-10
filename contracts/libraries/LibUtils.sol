@@ -47,7 +47,7 @@ library LibUtils {
      * @notice Reverts if the Sarcophagus does not exist.
      * @param sarcoId Identifier of the Sarcophagus
      */
-    function revertIfSarcoNotExists(bytes32 sarcoId) internal view {
+    function revertIfSarcoInactive(bytes32 sarcoId) internal view {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
