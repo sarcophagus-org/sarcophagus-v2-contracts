@@ -8,6 +8,7 @@ import { buryFixture } from "../fixtures/bury-fixture";
 import { rewrapFixture } from "../fixtures/rewrap-fixture";
 import { calculateCursedBond, sign, toSarco } from "../utils/helpers";
 import time from "../utils/time";
+import { hashBytes } from "../fixtures/spawn-archaeologists";
 
 describe("Contract: EmbalmerFacet", () => {
   const shares = 5;
@@ -823,6 +824,20 @@ describe("Contract: EmbalmerFacet", () => {
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
+      it("should revert if the sarcophagus is inactive", async () => {
+        const { embalmerFacet, embalmer, newResurrectionTime, sarcoId } = await rewrapFixture(
+          { shares, threshold, skipRewrap: true },
+          sarcoName
+        );
+
+        // Bury the sarcophagus, this deactivates it (state set to `Buried`)
+        await embalmerFacet.connect(embalmer).burySarcophagus(sarcoId);
+
+        const tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, newResurrectionTime);
+
+        await expect(tx).to.be.revertedWith("SarcophagusInactive");
+      });
+
       it("should revert if the new resurrection time is not in the future", async () => {
         const { embalmerFacet, sarcoId, embalmer } = await rewrapFixture(
           { shares, threshold, skipRewrap: true },
@@ -887,12 +902,12 @@ describe("Contract: EmbalmerFacet", () => {
         expect(sarcophagus.resurrectionTime).to.equal(ethers.constants.MaxUint256);
       });
 
-      it("should set the sarcophagus state to done", async () => {
+      it("should set the sarcophagus state to buried", async () => {
         const { viewStateFacet, sarcoId } = await buryFixture({ shares, threshold }, sarcoName);
 
         const sarcophagus = await viewStateFacet.getSarcophagus(sarcoId);
 
-        expect(sarcophagus.state).to.equal(SarcophagusState.Done);
+        expect(sarcophagus.state).to.equal(SarcophagusState.Buried);
       });
 
       it("should free an archaeologist's bond", async () => {
@@ -952,6 +967,22 @@ describe("Contract: EmbalmerFacet", () => {
         const tx = embalmerFacet.connect(embalmer).burySarcophagus(falseIdentifier);
 
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+      });
+
+      it("should revert if the sarcophagus is inactive", async () => {
+        const { embalmerFacet, thirdPartyFacet, embalmer, sarcoId, archaeologists } =
+          await buryFixture({ shares, threshold, skipBury: true }, sarcoName);
+
+        // Accuse the sarcophagus, this deactivates it (state set to `Accused`)
+        await thirdPartyFacet.connect(embalmer).accuse(
+          sarcoId,
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          embalmer.address
+        );
+
+        const tx = embalmerFacet.connect(embalmer).burySarcophagus(sarcoId);
+
+        await expect(tx).to.be.revertedWith("SarcophagusInactive");
       });
     });
   });

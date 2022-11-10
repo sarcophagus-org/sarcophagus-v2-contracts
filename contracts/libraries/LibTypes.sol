@@ -10,8 +10,13 @@ library LibTypes {
     // DoesNotExist must come first on the list to be the default value
     enum SarcophagusState {
         DoesNotExist,
-        Exists,
-        Done
+        Active,
+        Resurrecting,
+        Resurrected,
+        Buried,
+        Cleaned,
+        Accused,
+        Failed
     }
 
     // A struct of just the signature. This is used primarily by the

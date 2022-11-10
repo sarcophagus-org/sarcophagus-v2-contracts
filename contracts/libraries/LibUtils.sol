@@ -44,6 +44,26 @@ library LibUtils {
     }
 
     /**
+     * @notice Reverts with `SarcophagusDoesNotExist` if the Sarcophagus does not exist,
+     * or with `SarcophagusInactive` if the Sarcophagus exists but is not active.
+     * @param sarcoId Identifier of the Sarcophagus
+     */
+    function revertIfNotExistOrInactive(bytes32 sarcoId) internal view {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        if (
+            s.sarcophagi[sarcoId].state ==
+            LibTypes.SarcophagusState.DoesNotExist
+        ) {
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
+        }
+
+        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
+            revert LibErrors.SarcophagusInactive(sarcoId);
+        }
+    }
+
+    /**
      * @notice The archaeologist needs to sign off on two pieces of data
      * to guarantee their unrwap will be successful
      *
@@ -225,6 +245,6 @@ library LibUtils {
     function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        return totalDiggingFees * s.protocolFeeBasePercentage / 100;
+        return (totalDiggingFees * s.protocolFeeBasePercentage) / 100;
     }
 }

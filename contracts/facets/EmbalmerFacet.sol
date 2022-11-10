@@ -75,7 +75,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm that the agreed upon sarcophagus parameters have not expired
-        if (sarcophagus.timestamp + s.expirationThreshold < block.timestamp ) {
+        if (sarcophagus.timestamp + s.expirationThreshold < block.timestamp) {
             revert LibErrors.SarcophagusParametersExpired(
                 sarcophagus.timestamp
             );
@@ -183,9 +183,16 @@ contract EmbalmerFacet {
         }
 
         // Create the sarcophagus object and store it in AppStorage
+
+        // Sarco will continue to be in Active state past its resurrection window
+        // if no archaeologist ever unwraps it and it's never cleaned, buried or accused.
+        // Failure can be inferred by simply making sure to check if the Sarco has
+        // expired when its state is Active.
+        // Note this is also true for the Resurrecting state, if at leaset one of the
+        // archaeologists did unwrap before it was too late.
         s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
             name: sarcophagus.name,
-            state: LibTypes.SarcophagusState.Exists,
+            state: LibTypes.SarcophagusState.Active,
             canBeTransferred: sarcophagus.canBeTransferred,
             minShards: sarcophagus.minShards,
             resurrectionTime: sarcophagus.resurrectionTime,
@@ -239,10 +246,7 @@ contract EmbalmerFacet {
     function rewrapSarcophagus(bytes32 sarcoId, uint256 resurrectionTime)
         external
     {
-        // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
         // Confirm that the sender is the embalmer
         if (s.sarcophagi[sarcoId].embalmer != msg.sender) {
@@ -317,16 +321,12 @@ contract EmbalmerFacet {
 
     /// @notice Permanently closes the sarcophagus, giving it no opportunity to
     /// be resurrected.
-    /// This may only be done after finalizeSarcophagus and before the
-    /// resurrection time has passed.
+    /// This may only be done before resurrection time has passed.
     /// @dev Extends the resurrection time into infinity so that that unwrap
     /// will never be successful.
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
-        // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
         // Confirm that the sender is the embalmer
         if (s.sarcophagi[sarcoId].embalmer != msg.sender) {
@@ -347,7 +347,7 @@ contract EmbalmerFacet {
         s.sarcophagi[sarcoId].resurrectionTime = 2**256 - 1;
 
         // Set sarcophagus state to done
-        s.sarcophagi[sarcoId].state = LibTypes.SarcophagusState.Done;
+        s.sarcophagi[sarcoId].state = LibTypes.SarcophagusState.Buried;
 
         // For each archaeologist on the sarcophagus,
         // 1. Unlock their cursed bond

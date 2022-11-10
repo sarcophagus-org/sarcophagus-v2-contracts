@@ -573,6 +573,36 @@ describe("Contract: ArchaeologistFacet", () => {
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
+      it("should revert if the sarcophagus is inactive", async () => {
+        const {
+          archaeologists,
+          embalmer,
+          thirdPartyFacet,
+          viewStateFacet,
+          archaeologistFacet,
+          sarcoId,
+          resurrectionTime,
+        } = await createSarcoFixture({ shares: 2, threshold: 1 }, "Test Sarco");
+
+        await time.increaseTo(resurrectionTime);
+
+        await archaeologistFacet
+          .connect(archaeologists[0].signer)
+          .unwrapSarcophagus(sarcoId, archaeologists[0].unencryptedShard);
+
+        await time.increaseTo(
+          resurrectionTime + (await viewStateFacet.getGracePeriod()).toNumber()
+        );
+
+        await thirdPartyFacet.connect(embalmer).clean(sarcoId, embalmer.address);
+
+        const tx = archaeologistFacet
+          .connect(archaeologists[1].signer)
+          .unwrapSarcophagus(sarcoId, archaeologists[1].unencryptedShard);
+
+        await expect(tx).to.be.revertedWith("SarcophagusInactive");
+      });
+
       it("should revert if the sender is not an archaeologist on this sarcophagus", async () => {
         const { archaeologists, archaeologistFacet, sarcoId, recipient, resurrectionTime } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");

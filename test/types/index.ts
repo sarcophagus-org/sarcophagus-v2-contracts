@@ -2,8 +2,12 @@ import { Signature } from "ethers";
 
 export enum SarcophagusState {
   DoesNotExist,
-  Exists,
-  Done,
+  Active,
+  Resurrecting,
+  Resurrected,
+  Buried,
+  Cleaned,
+  Accused,
 }
 
 export interface SignatureWithAccount extends Signature {
