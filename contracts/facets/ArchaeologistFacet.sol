@@ -178,7 +178,7 @@ contract ArchaeologistFacet {
     function unwrapSarcophagus(bytes32 sarcoId, bytes memory unencryptedShard)
         external
     {
-        LibUtils.revertIfSarcoInactive(sarcoId);
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
         // Confirm that the archaeologist has not already unwrapped by checking
         // if the unencryptedShard is empty
@@ -236,7 +236,7 @@ contract ArchaeologistFacet {
         string memory arweaveTxId,
         LibTypes.Signature memory oldArchSignature
     ) external {
-        LibUtils.revertIfSarcoInactive(sarcoId);
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
         // Confirm that the resurrection time is in the future
         LibUtils.resurrectionInFuture(s.sarcophagi[sarcoId].resurrectionTime);

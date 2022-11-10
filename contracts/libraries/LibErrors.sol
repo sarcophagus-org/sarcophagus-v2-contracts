@@ -49,6 +49,8 @@ library LibErrors {
 
     error SarcophagusDoesNotExist(bytes32 sarcoId);
 
+    error SarcophagusInactive(bytes32 sarcoId);
+
     error SenderNotEmbalmer(address sender, address embalmer);
 
     error InvalidSignature(

@@ -246,7 +246,7 @@ contract EmbalmerFacet {
     function rewrapSarcophagus(bytes32 sarcoId, uint256 resurrectionTime)
         external
     {
-        LibUtils.revertIfSarcoInactive(sarcoId);
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
         // Confirm that the sender is the embalmer
         if (s.sarcophagi[sarcoId].embalmer != msg.sender) {
@@ -327,7 +327,7 @@ contract EmbalmerFacet {
     /// will never be successful.
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
-        LibUtils.revertIfSarcoInactive(sarcoId);
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
         // Confirm that the sender is the embalmer
         if (s.sarcophagi[sarcoId].embalmer != msg.sender) {

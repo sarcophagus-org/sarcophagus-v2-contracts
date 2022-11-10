@@ -29,7 +29,7 @@ contract ThirdPartyFacet {
     /// @param sarcoId The identifier of the sarcophagus to clean
     /// @param paymentAddress The address to which rewards will be sent
     function clean(bytes32 sarcoId, address paymentAddress) external {
-        LibUtils.revertIfSarcoInactive(sarcoId);
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
         LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
@@ -105,7 +105,7 @@ contract ThirdPartyFacet {
         bytes32[] memory unencryptedShardHashes,
         address paymentAddress
     ) external {
-        LibUtils.revertIfSarcoInactive(sarcoId);
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
         LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
