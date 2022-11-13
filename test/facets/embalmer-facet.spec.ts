@@ -6,7 +6,7 @@ import { SarcophagusState } from "../types";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { buryFixture } from "../fixtures/bury-fixture";
 import { rewrapFixture } from "../fixtures/rewrap-fixture";
-import { calculateCursedBond, sign, toSarco } from "../utils/helpers";
+import { sign, toSarco } from "../utils/helpers";
 import time from "../utils/time";
 import { hashBytes } from "../fixtures/spawn-archaeologists";
 
@@ -31,7 +31,7 @@ describe("Contract: EmbalmerFacet", () => {
 
         // Calculate the total fees (all digging fees)
         const totalDiggingFees: BigNumber = archaeologists.reduce(
-          (acc, arch) => acc.add(calculateCursedBond(arch.diggingFee)),
+          (acc, arch) => acc.add(arch.diggingFee),
           ethers.constants.Zero
         );
 
@@ -119,7 +119,7 @@ describe("Contract: EmbalmerFacet", () => {
           regularArchaeologist.archAddress
         );
 
-        const bondAmount = calculateCursedBond(regularArchaeologist.diggingFee);
+        const bondAmount = regularArchaeologist.diggingFee;
 
         // Check that the archaeologist's free bond afterward has descreased by the bond amount
         expect(archaeologistFreeBondAfter).to.equal(archaeologistFreeBondBefore.sub(bondAmount));
@@ -926,13 +926,13 @@ describe("Contract: EmbalmerFacet", () => {
 
         expect(freeBondAfter.toString()).to.equal(
           regularArchaeologistFreeBondBefore
-            .add(calculateCursedBond(regularArchaeologist.diggingFee))
+            .add(regularArchaeologist.diggingFee)
             .toString()
         );
 
         expect(cursedBondAfter.toString()).to.equal(
           regularArchaeologistCursedBondBefore
-            .sub(calculateCursedBond(regularArchaeologist.diggingFee))
+            .sub(regularArchaeologist.diggingFee)
             .toString()
         );
       });

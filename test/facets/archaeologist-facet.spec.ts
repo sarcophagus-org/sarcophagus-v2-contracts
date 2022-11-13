@@ -7,7 +7,6 @@ import { archeologistsFixture } from "../fixtures/archaeologists-fixture";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { finalizeTransferFixture } from "../fixtures/finalize-transfer-fixture";
 import {
-  calculateCursedBond,
   registerArchaeologist,
   sign,
   updateArchaeologist,
@@ -480,7 +479,7 @@ describe("Contract: ArchaeologistFacet", () => {
         );
 
         // Check that the cursed bond amount has been freed up.
-        expect(cursedBondAmountBefore).to.equal(calculateCursedBond(archaeologists[0].diggingFee));
+        expect(cursedBondAmountBefore).to.equal(archaeologists[0].diggingFee);
         expect(cursedBondAmountAfter).to.equal(0);
       });
 

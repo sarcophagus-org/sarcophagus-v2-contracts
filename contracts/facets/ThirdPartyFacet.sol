@@ -56,9 +56,7 @@ contract ThirdPartyFacet {
 
                 totalDiggingFee += defaulter.diggingFee;
 
-                uint256 cursedBond = LibBonds.calculateCursedBond(
-                    defaulter.diggingFee
-                );
+                uint256 cursedBond = defaulter.diggingFee;
 
                 totalCursedBond += cursedBond;
 
@@ -144,9 +142,7 @@ contract ThirdPartyFacet {
             if (badArch.unencryptedShardDoubleHash == shardDoubleHash) {
                 accusedArchAddresses[pos++] = matchingArchAddr;
 
-                uint256 cursedBond = LibBonds.calculateCursedBond(
-                    badArch.diggingFee
-                );
+                uint256 cursedBond = badArch.diggingFee;
 
                 diggingFeesToBeDistributed += badArch.diggingFee;
                 totalCursedBond += cursedBond;

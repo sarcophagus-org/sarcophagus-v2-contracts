@@ -6,22 +6,6 @@ import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 
 library LibBonds {
-    /// @notice Calculates the cursed bond that an archaeologist needs to lock
-    /// up
-    /// @dev The cursed bond amount is the digging fee
-    /// @param diggingFee The digging fee of the sarcophagus
-    /// @return The amount of cursed bond
-    function calculateCursedBond(uint256 diggingFee)
-        internal
-        pure
-        returns (uint256)
-    {
-        // TODO: We dont need this function unless we implement a better algorithm
-        // for calculating the cursed bond
-        // Anywhere this method is used should be replaced with just the digging fee
-        return diggingFee;
-    }
-
     /// @notice Decreases the amount stored in the freeBond mapping for an
     /// archaeologist. Reverts if the archaeologist's free bond is lower than
     /// the amount.
@@ -132,9 +116,7 @@ library LibBonds {
             .sarcophagusArchaeologists[sarcoId][archaeologist];
 
         // Calculate the amount of cursed bond the archaeologists needs to lock up
-        uint256 cursedBondAmount = calculateCursedBond(
-            archaeologistData.diggingFee
-        );
+        uint256 cursedBondAmount = archaeologistData.diggingFee;
 
         // Lock up the archaeologist's bond by the cursed bond amount
         lockUpBond(archaeologist, cursedBondAmount);
@@ -154,9 +136,7 @@ library LibBonds {
             .sarcophagusArchaeologists[sarcoId][archaeologist];
 
         // Calculate the amount of cursed bond the archaeologists needs to lock up
-        uint256 cursedBondAmount = calculateCursedBond(
-            archaeologistData.diggingFee
-        );
+        uint256 cursedBondAmount = archaeologistData.diggingFee;
 
         // Free up the archaeologist's locked bond
         unlockBond(archaeologist, cursedBondAmount);

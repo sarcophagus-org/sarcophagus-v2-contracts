@@ -1,7 +1,6 @@
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import time from "../utils/time";
-import { calculateCursedBond } from "../utils/helpers";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { BigNumber } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
@@ -61,7 +60,7 @@ describe("Contract: ThirdPartyFacet", () => {
 
         const totalDiggingFees = sumDiggingFees[0];
 
-        const cursedBond = calculateCursedBond(totalDiggingFees);
+        const cursedBond = totalDiggingFees;
         const toEmbalmer = cursedBond.div(2);
         const toCleaner = cursedBond.sub(toEmbalmer);
 
@@ -319,7 +318,7 @@ describe("Contract: ThirdPartyFacet", () => {
         const totalDiggingFeesCursedBond = accusedArchs.reduce(
           (acc, arch) => [
             acc[0].add(arch.diggingFee),
-            acc[1].add(calculateCursedBond(arch.diggingFee)),
+            acc[1].add(arch.diggingFee),
           ],
           [BigNumber.from("0"), BigNumber.from("0")]
         );
