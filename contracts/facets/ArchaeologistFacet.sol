@@ -171,14 +171,11 @@ contract ArchaeologistFacet {
     function unwrapSarcophagus(bytes32 sarcoId, bytes memory unencryptedShard)
         external
     {
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
+
         // Confirm that the archaeologist has not already unwrapped by checking
         // if the unencryptedShard is empty
         LibUtils.archaeologistUnwrappedCheck(sarcoId, msg.sender);
-
-        // Confirm that the sarcophagus exists
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
 
         // Confirm that the sender is an archaeologist on this sarcophagus
         if (!LibUtils.archaeologistExistsOnSarc(sarcoId, msg.sender)) {

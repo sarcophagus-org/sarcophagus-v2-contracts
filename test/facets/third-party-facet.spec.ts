@@ -6,6 +6,7 @@ import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { BigNumber } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
 import { hashBytes } from "../fixtures/spawn-archaeologists";
+import { SarcophagusState } from "../types";
 
 describe("Contract: ThirdPartyFacet", () => {
   const shares = 5;
@@ -86,8 +87,8 @@ describe("Contract: ThirdPartyFacet", () => {
         } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Cursed and free bonds before cleaning:
-        const cursedBondsBefore = [];
-        const freeBondsBefore = [];
+        const cursedBondsBefore: BigNumber[] = [];
+        const freeBondsBefore: BigNumber[] = [];
 
         for await (const arch of archaeologists) {
           cursedBondsBefore.push(await viewStateFacet.getCursedBond(arch.archAddress));
@@ -110,8 +111,8 @@ describe("Contract: ThirdPartyFacet", () => {
         await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
         // Cursed and free bonds after cleaning:
-        const cursedBondsAfter = [];
-        const freeBondsAfter = [];
+        const cursedBondsAfter: BigNumber[] = [];
+        const freeBondsAfter: BigNumber[] = [];
 
         for await (const arch of archaeologists) {
           cursedBondsAfter.push(await viewStateFacet.getCursedBond(arch.archAddress));
@@ -195,6 +196,21 @@ describe("Contract: ThirdPartyFacet", () => {
           }
         }
       });
+
+      it("should set the sarcophagus state to cleaned", async () => {
+        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
+          await createSarcoFixture({ shares, threshold }, "Test Sarco");
+
+        // increase time beyond resurrection time + grace period to expire sarcophagus
+        const gracePeriod = await viewStateFacet.getGracePeriod();
+        await time.increaseTo(resurrectionTime + +gracePeriod + 1);
+
+        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
+
+        const sarcophagus = await viewStateFacet.getSarcophagus(sarcoId);
+
+        expect(sarcophagus.state).to.equal(SarcophagusState.Cleaned);
+      });
     });
 
     context("Reverts", () => {
@@ -228,7 +244,7 @@ describe("Contract: ThirdPartyFacet", () => {
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
-      it("Should revert with SarcophagusDoesNotExist if cleaning an already cleaned sarcophagus", async () => {
+      it("Should revert with SarcophagusInactive if cleaning an already cleaned sarcophagus", async () => {
         const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
@@ -242,7 +258,7 @@ describe("Contract: ThirdPartyFacet", () => {
         // ... and try again
         const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("SarcophagusInactive");
       });
     });
   });
@@ -264,12 +280,12 @@ describe("Contract: ThirdPartyFacet", () => {
         await expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist");
       });
 
-      it("updates the sarcophagus state to DONE", async () => {
+      it("updates the sarcophagus state to accused", async () => {
         const { archaeologists, sarcoId, thirdParty, thirdPartyFacet, viewStateFacet } =
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         let sarco = await viewStateFacet.getSarcophagus(sarcoId);
-        expect(sarco.state).to.be.eq(1); // 1 is "Exists"
+        expect(sarco.state).to.equal(SarcophagusState.Active);
 
         await thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
@@ -278,7 +294,7 @@ describe("Contract: ThirdPartyFacet", () => {
         );
 
         sarco = await viewStateFacet.getSarcophagus(sarcoId);
-        expect(sarco.state).to.be.eq(2); // 2 is "Done"
+        expect(sarco.state).to.equal(SarcophagusState.Accused);
       });
 
       it("Should distribute half the sum of the accused archaeologists' digging fees to accuser, and other half to embalmer", async () => {
@@ -334,8 +350,8 @@ describe("Contract: ThirdPartyFacet", () => {
         const accusedArchs = archaeologists.slice(0, threshold);
 
         // Cursed and free bonds before accuse:
-        const cursedBondsBefore = [];
-        const freeBondsBefore = [];
+        const cursedBondsBefore: BigNumber[] = [];
+        const freeBondsBefore: BigNumber[] = [];
         for await (const arch of accusedArchs) {
           cursedBondsBefore.push(await viewStateFacet.getCursedBond(arch.archAddress));
           freeBondsBefore.push(await viewStateFacet.getFreeBond(arch.archAddress));
@@ -348,8 +364,8 @@ describe("Contract: ThirdPartyFacet", () => {
         );
 
         // Cursed and free bonds after accuse:
-        const cursedBondsAfter = [];
-        const freeBondsAfter = [];
+        const cursedBondsAfter: BigNumber[] = [];
+        const freeBondsAfter: BigNumber[] = [];
         for await (const arch of accusedArchs) {
           cursedBondsAfter.push(await viewStateFacet.getCursedBond(arch.archAddress));
           freeBondsAfter.push(await viewStateFacet.getFreeBond(arch.archAddress));
@@ -369,8 +385,8 @@ describe("Contract: ThirdPartyFacet", () => {
           await createSarcoFixture({ shares, threshold }, "Test Sarco");
 
         // Cursed and free bonds before accuse:
-        const cursedBondsBefore = [];
-        const freeBondsBefore = [];
+        const cursedBondsBefore: BigNumber[] = [];
+        const freeBondsBefore: BigNumber[] = [];
 
         // Interested in just first 2 archs, which will be unaccused
         const unaccusedArchs = archaeologists.slice(0, 2);
@@ -387,8 +403,8 @@ describe("Contract: ThirdPartyFacet", () => {
         );
 
         // Cursed and free bonds after accuse:
-        const cursedBondsAfter = [];
-        const freeBondsAfter = [];
+        const cursedBondsAfter: BigNumber[] = [];
+        const freeBondsAfter: BigNumber[] = [];
         for await (const arch of unaccusedArchs) {
           cursedBondsAfter.push(await viewStateFacet.getCursedBond(arch.archAddress));
           freeBondsAfter.push(await viewStateFacet.getFreeBond(arch.archAddress));
@@ -432,7 +448,7 @@ describe("Contract: ThirdPartyFacet", () => {
         const accusedArchs = archaeologists.slice(1, threshold + 1);
 
         // Get each archaeologist's accusal count before accuse
-        const accusalsBefore = [];
+        const accusalsBefore: BigNumber[] = [];
         for (const arch of accusedArchs) {
           accusalsBefore.push(await viewStateFacet.getArchaeologistAccusalsCount(arch.archAddress));
         }
@@ -445,7 +461,7 @@ describe("Contract: ThirdPartyFacet", () => {
         );
 
         // Get each archaeologist's accusal count after accuse
-        const accusalsAfter = [];
+        const accusalsAfter: BigNumber[] = [];
         for (const arch of accusedArchs) {
           accusalsAfter.push(await viewStateFacet.getArchaeologistAccusalsCount(arch.archAddress));
         }
@@ -528,7 +544,7 @@ describe("Contract: ThirdPartyFacet", () => {
         await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
       });
 
-      it("Should revert with SarcophagusDoesNotExist if calling accuse on a previously accused sarcophagus", async () => {
+      it("Should revert with SarcophagusInactive if calling accuse on a previously accused sarcophagus", async () => {
         const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
           { shares, threshold },
           "Test Sarco"
@@ -545,7 +561,7 @@ describe("Contract: ThirdPartyFacet", () => {
           archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
           thirdParty.address
         );
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWith("SarcophagusInactive");
       });
     });
   });

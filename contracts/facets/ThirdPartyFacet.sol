@@ -29,11 +29,9 @@ contract ThirdPartyFacet {
     /// @param sarcoId The identifier of the sarcophagus to clean
     /// @param paymentAddress The address to which rewards will be sent
     function clean(bytes32 sarcoId, address paymentAddress) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
-        if (sarco.state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
+        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
         // Make sure the sarco is cleanable
         if (block.timestamp < s.gracePeriod + sarco.resurrectionTime) {
@@ -82,7 +80,7 @@ contract ThirdPartyFacet {
                 totalDiggingFee
             );
 
-        sarco.state = LibTypes.SarcophagusState.Done;
+        sarco.state = LibTypes.SarcophagusState.Cleaned;
 
         emit CleanUpSarcophagus(
             sarcoId,
@@ -107,11 +105,9 @@ contract ThirdPartyFacet {
         bytes32[] memory unencryptedShardHashes,
         address paymentAddress
     ) external {
-        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
+        LibUtils.revertIfNotExistOrInactive(sarcoId);
 
-        if (sarco.state != LibTypes.SarcophagusState.Exists) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
+        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
         if (sarco.resurrectionTime < block.timestamp) {
             revert LibErrors.SarcophagusIsUnwrappable();
@@ -205,7 +201,7 @@ contract ThirdPartyFacet {
                 diggingFeesToBeDistributed
             );
 
-        sarco.state = LibTypes.SarcophagusState.Done;
+        sarco.state = LibTypes.SarcophagusState.Accused;
 
         emit AccuseArchaeologist(
             sarcoId,

@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig, task } from "hardhat/config";
+import { extendEnvironment, HardhatUserConfig, task } from "hardhat/config";
 import { generateHistory } from "./tasks/generate-history";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
@@ -13,19 +13,6 @@ import "@nomiclabs/hardhat-solhint";
 import "hardhat-contract-sizer";
 
 dotenv.config();
-
-// Defining this manually since ethers cannot be access from within the hardhat config
-const hashZero = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
-
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
 
 /**
  * Generates fake historical data on the app for testing.
@@ -80,29 +67,20 @@ const config: HardhatUserConfig = {
     deployer: {
       default: 0,
       mainnet: `privatekey://${process.env.MAINNET_DEPLOYER_PRIVATE_KEY}`,
-      goerli: `privatekey://${process.env.GOERLI_DEPLOYER_PRIVATE_KEY}`,
-    },
+      goerli: `privatekey://${process.env.GOERLI_DEPLOYER_PRIVATE_KEY}`
+    }
   },
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
     goerli: {
       chainId: 5,
       url: process.env.GOERLI_PROVIDER || "",
-      accounts: [process.env.GOERLI_DEPLOYER_PRIVATE_KEY || hashZero],
-    },
-    rinkeby: {
-      chainId: 4,
-      url: process.env.RINKEBY_PROVIDER || "",
-      accounts: [process.env.RINKEBY_DEPLOYER_PRIVATE_KEY || hashZero],
+      accounts: process.env.GOERLI_DEPLOYER_PRIVATE_KEY ? [process.env.GOERLI_DEPLOYER_PRIVATE_KEY] : []
     },
     hardhat: {
       accounts: {
-        count: 300,
-      },
-    },
+        count: 300
+      }
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
@@ -110,11 +88,40 @@ const config: HardhatUserConfig = {
     coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY,
 
     // Uncomment to override gas price
-    gasPrice: 20,
+    gasPrice: 20
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  },
+    apiKey: process.env.ETHERSCAN_API_KEY
+  }
 };
+
+extendEnvironment(async (hre) => {
+  hre["loadContracts"] = async (suppliedDiamondAddress) => {
+    const diamondAddress = suppliedDiamondAddress || require(`./deployments/${hre.network.name}/Diamond_DiamondProxy.json`).address;
+    console.log(`Initializing HRE on network ${hre.network.name} with diamond address ${diamondAddress}`);
+
+    if (!diamondAddress || await hre.ethers.provider.getCode(diamondAddress) === "0x")
+      throw Error(`No code exists at the supplied diamond address: ${process.env.DIAMOND_ADDRESS}`);
+
+    hre["embalmerFacet"] = await hre.ethers.getContractAt("EmbalmerFacet", diamondAddress);
+    hre["archaeologistFacet"] = await hre.ethers.getContractAt("ArchaeologistFacet", diamondAddress);
+    hre["thirdPartyFacet"] = await hre.ethers.getContractAt("ThirdPartyFacet", diamondAddress);
+    hre["viewStateFacet"] = await hre.ethers.getContractAt("ViewStateFacet", diamondAddress);
+    hre["adminFacet"] = await hre.ethers.getContractAt("AdminFacet", diamondAddress);
+  };
+
+  hre["connectSigner"] = async (suppliedPrivateKey) => {
+    const privateKey = suppliedPrivateKey;
+    const signer = new hre.ethers.Wallet(privateKey, hre.ethers.provider);
+    console.log(`Connecting HRE contracts to signer with address ${signer.address}`);
+
+    hre["embalmerFacet"] = hre["embalmerFacet"].connect(signer);
+    hre["archaeologistFacet"] = hre["archaeologistFacet"].connect(signer);
+    hre["thirdPartyFacet"] = hre["thirdPartyFacet"].connect(signer);
+    hre["viewStateFacet"] = hre["viewStateFacet"].connect(signer);
+    hre["adminFacet"] = hre["adminFacet"].connect(signer);
+  };
+});
+
 
 export default config;

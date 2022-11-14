@@ -1,4 +1,5 @@
 import { ContractTransaction } from "ethers";
+import { ThirdPartyFacet } from "../../typechain";
 import { createSarcoFixture } from "./create-sarco-fixture";
 
 /**
@@ -26,6 +27,7 @@ export const buryFixture = async (
     embalmerBalanceBeforeCreate: embalmerBalanceBeforeCreate,
     embalmerFacet,
     viewStateFacet,
+    thirdPartyFacet,
   } = await createSarcoFixture(config, sarcoName);
 
   // Get the sarco balance of the regular archaeologist before bury
@@ -67,5 +69,6 @@ export const buryFixture = async (
     embalmerBalanceBeforeCreate,
     tx,
     embalmerFacet,
+    thirdPartyFacet: thirdPartyFacet as ThirdPartyFacet,
   };
 };
