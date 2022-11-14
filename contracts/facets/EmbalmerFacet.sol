@@ -16,7 +16,6 @@ contract EmbalmerFacet {
     event CreateSarcophagus(
         bytes32 indexed sarcoId,
         string name,
-        bool canBeTransferred,
         uint256 resurrectionTime,
         address embalmer,
         address recipient,
@@ -193,7 +192,6 @@ contract EmbalmerFacet {
         s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
             name: sarcophagus.name,
             state: LibTypes.SarcophagusState.Active,
-            canBeTransferred: sarcophagus.canBeTransferred,
             minShards: sarcophagus.minShards,
             resurrectionTime: sarcophagus.resurrectionTime,
             maximumRewrapInterval: sarcophagus.maximumRewrapInterval,
@@ -224,7 +222,6 @@ contract EmbalmerFacet {
         emit CreateSarcophagus(
             sarcoId,
             sarcophagus.name,
-            sarcophagus.canBeTransferred,
             sarcophagus.resurrectionTime,
             msg.sender,
             sarcophagus.recipient,

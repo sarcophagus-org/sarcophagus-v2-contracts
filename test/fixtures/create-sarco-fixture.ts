@@ -152,7 +152,6 @@ export const createSarcoFixture = (
             recipient: recipient.address,
             resurrectionTime,
             maximumRewrapInterval: maxRewrapInterval,
-            canBeTransferred: true,
             minShards: config.threshold,
             timestamp,
           },

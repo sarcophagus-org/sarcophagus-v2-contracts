@@ -140,7 +140,6 @@ export async function createSarcophagi(
           name,
           recipient: recipientAddress,
           resurrectionTime: BigNumber.from(resurrectionTime),
-          canBeTransferred: false,
           maximumRewrapInterval,
           minShards,
           timestamp,
@@ -149,8 +148,7 @@ export async function createSarcophagi(
         [fakePayloadTxId, fakeShardTxId]
       );
       console.log(
-        `(${
-          i + 1
+        `(${i + 1
         }/${sarcophagusCount}) Created sarcophagus ${fakeSarcoId} with ${minShards}/${selectedArchaeologistCount} shards`
       );
       sarcophagiData.push({
