@@ -86,7 +86,6 @@ library LibTypes {
         address recipient;
         uint256 resurrectionTime;
         uint256 maximumRewrapInterval;
-        bool canBeTransferred;
         uint8 minShards;
         uint256 timestamp;
     }
@@ -100,7 +99,6 @@ library LibTypes {
     struct Sarcophagus {
         string name;
         SarcophagusState state;
-        bool canBeTransferred;
         uint8 minShards;
         uint256 resurrectionTime;
         uint256 maximumRewrapInterval;

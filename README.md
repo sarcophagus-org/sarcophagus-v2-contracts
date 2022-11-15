@@ -72,3 +72,24 @@ npm run prepublish
 npm publish
 ```
 Commit updated version to git
+
+# Upgrading the diamond on Goerli
+
+*If the upgrade is run by a signer that is not the original diamond deployer, a new set of contracts will be deployed*
+
+- Update the package.json file’s version number with the abi version that will be published for the deployment
+- In your .env file, set
+  - `GOERLI_PROVIDER` to a valid goerli rpc node url
+  - `SARCO_TOKEN_ADDRESS_GOERLI` to the address of the SarcoToken contract on Goerli:  `0x4633b43990b41B57b3678c6F3Ac35bA75C3D8436`
+  - `GOERLI_DEPLOYER_PRIVATE_KEY` to the address of the original deployer:  `0x16c5d075ec8f7fca5fd893023ccfb45a0f7cde8a`. See essentialbreads for access to the private key. A Goerli account funded with ether and SARCO can also be used to create a new deployment
+    - note that on a new deployment, the json deployment files under deployments/goerli/ will be updated with new contract addresses
+- run `npx hardhat deploy --network goerli`
+- publish the ABI package
+
+```
+npm i
+npm run prepublish
+npm publish
+```
+
+- update the web-app and archaeologist node to reference the new ABI package
