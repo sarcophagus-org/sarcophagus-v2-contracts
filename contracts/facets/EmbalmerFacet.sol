@@ -155,6 +155,7 @@ contract EmbalmerFacet {
 
             LibTypes.ArchaeologistStorage memory archaeologistStorage = LibTypes
                 .ArchaeologistStorage({
+                    accused: false,
                     diggingFee: arch.diggingFee,
                     diggingFeesPaid: 0,
                     unencryptedShardDoubleHash: arch.unencryptedShardDoubleHash,

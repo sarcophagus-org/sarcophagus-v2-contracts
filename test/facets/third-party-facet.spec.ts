@@ -12,253 +12,41 @@ describe("Contract: ThirdPartyFacet", () => {
   const threshold = 3;
 
   describe("clean()", () => {
-    context("When successful", () => {
-      it("Should distribute sum of cursed bonds of bad-acting archaeologists to embalmer and the address specified by cleaner", async () => {
-        const {
-          archaeologists,
-          archaeologistFacet,
+
+    context("when at least m unencrypted shards are provided", async () => {
+      it("Should emit AccuseArchaeologist", async () => {
+        const { archaeologists, sarcoId, thirdParty, thirdPartyFacet } = await createSarcoFixture(
+          { shares, threshold },
+          "Test Sarco"
+        );
+
+        const tx = thirdPartyFacet.connect(thirdParty).accuse(
           sarcoId,
-          sarcoToken,
-          embalmer,
-          thirdParty,
-          thirdPartyFacet,
-          viewStateFacet,
-          resurrectionTime,
-        } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
+          archaeologists.slice(0, threshold).map(a => hashBytes(a.unencryptedShard)),
+          thirdParty.address
+        );
 
-        // Increase time to when sarco can be unwrapped
-        await time.increaseTo(resurrectionTime);
-
-        const unaccusedArchaeologist = archaeologists[0];
-
-        // unaccusedArchaeologist will fulfil their duty
-        await archaeologistFacet
-          .connect(unaccusedArchaeologist.signer)
-          .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
-
-        // increase time beyond grace period to expire sarcophagus
-        const gracePeriod = await viewStateFacet.getGracePeriod();
-        await time.increase(+gracePeriod + 1);
-
-        const embalmerBalanceBefore = await sarcoToken.balanceOf(embalmer.address);
-        const paymentAccountBalanceBefore = await sarcoToken.balanceOf(thirdParty.address);
-
-        // before cleaning...
-        expect(paymentAccountBalanceBefore).to.eq(0);
-
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-
-        const embalmerBalanceAfter = await sarcoToken.balanceOf(embalmer.address);
-        const paymentAccountBalanceAfter = await sarcoToken.balanceOf(thirdParty.address);
-
-        // after cleaning, calculate sum, and verify on exact amounts instead
-        // Set up amounts that should have been transferred to accuser and embalmer
-        // ie, rewards of failed archaeologists
-        const sumDiggingFees = archaeologists
-          .slice(1) // archaeologists[0] did their job, so not included
-          .reduce((acc, arch) => [acc[0].add(arch.diggingFee)], [BigNumber.from("0")]);
-
-        const totalDiggingFees = sumDiggingFees[0];
-
-        const cursedBond = totalDiggingFees;
-        const toEmbalmer = cursedBond.div(2);
-        const toCleaner = cursedBond.sub(toEmbalmer);
-
-        // Check that embalmer and accuser now have balance that includes the amount that should have been transferred to them
-
-        // embalmer should receive half cursed bond, PLUS digging fees of failed archs
-        const embalmerReward = toEmbalmer.add(totalDiggingFees);
-
-        expect(embalmerBalanceAfter.eq(embalmerBalanceBefore.add(embalmerReward))).to.be.true;
-        expect(paymentAccountBalanceAfter.eq(paymentAccountBalanceBefore.add(toCleaner))).to.be
-          .true;
-      });
-
-      it("Should reduce cursed bonds on storage of archaeologists after distributing their value, without increasing free bond of bad-acting ones", async () => {
-        const {
-          archaeologists,
-          archaeologistFacet,
-          sarcoId,
-          thirdParty,
-          thirdPartyFacet,
-          viewStateFacet,
-          resurrectionTime,
-        } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
-
-        // Cursed and free bonds before cleaning:
-        const cursedBondsBefore: BigNumber[] = [];
-        const freeBondsBefore: BigNumber[] = [];
-
-        for await (const arch of archaeologists) {
-          cursedBondsBefore.push(await viewStateFacet.getCursedBond(arch.archAddress));
-          freeBondsBefore.push(await viewStateFacet.getFreeBond(arch.archAddress));
-        }
-
-        // Increase time to when sarco can be unwrapped
-        await time.increaseTo(resurrectionTime);
-
-        // Have one arch actually do the unwrapping
-        const unaccusedArchaeologist = archaeologists[0];
-        await archaeologistFacet
-          .connect(unaccusedArchaeologist.signer)
-          .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
-
-        // increase time beyond grace period to expire sarcophagus
-        const gracePeriod = await viewStateFacet.getGracePeriod();
-        await time.increase(+gracePeriod + 1);
-
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-
-        // Cursed and free bonds after cleaning:
-        const cursedBondsAfter: BigNumber[] = [];
-        const freeBondsAfter: BigNumber[] = [];
-
-        for await (const arch of archaeologists) {
-          cursedBondsAfter.push(await viewStateFacet.getCursedBond(arch.archAddress));
-          freeBondsAfter.push(await viewStateFacet.getFreeBond(arch.archAddress));
-        }
-
-        // Check that good archaeologist's free bonds have been increased
-        expect(freeBondsBefore[0].lt(freeBondsAfter[0])).to.be.true;
-
-        for (let i = 0; i < cursedBondsBefore.length; i++) {
-          // Check that all archaeologists' cursed bonds have been reduced
-          expect(cursedBondsBefore[i].gt(cursedBondsAfter[i])).to.be.true;
-
-          if (i !== 0) {
-            // Check that accused archaeologist's free bonds have NOT been increased
-            expect(freeBondsBefore[i].eq(freeBondsAfter[i])).to.be.true;
-          }
-        }
-      });
-
-      it("Should emit CleanUpSarcophagus on successful cleanup", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
-
-        // increase time beyond resurrection time + grace period to expire sarcophagus
-        const gracePeriod = await viewStateFacet.getGracePeriod();
-        await time.increaseTo(resurrectionTime + +gracePeriod + 1);
-
-        const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-
-        await expect(tx).to.emit(thirdPartyFacet, "CleanUpSarcophagus");
-      });
-
-      it("Should increment count for all defaulting archaeologists to archaeologistCleanups storage on successful cleanup", async () => {
-        const {
-          archaeologists,
-          archaeologistFacet,
-          sarcoId,
-          thirdParty,
-          thirdPartyFacet,
-          viewStateFacet,
-          resurrectionTime,
-        } = await createSarcoFixture({ shares, threshold }, "Test Sarco");
-
-        const unaccusedArchaeologist = archaeologists[0];
-
-        // Have one arch actually do the unwrapping
-        await time.increaseTo(resurrectionTime);
-        await archaeologistFacet
-          .connect(unaccusedArchaeologist.signer)
-          .unwrapSarcophagus(sarcoId, unaccusedArchaeologist.unencryptedShard);
-
-        // increase time beyond grace period to expire sarcophagus
-        const gracePeriod = await viewStateFacet.getGracePeriod();
-        await time.increase(+gracePeriod + 1);
-
-        // Get the clean up count of each archaeologist before cleaning
-        const cleanupsBefore: BigNumber[] = [];
-        for (const arch of archaeologists) {
-          cleanupsBefore.push(await viewStateFacet.getArchaeologistCleanupsCount(arch.archAddress));
-        }
-
-        // Clean the sarcophagus
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-
-        // Get the clean up count of each archaeologist after cleaning
-        const cleanupsAfter: BigNumber[] = [];
-        for (const arch of archaeologists) {
-          cleanupsAfter.push(await viewStateFacet.getArchaeologistCleanupsCount(arch.archAddress));
-        }
-
-        // For each archaeologist, if the arch was accused expect the count to have increased by 1
-        for (let i = 0; i < archaeologists.length; i++) {
-          const arch = archaeologists[i];
-          if (arch.archAddress === unaccusedArchaeologist.archAddress) {
-            // expect clean up count after to be the same as clean up count before
-            expect(cleanupsBefore[i].eq(cleanupsAfter[i])).to.be.true;
-          } else {
-            // expect cleanup count after to be clean up count before + 1
-            expect(cleanupsBefore[i].add(1).eq(cleanupsAfter[i])).to.be.true;
-          }
-        }
-      });
-
-      it("should set the sarcophagus state to cleaned", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
-
-        // increase time beyond resurrection time + grace period to expire sarcophagus
-        const gracePeriod = await viewStateFacet.getGracePeriod();
-        await time.increaseTo(resurrectionTime + +gracePeriod + 1);
-
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-
-        const sarcophagus = await viewStateFacet.getSarcophagus(sarcoId);
-
-        expect(sarcophagus.state).to.equal(SarcophagusState.Cleaned);
+        await expect(tx).to.emit(thirdPartyFacet, "AccuseArchaeologist");
       });
     });
+  });
 
-    context("Reverts", () => {
-      it("Should revert if cleaning is attempted before sarco can be unwrapped, or attempted within its resurrection grace period", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, resurrectionTime } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
-
-        // No time advancement before clean attempt
-        const cleanTx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-        await expect(cleanTx).to.be.revertedWith("SarcophagusNotCleanable()");
-
-        // Increasing time up to just around the sarco's resurrection time means it will still be within grace window
-        await time.increaseTo(resurrectionTime);
-
-        const cleanTxAgain = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-        await expect(cleanTxAgain).to.be.revertedWith("SarcophagusNotCleanable()");
-      });
-
-      it("Should revert with SarcophagusDoesNotExist if sarco identifier is unknown", async () => {
-        const { thirdParty, thirdPartyFacet } = await createSarcoFixture(
-          { shares, threshold },
-          "Test Sarco"
-        );
-
-        const tx = thirdPartyFacet
-          .connect(thirdParty)
-          .clean(formatBytes32String("unknown-sarcoId"), thirdParty.address);
-
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
-      });
-
-      it("Should revert with SarcophagusInactive if cleaning an already cleaned sarcophagus", async () => {
-        const { sarcoId, thirdParty, thirdPartyFacet, viewStateFacet, resurrectionTime } =
-          await createSarcoFixture({ shares, threshold }, "Test Sarco");
-
-        // increase time beyond resurrection time + grace period to expire sarcophagus
-        const gracePeriod = await viewStateFacet.getGracePeriod();
-        await time.increaseTo(resurrectionTime + +gracePeriod + 1);
-
-        // Clean the sarco once...
-        await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-
-        // ... and try again
-        const tx = thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
-
-        await expect(tx).to.be.revertedWith("SarcophagusInactive");
-      });
+  describe("Accuse v2", () => {
+    it("Should revert on a nonexistent sarcophagus ID", async () => {
+    });
+    it("Should revert if the current time is past the resurrectionTime", async () => {
+    });
+    it("Should not pay out any funds on an archaeologist who has already been accused", async () => {
+    });
+    it("Should refund bonds to all unaccused archaeologists and set the sarcophagus state to accused if k or more archaeologists have been accused", async () => {
+    });
+    it("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async () => {
+    });
+    it("Should refund digging fees allocated by embalmer to accused archaeologists", async () => {
+    });
+    it("Should allow running two successful accusals on the same sarcophagus", async () => {
+    });
+    it("Should consider previous accusals when tracking whether or not k archaeologists have been accused and determining whether or not to free remaining bonds", async () => {
     });
   });
 

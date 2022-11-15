@@ -89,13 +89,15 @@ contract ThirdPartyFacet {
     }
 
     /**
-     * @notice Accuse archaeologoists of bad behaviour, by providing proof of leaked
-     * unencrypted shards before a sarcophagus is ready to be unwrapped. The minumum
-     * number of shards required to unwrap the sarcophagus should be provided for a
-     * a successful accusal.
-     * of the cursed bonds of the archs back to them, and un-curses their bonds.
+     * @notice Accuse archaeologists of leaking keyshares prior to a sarcophagus's resurrection time by calling this
+     * function with the hashes of the leaked keyshares. If the archaeologists responsible for the supplied leaked keyshare hashes
+     * haven't already been accused, their locked bond will be split between the embalmer and the supplied payment address and
+     * diggingFees allocated for those archaeologists will be refunded to the embalmer.
+     * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus state will be updated to Accused
+     * and bonds for all remaining archaeologists will be freed
+     *
      * @param sarcoId The identifier of the sarcophagus having leaked shards
-     * @param unencryptedShardHashes At least 'm' unencrypted shard hashes as proof of bad behaviour
+     * @param unencryptedShardHashes hashes of the leaked keyshares
      * @param paymentAddress the address to which rewards should be sent if successful
      */
     function accuse(
@@ -103,101 +105,99 @@ contract ThirdPartyFacet {
         bytes32[] memory unencryptedShardHashes,
         address paymentAddress
     ) external {
-        LibUtils.revertIfNotExistOrInactive(sarcoId);
+        // verify that the sarcophagus exists
+        if (s.sarcophagi[sarcoId].state == LibTypes.SarcophagusState.DoesNotExist) {
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
+        }
 
         LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
 
+        // verify that the resurrection time has not yet passed
         if (sarco.resurrectionTime < block.timestamp) {
             revert LibErrors.SarcophagusIsUnwrappable();
         }
 
-        if (unencryptedShardHashes.length < sarco.minShards) {
-            revert LibErrors.AccuseNotEnoughProof(
-                unencryptedShardHashes.length,
-                sarco.minShards
-            );
-        }
-
+        // build an array of the addresses of the archaeologists currently being accused
         address[] memory accusedArchAddresses = new address[](
             unencryptedShardHashes.length
         );
 
-        // For each provided shard hash, check if its hash matches one on storage. If so, flag that
-        // archaeologist as accusable
-        uint256 diggingFeesToBeDistributed = 0;
-        uint256 totalCursedBond = 0;
-        uint256 pos = 0;
+        // track the total digging fees across all archaeologists being accused
+        //  this will be equal to the amount of diggingFees allocated by the embalmer to pay the archaeologist
+        //  this will also be equal to the total locked bond for the accused archaeologists
+        uint256 totalDiggingFees = 0;
+        uint accusalIndex = 0;
+
         for (uint256 i = 0; i < unencryptedShardHashes.length; i++) {
-            bytes32 shardDoubleHash = keccak256(
-                abi.encode(unencryptedShardHashes[i])
-            );
+            // generate the double hash of the keyshare
+            bytes32 shardDoubleHash = keccak256(abi.encode(unencryptedShardHashes[i]));
 
-            address matchingArchAddr = s.doubleHashedShardArchaeologists[
-                shardDoubleHash
-            ];
-
+            // look up the archaeologist responsible for the double hashed keyshare
+            address accusedArchaeologistAddress = s.doubleHashedShardArchaeologists[shardDoubleHash];
             LibTypes.ArchaeologistStorage storage badArch = s
-                .sarcophagusArchaeologists[sarcoId][matchingArchAddr];
+                .sarcophagusArchaeologists[sarcoId][accusedArchaeologistAddress];
 
-            if (badArch.unencryptedShardDoubleHash == shardDoubleHash) {
-                accusedArchAddresses[pos++] = matchingArchAddr;
-
-                uint256 cursedBond = badArch.diggingFee;
-
-                diggingFeesToBeDistributed += badArch.diggingFee;
-                totalCursedBond += cursedBond;
-
-                LibBonds.decreaseCursedBond(matchingArchAddr, cursedBond);
-
-                // Save the accusal against the archaeologist
-                s.archaeologistAccusals[matchingArchAddr].push(sarcoId);
-            } else {
-                revert LibErrors.AccuseIncorrectProof();
+            // if the archaeologist has already been accused on this sarcophagus break without taking action
+            // todo: if archaeologistAccusals is changed to a mapping of sarcoIds replace with: if (s.archaeologistAccusals[accusedArchaeologistAddress][sarcoID]) {
+            if (badArch.accused) {
+                break;
             }
+
+            // mark the archaeologist on the sarcophagus as having been accused
+            badArch.accused = true;
+            accusedArchAddresses[accusalIndex++] = accusedArchaeologistAddress;
+
+            // track the sum of all digging fees for all accused archaeologists
+            totalDiggingFees += badArch.diggingFee;
+
+            LibBonds.decreaseCursedBond(accusedArchaeologistAddress, badArch.diggingFee);
+
+            // Save the accusal against the archaeologist
+            s.archaeologistAccusals[accusedArchaeologistAddress].push(sarcoId);
         }
 
-        // At this point, we need to filter out unaccused archs in order to reimburse them.
-        address[] memory bondedArchaeologists = s
-            .sarcophagi[sarcoId]
-            .archaeologists;
+        address[] memory archaeologistAddresses = s.sarcophagi[sarcoId].archaeologists;
 
-        for (uint256 i = 0; i < bondedArchaeologists.length; i++) {
-            // Need to check each archaeologist address on the sarcophagus
-            bool isUnaccused = true;
-
-            for (uint256 j = 0; j < accusedArchAddresses.length; j++) {
-                // For each arch address, if found in accusedArchAddresses,
-                // then don't add to unaccusedArchsAddresses
-                if (bondedArchaeologists[i] == accusedArchAddresses[j]) {
-                    isUnaccused = false;
-                    break;
+        // if the current call accuses less than k archaeologists check to see if the total number
+        // of archaeologists accused on the sarcophagus (including accusals made on previous calls) is >= k
+        // short circuit this calculation if the current call already involves at least k archaeologists
+        uint totalAccusals = 0;
+        if (accusedArchAddresses.length < sarco.minShards) {
+            for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
+                if (s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].accused) {
+                    totalAccusals++;
                 }
             }
+        }
 
-            // If this arch address wasn't in the accused list, free it from its curse
-            if (isUnaccused) {
-                // There are technically no rewards here, since the sarcophagus
-                // has been compromised, so here this effectively merely resets
-                // the state of the non-malicious archaeologists, as if they never
-                // bonded to this sarcophagus in the first place.
-                //
-                // Of course, whatever rewards they might have gained in previous
-                // rewraps remains theirs.
-                LibBonds.freeArchaeologist(sarcoId, bondedArchaeologists[i]);
+        // if k or more archaeologists have been accused over the lifetime of the sarcophagus, funds should
+        // be returned to the remaining well behaved archaeologists
+        if (accusedArchAddresses.length >= sarco.minShards || totalAccusals >= sarco.minShards) {
+            // update the sarcophagus state to Accused, the outer key is compromised
+            sarco.state = LibTypes.SarcophagusState.Accused;
+
+            // iterate through all archaeologist addresses on the sarcophagus
+            for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
+                // if the archaeologist has never been accused, release their locked bond back to them
+                if (!s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].accused) {
+                    // todo: should digging fees be returned to the embalmer for freed archaeologists?
+                     LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
+                }
             }
         }
 
+        // refund the diggingFees allocated by the embalmer to the accused archaeologists
+        // split the total bond being slashed between the embalmer and the payment address
         (
             uint256 accuserBondReward,
             uint256 embalmerBondReward
         ) = _distributeLoot(
                 paymentAddress,
                 sarco,
-                totalCursedBond,
-                diggingFeesToBeDistributed
+                totalDiggingFees,
+                totalDiggingFees
             );
 
-        sarco.state = LibTypes.SarcophagusState.Accused;
 
         emit AccuseArchaeologist(
             sarcoId,
