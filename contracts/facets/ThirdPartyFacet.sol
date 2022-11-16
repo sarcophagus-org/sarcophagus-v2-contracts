@@ -89,8 +89,8 @@ contract ThirdPartyFacet {
     }
 
     /**
-     * @notice Accuse archaeologists of leaking keyshares prior to a sarcophagus's resurrection time by calling this
-     * function with the hashes of the leaked keyshares. If the archaeologists responsible for the supplied leaked keyshare hashes
+     * @notice Accuse archaeologists of leaking keyshares prior to a sarcophagus's resurrection time by supplying
+     * the hashes of the leaked keyshares. If the archaeologists responsible for those shares
      * haven't already been accused, their locked bond will be split between the embalmer and the supplied payment address and
      * diggingFees allocated for those archaeologists will be refunded to the embalmer.
      * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus state will be updated to Accused
