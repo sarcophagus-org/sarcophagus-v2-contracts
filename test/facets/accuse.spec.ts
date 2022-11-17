@@ -54,7 +54,7 @@ describe("accuse v2", () => {
   });
 
   it("On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async () => {
-    const { thirdPartyFacet, sarcoToken } = await getContracts();
+    const { thirdPartyFacet, viewStateFacet } = await getContracts();
     const accuser = await getFreshAccount();
     const { embalmer, sarcophagus, archaeologists } =
       await generateSarcophagusWithArchaeologists({
@@ -103,8 +103,26 @@ describe("accuse v2", () => {
     );
 
     // verify accused archaeologist bond has been slashed
+    const accusedArchaeologistProfile =
+      await viewStateFacet.getArchaeologistProfile(
+        accusedArchaeologist.archAddress
+      );
+    expect(accusedArchaeologistProfile.cursedBond.toString()).to.equal("0");
+
     // verify accused archaeologist has been marked as accused
-    // verify the accused archaeologist has been added to archaeologistAccusals
+    const accusedArchaeologistStorage =
+      await viewStateFacet.getSarcophagusArchaeologist(
+        sarcophagus.sarcoId,
+        accusedArchaeologist.archAddress
+      );
+    expect(accusedArchaeologistStorage.accused).to.be.true;
+
+    // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
+    const accusedArchaeologistAccusalsCount =
+      await viewStateFacet.getArchaeologistAccusalsCount(
+        accusedArchaeologist.archAddress
+      );
+    expect(accusedArchaeologistAccusalsCount.toString()).to.equal("1");
   });
 
   // it("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async () => {});
