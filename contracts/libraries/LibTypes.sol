@@ -65,9 +65,6 @@ library LibTypes {
     // of the archaeologist uploading to arweave, which will be stored directly
     // on the sarcophagus.
     struct ArchaeologistStorage {
-        // todo: evaluate cost of updating s.archaeologistAccusals to store a mapping of sarcoIds to booleans instead of an array
-        // a mapping would allow the accuse function to check if the archaeologist has already been accused on the sarcophagus
-        // if (s.archaeologistAccusals[accusedArchaeologistAddress][sarcoID])
         bool accused;
         uint256 diggingFee;
         uint256 diggingFeesPaid;

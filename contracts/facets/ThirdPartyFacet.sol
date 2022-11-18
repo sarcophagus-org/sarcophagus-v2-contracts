@@ -89,10 +89,10 @@ contract ThirdPartyFacet {
     }
 
     /**
-     * @notice Accuse archaeologists of leaking keyshares prior to a sarcophagus's resurrection time by supplying
-     * the hashes of the leaked keyshares. If the archaeologists responsible for those shares
-     * haven't already been accused, their locked bond will be split between the embalmer and the supplied payment address and
-     * diggingFees allocated for those archaeologists will be refunded to the embalmer.
+     * @notice Accuse one or more archaeologists of leaking keyshares by submitting the hashes of the leaked shares
+     * If the archaeologists responsible for those shares haven't already been accused, their locked bond will be
+     * split between the embalmer and the supplied payment address and digging fees allocated for those archaeologists will be refunded to the embalmer
+     *
      * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus state will be updated to Accused
      * and bonds for all remaining archaeologists will be freed
      *
@@ -123,7 +123,7 @@ contract ThirdPartyFacet {
         );
 
         // track the combined locked bond across all archaeologists being accused in this call
-        //  will be equal to the amount of diggingFees allocated by the embalmer to pay the archaeologist
+        // locked bond will be equal to the amount of diggingFees allocated by the embalmer to pay the archaeologist
         uint256 totalDiggingFees = 0;
         uint accusalCount = 0;
         for (uint256 i = 0; i < unencryptedShardHashes.length; i++) {
@@ -166,7 +166,7 @@ contract ThirdPartyFacet {
         bool isSarcophagusCompromised = accusalCount >= sarco.minShards;
 
         // if the current call hasn't resulted in at least k archaeologists being accused
-        // check if total number of accusals on sarcophagus is greater than k
+        // check if total number of historical accusals on sarcophagus is greater than k
         uint historicalAccusals = 0;
         if (!isSarcophagusCompromised) {
             for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
@@ -190,7 +190,6 @@ contract ThirdPartyFacet {
             for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
                 // if the archaeologist has never been accused, release their locked bond back to them
                 if (!s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].accused) {
-                    // todo: should digging fees be returned to the embalmer for freed archaeologists?
                      LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
                 }
             }

@@ -77,6 +77,12 @@ describe("accuse v2", () => {
       const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
         embalmer.address
       );
+      // save accused archaeologist initial free bond
+      const accusedArchaeologistInitialFreeBondSarquitos = (
+        await viewStateFacet.getArchaeologistProfile(
+          accusedArchaeologist.archAddress
+        )
+      ).freeBond;
 
       // accuse the archaeologist of leaking a keyshare
       const tx = thirdPartyFacet
@@ -116,9 +122,10 @@ describe("accuse v2", () => {
         );
 
       // verify accused archaeologist cursed bond has been set to 0
-      // todo: and free bond has not increased
       expect(accusedArchaeologistProfile.cursedBond.toString()).to.equal("0");
-      expect(accusedArchaeologistProfile.freeBond.toString()).to.equal("0");
+      expect(accusedArchaeologistProfile.freeBond.toString()).to.equal(
+        accusedArchaeologistInitialFreeBondSarquitos.toString()
+      );
 
       // verify accused archaeologist has been marked as accused
       const accusedArchaeologistStorage =
@@ -191,6 +198,12 @@ describe("accuse v2", () => {
       const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
         embalmer.address
       );
+      // save accused archaeologist initial free bond
+      const accusedArchaeologistInitialFreeBondSarquitos = (
+        await viewStateFacet.getArchaeologistProfile(
+          accusedArchaeologist.archAddress
+        )
+      ).freeBond;
       // accuse the archaeologist of leaking a keyshare
       await thirdPartyFacet
         .connect(accuser)
@@ -243,13 +256,15 @@ describe("accuse v2", () => {
         embalmerPostAccuseSarquitoBalance.toString()
       );
 
-      // verify accused archaeologist cursed bond has been set to 0 and todo: free bond has not been increased
+      // verify accused archaeologist cursed bond has been set to 0 and free bond has not been increased
       const accusedArchaeologistProfile =
         await viewStateFacet.getArchaeologistProfile(
           accusedArchaeologist.archAddress
         );
       expect(accusedArchaeologistProfile.cursedBond.toString()).to.equal("0");
-      expect(accusedArchaeologistProfile.freeBond.toString()).to.equal("0");
+      expect(accusedArchaeologistProfile.freeBond.toString()).to.equal(
+        accusedArchaeologistInitialFreeBondSarquitos.toString()
+      );
 
       // verify accused archaeologist has been marked as accused
       const accusedArchaeologistStorage =
