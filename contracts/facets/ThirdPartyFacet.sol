@@ -122,57 +122,67 @@ contract ThirdPartyFacet {
             unencryptedShardHashes.length
         );
 
-        // track the total digging fees across all archaeologists being accused
-        //  this will be equal to the amount of diggingFees allocated by the embalmer to pay the archaeologist
-        //  this will also be equal to the total locked bond for the accused archaeologists
+        // track the combined locked bond across all archaeologists being accused in this call
+        //  will be equal to the amount of diggingFees allocated by the embalmer to pay the archaeologist
         uint256 totalDiggingFees = 0;
-        uint accusalIndex = 0;
-
+        uint accusalCount = 0;
         for (uint256 i = 0; i < unencryptedShardHashes.length; i++) {
             // generate the double hash of the keyshare
             bytes32 shardDoubleHash = keccak256(abi.encode(unencryptedShardHashes[i]));
 
-            // look up the archaeologist responsible for the double hashed keyshare
+            // look up the archaeologist responsible for the keyshare
             address accusedArchaeologistAddress = s.doubleHashedShardArchaeologists[shardDoubleHash];
             LibTypes.ArchaeologistStorage storage badArch = s
                 .sarcophagusArchaeologists[sarcoId][accusedArchaeologistAddress];
 
             // if the archaeologist has already been accused on this sarcophagus break without taking action
-            // todo: if archaeologistAccusals is changed to a mapping of sarcoIds replace with: if (s.archaeologistAccusals[accusedArchaeologistAddress][sarcoID]) {
             if (badArch.accused) {
                 break;
             }
 
             // mark the archaeologist on the sarcophagus as having been accused
             badArch.accused = true;
-            accusedArchAddresses[accusalIndex++] = accusedArchaeologistAddress;
+            accusedArchAddresses[accusalCount++] = accusedArchaeologistAddress;
 
             // track the sum of all digging fees for all accused archaeologists
             totalDiggingFees += badArch.diggingFee;
 
+            // slash the accused archaeologist's bond
             LibBonds.decreaseCursedBond(accusedArchaeologistAddress, badArch.diggingFee);
 
             // Save the accusal against the archaeologist
             s.archaeologistAccusals[accusedArchaeologistAddress].push(sarcoId);
         }
 
+        // if none of the accusals were valid because the archaeologists have already been accused, return without taking action
+        if (accusalCount == 0) {
+            return;
+        }
+
+
         address[] memory archaeologistAddresses = s.sarcophagi[sarcoId].archaeologists;
 
-        // if the current call accuses less than k archaeologists check to see if the total number
-        // of archaeologists accused on the sarcophagus (including accusals made on previous calls) is >= k
-        // short circuit this calculation if the current call already involves at least k archaeologists
-        uint totalAccusals = 0;
-        if (accusedArchAddresses.length < sarco.minShards) {
+        // the sarcophagus is compromised if k or more archaeologists have been accused successfully on this call
+        bool isSarcophagusCompromised = accusalCount >= sarco.minShards;
+
+        // if the current call hasn't resulted in at least k archaeologists being accused
+        // check if total number of accusals on sarcophagus is greater than k
+        uint historicalAccusals = 0;
+        if (!isSarcophagusCompromised) {
             for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
                 if (s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].accused) {
-                    totalAccusals++;
+                    historicalAccusals++;
                 }
+            }
+            // the sarcophagus is compromised if k or more archaeologists have been accused over the lifetime of the sarcophagus
+            if (historicalAccusals >= sarco.minShards) {
+                isSarcophagusCompromised = true;
             }
         }
 
         // if k or more archaeologists have been accused over the lifetime of the sarcophagus, funds should
         // be returned to the remaining well behaved archaeologists
-        if (accusedArchAddresses.length >= sarco.minShards || totalAccusals >= sarco.minShards) {
+        if (isSarcophagusCompromised) {
             // update the sarcophagus state to Accused, the outer key is compromised
             sarco.state = LibTypes.SarcophagusState.Accused;
 

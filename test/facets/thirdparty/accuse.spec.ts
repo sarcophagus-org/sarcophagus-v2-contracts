@@ -8,12 +8,13 @@ import { getFreshAccount } from "./helpers/accounts";
 import { hashShare } from "./helpers/shamirSecretSharing";
 import { BigNumber } from "ethers";
 import { getSarquitoBalance } from "./helpers/sarcoToken";
+import { SarcophagusState } from "../types";
 
 describe("accuse v2", () => {
   // reset to directly after the diamond deployment before each test
   beforeEach(async () => await deployments.fixture());
 
-  it("Should revert on a nonexistent sarcophagus ID", async () => {
+  it("Should revert on a nonexistent sarcophagus ID", async function () {
     const accuser = await getFreshAccount();
 
     // generate a nonexistent sarcoId
@@ -30,7 +31,7 @@ describe("accuse v2", () => {
     );
   });
 
-  it("Should revert if the current time is past the resurrectionTime", async () => {
+  it("Should revert if the current time is past the resurrectionTime", async function () {
     // generate a sarcophagus with a resurrection time 1 week in the future
     const resurrectionTimeSeconds =
       (await time.latest()) + time.duration.weeks(1);
@@ -53,7 +54,7 @@ describe("accuse v2", () => {
     await expect(tx).to.be.revertedWith(`SarcophagusIsUnwrappable()`);
   });
 
-  it("On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async () => {
+  it("On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async function () {
     const { thirdPartyFacet, viewStateFacet } = await getContracts();
     const accuser = await getFreshAccount();
     const { embalmer, sarcophagus, archaeologists } =
@@ -71,7 +72,7 @@ describe("accuse v2", () => {
     );
 
     // accuse the archaeologist of leaking a keyshare
-    const tx = (await getContracts()).thirdPartyFacet
+    const tx = thirdPartyFacet
       .connect(accuser)
       .accuse(
         sarcophagus.sarcoId,
@@ -125,13 +126,63 @@ describe("accuse v2", () => {
     expect(accusedArchaeologistAccusalsCount.toString()).to.equal("1");
   });
 
-  // it("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async () => {});
-  // it("Should refund digging fees allocated by embalmer to an accused archaeologist on their first accusal", async () => {});
-  // it("Should not pay out digging fees allocated by embalmer to an accused archaeologist if they've already been accused once", async () => {});
-  // it("Should not pay out any funds on the second accusal of an archaeologist who has already been accused", async () => {});
-  // it("Should allow accusal of 2 archaeologists on a 3 of 5 sarcophagus without freeing all other archaeologists", async () => {});
-  // it("Should free all unaccused archaeologists upon successful accusal of 3 archaeologists on a 3 of 5 sarcophagus and update state to accused", async () => {});
-  // it("Should free all unaccused archaeologists upon successful accusal of 1 archaeologist on a 3 of 5 sarcophagus where 2 have been accused on a previous call and update state to accused", async () => {});
+  it("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async function () {
+    const accuser = await getFreshAccount();
+    const { viewStateFacet } = await getContracts();
+
+    const { sarcophagus, archaeologists } =
+      await generateSarcophagusWithArchaeologists({
+        totalShares: 5,
+        threshold: 3,
+        maximumRewrapIntervalSeconds: time.duration.weeks(4),
+        resurrectionTimeSeconds: (await time.latest()) + time.duration.weeks(3),
+      });
+
+    const accusedArchaeologist = archaeologists[0];
+    // hash the leaked keyshare
+    const hashedShare = hashShare(accusedArchaeologist.share);
+
+    // accuse an archaeologist of leaking a keyshare
+    (await getContracts()).thirdPartyFacet
+      .connect(accuser)
+      .accuse(sarcophagus.sarcoId, [hashedShare], accuser.address);
+
+    // verify the sarcophagus state is still active
+    expect(
+      (await viewStateFacet.getSarcophagus(sarcophagus.sarcoId)).state
+    ).to.equal(SarcophagusState.Active);
+
+    // verify the remaining 4 archaeologists still have their bonds locked
+    await Promise.all(
+      archaeologists.slice(1).map(async (innocentArchaeologist) => {
+        const innocentArchaeologistProfile =
+          await viewStateFacet.getArchaeologistProfile(
+            innocentArchaeologist.archAddress
+          );
+        return expect(
+          innocentArchaeologistProfile.cursedBond.toString()
+        ).to.equal(innocentArchaeologist.diggingFee);
+      })
+    );
+  });
+  it(
+    "Should refund digging fees allocated by embalmer to an accused archaeologist on their first accusal"
+  );
+  it(
+    "Should not pay out digging fees allocated by embalmer to an accused archaeologist if they've already been accused once"
+  );
+  it(
+    "Should not pay out any funds on the second accusal of an archaeologist who has already been accused"
+  );
+  it(
+    "Should allow accusal of 2 archaeologists on a 3 of 5 sarcophagus without freeing all other archaeologists"
+  );
+  it(
+    "Should free all unaccused archaeologists upon successful accusal of 3 archaeologists on a 3 of 5 sarcophagus and update state to accused"
+  );
+  it(
+    "Should free all unaccused archaeologists upon successful accusal of 1 archaeologist on a 3 of 5 sarcophagus where 2 have been accused on a previous call and update state to accused"
+  );
 
   // todo: can an async context be used with mocha?
   // context(
