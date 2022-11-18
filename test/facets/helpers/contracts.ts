@@ -1,17 +1,25 @@
 import { Contract } from "ethers";
 import { ethers } from "hardhat";
+import {
+  AdminFacet,
+  ArchaeologistFacet,
+  EmbalmerFacet,
+  SarcoTokenMock,
+  ThirdPartyFacet,
+  ViewStateFacet,
+} from "../../../typechain";
 
 /**
  * Returns all contracts
  * */
 export const getContracts = async (): Promise<{
   diamond: Contract;
-  sarcoToken: Contract;
-  embalmerFacet: Contract;
-  archaeologistFacet: Contract;
-  thirdPartyFacet: Contract;
-  viewStateFacet: Contract;
-  adminFacet: Contract;
+  sarcoToken: SarcoTokenMock;
+  embalmerFacet: EmbalmerFacet;
+  archaeologistFacet: ArchaeologistFacet;
+  thirdPartyFacet: ThirdPartyFacet;
+  viewStateFacet: ViewStateFacet;
+  adminFacet: AdminFacet;
 }> => {
   const diamond = await ethers.getContract("Diamond_DiamondProxy");
 

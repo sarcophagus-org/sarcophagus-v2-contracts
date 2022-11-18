@@ -13,7 +13,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 /**
  * Creates a sarcophagus with the supplied parameters
- * generates and registers an archaeologist to manage each keyshare
+ * generates and registers an archaeologist with 10k cursed bond and no free bond to manage each keyshare
  * */
 export const generateSarcophagusWithArchaeologists = async (params: {
   totalShares: number;
@@ -60,7 +60,7 @@ export const generateSarcophagusWithArchaeologists = async (params: {
         maximumRewrapIntervalSeconds:
           params.maximumRewrapIntervalSeconds + time.duration.weeks(1),
         sarcoBalance: 10_000,
-        freeBondSarco: 5_000,
+        freeBondSarco: 10_000,
       });
       return await generateArchSignature(archaeologistSigner, {
         arweaveTxId: arweaveTxIds[1],
