@@ -8,7 +8,7 @@ import { getContracts } from "./contracts";
 export const verifyAccusalStatusesForArchaeologists = async (
   sarcoId: string,
   archaeologists: ArchaeologistData[],
-  accused: boolean
+  isAccused: boolean
 ) => {
   await Promise.all(
     archaeologists.map(async (archaeologist) => {
@@ -18,7 +18,7 @@ export const verifyAccusalStatusesForArchaeologists = async (
         sarcoId,
         archaeologist.archAddress
       );
-      expect(archaeologistStorage.accused).to.equal(accused);
+      expect(archaeologistStorage.isAccused).to.equal(isAccused);
     })
   );
 };

@@ -133,7 +133,7 @@ describe("accuse v2", () => {
           sarcophagus.sarcoId,
           accusedArchaeologist.archAddress
         );
-      expect(accusedArchaeologistStorage.accused).to.be.true;
+      expect(accusedArchaeologistStorage.isAccused).to.be.true;
 
       // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
       const accusedArchaeologistAccusalsCount =
@@ -272,7 +272,7 @@ describe("accuse v2", () => {
           sarcophagus.sarcoId,
           accusedArchaeologist.archAddress
         );
-      expect(accusedArchaeologistStorage.accused).to.be.true;
+      expect(accusedArchaeologistStorage.isAccused).to.be.true;
 
       // verify the sarcoId has only been added to the accused archaeologist's archaeologistAccusals once
       const accusedArchaeologistAccusalsCount =

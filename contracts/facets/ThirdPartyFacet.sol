@@ -42,7 +42,6 @@ contract ThirdPartyFacet {
         // accumulate their digging fees
         address[] memory archAddresses = sarco.archaeologists;
 
-        uint256 totalCursedBond;
         uint256 totalDiggingFee;
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
@@ -56,12 +55,8 @@ contract ThirdPartyFacet {
 
                 totalDiggingFee += defaulter.diggingFee;
 
-                uint256 cursedBond = defaulter.diggingFee;
-
-                totalCursedBond += cursedBond;
-
                 // decrease the defaulter's cursed bond
-                LibBonds.decreaseCursedBond(archAddresses[i], cursedBond);
+                LibBonds.decreaseCursedBond(archAddresses[i], defaulter.diggingFee);
 
                 // Save the failure to unwrap against the archaeologist
                 s.archaeologistCleanups[archAddresses[i]].push(sarcoId);
@@ -74,7 +69,6 @@ contract ThirdPartyFacet {
         ) = _distributeLoot(
                 paymentAddress,
                 sarco,
-                totalCursedBond,
                 totalDiggingFee
             );
 
@@ -136,12 +130,12 @@ contract ThirdPartyFacet {
                 .sarcophagusArchaeologists[sarcoId][accusedArchaeologistAddress];
 
             // if the archaeologist has already been accused on this sarcophagus break without taking action
-            if (badArch.accused) {
+            if (badArch.isAccused) {
                 break;
             }
 
             // mark the archaeologist on the sarcophagus as having been accused
-            badArch.accused = true;
+            badArch.isAccused = true;
             accusedArchAddresses[accusalCount++] = accusedArchaeologistAddress;
 
             // track the sum of all digging fees for all accused archaeologists
@@ -170,7 +164,7 @@ contract ThirdPartyFacet {
         uint historicalAccusals = 0;
         if (!isSarcophagusCompromised) {
             for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
-                if (s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].accused) {
+                if (s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].isAccused) {
                     historicalAccusals++;
                 }
             }
@@ -189,7 +183,7 @@ contract ThirdPartyFacet {
             // iterate through all archaeologist addresses on the sarcophagus
             for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
                 // if the archaeologist has never been accused, release their locked bond back to them
-                if (!s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].accused) {
+                if (!s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].isAccused) {
                      LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
                 }
             }
@@ -203,7 +197,6 @@ contract ThirdPartyFacet {
         ) = _distributeLoot(
                 paymentAddress,
                 sarco,
-                totalDiggingFees,
                 totalDiggingFees
             );
 
@@ -217,11 +210,10 @@ contract ThirdPartyFacet {
     }
 
     /**
-     * @notice Takes a sarcophagus's cursed bond, splits it in half, and sends
+     * @notice Takes a sarcophagus's digging fee, splits it in half, and sends
      * to paymentAddress and embalmer
      * @param paymentAddress payment address for the transaction caller
      * @param sarc the sarcophagus to operate on
-     * @param totalCursedBond the sum of cursed bonds of all archs that failed to fulfil their duties
      * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties
      * @return halfToSender the amount of SARCO token going to transaction
      * sender
@@ -230,12 +222,11 @@ contract ThirdPartyFacet {
     function _distributeLoot(
         address paymentAddress,
         LibTypes.Sarcophagus storage sarc,
-        uint256 totalCursedBond,
         uint256 totalDiggingFee
     ) private returns (uint256, uint256) {
         // split the sarcophagus's cursed bond into two halves
-        uint256 halfToEmbalmer = totalCursedBond / 2;
-        uint256 halfToSender = totalCursedBond - halfToEmbalmer;
+        uint256 halfToEmbalmer = totalDiggingFee / 2;
+        uint256 halfToSender = totalDiggingFee - halfToEmbalmer;
 
         // transfer the cursed half, plus digging fee to the
         // embalmer
