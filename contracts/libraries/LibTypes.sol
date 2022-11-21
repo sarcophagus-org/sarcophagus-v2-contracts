@@ -65,6 +65,7 @@ library LibTypes {
     // of the archaeologist uploading to arweave, which will be stored directly
     // on the sarcophagus.
     struct ArchaeologistStorage {
+        bool isAccused;
         uint256 diggingFee;
         uint256 diggingFeesPaid;
         bytes32 unencryptedShardDoubleHash;
@@ -106,13 +107,6 @@ library LibTypes {
         address embalmer;
         address recipientAddress;
         address[] archaeologists;
-    }
-
-    struct MetadataAttributes {
-        string sarcophagusName;
-        uint256 diggingFee;
-        uint256 resurrectionTime;
-        uint256 diggingFeesPaid;
     }
 
     // Only used in the ViewStateFacet to return statistics data.
