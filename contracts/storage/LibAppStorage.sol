@@ -36,10 +36,8 @@ struct AppStorage {
     mapping(address => bytes32[]) recipientSarcophagi;
 
     // double hashed keyshare => archaeologist address
+    // todo: do we need this?
     mapping(bytes32 => address) doubleHashedShardArchaeologists;
-
-    // sarcophagus id => mapping of archaeologist address => archaeologist info
-    mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;
 
     // sarcophagus ids
     bytes32[] sarcophagusIdentifiers;
@@ -56,9 +54,6 @@ struct AppStorage {
     // todo: Combine with ArchaeologistProfile.freeBond
     mapping(address => uint256) archaeologistRewards;
 
-    // todo: Remove and check for successful resurrection at sarcophagus.archaeologistInfo[addr].keyshare
-    // mapping of archaeologist address => sarco id => whether or not the archaeologist unwrapped that sarcophagus
-    mapping(address => mapping(bytes32 => bool)) archaeologistSarcoSuccesses;
 
     /**
     * Archaeologist reputation statistics
