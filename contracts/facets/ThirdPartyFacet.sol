@@ -45,6 +45,7 @@ contract ThirdPartyFacet {
         uint256 totalDiggingFee;
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
+            // todo: consider skipping this mapping and just retrieving the keyshares
             bool didNotUnwrap = s.archaeologistSarcoSuccesses[archAddresses[i]][
                 sarcoId
             ] == false;
@@ -152,7 +153,6 @@ contract ThirdPartyFacet {
         if (accusalCount == 0) {
             return;
         }
-
 
         address[] memory archaeologistAddresses = s.sarcophagi[sarcoId].archaeologists;
 

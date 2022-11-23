@@ -4,53 +4,69 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 
-// Global storage for the app. Can be accessed in facets and in libraries
+/**
+* Global diamond storage struct to be shared across facets
+* TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs
+*/
 struct AppStorage {
+    // SARCO token contract
     IERC20 sarcoToken;
-    // The percentage (i.e. 1 = 1%) of a sarcophagus' total digging fees that will be collected on
-    // createSarcophagus and rewrapSarcophagus, paid by the embalmer
-    uint256 protocolFeeBasePercentage;
-    // The amount of protocol fees currently stored on the contract
+
+    // total protocol fees available to be withdrawn by the admin
     uint256 totalProtocolFees;
+
+    /**
+    * Protocol level admin configurations
+    */
+    // % of total digging fees for sarcophagus to charge embalmer on create and rewrap
+    uint256 protocolFeeBasePercentage;
     // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time
     uint256 gracePeriod;
     // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated
     uint256 expirationThreshold;
-    // sarcophagi
+
+    /**
+    * Ownership mappings
+    */
+    // embalmer address => ids of sarcophagi they've created
+    mapping(address => bytes32[]) embalmerSarcophagi;
+    // archaeologist address =>  ids of sarcophagi they're protecting
+    mapping(address => bytes32[]) archaeologistSarcophagi;
+    // recipient address =>  ids of sarcophagi they're recipient on
+    mapping(address => bytes32[]) recipientSarcophagi;
+
+    // double hashed keyshare => archaeologist address
+    mapping(bytes32 => address) doubleHashedShardArchaeologists;
+
+    // sarcophagus id => mapping of archaeologist address => archaeologist info
+    mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;
+
+    // sarcophagus ids
     bytes32[] sarcophagusIdentifiers;
-    // archaeologist profiles
+    // sarcophagus id => sarcophagus object
+    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
+
+    // archaeologist addresses
     address[] archaeologistProfileAddresses;
+    // archaeologist address => profile
     mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;
 
-    // archaeologistSarcoSuccesses is needed by the clean function
-    // to lookup whether an archaeologist has completed an unwrapping
+
+    // current balance of rewards available for the archaeologist to withdraw
+    // todo: Combine with ArchaeologistProfile.freeBond
+    mapping(address => uint256) archaeologistRewards;
+
+    // todo: Remove and check for successful resurrection at sarcophagus.archaeologistInfo[addr].keyshare
+    // mapping of archaeologist address => sarco id => whether or not the archaeologist unwrapped that sarcophagus
     mapping(address => mapping(bytes32 => bool)) archaeologistSarcoSuccesses;
 
-    // Archaeologist reputation statistics
+    /**
+    * Archaeologist reputation statistics
+    * todo: could these be organized differently?
+    */
     mapping(address => bytes32[]) archaeologistSuccesses;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
-
-    // Track how much archaeologists have made. To be credited and debited
-    // as archaeologists fulfill their duties and withdraw their rewards
-    mapping(address => uint256) archaeologistRewards;
-    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
-    // sarcophagus ownerships
-    mapping(address => bytes32[]) embalmerSarcophagi;
-    mapping(address => bytes32[]) archaeologistSarcophagi;
-    mapping(address => bytes32[]) recipientSarcophagi;
-    // Mapping of unencrypted shard double hashes to archaeologists who are
-    // responsible for them. Needed to optimise Accuse algo - unencrypted shard is
-    // double hashed and used as a constant O(1) lookup here
-    mapping(bytes32 => address) doubleHashedShardArchaeologists;
-    // A mapping used to store an archaeologist's data on a sarcophagus.
-    // Digging fees, storage fees, and the hashed shards of the
-    // archaeologists all need to be stored per sarcophagus. This mapping of a
-    // mapping stores the archaeologist's data we need per sarcophagus.
-    // Example usage (to retrieve the digging fees an archaeologist may claim on some sarcophagus):
-    //   LibTypes.ArchaeologistStorage bondedArchaeologist = sarcophagusArchaeologists[sarcoId][archAddress];
-    //   uint256 diggingFees = bondedArchaeologist.diggingFees;
-    mapping(bytes32 => mapping(address => LibTypes.ArchaeologistStorage)) sarcophagusArchaeologists;
 }
 
 library LibAppStorage {
