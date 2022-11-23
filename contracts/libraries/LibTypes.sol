@@ -7,6 +7,15 @@ pragma solidity ^0.8.13;
  * system uses
  */
 library LibTypes {
+
+    struct CursedArchaeologist {
+        bool isAccused;
+        uint256 diggingFee;
+        bytes32 doubleHashedKeyshare; // might be able to remove this and just use the mapping hash => arch
+        bytes rawKeyshare;
+    }
+
+
     // DoesNotExist must come first on the list to be the default value
     enum SarcophagusState {
         DoesNotExist,
@@ -17,28 +26,6 @@ library LibTypes {
         Cleaned,
         Accused,
         Failed
-    }
-
-    // A struct of just the signature. This is used primarily by the
-    // finalizeSarcophagus function for the arweave archaeologist. Note that,
-    // unlike the regular archaeologists, the sarcophagus already stores the
-    // single arweave archaeologist's address so there is no need to pass in the
-    // address to the finalizeSarcophagus function.
-    struct Signature {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-    }
-
-    // Signature struct created to make passing in the signature argmuments into
-    // finalizedSarcophagus easier and to avoid the "stack too deep" error.
-    // Also attaching arachaeologist addresses so we can tie the signature back
-    // to the address in finalizeSarcophagus.
-    struct SignatureWithAccount {
-        address account;
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
     }
 
     // SelectedArchaeologistData is the struct that is passed into the
@@ -67,10 +54,11 @@ library LibTypes {
     struct ArchaeologistStorage {
         bool isAccused;
         uint256 diggingFee;
-        uint256 diggingFeesPaid;
-        bytes32 unencryptedShardDoubleHash;
+        uint256 diggingFeesPaid; // no longer needed
+        bytes32 unencryptedShardDoubleHash; // might be able to remove this and just use the mapping hash => arch
         bytes unencryptedShard;
     }
+
 
     // ArchaeologistProfile is used to store archaeologist profile data
     struct ArchaeologistProfile {
