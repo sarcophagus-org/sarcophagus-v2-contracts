@@ -28,19 +28,7 @@ library LibTypes {
         Failed
     }
 
-    // SelectedArchaeologistData is the struct that is passed into the
-    // initializeSarcophagus function. Even though we don't need each storage
-    // fee of the archaeologist, the storage fee is included in the struct to
-    // reduce the stack size within the function, preventing the "stack too
-    // deep" error.
-    struct SelectedArchaeologistData {
-        address archAddress;
-        uint256 diggingFee;
-        bytes32 unencryptedShardDoubleHash;
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-    }
+
 
     // ArchaeologistStorage is the struct that is stored in AppStorage under the
     // sarcophagusArchaeologists mapping.
@@ -70,14 +58,7 @@ library LibTypes {
         uint256 cursedBond;
     }
 
-    struct SarcophagusMemory {
-        string name;
-        address recipient;
-        uint256 resurrectionTime;
-        uint256 maximumRewrapInterval;
-        uint8 minShards;
-        uint256 timestamp;
-    }
+
 
     // The ArchaeologistStorage struct could be contained in this Sarcophagus
     // struct as a mapping, but it was put into it's own mapping

@@ -34,9 +34,31 @@ contract EmbalmerFacet {
 
     event BurySarcophagus(bytes32 indexed sarcoId);
 
-    // Archaeologist's addresses are added to this mapping per sarcophagus to
-    // verify that the same archaeologist signature is not used more than once.
-    mapping(bytes32 => mapping(address => bool)) private verifiedArchaeologists;
+    /**
+    * Parameters for a sarcophagus, supplied during creation
+    * maximumRewrapInterval - highest rewrap interval bonded archaeologists have agreed to accept for lifetime of sarcophagus
+    */
+    struct SarcophagusParams {
+        string name;
+        address recipient;
+        uint256 resurrectionTime;
+        uint256 maximumRewrapInterval;
+        uint8 minShards;
+        uint256 timestamp;
+    }
+
+    /**
+    * Parameters for an archaeologist's curse, supplied during sarcophagus creation
+    * diggingFee - diggingFee archaeologist has agreed to receive on sarcophagus for its entire lifetime
+    */
+    struct SelectedArchaeologistData {
+        address archAddress;
+        uint256 diggingFee;
+        bytes32 unencryptedShardDoubleHash;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
 
     /// @notice Embalmer creates the sarcophagus.
     ///
@@ -61,8 +83,8 @@ contract EmbalmerFacet {
     /// @return The index of the new sarcophagus
     function createSarcophagus(
         bytes32 sarcoId,
-        LibTypes.SarcophagusMemory memory sarcophagus,
-        LibTypes.SelectedArchaeologistData[] memory selectedArchaeologists,
+        SarcophagusParams memory sarcophagus,
+        SelectedArchaeologistData[] memory selectedArchaeologists,
         string[] memory arweaveTxIds
     ) external returns (uint256) {
         // Confirm that this exact sarcophagus does not already exist
@@ -125,7 +147,7 @@ contract EmbalmerFacet {
         uint256 totalDiggingFees = 0;
 
         for (uint256 i = 0; i < selectedArchaeologists.length; i++) {
-            LibTypes.SelectedArchaeologistData memory arch = selectedArchaeologists[i];
+            SelectedArchaeologistData memory arch = selectedArchaeologists[i];
             LibUtils.revertIfArchProfileDoesNotExist(arch.archAddress);
 
             // Confirm that the archaeologist list is unique. This is done by
