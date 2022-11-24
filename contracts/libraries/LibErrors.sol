@@ -49,6 +49,8 @@ library LibErrors {
 
     error SarcophagusInactive(bytes32 sarcoId);
 
+    error SarcophagusCompromised(bytes32 sarcoId);
+
     error SenderNotEmbalmer(address sender, address embalmer);
 
     error InvalidSignature(
@@ -75,8 +77,8 @@ library LibErrors {
     );
 
     error UnencryptedShardHashMismatch(
-        bytes unencryptedShard,
-        bytes32 doubleHashedShard
+        bytes rawKeyShare,
+        bytes32 doubleHashedKeyShare
     );
 
     error SarcophagusParametersExpired(uint256 timestamp);
