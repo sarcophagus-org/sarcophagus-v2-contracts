@@ -7,28 +7,28 @@ pragma solidity ^0.8.13;
 library LibTypes {
 
     struct Sarcophagus {
+        // never empty - use for existence checks
+        address embalmerAddress;
         string name;
         uint8 threshold;
         uint256 resurrectionTime;
         uint256 maximumRewrapInterval;
         string[2] arweaveTxIds;
-        // never empty - use for existence checks
-        address embalmerAddress;
         address recipientAddress;
         address[] archaeologistAddresses;
         mapping(address => CursedArchaeologist) cursedArchaeologists;
     }
 
     struct CursedArchaeologist {
-        bool isAccused;
-        uint256 diggingFee;
         // never empty - use for existence checks
         bytes32 doubleHashedKeyShare;
+        bool isAccused;
+        uint256 diggingFee;
         bytes rawKeyShare;
     }
 
     struct ArchaeologistProfile {
-        bool exists;
+        bool exists; // todo: use peerid.length instead of exists
         string peerId;
         uint256 minimumDiggingFee;
         uint256 maximumRewrapInterval;
