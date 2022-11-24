@@ -12,6 +12,7 @@ library LibTypes {
         uint256 resurrectionTime;
         uint256 maximumRewrapInterval;
         string[2] arweaveTxIds;
+        // never empty - use for existence checks
         address embalmerAddress;
         address recipientAddress;
         address[] archaeologistAddresses;
@@ -21,7 +22,8 @@ library LibTypes {
     struct CursedArchaeologist {
         bool isAccused;
         uint256 diggingFee;
-        bytes32 doubleHashedKeyShare; // might be able to remove this and just use the mapping hash => arch
+        // never empty - use for existence checks
+        bytes32 doubleHashedKeyShare;
         bytes rawKeyShare;
     }
 

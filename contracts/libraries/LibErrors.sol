@@ -19,8 +19,6 @@ library LibErrors {
 
     error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);
 
-    error ArweaveTxIdsInvalid();
-
     error DiggingFeeTooLow(uint256 diggingFee, address archaeologist);
 
     error MinShardsGreaterThanArchaeologists(uint8 minShards);
