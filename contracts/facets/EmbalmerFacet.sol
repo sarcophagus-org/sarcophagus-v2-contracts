@@ -81,7 +81,7 @@ contract EmbalmerFacet {
         string[2] calldata arweaveTxIds
     ) external returns (uint256) {
         // Confirm that sarcophagus with supplied id doesn't already exist
-        if (!s.sarcophagi[sarcoId].embalmerAddress) {
+        if (s.sarcophagi[sarcoId].resurrectionTime > 0) {
             revert LibErrors.SarcophagusAlreadyExists(sarcoId);
         }
 
@@ -222,7 +222,7 @@ contract EmbalmerFacet {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists
-        if (!sarcophagus.embalmerAddress) {
+        if (sarcophagus.resurrectionTime == 0) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -294,7 +294,7 @@ contract EmbalmerFacet {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists
-        if (!sarcophagus.embalmerAddress) {
+        if (sarcophagus.resurrectionTime == 0) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
