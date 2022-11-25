@@ -78,7 +78,7 @@ contract EmbalmerFacet {
         bytes32 sarcoId,
         SarcophagusParams calldata sarcophagusParams,
         SelectedArchaeologistData[] calldata selectedArchaeologists,
-        string[2] calldata arweaveTxIds
+        string[2] memory arweaveTxIds
     ) external returns (uint256) {
         // Confirm that sarcophagus with supplied id doesn't already exist
         if (s.sarcophagi[sarcoId].resurrectionTime > 0) {
@@ -86,19 +86,19 @@ contract EmbalmerFacet {
         }
 
         // Confirm that agreed upon sarcophagus parameters have not expired
-        if (sarcophagusParams.creationTime + s.expirationThreshold < block.timestamp) {
+        if (block.timestamp > sarcophagusParams.creationTime + s.expirationThreshold) {
             revert LibErrors.SarcophagusParametersExpired(sarcophagusParams.creationTime);
         }
 
         // Confirm that resurrection time is in the future
-        if (sarcophagusParams.resurrectionTime <= block.timestamp) {
+        if (block.timestamp >= sarcophagusParams.resurrectionTime) {
             revert LibErrors.ResurrectionTimeInPast(sarcophagusParams.resurrectionTime);
         }
 
         // Confirm that resurrection or rewrap will occur before the maximumRewrapInterval elapses
         if (
-            sarcophagusParams.resurrectionTime >
-            block.timestamp + sarcophagusParams.maximumRewrapInterval
+            block.timestamp + sarcophagusParams.maximumRewrapInterval <
+            sarcophagusParams.resurrectionTime
         ) {
             revert LibErrors.ResurrectionTimeTooFarInFuture(
                 sarcophagusParams.resurrectionTime,
@@ -121,11 +121,16 @@ contract EmbalmerFacet {
             revert LibErrors.MinShardsGreaterThanArchaeologists(sarcophagusParams.threshold);
         }
 
-        // init array of addresses and mapping of address => CursedArchaeologist for archaeologists cursed on sarcophagus, to be stored on object
-        address[] memory cursedArchaeologistAddresses = new address[](
-            selectedArchaeologists.length
-        );
-        mapping(address => LibTypes.CursedArchaeologist) memory cursedArchaeologists;
+        // create the sarcophagus
+        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
+        sarcophagus.name = sarcophagusParams.name;
+        sarcophagus.threshold = sarcophagusParams.threshold;
+        sarcophagus.resurrectionTime = sarcophagusParams.resurrectionTime;
+        sarcophagus.maximumRewrapInterval = sarcophagusParams.maximumRewrapInterval;
+        sarcophagus.arweaveTxIds = arweaveTxIds;
+        sarcophagus.embalmerAddress = msg.sender;
+        sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
+        sarcophagus.archaeologistAddresses = new address[](selectedArchaeologists.length);
 
         // track total digging fees due upon creation of sarcophagus
         uint256 totalDiggingFees = 0;
@@ -136,8 +141,13 @@ contract EmbalmerFacet {
 
             // Confirm archaeologist isn't already cursed on sarcophagus
             // todo: may be unnecessary, is cursing an archaeologist twice harming anybody but the caller?
-            if (!cursedArchaeologists[selectedArchaeologists[i].archAddress].doubleHashedKeyShare) {
-                revert LibErrors.ArchaeologistListNotUnique(cursedArchaeologistAddresses);
+            if (
+                sarcophagus
+                    .cursedArchaeologists[selectedArchaeologists[i].archAddress]
+                    .doubleHashedKeyShare
+                    .length > 0
+            ) {
+                revert LibErrors.ArchaeologistListNotUnique(selectedArchaeologists[i].archAddress);
             }
 
             // Validate the archaeologist has signed off on the sarcophagus parameters
@@ -159,14 +169,14 @@ contract EmbalmerFacet {
             LibBonds.curseArchaeologist(sarcoId, selectedArchaeologists[i].archAddress);
 
             // save the cursedArchaeologist and cursedArchaeologistAddress to be stored on the new sarcophagus
-            cursedArchaeologists[selectedArchaeologists[i].archAddress] = LibTypes
+            sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress] = LibTypes
                 .CursedArchaeologist({
                     isAccused: false,
                     diggingFee: selectedArchaeologists[i].diggingFee,
                     doubleHashedKeyShare: selectedArchaeologists[i].doubleHashedKeyShare,
                     rawKeyShare: ""
                 });
-            cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
+            sarcophagus.archaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
             // update archaeologist-specific convenience lookup structures
             s.doubleHashedShardArchaeologists[
@@ -174,19 +184,6 @@ contract EmbalmerFacet {
             ] = selectedArchaeologists[i].archAddress;
             s.archaeologistSarcophagi[selectedArchaeologists[i].archAddress].push(sarcoId);
         }
-
-        // save the sarcophagus
-        s.sarcophagi[sarcoId] = LibTypes.Sarcophagus({
-            name: sarcophagusParams.name,
-            threshold: sarcophagusParams.threshold,
-            resurrectionTime: sarcophagusParams.resurrectionTime,
-            maximumRewrapInterval: sarcophagusParams.maximumRewrapInterval,
-            arweaveTxIds: arweaveTxIds,
-            embalmerAddress: msg.sender,
-            recipientAddress: sarcophagusParams.recipientAddress,
-            archaeologistAddresses: cursedArchaeologistAddresses,
-            cursedArchaeologists: cursedArchaeologists
-        });
 
         // update sarcophagus-specific convenience lookup structures
         s.sarcophagusIdentifiers.push(sarcoId);
@@ -204,7 +201,7 @@ contract EmbalmerFacet {
             sarcophagusParams.resurrectionTime,
             msg.sender,
             sarcophagusParams.recipientAddress,
-            cursedArchaeologistAddresses,
+            sarcophagus.archaeologistAddresses,
             totalDiggingFees,
             protocolFees,
             arweaveTxIds
@@ -262,9 +259,8 @@ contract EmbalmerFacet {
         // pay digging fee to each cursed archaeologist on the sarcophagus
         address[] storage archaeologistAddresses = sarcophagus.archaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
-            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus[
-                archaeologistAddresses[i]
-            ];
+            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
+                .cursedArchaeologists[archaeologistAddresses[i]];
 
             // transfer digging fee to archaeologist's reward pool
             // todo: consider adding this amount to archaeologistProfile.freeBond instead
@@ -327,9 +323,8 @@ contract EmbalmerFacet {
             LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
             // Transfer the digging fees to the archaeologist's reward pool
             // todo: consider adding this amount to archaeologistProfile.freeBond instead
-            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus[
-                archaeologistAddresses[i]
-            ];
+            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
+                .cursedArchaeologists[archaeologistAddresses[i]];
             s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
         }
 
