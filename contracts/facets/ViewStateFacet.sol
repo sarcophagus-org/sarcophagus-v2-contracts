@@ -273,8 +273,8 @@ contract ViewStateFacet {
     function getSarcophagusArchaeologist(bytes32 sarcoId, address archaeologist)
         external
         view
-        returns (LibTypes.ArchaeologistStorage memory)
+        returns (LibTypes.CursedArchaeologist memory)
     {
-        return s.sarcophagusArchaeologists[sarcoId][archaeologist];
+        return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist];
     }
 }
