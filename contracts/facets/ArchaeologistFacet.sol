@@ -162,7 +162,7 @@ contract ArchaeologistFacet {
     /// @param sarcoId The identifier of the sarcophagus to unwrap
     /// @param rawKeyShare The keyshare the archaeologist is publishing
     function publishKeyShare(bytes32 sarcoId, bytes calldata rawKeyShare) external {
-        Sarcopagus storage sarcophagus = s.sarcophagi[sarcoId];
+        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm sarcophagus exists
         if (!sarcophagus.embalmerAddress) {
@@ -197,7 +197,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm tx sender is an archaeologist on the sarcophagus
-        CursedArchaeologist storage cursedArchaeologist = s.sarcophagi[sarcoId].cursedArchaeologists[msg.sender];
+        LibTypes.CursedArchaeologist storage cursedArchaeologist = s.sarcophagi[sarcoId].cursedArchaeologists[msg.sender];
         if (!cursedArchaeologist.doubleHashedKeyShare) {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
         }

@@ -125,7 +125,7 @@ contract EmbalmerFacet {
         address[] memory cursedArchaeologistAddresses = new address[](
             selectedArchaeologists.length
         );
-        mapping(address => CursedArchaeologist) memory cursedArchaeologists;
+        mapping(address => LibTypes.CursedArchaeologist) memory cursedArchaeologists;
 
         // track total digging fees due upon creation of sarcophagus
         uint256 totalDiggingFees = 0;
@@ -219,7 +219,7 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     /// @param resurrectionTime the new resurrection time
     function rewrapSarcophagus(bytes32 sarcoId, uint256 resurrectionTime) external {
-        Sarcopagus storage sarcophagus = s.sarcophagi[sarcoId];
+        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists
         if (!sarcophagus.embalmerAddress) {
@@ -267,7 +267,7 @@ contract EmbalmerFacet {
             // transfer digging fee to archaeologist's reward pool
             // todo: consider adding this amount to archaeologistProfile.freeBond instead
             s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
-            totalDiggingFees += archaeologistData.diggingFee;
+            totalDiggingFees += cursedArchaeologist.diggingFee;
         }
 
         uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
@@ -289,7 +289,7 @@ contract EmbalmerFacet {
     /// resurrection time has not passed, it has not been compromised by >k accusals, and it has not been buried.
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
-        Sarcopagus storage sarcophagus = s.sarcophagi[sarcoId];
+        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists
         if (!sarcophagus.embalmerAddress) {
