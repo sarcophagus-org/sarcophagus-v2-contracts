@@ -30,23 +30,6 @@ library LibUtils {
     }
 
     /**
-     * @notice Reverts with `SarcophagusDoesNotExist` if the Sarcophagus does not exist,
-     * or with `SarcophagusInactive` if the Sarcophagus exists but is not active.
-     * @param sarcoId Identifier of the Sarcophagus
-     */
-    function revertIfNotExistOrInactive(bytes32 sarcoId) internal view {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        if (s.sarcophagi[sarcoId].state == LibTypes.SarcophagusState.DoesNotExist) {
-            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
-
-        if (s.sarcophagi[sarcoId].state != LibTypes.SarcophagusState.Active) {
-            revert LibErrors.SarcophagusInactive(sarcoId);
-        }
-    }
-
-    /**
      * @notice The archaeologist needs to sign off on two pieces of data
      * to guarantee their unrwap will be successful
      *
@@ -149,22 +132,6 @@ library LibUtils {
         if (resurrectionTime + s.gracePeriod < block.timestamp) {
             revert LibErrors.TooLateToUnwrap(resurrectionTime, s.gracePeriod, block.timestamp);
         }
-    }
-
-    /// @notice Checks if the archaeologist exists on the sarcophagus.
-    /// @param sarcoId the identifier of the sarcophagus
-    /// @param archaeologist the address of the archaeologist
-    /// @return The boolean true if the archaeologist exists on the sarcophagus
-    function archaeologistExistsOnSarc(bytes32 sarcoId, address archaeologist)
-        internal
-        view
-        returns (bool)
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        // If the doubleHashedShard on an archaeologist is 0 (which is its default value),
-        // then the archaeologist doesn't exist on the sarcophagus
-        return s.sarcophagusArchaeologists[sarcoId][archaeologist].unencryptedShardDoubleHash != 0;
     }
 
     /// @notice Checks if an archaeologist profile exists and
