@@ -5,7 +5,6 @@ pragma solidity ^0.8.13;
  * @title Types shared across facets for the Sarcophagus diamond
  */
 library LibTypes {
-
     struct Sarcophagus {
         // never empty - use for existence checks
         address embalmerAddress;
@@ -37,7 +36,6 @@ library LibTypes {
         uint256 freeBond;
         uint256 cursedBond;
     }
-
 
     // Only used in the ViewStateFacet to return statistics data.
     // Contains a list of sarcoIds for each category. We could simply return the counts of the

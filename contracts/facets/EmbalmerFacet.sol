@@ -262,7 +262,9 @@ contract EmbalmerFacet {
         // pay digging fee to each cursed archaeologist on the sarcophagus
         address[] storage archaeologistAddresses = sarcophagus.archaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
-            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus[archaeologistAddresses[i]];
+            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus[
+                archaeologistAddresses[i]
+            ];
 
             // transfer digging fee to archaeologist's reward pool
             // todo: consider adding this amount to archaeologistProfile.freeBond instead
@@ -325,7 +327,9 @@ contract EmbalmerFacet {
             LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
             // Transfer the digging fees to the archaeologist's reward pool
             // todo: consider adding this amount to archaeologistProfile.freeBond instead
-            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus[archaeologistAddresses[i]];
+            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus[
+                archaeologistAddresses[i]
+            ];
             s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
         }
 

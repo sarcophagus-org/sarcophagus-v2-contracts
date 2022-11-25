@@ -46,13 +46,12 @@ contract ThirdPartyFacet {
 
         for (uint256 i = 0; i < archAddresses.length; i++) {
             // todo: consider skipping this mapping and just retrieving the keyshares
-            bool didNotUnwrap = s.archaeologistSarcoSuccesses[archAddresses[i]][
-                sarcoId
-            ] == false;
+            bool didNotUnwrap = s.archaeologistSarcoSuccesses[archAddresses[i]][sarcoId] == false;
 
             if (didNotUnwrap) {
-                LibTypes.ArchaeologistStorage memory defaulter = s
-                    .sarcophagusArchaeologists[sarcoId][archAddresses[i]];
+                LibTypes.ArchaeologistStorage memory defaulter = s.sarcophagusArchaeologists[
+                    sarcoId
+                ][archAddresses[i]];
 
                 totalDiggingFee += defaulter.diggingFee;
 
@@ -64,23 +63,15 @@ contract ThirdPartyFacet {
             }
         }
 
-        (
-            uint256 cleanerBondReward,
-            uint256 embalmerBondReward
-        ) = _distributeLoot(
-                paymentAddress,
-                sarco,
-                totalDiggingFee
-            );
+        (uint256 cleanerBondReward, uint256 embalmerBondReward) = _distributeLoot(
+            paymentAddress,
+            sarco,
+            totalDiggingFee
+        );
 
         sarco.state = LibTypes.SarcophagusState.Cleaned;
 
-        emit CleanUpSarcophagus(
-            sarcoId,
-            msg.sender,
-            cleanerBondReward,
-            embalmerBondReward
-        );
+        emit CleanUpSarcophagus(sarcoId, msg.sender, cleanerBondReward, embalmerBondReward);
     }
 
     /**
@@ -113,22 +104,23 @@ contract ThirdPartyFacet {
         }
 
         // build an array of the addresses of the archaeologists currently being accused
-        address[] memory accusedArchAddresses = new address[](
-            unencryptedShardHashes.length
-        );
+        address[] memory accusedArchAddresses = new address[](unencryptedShardHashes.length);
 
         // track the combined locked bond across all archaeologists being accused in this call
         // locked bond will be equal to the amount of diggingFees allocated by the embalmer to pay the archaeologist
         uint256 totalDiggingFees = 0;
-        uint accusalCount = 0;
+        uint256 accusalCount = 0;
         for (uint256 i = 0; i < unencryptedShardHashes.length; i++) {
             // generate the double hash of the keyshare
             bytes32 shardDoubleHash = keccak256(abi.encode(unencryptedShardHashes[i]));
 
             // look up the archaeologist responsible for the keyshare
-            address accusedArchaeologistAddress = s.doubleHashedShardArchaeologists[shardDoubleHash];
-            LibTypes.ArchaeologistStorage storage badArch = s
-                .sarcophagusArchaeologists[sarcoId][accusedArchaeologistAddress];
+            address accusedArchaeologistAddress = s.doubleHashedShardArchaeologists[
+                shardDoubleHash
+            ];
+            LibTypes.ArchaeologistStorage storage badArch = s.sarcophagusArchaeologists[sarcoId][
+                accusedArchaeologistAddress
+            ];
 
             // if the archaeologist has already been accused on this sarcophagus break without taking action
             if (badArch.isAccused) {
@@ -161,7 +153,7 @@ contract ThirdPartyFacet {
 
         // if the current call hasn't resulted in at least k archaeologists being accused
         // check if total number of historical accusals on sarcophagus is greater than k
-        uint historicalAccusals = 0;
+        uint256 historicalAccusals = 0;
         if (!isSarcophagusCompromised) {
             for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
                 if (s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].isAccused) {
@@ -184,29 +176,20 @@ contract ThirdPartyFacet {
             for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
                 // if the archaeologist has never been accused, release their locked bond back to them
                 if (!s.sarcophagusArchaeologists[sarcoId][archaeologistAddresses[i]].isAccused) {
-                     LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
+                    LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
                 }
             }
         }
 
         // refund the diggingFees allocated by the embalmer to the accused archaeologists
         // split the total bond being slashed between the embalmer and the payment address
-        (
-            uint256 accuserBondReward,
-            uint256 embalmerBondReward
-        ) = _distributeLoot(
-                paymentAddress,
-                sarco,
-                totalDiggingFees
-            );
-
-
-        emit AccuseArchaeologist(
-            sarcoId,
-            msg.sender,
-            accuserBondReward,
-            embalmerBondReward
+        (uint256 accuserBondReward, uint256 embalmerBondReward) = _distributeLoot(
+            paymentAddress,
+            sarco,
+            totalDiggingFees
         );
+
+        emit AccuseArchaeologist(sarcoId, msg.sender, accuserBondReward, embalmerBondReward);
     }
 
     /**

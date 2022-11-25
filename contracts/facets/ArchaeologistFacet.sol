@@ -181,10 +181,7 @@ contract ArchaeologistFacet {
 
         // Confirm current time is after resurrectionTime
         if (block.timestamp < sarcophagus.resurrectionTime) {
-            revert LibErrors.TooEarlyToUnwrap(
-                sarcophagus.resurrectionTime,
-                block.timestamp
-            );
+            revert LibErrors.TooEarlyToUnwrap(sarcophagus.resurrectionTime, block.timestamp);
         }
 
         // Confirm current time is within gracePeriod
@@ -197,7 +194,9 @@ contract ArchaeologistFacet {
         }
 
         // Confirm tx sender is an archaeologist on the sarcophagus
-        LibTypes.CursedArchaeologist storage cursedArchaeologist = s.sarcophagi[sarcoId].cursedArchaeologists[msg.sender];
+        LibTypes.CursedArchaeologist storage cursedArchaeologist = s
+            .sarcophagi[sarcoId]
+            .cursedArchaeologists[msg.sender];
         if (!cursedArchaeologist.doubleHashedKeyShare) {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
         }

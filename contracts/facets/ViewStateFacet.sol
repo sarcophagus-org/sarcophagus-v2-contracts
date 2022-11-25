@@ -29,10 +29,9 @@ contract ViewStateFacet {
         view
         returns (LibTypes.ArchaeologistProfile[] memory)
     {
-        LibTypes.ArchaeologistProfile[]
-            memory profiles = new LibTypes.ArchaeologistProfile[](
-                addresses.length
-            );
+        LibTypes.ArchaeologistProfile[] memory profiles = new LibTypes.ArchaeologistProfile[](
+            addresses.length
+        );
 
         for (uint256 i = 0; i < addresses.length; i++) {
             // Check that the archaeologist profile exists
@@ -71,11 +70,7 @@ contract ViewStateFacet {
 
     /// @notice Return the list of registereed archaeologist addresses.
     /// @return addresses of registered archaeologists
-    function getArchaeologistProfileAddresses()
-        external
-        view
-        returns (address[] memory)
-    {
+    function getArchaeologistProfileAddresses() external view returns (address[] memory) {
         return s.archaeologistProfileAddresses;
     }
 
@@ -83,11 +78,7 @@ contract ViewStateFacet {
     /// archaeologist address at that index
     /// @param index The index of the registered archaeologist
     /// @return address of the archaeologist
-    function getArchaeologistProfileAddressAtIndex(uint256 index)
-        external
-        view
-        returns (address)
-    {
+    function getArchaeologistProfileAddressAtIndex(uint256 index) external view returns (address) {
         return s.archaeologistProfileAddresses[index];
     }
 
@@ -95,11 +86,7 @@ contract ViewStateFacet {
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose
     /// free bond is being returned
-    function getFreeBond(address archaeologist)
-        external
-        view
-        returns (uint256)
-    {
+    function getFreeBond(address archaeologist) external view returns (uint256) {
         return s.archaeologistProfiles[archaeologist].freeBond;
     }
 
@@ -115,32 +102,25 @@ contract ViewStateFacet {
     /// archaeologist.
     /// @param archaeologist The address of the archaeologist whose
     /// cursed bond is being returned
-    function getCursedBond(address archaeologist)
-        external
-        view
-        returns (uint256)
-    {
+    function getCursedBond(address archaeologist) external view returns (uint256) {
         return s.archaeologistProfiles[archaeologist].cursedBond;
     }
 
     /// @notice Returns whether an archaeologist completed an unwrap for a sarcophagus
     /// @param archaeologist The address of the archaeologist
     /// @param sarcoId the sarcophagus to check if unwrapping occured
-    function getArchaeologistSuccessOnSarcophagus(
-        address archaeologist,
-        bytes32 sarcoId
-    ) external view returns (bool) {
+    function getArchaeologistSuccessOnSarcophagus(address archaeologist, bytes32 sarcoId)
+        external
+        view
+        returns (bool)
+    {
         return s.archaeologistSarcoSuccesses[archaeologist][sarcoId];
     }
 
     /// @notice Returns the number of successful unwraps for an archaeologist.
     /// @param archaeologist The address of the archaeologist whose success
     //  count is being returned
-    function getArchaeologistSuccessesCount(address archaeologist)
-        external
-        view
-        returns (uint256)
-    {
+    function getArchaeologistSuccessesCount(address archaeologist) external view returns (uint256) {
         return s.archaeologistSuccesses[archaeologist].length;
     }
 
@@ -150,10 +130,7 @@ contract ViewStateFacet {
     /// @param index The index of the archaeologist's unwrapped sarcophagi
     /// @return the identifier associated with the index of the archaeologist's
     /// unwrapped sarcophagi
-    function archaeologistSuccessesIdentifier(
-        address archaeologist,
-        uint256 index
-    )
+    function archaeologistSuccessesIdentifier(address archaeologist, uint256 index)
         external
         view
         returns (bytes32)
@@ -164,11 +141,7 @@ contract ViewStateFacet {
     /// @notice Returns the number of accusations for an archaeologist.
     /// @param archaeologist The address of the archaeologist whose accusations
     /// count is being returned
-    function getArchaeologistAccusalsCount(address archaeologist)
-        external
-        view
-        returns (uint256)
-    {
+    function getArchaeologistAccusalsCount(address archaeologist) external view returns (uint256) {
         return s.archaeologistAccusals[archaeologist].length;
     }
 
@@ -178,10 +151,7 @@ contract ViewStateFacet {
     /// @param index The index of the archaeologist's accused sarcophagi
     /// @return the identifier associated with the index of the archaeologist's
     /// accused sarcophagi
-    function archaeologistAccusalsIdentifier(
-        address archaeologist,
-        uint256 index
-    )
+    function archaeologistAccusalsIdentifier(address archaeologist, uint256 index)
         external
         view
         returns (bytes32)
@@ -192,11 +162,7 @@ contract ViewStateFacet {
     /// @notice Returns the number of cleanups for an archaeologist.
     /// @param archaeologist The address of the archaeologist whose cleanups
     /// count is being returned
-    function getArchaeologistCleanupsCount(address archaeologist)
-        external
-        view
-        returns (uint256)
-    {
+    function getArchaeologistCleanupsCount(address archaeologist) external view returns (uint256) {
         return s.archaeologistCleanups[archaeologist].length;
     }
 
@@ -206,10 +172,7 @@ contract ViewStateFacet {
     /// @param index The index of the archaeologist's cleaned-up sarcophagi
     /// @return the identifier associated with the index of the archaeologist's
     /// cleaned-up sarcophagi
-    function archaeologistCleanupsIdentifier(
-        address archaeologist,
-        uint256 index
-    )
+    function archaeologistCleanupsIdentifier(address archaeologist, uint256 index)
         external
         view
         returns (bytes32)
@@ -227,9 +190,7 @@ contract ViewStateFacet {
         returns (LibTypes.ArchaeologistStatistics[] memory)
     {
         LibTypes.ArchaeologistStatistics[]
-        memory statsList = new LibTypes.ArchaeologistStatistics[](
-            addresses.length
-        );
+            memory statsList = new LibTypes.ArchaeologistStatistics[](addresses.length);
 
         for (uint256 i = 0; i < addresses.length; i++) {
             statsList[i] = LibTypes.ArchaeologistStatistics(
@@ -244,11 +205,7 @@ contract ViewStateFacet {
 
     /// @notice Returns a sarcophagus.
     /// @param sarcoId The identifier of the sarcophagus being returned
-    function getSarcophagus(bytes32 sarcoId)
-        external
-        view
-        returns (LibTypes.Sarcophagus memory)
-    {
+    function getSarcophagus(bytes32 sarcoId) external view returns (LibTypes.Sarcophagus memory) {
         LibTypes.Sarcophagus memory sarco = s.sarcophagi[sarcoId];
         if (sarco.state != LibTypes.SarcophagusState.Active) {
             return sarco;
@@ -257,8 +214,7 @@ contract ViewStateFacet {
         uint8 unwrapsCount = 0;
         for (uint8 i = 0; i < sarco.archaeologists.length; i++) {
             bytes memory shard = s
-            .sarcophagusArchaeologists[sarcoId][sarco.archaeologists[i]]
-                .unencryptedShard;
+            .sarcophagusArchaeologists[sarcoId][sarco.archaeologists[i]].unencryptedShard;
 
             if (shard.length != 0) {
                 unwrapsCount = unwrapsCount + 1;
@@ -285,11 +241,7 @@ contract ViewStateFacet {
     /// sarcophagi that the embalmer has created.
     /// @param embalmer The address of the embalmer whose sarcophagi are being
     /// returned
-    function getEmbalmerSarcophagi(address embalmer)
-        external
-        view
-        returns (bytes32[] memory)
-    {
+    function getEmbalmerSarcophagi(address embalmer) external view returns (bytes32[] memory) {
         return s.embalmerSarcophagi[embalmer];
     }
 
@@ -309,11 +261,7 @@ contract ViewStateFacet {
     /// sarcophagi that the recipient has participated in.
     /// @param recipient The address of the recipient whose sarcophagi are being
     /// returned
-    function getRecipientSarcophagi(address recipient)
-        external
-        view
-        returns (bytes32[] memory)
-    {
+    function getRecipientSarcophagi(address recipient) external view returns (bytes32[] memory) {
         return s.recipientSarcophagi[recipient];
     }
 

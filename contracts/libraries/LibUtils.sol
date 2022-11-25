@@ -25,13 +25,9 @@ library LibUtils {
      * @param doubleHash the hash to compare hash of singleHash to
      * @param singleHash the value to hash and compare against doubleHash
      */
-    function hashCheck(bytes32 doubleHash, bytes memory singleHash)
-        public
-        pure
-    {
+    function hashCheck(bytes32 doubleHash, bytes memory singleHash) public pure {
         require(doubleHash == keccak256(singleHash), "hashes do not match");
     }
-
 
     /**
      * @notice Reverts with `SarcophagusDoesNotExist` if the Sarcophagus does not exist,
@@ -41,10 +37,7 @@ library LibUtils {
     function revertIfNotExistOrInactive(bytes32 sarcoId) internal view {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        if (
-            s.sarcophagi[sarcoId].state ==
-            LibTypes.SarcophagusState.DoesNotExist
-        ) {
+        if (s.sarcophagi[sarcoId].state == LibTypes.SarcophagusState.DoesNotExist) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -82,7 +75,15 @@ library LibUtils {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval, diggingFee, timestamp))
+                keccak256(
+                    abi.encode(
+                        arweaveTxId,
+                        unencryptedShardDoubleHash,
+                        agreedMaximumRewrapInterval,
+                        diggingFee,
+                        timestamp
+                    )
+                )
             )
         );
 
@@ -110,10 +111,7 @@ library LibUtils {
     ) internal pure returns (address) {
         // Hash the hash of the data payload
         bytes32 messageHash = keccak256(
-            abi.encodePacked(
-                "\x19Ethereum Signed Message:\n32",
-                keccak256(abi.encode(data))
-            )
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(data)))
         );
 
         // Genearate the address from the signature.
@@ -143,20 +141,13 @@ library LibUtils {
     function unwrapTime(uint256 resurrectionTime) internal view {
         // revert if too early
         if (resurrectionTime > block.timestamp) {
-            revert LibErrors.TooEarlyToUnwrap(
-                resurrectionTime,
-                block.timestamp
-            );
+            revert LibErrors.TooEarlyToUnwrap(resurrectionTime, block.timestamp);
         }
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // revert if too late
         if (resurrectionTime + s.gracePeriod < block.timestamp) {
-            revert LibErrors.TooLateToUnwrap(
-                resurrectionTime,
-                s.gracePeriod,
-                block.timestamp
-            );
+            revert LibErrors.TooLateToUnwrap(resurrectionTime, s.gracePeriod, block.timestamp);
         }
     }
 
@@ -173,27 +164,18 @@ library LibUtils {
 
         // If the doubleHashedShard on an archaeologist is 0 (which is its default value),
         // then the archaeologist doesn't exist on the sarcophagus
-        return
-            s
-            .sarcophagusArchaeologists[sarcoId][archaeologist]
-                .unencryptedShardDoubleHash != 0;
+        return s.sarcophagusArchaeologists[sarcoId][archaeologist].unencryptedShardDoubleHash != 0;
     }
 
     /// @notice Checks if an archaeologist profile exists and
     /// reverts if so
     ///
     /// @param archaeologist the archaeologist address to check existence of
-    function revertIfArchProfileExists(address archaeologist)
-        internal
-        view
-    {
+    function revertIfArchProfileExists(address archaeologist) internal view {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         if (s.archaeologistProfiles[archaeologist].exists) {
-            revert LibErrors.ArchaeologistProfileExistsShouldBe(
-                false,
-                archaeologist
-            );
+            revert LibErrors.ArchaeologistProfileExistsShouldBe(false, archaeologist);
         }
     }
 
@@ -201,20 +183,13 @@ library LibUtils {
     /// reverts if so
     ///
     /// @param archaeologist the archaeologist address to check lack of existence of
-    function revertIfArchProfileDoesNotExist(address archaeologist)
-        internal
-        view
-    {
+    function revertIfArchProfileDoesNotExist(address archaeologist) internal view {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         if (!s.archaeologistProfiles[archaeologist].exists) {
-            revert LibErrors.ArchaeologistProfileExistsShouldBe(
-                true,
-                archaeologist
-            );
+            revert LibErrors.ArchaeologistProfileExistsShouldBe(true, archaeologist);
         }
     }
-
 
     /// @notice Calculates the protocol fees to be taken from the embalmer.
     /// @return The protocol fees amount

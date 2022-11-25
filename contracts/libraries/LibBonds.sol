@@ -45,9 +45,7 @@ library LibBonds {
     /// @param archaeologist The address of the archaeologist whose
     /// cursed bond is being decreased
     /// @param amount The amount to decrease the cursed bond by
-    function decreaseCursedBond(address archaeologist, uint256 amount)
-        internal
-    {
+    function decreaseCursedBond(address archaeologist, uint256 amount) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Revert if the amount is greater than the current cursed bond
@@ -67,9 +65,7 @@ library LibBonds {
     /// @param archaeologist The address of the archaeologist whose
     /// cursed bond is being decreased
     /// @param amount The amount to decrease the cursed bond by
-    function increaseCursedBond(address archaeologist, uint256 amount)
-        internal
-    {
+    function increaseCursedBond(address archaeologist, uint256 amount) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Increase the cursed bond amount
@@ -106,16 +102,15 @@ library LibBonds {
     /// up the free bond).
     /// @param sarcoId the identifier of the sarcophagus to bond the archaeologist with
     /// @param archaeologistAddress the address of the archaeologist to curse
-    function curseArchaeologist(bytes32 sarcoId, address archaeologistAddress)
-        internal
-    {
+    function curseArchaeologist(bytes32 sarcoId, address archaeologistAddress) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         LibTypes.CursedArchaeologist storage cursedArchaeologist = s
-        .sarcophagi[sarcoId].cursedArchaeologists[archaeologistAddress];
+            .sarcophagi[sarcoId]
+            .cursedArchaeologists[archaeologistAddress];
 
         // Lock up the archaeologist's bond by the cursed bond amount
-        lockUpBond(archaeologistAddress,  cursedArchaeologist.diggingFee);
+        lockUpBond(archaeologistAddress, cursedArchaeologist.diggingFee);
     }
 
     /// @notice Calculates an archaeologist's cursed bond and frees them
@@ -126,9 +121,10 @@ library LibBonds {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         LibTypes.CursedArchaeologist storage cursedArchaeologist = s
-            .sarcophagi[sarcoId].cursedArchaeologists[archaeologistAddress];
+            .sarcophagi[sarcoId]
+            .cursedArchaeologists[archaeologistAddress];
 
         // Free up the archaeologist's locked bond
-        unlockBond(archaeologistAddress,  cursedArchaeologist.diggingFee);
+        unlockBond(archaeologistAddress, cursedArchaeologist.diggingFee);
     }
 }
