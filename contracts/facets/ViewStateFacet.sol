@@ -114,7 +114,7 @@ contract ViewStateFacet {
         view
         returns (bool)
     {
-        return s.archaeologistSarcoSuccesses[archaeologist][sarcoId];
+        return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist].rawKeyShare.length > 0;
     }
 
     /// @notice Returns the number of successful unwraps for an archaeologist.
@@ -180,6 +180,15 @@ contract ViewStateFacet {
         return s.archaeologistCleanups[archaeologist][index];
     }
 
+    // Only used in the ViewStateFacet to return statistics data.
+    // Contains a list of sarcoIds for each category. We could simply return the counts of the
+    // arrays but we are already storing the lists of sarcoIds so we may as well use them.
+    struct ArchaeologistStatistics {
+        uint256 successes;
+        uint256 accusals;
+        uint256 cleanups;
+    }
+
     /// @notice Gets all reputation statistics for each archaeologist
     /// Contains a list of counts for each category.
     /// @param addresses The list of archaeologist addresses
@@ -187,13 +196,13 @@ contract ViewStateFacet {
     function getArchaeologistsStatistics(address[] memory addresses)
         external
         view
-        returns (LibTypes.ArchaeologistStatistics[] memory)
+        returns (ArchaeologistStatistics[] memory)
     {
-        LibTypes.ArchaeologistStatistics[]
-            memory statsList = new LibTypes.ArchaeologistStatistics[](addresses.length);
+        ArchaeologistStatistics[]
+            memory statsList = new ArchaeologistStatistics[](addresses.length);
 
         for (uint256 i = 0; i < addresses.length; i++) {
-            statsList[i] = LibTypes.ArchaeologistStatistics(
+            statsList[i] = ArchaeologistStatistics(
                 this.getArchaeologistSuccessesCount(addresses[i]),
                 this.getArchaeologistAccusalsCount(addresses[i]),
                 this.getArchaeologistCleanupsCount(addresses[i])
@@ -203,38 +212,54 @@ contract ViewStateFacet {
         return statsList;
     }
 
-    /// @notice Returns a sarcophagus.
+    struct SarcophagusResponse {
+        uint256 resurrectionTime;
+        bool isCompromised;
+        string name;
+        uint8 threshold;
+        uint256 maximumRewrapInterval;
+        string[2] arweaveTxIds;
+        address embalmerAddress;
+        address recipientAddress;
+        address[] archaeologistAddresses;
+        uint8 publishedKeyShareCount;
+        bool hasLockedBond;
+
+    }
+
+    /// @notice Returns data on the sarcophagus with the supplied id
+    /// includes aggregate data on cursed archaeologists associated with the sarcophagus
+    ///     - publishedKeyShareCount - the total number of keyshares published by archaeologists on the sarcophagus
+    ///     - hasLockedBond - true if archaeologists still have bond locked in the contract for this sarcophagus
     /// @param sarcoId The identifier of the sarcophagus being returned
-    function getSarcophagus(bytes32 sarcoId) external view returns (LibTypes.Sarcophagus memory) {
-        LibTypes.Sarcophagus memory sarco = s.sarcophagi[sarcoId];
-        if (sarco.state != LibTypes.SarcophagusState.Active) {
-            return sarco;
-        }
+    function getSarcophagus(bytes32 sarcoId) external view returns (SarcophagusResponse memory) {
+        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
-        uint8 unwrapsCount = 0;
-        for (uint8 i = 0; i < sarco.archaeologists.length; i++) {
-            bytes memory shard = s
-            .sarcophagusArchaeologists[sarcoId][sarco.archaeologists[i]].unencryptedShard;
-
-            if (shard.length != 0) {
-                unwrapsCount = unwrapsCount + 1;
-                sarco.state = LibTypes.SarcophagusState.Resurrecting;
-            }
-
-            if (unwrapsCount == sarco.minShards) {
-                sarco.state = LibTypes.SarcophagusState.Resurrected;
-                break;
+        uint8 publishedKeyShareCount = 0;
+        bool hasLockedBond = false;
+        for (uint256 i = 0; i < sarcophagus.archaeologistAddresses.length; i++) {
+            // archaeologist has published a keyshare
+            if (sarcophagus.cursedArchaeologists[sarcophagus.archaeologistAddresses[i]].rawKeyShare.length > 0) {
+                publishedKeyShareCount++;
+            } else if (!sarcophagus.cursedArchaeologists[sarcophagus.archaeologistAddresses[i]].isAccused) {
+                // if archaeologist hasn't published a key share and is not accused, they still have locked bond
+                hasLockedBond = true;
             }
         }
 
-        if (
-            unwrapsCount < sarco.minShards &&
-            block.timestamp > sarco.resurrectionTime + s.gracePeriod
-        ) {
-            sarco.state = LibTypes.SarcophagusState.Failed;
-        }
-
-        return sarco;
+        return SarcophagusResponse({
+            resurrectionTime: sarcophagus.resurrectionTime,
+            isCompromised: sarcophagus.isCompromised,
+            name: sarcophagus.name,
+            threshold: sarcophagus.threshold,
+            maximumRewrapInterval: sarcophagus.maximumRewrapInterval,
+            arweaveTxIds: sarcophagus.arweaveTxIds,
+            embalmerAddress: sarcophagus.embalmerAddress,
+            recipientAddress: sarcophagus.recipientAddress,
+            archaeologistAddresses: sarcophagus.archaeologistAddresses,
+            publishedKeyShareCount:publishedKeyShareCount,
+            hasLockedBond: hasLockedBond
+        });
     }
 
     /// @notice Given an embalmer's address, returns the identifiers of all

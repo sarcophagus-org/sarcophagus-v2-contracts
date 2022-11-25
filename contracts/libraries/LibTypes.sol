@@ -16,7 +16,7 @@ library LibTypes {
         string[2] arweaveTxIds;
         address embalmerAddress;
         address recipientAddress;
-        address[] archaeologistAddresses;
+        address[] archaeologistAddresses; // todo: rename to cursedArchaeologistAddresses
         mapping(address => CursedArchaeologist) cursedArchaeologists;
     }
 
@@ -35,14 +35,5 @@ library LibTypes {
         uint256 maximumRewrapInterval;
         uint256 freeBond;
         uint256 cursedBond;
-    }
-
-    // Only used in the ViewStateFacet to return statistics data.
-    // Contains a list of sarcoIds for each category. We could simply return the counts of the
-    // arrays but we are already storing the lists of sarcoIds so we may as well use them.
-    struct ArchaeologistStatistics {
-        uint256 successes;
-        uint256 accusals;
-        uint256 cleanups;
     }
 }

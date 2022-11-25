@@ -13,7 +13,7 @@ library LibErrors {
 
     error ArchaeologistAlreadyUnwrapped(address archaeologist);
 
-    error ArchaeologistListNotUnique(address[] archaeologists);
+    error ArchaeologistListNotUnique(address archaeologistAddress);
 
     error ArchaeologistNotOnSarcophagus(address archaeologist);
 

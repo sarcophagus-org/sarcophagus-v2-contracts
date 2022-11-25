@@ -221,7 +221,7 @@ contract ThirdPartyFacet {
 
         // transfer the cursed half, plus digging fee to the
         // embalmer
-        s.sarcoToken.transfer(sarc.embalmer, totalDiggingFee + halfToEmbalmer);
+        s.sarcoToken.transfer(sarc.embalmerAddress, totalDiggingFee + halfToEmbalmer);
 
         // transfer the other half of the cursed bond to the transaction caller
         s.sarcoToken.transfer(paymentAddress, halfToSender);
