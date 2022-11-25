@@ -165,7 +165,7 @@ contract ArchaeologistFacet {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm sarcophagus exists
-        if (!sarcophagus.embalmerAddress) {
+        if (sarcophagus.resurrectionTime == 0) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
@@ -197,7 +197,7 @@ contract ArchaeologistFacet {
         LibTypes.CursedArchaeologist storage cursedArchaeologist = s
             .sarcophagi[sarcoId]
             .cursedArchaeologists[msg.sender];
-        if (!cursedArchaeologist.doubleHashedKeyShare) {
+        if (cursedArchaeologist.doubleHashedKeyShare.length == 0) {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
         }
 

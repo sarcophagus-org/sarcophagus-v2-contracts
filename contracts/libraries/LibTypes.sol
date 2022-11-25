@@ -6,15 +6,15 @@ pragma solidity ^0.8.13;
  */
 library LibTypes {
     struct Sarcophagus {
-        // never empty - use for existence checks
-        address embalmerAddress;
-        // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists
+        // never zero - use for existence checks
+        uint256 resurrectionTime;
+        // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused
         bool isCompromised;
         string name;
         uint8 threshold;
-        uint256 resurrectionTime;
         uint256 maximumRewrapInterval;
         string[2] arweaveTxIds;
+        address embalmerAddress;
         address recipientAddress;
         address[] archaeologistAddresses;
         mapping(address => CursedArchaeologist) cursedArchaeologists;
@@ -22,7 +22,7 @@ library LibTypes {
 
     struct CursedArchaeologist {
         // never empty - use for existence checks
-        bytes32 doubleHashedKeyShare;
+        bytes32 doubleHashedKeyShare; // todo: we shouldn't need this and the doublehash->arch mapping
         bool isAccused;
         uint256 diggingFee;
         bytes rawKeyShare;
