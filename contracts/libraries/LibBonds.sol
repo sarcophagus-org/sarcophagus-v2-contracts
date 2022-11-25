@@ -105,40 +105,30 @@ library LibBonds {
     /// @notice Calculates an archaeologist's cursed bond and curses them (locks
     /// up the free bond).
     /// @param sarcoId the identifier of the sarcophagus to bond the archaeologist with
-    /// @param archaeologist the address of the archaeologist to curse
-    function curseArchaeologist(bytes32 sarcoId, address archaeologist)
+    /// @param archaeologistAddress the address of the archaeologist to curse
+    function curseArchaeologist(bytes32 sarcoId, address archaeologistAddress)
         internal
     {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // Get the archaeologist's data from storage
-        LibTypes.ArchaeologistStorage memory archaeologistData = s
-            .sarcophagusArchaeologists[sarcoId][archaeologist];
-
-        // Calculate the amount of cursed bond the archaeologists needs to lock up
-        uint256 cursedBondAmount = archaeologistData.diggingFee;
+        LibTypes.CursedArchaeologist storage cursedArchaeologist = s
+        .sarcophagi[sarcoId].cursedArchaeologists[archaeologistAddress];
 
         // Lock up the archaeologist's bond by the cursed bond amount
-        lockUpBond(archaeologist, cursedBondAmount);
+        lockUpBond(archaeologistAddress,  cursedArchaeologist.diggingFee);
     }
 
     /// @notice Calculates an archaeologist's cursed bond and frees them
     /// (unlocks the cursed bond).
-    /// @param sarcoId the identifier of the sarcophagus to free the archaologist from
-    /// @param archaeologist the address of the archaeologist to free
-    function freeArchaeologist(bytes32 sarcoId, address archaeologist)
-        internal
-    {
+    /// @param sarcoId the identifier of the sarcophagus to free the archaeologist from
+    /// @param archaeologistAddress the address of the archaeologist to free
+    function freeArchaeologist(bytes32 sarcoId, address archaeologistAddress) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // Get the archaeologist's data from storage
-        LibTypes.ArchaeologistStorage memory archaeologistData = s
-            .sarcophagusArchaeologists[sarcoId][archaeologist];
-
-        // Calculate the amount of cursed bond the archaeologists needs to lock up
-        uint256 cursedBondAmount = archaeologistData.diggingFee;
+        LibTypes.CursedArchaeologist storage cursedArchaeologist = s
+            .sarcophagi[sarcoId].cursedArchaeologists[archaeologistAddress];
 
         // Free up the archaeologist's locked bond
-        unlockBond(archaeologist, cursedBondAmount);
+        unlockBond(archaeologistAddress,  cursedArchaeologist.diggingFee);
     }
 }
