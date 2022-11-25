@@ -32,16 +32,6 @@ library LibUtils {
         require(doubleHash == keccak256(singleHash), "hashes do not match");
     }
 
-    function archaeologistUnwrappedCheck(bytes32 sarcoId, address archaeologist)
-        internal
-        view
-    {
-        if (
-            getArchaeologist(sarcoId, archaeologist).unencryptedShard.length > 0
-        ) {
-            revert LibErrors.ArchaeologistAlreadyUnwrapped(archaeologist);
-        }
-    }
 
     /**
      * @notice Reverts with `SarcophagusDoesNotExist` if the Sarcophagus does not exist,
@@ -225,20 +215,6 @@ library LibUtils {
         }
     }
 
-    /// @notice Gets an archaeologist given the sarcophagus identifier and the
-    /// archaeologist's address.
-    /// @param sarcoId the identifier of the sarcophagus
-    /// @param archaeologist the address of the archaeologist
-    /// @return The archaeologist
-    function getArchaeologist(bytes32 sarcoId, address archaeologist)
-        internal
-        view
-        returns (LibTypes.ArchaeologistStorage memory)
-    {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        return s.sarcophagusArchaeologists[sarcoId][archaeologist];
-    }
 
     /// @notice Calculates the protocol fees to be taken from the embalmer.
     /// @return The protocol fees amount
