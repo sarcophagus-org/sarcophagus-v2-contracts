@@ -9,6 +9,8 @@ library LibTypes {
     struct Sarcophagus {
         // never empty - use for existence checks
         address embalmerAddress;
+        // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists
+        bool isCompromised;
         string name;
         uint8 threshold;
         uint256 resurrectionTime;
