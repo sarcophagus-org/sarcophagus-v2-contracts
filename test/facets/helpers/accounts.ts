@@ -1,5 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ethers, getNamedAccounts, getUnnamedAccounts } from "hardhat";
+
+const { ethers, getNamedAccounts, getUnnamedAccounts } = require("hardhat");
 
 /**
  * Returns a signer for an account that has never been used

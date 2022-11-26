@@ -1,4 +1,3 @@
-import { ethers } from "hardhat";
 import time from "../../utils/time";
 import { getFreshAccount } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
@@ -10,6 +9,8 @@ import {
 } from "./archaeologist";
 import { getContracts } from "./contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
+const { ethers } = require("hardhat");
 
 /**
  * Creates a sarcophagus with the supplied parameters

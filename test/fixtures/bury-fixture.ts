@@ -32,7 +32,9 @@ export const buryFixture = async (
 
   // Get the sarco balance of the regular archaeologist before bury
   const regularArchaeologist = archaeologists[1];
-  const regularArchaeologistBalance = await sarcoToken.balanceOf(archaeologists[1].archAddress);
+  const regularArchaeologistBalance = await sarcoToken.balanceOf(
+    archaeologists[1].archAddress
+  );
 
   // Get the regular archaeologist's free bond before bury
   const regularArchaeologistFreeBondBefore = await viewStateFacet.getFreeBond(
@@ -40,11 +42,12 @@ export const buryFixture = async (
   );
 
   // Get the regular archaeologist's cursed bond before bury
-  const regularArchaeologistCursedBondBefore = await viewStateFacet.getCursedBond(
-    regularArchaeologist.archAddress
-  );
+  const regularArchaeologistCursedBondBefore =
+    await viewStateFacet.getCursedBond(regularArchaeologist.archAddress);
 
-  const embalmerBalanceBeforeBury = await sarcoToken.balanceOf(embalmer.address);
+  const embalmerBalanceBeforeBury = await sarcoToken.balanceOf(
+    embalmer.address
+  );
 
   let tx: Promise<ContractTransaction> | undefined;
   if (config.skipBury !== true) {

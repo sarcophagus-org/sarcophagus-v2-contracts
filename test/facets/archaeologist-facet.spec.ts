@@ -5,11 +5,7 @@ import { hexlify } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import { archeologistsFixture } from "../fixtures/archaeologists-fixture";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
-import {
-  registerArchaeologist,
-  sign,
-  updateArchaeologist,
-} from "../utils/helpers";
+import { registerArchaeologist, updateArchaeologist } from "../utils/helpers";
 import time from "../utils/time";
 
 describe("Contract: ArchaeologistFacet", () => {

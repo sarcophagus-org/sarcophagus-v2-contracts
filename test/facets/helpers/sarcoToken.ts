@@ -1,7 +1,8 @@
-import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { getContracts } from "./contracts";
 import { BigNumber } from "ethers";
+
+const { ethers } = require("hardhat");
 
 /**
  * Transfers the supplied amount of whole SARCO to the supplied account
@@ -10,7 +11,7 @@ import { BigNumber } from "ethers";
 export const fundAndApproveAccount = async (
   account: SignerWithAddress,
   amountSarco: number
-) => {
+): Promise<void> => {
   const { sarcoToken, diamond } = await getContracts();
   // convert qty to number of quintillionths of a SARCO
   const sarquitos = ethers.utils.parseEther(amountSarco.toString());

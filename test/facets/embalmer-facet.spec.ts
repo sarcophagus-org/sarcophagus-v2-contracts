@@ -2,7 +2,6 @@ import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
-import { SarcophagusState } from "../types";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { buryFixture } from "../fixtures/bury-fixture";
 import { rewrapFixture } from "../fixtures/rewrap-fixture";

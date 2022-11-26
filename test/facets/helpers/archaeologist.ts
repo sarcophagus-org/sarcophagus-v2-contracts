@@ -1,10 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ethers } from "hardhat";
 import { sign } from "../../utils/helpers";
 import { getFreshAccount } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
 import { getContracts } from "./contracts";
 import { doubleHashShare } from "./shamirSecretSharing";
+
+const { ethers } = require("hardhat");
 
 export interface ArchaeologistParameters {
   minDiggingFeeSarco: number;

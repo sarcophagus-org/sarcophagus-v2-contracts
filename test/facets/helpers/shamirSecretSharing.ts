@@ -1,7 +1,7 @@
 import { Bytes } from "ethers";
-import { ethers } from "hardhat";
 import { BytesLike } from "ethers/lib/utils";
 
+const { ethers } = require("hardhat");
 const crypto = require("crypto");
 const sss = require("shamirs-secret-sharing");
 
@@ -24,7 +24,10 @@ export const doubleHashShare = (share: Bytes): string => {
  * Splits the key into a set of n shares where a threshold of k is required to recover the original key
  * returns the array of shares and the original key as a hex string
  * */
-export const generateKeyshares = (k: number, n: number) => {
+export const generateKeyshares = (
+  k: number,
+  n: number
+): { shares: Buffer[]; key: string } => {
   const secret = crypto.randomBytes(64);
   const shares: Buffer[] = sss.split(secret, { shares: n, threshold: k });
   return {
