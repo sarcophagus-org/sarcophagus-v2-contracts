@@ -162,8 +162,8 @@ contract EmbalmerFacet {
 
             totalDiggingFees += selectedArchaeologists[i].diggingFee;
 
-            // Move free bond to cursed bond on archaeologist
-            LibBonds.curseArchaeologist(sarcoId, selectedArchaeologists[i].archAddress);
+            // Lock the archaeologist's free bond
+            LibBonds.lockUpBond(selectedArchaeologists[i].archAddress, selectedArchaeologists[i].diggingFee);
 
             // save the cursedArchaeologist and cursedArchaeologistAddress to be stored on the new sarcophagus
             sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress] = LibTypes
@@ -173,6 +173,8 @@ contract EmbalmerFacet {
                     doubleHashedKeyShare: selectedArchaeologists[i].doubleHashedKeyShare,
                     rawKeyShare: ""
                 });
+
+
             sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
             // update archaeologist-specific convenience lookup structures
