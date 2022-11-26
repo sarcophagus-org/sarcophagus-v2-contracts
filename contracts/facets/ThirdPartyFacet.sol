@@ -80,9 +80,7 @@ contract ThirdPartyFacet {
      * split between the embalmer and the supplied payment address and digging fees allocated for those archaeologists will be refunded to the embalmer
      *
      * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus state will be updated to Accused
-     * and bonds for all remaining archaeologists will be freed
-     *
-     * Should not be called on a buried or compromised sarcophagus.
+     * and bonds for all remaining unaccused archaeologists will be returned
      *
      * @param sarcoId The identifier of the sarcophagus having leaked shares
      * @param keyShareHashes hashes of the leaked key shares

@@ -10,8 +10,8 @@ export interface TestArchaeologist {
   archAddress: string;
   signer: SignerWithAddress;
   diggingFee: BigNumber;
-  unencryptedShardDoubleHash: string;
-  unencryptedShard: BytesLike;
+  doubleHashedKeyShare: string;
+  rawKeyShare: BytesLike;
   v: BigNumberish;
   r: string;
   s: string;
@@ -73,8 +73,8 @@ export async function spawnArchaologistsWithSignatures(
 
     archs.push({
       archAddress: acc.address,
-      unencryptedShardDoubleHash: shardDoubleHash,
-      unencryptedShard: shards[shardI],
+      doubleHashedKeyShare: shardDoubleHash,
+      rawKeyShare: shards[shardI],
       signer: acc,
       diggingFee: archMinDiggingFee,
       v: signature.v,
@@ -86,7 +86,9 @@ export async function spawnArchaologistsWithSignatures(
     // bond, and approve spending
     await sarcoToken.transfer(acc.address, ethers.utils.parseEther("10000"));
 
-    await sarcoToken.connect(acc).approve(diamondAddress, ethers.constants.MaxUint256);
+    await sarcoToken
+      .connect(acc)
+      .approve(diamondAddress, ethers.constants.MaxUint256);
 
     // Deposit 5000 tokens for each archaeologist so they're ready to be bonded
     await archaeologistFacet

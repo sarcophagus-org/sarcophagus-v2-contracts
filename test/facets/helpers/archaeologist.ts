@@ -64,8 +64,8 @@ export interface SarcophagusNegotiationParams {
 
 export interface ArchaeologistData {
   archAddress: string;
-  share: Buffer;
-  unencryptedShardDoubleHash: string;
+  rawKeyShare: Buffer;
+  doubleHashedKeyShare: string;
   diggingFee: string;
   v: number;
   r: string;
@@ -103,8 +103,8 @@ export const generateArchSignature = async (
   return {
     archAddress: archaeologistSigner.address,
     diggingFee: sarcophagusDiggingFeeSarquitos,
-    share: sarcophagusParams.share,
-    unencryptedShardDoubleHash: doubleHashedShare,
+    rawKeyShare: sarcophagusParams.share,
+    doubleHashedKeyShare: doubleHashedShare,
     v,
     r,
     s,

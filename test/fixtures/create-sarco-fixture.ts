@@ -9,7 +9,10 @@ import {
   ViewStateFacet,
 } from "../../typechain";
 import time from "../utils/time";
-import { spawnArchaologistsWithSignatures, TestArchaeologist } from "./spawn-archaeologists";
+import {
+  spawnArchaologistsWithSignatures,
+  TestArchaeologist,
+} from "./spawn-archaeologists";
 
 const sss = require("shamirs-secret-sharing");
 
@@ -35,7 +38,7 @@ export const createSarcoFixture = (
     skipCreateTx?: boolean;
     skipAwaitCreateTx?: boolean;
     addUnbondedArchs?: number;
-    arweaveTxIds?: string[];
+    arweaveTxIds?: [string, string];
     archMinDiggingFee?: BigNumber;
   },
   sarcoName = "test init",
@@ -61,16 +64,33 @@ export const createSarcoFixture = (
         "EmbalmerFacet",
         diamond.address
       )) as EmbalmerFacet;
-      const archaeologistFacet = await ethers.getContractAt("ArchaeologistFacet", diamond.address);
-      const thirdPartyFacet = await ethers.getContractAt("ThirdPartyFacet", diamond.address);
-      const viewStateFacet = await ethers.getContractAt("ViewStateFacet", diamond.address);
-      const adminFacet = await ethers.getContractAt("AdminFacet", diamond.address);
+      const archaeologistFacet = await ethers.getContractAt(
+        "ArchaeologistFacet",
+        diamond.address
+      );
+      const thirdPartyFacet = await ethers.getContractAt(
+        "ThirdPartyFacet",
+        diamond.address
+      );
+      const viewStateFacet = await ethers.getContractAt(
+        "ViewStateFacet",
+        diamond.address
+      );
+      const adminFacet = await ethers.getContractAt(
+        "AdminFacet",
+        diamond.address
+      );
 
       // Transfer 100,000 sarco tokens to the embalmer
-      await sarcoToken.transfer(embalmer.address, ethers.utils.parseEther("100000"));
+      await sarcoToken.transfer(
+        embalmer.address,
+        ethers.utils.parseEther("100000")
+      );
 
       // Approve the embalmer on the sarco token
-      await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
+      await sarcoToken
+        .connect(embalmer)
+        .approve(diamond.address, ethers.constants.MaxUint256);
 
       // Set up the data for the sarcophagus
       // 64-byte key:
@@ -83,18 +103,22 @@ export const createSarcoFixture = (
       // TODO -- need to determine how sarco name will be genned, b/c it needs to be unique
       // we could add a random salt to this
       const sarcoId = ethers.utils.solidityKeccak256(["string"], [sarcoName]);
-      const arweaveTxIds = config.arweaveTxIds || ["FilePayloadTxId", "EncryptedShardTxId"];
+      const arweaveTxIds: [string, string] = config.arweaveTxIds || [
+        "FilePayloadTxId",
+        "EncryptedShardTxId",
+      ];
       const timestamp = await time.latest();
-      const [archaeologists, signatures] = await spawnArchaologistsWithSignatures(
-        shards,
-        arweaveTxIds[1] || "fakeArweaveTxId",
-        archaeologistFacet as ArchaeologistFacet,
-        (sarcoToken as IERC20).connect(deployer),
-        diamond.address,
-        maxRewrapInterval,
-        timestamp,
-        config.archMinDiggingFee
-      );
+      const [archaeologists, signatures] =
+        await spawnArchaologistsWithSignatures(
+          shards,
+          arweaveTxIds[1] || "fakeArweaveTxId",
+          archaeologistFacet as ArchaeologistFacet,
+          (sarcoToken as IERC20).connect(deployer),
+          diamond.address,
+          maxRewrapInterval,
+          timestamp,
+          config.archMinDiggingFee
+        );
 
       const unbondedArchaeologists: TestArchaeologist[] = [];
 
@@ -110,8 +134,8 @@ export const createSarcoFixture = (
 
           unbondedArchaeologists.push({
             archAddress: acc.address,
-            unencryptedShardDoubleHash: "",
-            unencryptedShard: [],
+            doubleHashedKeyShare: "",
+            rawKeyShare: [],
             signer: acc,
             diggingFee: ethers.utils.parseEther("10"),
             v: BigNumber.from(0),
@@ -125,7 +149,9 @@ export const createSarcoFixture = (
             .connect(deployer)
             .transfer(acc.address, ethers.utils.parseEther("10000"));
 
-          await sarcoToken.connect(acc).approve(diamond.address, ethers.constants.MaxUint256);
+          await sarcoToken
+            .connect(acc)
+            .approve(diamond.address, ethers.constants.MaxUint256);
 
           await archaeologistFacet
             .connect(acc)
@@ -140,7 +166,9 @@ export const createSarcoFixture = (
 
       const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
-      const embalmerBalanceBeforeCreate = await sarcoToken.balanceOf(embalmer.address);
+      const embalmerBalanceBeforeCreate = await sarcoToken.balanceOf(
+        embalmer.address
+      );
 
       // Create a sarcophagus as the embalmer
       let createTx: Promise<ContractTransaction> | undefined;
@@ -149,11 +177,11 @@ export const createSarcoFixture = (
           sarcoId,
           {
             name: sarcoName,
-            recipient: recipient.address,
+            recipientAddress: recipient.address,
             resurrectionTime,
             maximumRewrapInterval: maxRewrapInterval,
-            minShards: config.threshold,
-            timestamp,
+            threshold: config.threshold,
+            creationTime: timestamp,
           },
           archaeologists,
           arweaveTxIds

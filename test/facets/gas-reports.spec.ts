@@ -116,9 +116,17 @@ describe.skip("Gas Reports: Third party functions", () => {
 /// //////////////////////////////////////////
 /// // HELPERS                              //
 /// //////////////////////////////////////////
-async function _runGeneralGasReports(arg: { shares: number; threshold: number }) {
-  const { sarcoId, archaeologists, archaeologistFacet, embalmer, embalmerFacet } =
-    await _runCreateSarcoTest(arg);
+async function _runGeneralGasReports(arg: {
+  shares: number;
+  threshold: number;
+}) {
+  const {
+    sarcoId,
+    archaeologists,
+    archaeologistFacet,
+    embalmer,
+    embalmerFacet,
+  } = await _runCreateSarcoTest(arg);
   await _runRewrapTest(sarcoId, embalmer, embalmerFacet);
   await _runUnwwrapTest(sarcoId, archaeologists, archaeologistFacet);
 }
@@ -135,17 +143,23 @@ async function _runCleanGasReports(arg: { shares: number; threshold: number }) {
   await thirdPartyFacet.connect(thirdParty).clean(sarcoId, thirdParty.address);
 }
 
-async function _runAccuseGasReports(arg: { shares: number; threshold: number }) {
-  const { sarcoId, archaeologists, thirdPartyFacet } = await _runCreateSarcoTest({
-    shares: arg.shares,
-    threshold: arg.threshold,
-  });
+async function _runAccuseGasReports(arg: {
+  shares: number;
+  threshold: number;
+}) {
+  const { sarcoId, archaeologists, thirdPartyFacet } =
+    await _runCreateSarcoTest({
+      shares: arg.shares,
+      threshold: arg.threshold,
+    });
 
   const thirdParty = (await ethers.getUnnamedSigners())[0];
 
   await thirdPartyFacet.connect(thirdParty).accuse(
     sarcoId,
-    archaeologists.map(arch => ethers.utils.solidityKeccak256(["bytes"], [arch.unencryptedShard])),
+    archaeologists.map((arch) =>
+      ethers.utils.solidityKeccak256(["bytes"], [arch.rawKeyShare])
+    ),
     thirdParty.address
   );
 }
@@ -166,8 +180,8 @@ async function _runCreateSarcoTest(arg: { shares: number; threshold: number }) {
   expect(shards[0].length).to.eq(shards[1].length).to.eq(146);
 
   // check hashed shard lengths
-  expect(archaeologists[0].unencryptedShardDoubleHash.length)
-    .to.eq(archaeologists[0].unencryptedShardDoubleHash.length)
+  expect(archaeologists[0].doubleHashedKeyShare.length)
+    .to.eq(archaeologists[0].doubleHashedKeyShare.length)
     .to.eq(66);
 
   return {
@@ -188,7 +202,9 @@ async function _runRewrapTest(
   // Define a new resurrection time one week in the future
   const newResurrectionTime = (await time.latest()) + time.duration.weeks(1);
 
-  await embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, newResurrectionTime);
+  await embalmerFacet
+    .connect(embalmer)
+    .rewrapSarcophagus(sarcoId, newResurrectionTime);
 }
 
 async function _runUnwwrapTest(
@@ -199,6 +215,8 @@ async function _runUnwwrapTest(
   await time.increase(time.duration.weeks(1));
 
   for await (const arch of archaeologists) {
-    await archaeologistFacet.connect(arch.signer).unwrapSarcophagus(sarcoId, arch.unencryptedShard);
+    await archaeologistFacet
+      .connect(arch.signer)
+      .unwrapSarcophagus(sarcoId, arch.rawKeyShare);
   }
 }
