@@ -197,12 +197,12 @@ contract ArchaeologistFacet {
         LibTypes.CursedArchaeologist storage cursedArchaeologist = s
             .sarcophagi[sarcoId]
             .cursedArchaeologists[msg.sender];
-        if (cursedArchaeologist.doubleHashedKeyShare.length == 0) {
+        if (cursedArchaeologist.doubleHashedKeyShare == 0) {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
         }
 
         // Confirm archaeologist has not already published key share
-        if (cursedArchaeologist.rawKeyShare.length > 0) {
+        if (cursedArchaeologist.rawKeyShare.length != 0) {
             revert LibErrors.ArchaeologistAlreadyUnwrapped(msg.sender);
         }
 

@@ -131,7 +131,7 @@ contract ThirdPartyFacet {
             LibTypes.CursedArchaeologist storage accusedArchaeologist = sarcophagus.cursedArchaeologists[accusedArchaeologistAddress];
 
             // verify the accused archaeologist is cursed on the sarcophagus
-            if (accusedArchaeologist.doubleHashedKeyShare.length == 0) {
+            if (accusedArchaeologist.doubleHashedKeyShare == 0) {
                 revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
             }
 

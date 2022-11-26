@@ -142,10 +142,7 @@ contract EmbalmerFacet {
             // Confirm archaeologist isn't already cursed on sarcophagus
             // todo: may be unnecessary, is cursing an archaeologist twice harming anybody but the caller?
             if (
-                sarcophagus
-                    .cursedArchaeologists[selectedArchaeologists[i].archAddress]
-                    .doubleHashedKeyShare
-                    .length > 0
+                sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress].doubleHashedKeyShare != 0
             ) {
                 revert LibErrors.ArchaeologistListNotUnique(selectedArchaeologists[i].archAddress);
             }

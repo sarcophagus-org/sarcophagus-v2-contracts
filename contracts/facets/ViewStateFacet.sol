@@ -114,7 +114,7 @@ contract ViewStateFacet {
         view
         returns (bool)
     {
-        return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist].rawKeyShare.length > 0;
+        return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist].rawKeyShare.length != 0;
     }
 
     /// @notice Returns the number of successful unwraps for an archaeologist.
@@ -239,7 +239,7 @@ contract ViewStateFacet {
         bool hasLockedBond = false;
         for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
             // archaeologist has published a keyshare
-            if (sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].rawKeyShare.length > 0) {
+            if (sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].rawKeyShare.length != 0) {
                 publishedKeyShareCount++;
             } else if (!sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].isAccused) {
                 // if archaeologist hasn't published a key share and is not accused, they still have locked bond
