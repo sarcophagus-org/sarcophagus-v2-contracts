@@ -16,7 +16,7 @@ library LibTypes {
         string[2] arweaveTxIds;
         address embalmerAddress;
         address recipientAddress;
-        address[] archaeologistAddresses; // todo: rename to cursedArchaeologistAddresses
+        address[] cursedArchaeologistAddresses;
         mapping(address => CursedArchaeologist) cursedArchaeologists;
     }
 

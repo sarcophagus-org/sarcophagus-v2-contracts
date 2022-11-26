@@ -166,8 +166,8 @@ contract ThirdPartyFacet {
             // if the current call hasn't resulted in at least sss threshold archaeologists being accused
             // check if total number of historical accusals on sarcophagus is greater than threshold
             uint256 totalAccusals = 0;
-            for (uint256 i = 0; i < sarcophagus.archaeologistAddresses.length; i++) {
-                if (sarcophagus.cursedArchaeologists[sarcophagus.archaeologistAddresses[i]].isAccused) {
+            for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
+                if (sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].isAccused) {
                     totalAccusals++;
                 }
             }
@@ -181,10 +181,10 @@ contract ThirdPartyFacet {
         // be returned to the remaining well behaved archaeologists
         if (sarcophagus.isCompromised) {
             // iterate through all archaeologist addresses on the sarcophagus
-            for (uint256 i = 0; i < sarcophagus.archaeologistAddresses.length; i++) {
+            for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
                 // if the archaeologist has never been accused, release their locked bond back to them
-                if (!sarcophagus.cursedArchaeologists[sarcophagus.archaeologistAddresses[i]].isAccused) {
-                    LibBonds.freeArchaeologist(sarcoId, sarcophagus.archaeologistAddresses[i]);
+                if (!sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].isAccused) {
+                    LibBonds.freeArchaeologist(sarcoId, sarcophagus.cursedArchaeologistAddresses[i]);
                 }
             }
         }

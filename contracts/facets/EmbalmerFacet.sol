@@ -130,7 +130,7 @@ contract EmbalmerFacet {
         sarcophagus.arweaveTxIds = arweaveTxIds;
         sarcophagus.embalmerAddress = msg.sender;
         sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
-        sarcophagus.archaeologistAddresses = new address[](selectedArchaeologists.length);
+        sarcophagus.cursedArchaeologistAddresses = new address[](selectedArchaeologists.length);
 
         // track total digging fees due upon creation of sarcophagus
         uint256 totalDiggingFees = 0;
@@ -176,7 +176,7 @@ contract EmbalmerFacet {
                     doubleHashedKeyShare: selectedArchaeologists[i].doubleHashedKeyShare,
                     rawKeyShare: ""
                 });
-            sarcophagus.archaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
+            sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
             // update archaeologist-specific convenience lookup structures
             s.doubleHashedShardArchaeologists[
@@ -201,7 +201,7 @@ contract EmbalmerFacet {
             sarcophagusParams.resurrectionTime,
             msg.sender,
             sarcophagusParams.recipientAddress,
-            sarcophagus.archaeologistAddresses,
+            sarcophagus.cursedArchaeologistAddresses,
             totalDiggingFees,
             protocolFees,
             arweaveTxIds
@@ -257,7 +257,7 @@ contract EmbalmerFacet {
         uint256 totalDiggingFees = 0;
 
         // pay digging fee to each cursed archaeologist on the sarcophagus
-        address[] storage archaeologistAddresses = sarcophagus.archaeologistAddresses;
+        address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[archaeologistAddresses[i]];
@@ -317,7 +317,7 @@ contract EmbalmerFacet {
         sarcophagus.resurrectionTime = 2**256 - 1;
 
         // for each archaeologist on the sarcophagus, unlock bond and pay digging fees
-        address[] storage archaeologistAddresses = sarcophagus.archaeologistAddresses;
+        address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             // return locked bond to archaeologist
             LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);

@@ -237,11 +237,11 @@ contract ViewStateFacet {
 
         uint8 publishedKeyShareCount = 0;
         bool hasLockedBond = false;
-        for (uint256 i = 0; i < sarcophagus.archaeologistAddresses.length; i++) {
+        for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
             // archaeologist has published a keyshare
-            if (sarcophagus.cursedArchaeologists[sarcophagus.archaeologistAddresses[i]].rawKeyShare.length > 0) {
+            if (sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].rawKeyShare.length > 0) {
                 publishedKeyShareCount++;
-            } else if (!sarcophagus.cursedArchaeologists[sarcophagus.archaeologistAddresses[i]].isAccused) {
+            } else if (!sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].isAccused) {
                 // if archaeologist hasn't published a key share and is not accused, they still have locked bond
                 hasLockedBond = true;
             }
@@ -256,7 +256,7 @@ contract ViewStateFacet {
             arweaveTxIds: sarcophagus.arweaveTxIds,
             embalmerAddress: sarcophagus.embalmerAddress,
             recipientAddress: sarcophagus.recipientAddress,
-            archaeologistAddresses: sarcophagus.archaeologistAddresses,
+            archaeologistAddresses: sarcophagus.cursedArchaeologistAddresses,
             publishedKeyShareCount:publishedKeyShareCount,
             hasLockedBond: hasLockedBond
         });
