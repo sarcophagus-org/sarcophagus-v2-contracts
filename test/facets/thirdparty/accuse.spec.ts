@@ -1,4 +1,4 @@
-import "@nomiclabs/hardhat-waffle";
+import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai";
 import { generateSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
 import time from "../../utils/time";
@@ -29,12 +29,16 @@ describe("accuse v2", () => {
         .connect(accuser)
         .accuse(sarcoId, [], accuser.address);
 
-      await expect(tx).to.be.revertedWith(
-        `SarcophagusDoesNotExist("${sarcoId}")`
+      await expect(tx).to.be.revertedWithCustomError(
+        (
+          await getContracts()
+        ).thirdPartyFacet,
+        `SarcophagusDoesNotExist`
       );
     });
 
     it("Should revert if the current time is past the resurrectionTime", async function () {
+      const { thirdPartyFacet } = await getContracts();
       // generate a sarcophagus with a resurrection time 1 week in the future
       const resurrectionTimeSeconds =
         (await time.latest()) + time.duration.weeks(1);
@@ -51,16 +55,19 @@ describe("accuse v2", () => {
       await time.increaseTo(resurrectionTimeSeconds);
 
       // accuse an archaeologist of leaking a keyshare
-      const tx = (await getContracts()).thirdPartyFacet
+      const tx = thirdPartyFacet
         .connect(embalmer)
         .accuse(sarcophagus.sarcoId, [], embalmer.address);
 
-      await expect(tx).to.be.revertedWith(`SarcophagusIsUnwrappable()`);
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `SarcophagusIsUnwrappable`
+      );
     });
   });
 
   describe("Supports accusal of fewer than k archaeologists", function () {
-    it("breads On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async function () {
+    it("On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await getFreshAccount();
       const { embalmer, sarcophagus, archaeologists } =

@@ -1,4 +1,4 @@
-import "@nomiclabs/hardhat-waffle";
+import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { hexlify } from "ethers/lib/utils";
@@ -34,7 +34,10 @@ describe("Contract: ArchaeologistFacet", () => {
 
       await expect(
         registerArchaeologist(archaeologist, archaeologistFacet)
-      ).to.be.revertedWith("ArchaeologistProfileExistsShouldBe");
+      ).to.be.revertedWithCustomError(
+        archaeologistFacet,
+        "ArchaeologistProfileExistsShouldBe"
+      );
     });
 
     it("initializes the cursedBond to 0", async () => {
@@ -219,7 +222,10 @@ describe("Contract: ArchaeologistFacet", () => {
           "150",
           "150"
         )
-      ).to.be.revertedWith("ArchaeologistProfileExistsShouldBe");
+      ).to.be.revertedWithCustomError(
+        archaeologistFacet,
+        "ArchaeologistProfileExistsShouldBe"
+      );
     });
   });
 
@@ -234,7 +240,10 @@ describe("Contract: ArchaeologistFacet", () => {
           archaeologistFacet
             .connect(archaeologist.signer)
             .depositFreeBond(BigNumber.from(100))
-        ).to.be.revertedWith("ArchaeologistProfileExistsShouldBe");
+        ).to.be.revertedWithCustomError(
+          archaeologistFacet,
+          "ArchaeologistProfileExistsShouldBe"
+        );
       });
     });
 
@@ -296,19 +305,6 @@ describe("Contract: ArchaeologistFacet", () => {
           .emit(archaeologistFacet, "DepositFreeBond")
           .withArgs(archaeologist.archAddress, 100);
       });
-    });
-
-    it("reverts if deposit amount is negative", async () => {
-      const { archaeologists, archaeologistFacet } = await archeologistsFixture(
-        1
-      );
-
-      // Try to deposit a negative amount
-      await expect(
-        archaeologistFacet
-          .connect(archaeologists[0].signer)
-          .depositFreeBond(BigNumber.from(-1))
-      ).to.be.reverted;
     });
   });
 
@@ -423,26 +419,6 @@ describe("Contract: ArchaeologistFacet", () => {
         });
 
         context("Failed withdrawals", () => {
-          it("reverts if amount is negative", async () => {
-            const { archaeologists, archaeologistFacet } =
-              await archeologistsFixture(1);
-            const contextArchaeologist = archaeologists[0];
-            await registerArchaeologist(
-              contextArchaeologist,
-              archaeologistFacet
-            );
-
-            // Put some free bond on the contract so we can withdraw it
-            await archaeologistFacet
-              .connect(contextArchaeologist.signer)
-              .depositFreeBond(BigNumber.from(100));
-
-            // Try to withdraw a negative amount
-            await expect(
-              archaeologistFacet.withdrawFreeBond(BigNumber.from(-1))
-            ).to.be.reverted;
-          });
-
           it("reverts on attempt to withdraw more than free bond", async () => {
             const { archaeologists, archaeologistFacet } =
               await archeologistsFixture(1);
@@ -462,7 +438,10 @@ describe("Contract: ArchaeologistFacet", () => {
               archaeologistFacet
                 .connect(contextArchaeologist.signer)
                 .withdrawFreeBond(BigNumber.from(101))
-            ).to.be.revertedWith("NotEnoughFreeBond");
+            ).to.be.revertedWithCustomError(
+              archaeologistFacet,
+              "NotEnoughFreeBond"
+            );
           });
         });
       }
@@ -698,7 +677,10 @@ describe("Contract: ArchaeologistFacet", () => {
           .connect(archaeologists[0].signer)
           .publishKeyShare(falseIdentifier, archaeologists[0].rawKeyShare);
 
-        await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+        await expect(tx).to.be.revertedWithCustomError(
+          archaeologistFacet,
+          "SarcophagusDoesNotExist"
+        );
       });
 
       it("should revert if the sender is not an archaeologist on this sarcophagus", async () => {
@@ -717,7 +699,10 @@ describe("Contract: ArchaeologistFacet", () => {
           .connect(recipient)
           .publishKeyShare(sarcoId, archaeologists[0].rawKeyShare);
 
-        await expect(tx).to.be.revertedWith("ArchaeologistNotOnSarcophagus");
+        await expect(tx).to.be.revertedWithCustomError(
+          archaeologistFacet,
+          "ArchaeologistNotOnSarcophagus"
+        );
       });
 
       it("should revert if publishKeyShare is called before the resurrection time has passed", async () => {
@@ -729,7 +714,10 @@ describe("Contract: ArchaeologistFacet", () => {
           .connect(archaeologists[0].signer)
           .publishKeyShare(sarcoId, archaeologists[0].rawKeyShare);
 
-        await expect(tx).to.be.revertedWith("TooEarlyToUnwrap");
+        await expect(tx).to.be.revertedWithCustomError(
+          archaeologistFacet,
+          "TooEarlyToUnwrap"
+        );
       });
 
       it("should revert if publishKeyShare is called after the grace period has elapsed", async () => {
@@ -750,7 +738,10 @@ describe("Contract: ArchaeologistFacet", () => {
           .connect(archaeologists[0].signer)
           .publishKeyShare(sarcoId, archaeologists[0].rawKeyShare);
 
-        await expect(tx).to.be.revertedWith("TooLateToUnwrap");
+        await expect(tx).to.be.revertedWithCustomError(
+          archaeologistFacet,
+          "TooLateToUnwrap"
+        );
       });
 
       it("should revert if this archaeologist has already published their key share on this sarcophagus", async () => {
@@ -771,7 +762,10 @@ describe("Contract: ArchaeologistFacet", () => {
           .connect(archaeologists[0].signer)
           .publishKeyShare(sarcoId, archaeologists[0].rawKeyShare);
 
-        await expect(tx).to.be.revertedWith("ArchaeologistAlreadyUnwrapped");
+        await expect(tx).to.be.revertedWithCustomError(
+          archaeologistFacet,
+          "ArchaeologistAlreadyUnwrapped"
+        );
       });
 
       it("should revert if the hash of the unencrypted shard does not match the hashed shard stored on the sarcophagus", async () => {
@@ -792,8 +786,14 @@ describe("Contract: ArchaeologistFacet", () => {
           .connect(archaeologists[0].signer)
           .publishKeyShare(sarcoId, archaeologists[1].rawKeyShare);
 
-        await expect(tx).to.be.revertedWith("UnencryptedShardHashMismatch");
-        await expect(tx2).to.be.revertedWith("UnencryptedShardHashMismatch");
+        await expect(tx).to.be.revertedWithCustomError(
+          archaeologistFacet,
+          "UnencryptedShardHashMismatch"
+        );
+        await expect(tx2).to.be.revertedWithCustomError(
+          archaeologistFacet,
+          "UnencryptedShardHashMismatch"
+        );
       });
     });
   });

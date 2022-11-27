@@ -1,4 +1,4 @@
-import "@nomiclabs/hardhat-waffle";
+import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
@@ -7,7 +7,7 @@ import { buryFixture } from "../fixtures/bury-fixture";
 import { rewrapFixture } from "../fixtures/rewrap-fixture";
 import { sign, toSarco } from "../utils/helpers";
 import time from "../utils/time";
-import { hashBytes } from "../fixtures/spawn-archaeologists";
+import { hashBytes, TestArchaeologist } from "../fixtures/spawn-archaeologists";
 
 describe("Contract: EmbalmerFacet", () => {
   const shares = 5;
@@ -32,7 +32,7 @@ describe("Contract: EmbalmerFacet", () => {
 
         // Calculate the total fees (all digging fees)
         const totalDiggingFees: BigNumber = archaeologists.reduce(
-          (acc, arch) => acc.add(arch.diggingFee),
+          (acc: BigNumber, arch: TestArchaeologist) => acc.add(arch.diggingFee),
           ethers.constants.Zero
         );
 
@@ -240,7 +240,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("SarcophagusAlreadyExists");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "SarcophagusAlreadyExists"
+        );
       });
 
       it("should revert if the resurrection time is not in the future", async () => {
@@ -274,7 +277,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("ResurrectionTimeInPast");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "ResurrectionTimeInPast"
+        );
       });
 
       it("should revert if no archaeologists are provided", async () => {
@@ -306,7 +312,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("NoArchaeologistsProvided");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "NoArchaeologistsProvided"
+        );
       });
 
       it("should revert if the list of archaeologists is not unique", async () => {
@@ -344,7 +353,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("ArchaeologistListNotUnique");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "ArchaeologistListNotUnique"
+        );
       });
 
       it("should revert if minShards is greater than the number of archaeologists", async () => {
@@ -377,7 +389,8 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith(
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
           "MinShardsGreaterThanArchaeologists"
         );
       });
@@ -412,7 +425,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("MinShardsZero");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "MinShardsZero"
+        );
       });
 
       it("reverts if the embalmer does not provide enough digging fee", async () => {
@@ -453,7 +469,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("InvalidSignature");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "InvalidSignature"
+        );
       });
 
       it("reverts if any signature provided by a regular archaeologist is from the wrong archaeologist", async () => {
@@ -499,7 +518,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("InvalidSignature");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "InvalidSignature"
+        );
       });
 
       it("reverts if any archaeologist signature includes the wrong data", async () => {
@@ -546,7 +568,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("InvalidSignature");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "InvalidSignature"
+        );
       });
 
       it("should fail to create a sarcophagus with a resurrectionTime that exceeds the maxRewrapInterval", async () => {
@@ -584,7 +609,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("ResurrectionTimeTooFarInFuture");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "ResurrectionTimeTooFarInFuture"
+        );
       });
       it("should fail to create a sarcophagus where an archaeologist hasn't agreed to the supplied maxRewrapInterval", async () => {
         const {
@@ -632,7 +660,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("InvalidSignature");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "InvalidSignature"
+        );
       });
 
       it("should revert when creating a sarcophagus with an expired timestamp", async () => {
@@ -669,7 +700,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("SarcophagusParametersExpired");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "SarcophagusParametersExpired"
+        );
       });
       it("should revert when creating a sarcophagus with a timestamp an archaeologist hasn't agreed to", async () => {
         const {
@@ -717,7 +751,10 @@ describe("Contract: EmbalmerFacet", () => {
           arweaveTxIds
         );
 
-        await expect(tx).to.be.revertedWith("InvalidSignature");
+        await expect(tx).to.be.revertedWithCustomError(
+          embalmerFacet,
+          "InvalidSignature"
+        );
       });
     });
   });
@@ -791,7 +828,10 @@ describe("Contract: EmbalmerFacet", () => {
             .connect(signers[8])
             .rewrapSarcophagus(sarcoId, newResurrectionTime);
 
-          await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
+          await expect(tx).to.be.revertedWithCustomError(
+            embalmerFacet,
+            "SenderNotEmbalmer"
+          );
         });
 
         it("should revert if the sarcophagus does not exist", async () => {
@@ -810,7 +850,10 @@ describe("Contract: EmbalmerFacet", () => {
             .connect(embalmer)
             .rewrapSarcophagus(falseIdentifier, newResurrectionTime);
 
-          await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+          await expect(tx).to.be.revertedWithCustomError(
+            embalmerFacet,
+            "SarcophagusDoesNotExist"
+          );
         });
 
         it("should revert if the sarcophagus is inactive", async () => {
@@ -827,7 +870,10 @@ describe("Contract: EmbalmerFacet", () => {
             .connect(embalmer)
             .rewrapSarcophagus(sarcoId, newResurrectionTime);
 
-          await expect(tx).to.be.revertedWith("SarcophagusInactive");
+          await expect(tx).to.be.revertedWithCustomError(
+            embalmerFacet,
+            "SarcophagusInactive"
+          );
         });
 
         it("should revert if the new resurrection time is not in the future", async () => {
@@ -844,7 +890,10 @@ describe("Contract: EmbalmerFacet", () => {
             .connect(embalmer)
             .rewrapSarcophagus(sarcoId, newResurrectionTime);
 
-          await expect(tx).to.be.revertedWith("NewResurrectionTimeInPast");
+          await expect(tx).to.be.revertedWithCustomError(
+            embalmerFacet,
+            "NewResurrectionTimeInPast"
+          );
         });
 
         it("should fail to rewrap a sarcophagus with a new resurrection time in excess of the maxRewrapInterval", async () => {
@@ -886,7 +935,10 @@ describe("Contract: EmbalmerFacet", () => {
                 time.duration.minutes(1)
             );
 
-          await expect(tx).to.be.revertedWith("NewResurrectionTimeTooLarge");
+          await expect(tx).to.be.revertedWithCustomError(
+            embalmerFacet,
+            "NewResurrectionTimeTooLarge"
+          );
         });
       });
     });
@@ -967,7 +1019,10 @@ describe("Contract: EmbalmerFacet", () => {
 
           const tx = embalmerFacet.connect(signers[9]).burySarcophagus(sarcoId);
 
-          await expect(tx).to.be.revertedWith("SenderNotEmbalmer");
+          await expect(tx).to.be.revertedWithCustomError(
+            embalmerFacet,
+            "SenderNotEmbalmer"
+          );
         });
 
         it("should revert if the sarcophagus does not exist", async () => {
@@ -985,7 +1040,10 @@ describe("Contract: EmbalmerFacet", () => {
             .connect(embalmer)
             .burySarcophagus(falseIdentifier);
 
-          await expect(tx).to.be.revertedWith("SarcophagusDoesNotExist");
+          await expect(tx).to.be.revertedWithCustomError(
+            embalmerFacet,
+            "SarcophagusDoesNotExist"
+          );
         });
 
         it("should revert if the sarcophagus is compromised", async () => {
@@ -1005,13 +1063,16 @@ describe("Contract: EmbalmerFacet", () => {
             sarcoId,
             archaeologists
               .slice(0, threshold)
-              .map((a) => hashBytes(a.rawKeyShare)),
+              .map((a: TestArchaeologist) => hashBytes(a.rawKeyShare)),
             embalmer.address
           );
 
           const tx = embalmerFacet.connect(embalmer).burySarcophagus(sarcoId);
 
-          await expect(tx).to.be.revertedWith("SarcophagusCompromised");
+          await expect(tx).to.be.revertedWithCustomError(
+            embalmerFacet,
+            "SarcophagusCompromised"
+          );
         });
       });
     });
