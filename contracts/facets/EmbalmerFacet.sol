@@ -211,7 +211,7 @@ contract EmbalmerFacet {
     }
 
     /// @notice Updates the resurrectionTime on a sarcophagus. Callable by the embalmer of a sarcophagus if its
-    /// resurrection time has not passed, it has not been compromised by >k accusals, and it has not been buried.
+    /// resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried.
     /// @param sarcoId the identifier of the sarcophagus
     /// @param resurrectionTime the new resurrection time
     function rewrapSarcophagus(bytes32 sarcoId, uint256 resurrectionTime) external {
@@ -238,33 +238,35 @@ contract EmbalmerFacet {
         }
 
         // Confirm resurrection time has not yet passed
-        if (sarcophagus.resurrectionTime <= block.timestamp) {
+        if (block.timestamp >= sarcophagus.resurrectionTime) {
             revert LibErrors.SarcophagusIsUnwrappable();
         }
 
         // Confirm that new resurrection time is in future
-        if (resurrectionTime <= block.timestamp) {
+        if (block.timestamp >= resurrectionTime) {
             revert LibErrors.NewResurrectionTimeInPast(resurrectionTime);
         }
 
         // Confirm that new resurrection time doesn't exceed sarcophagus's maximumRewrapInterval
-        if (resurrectionTime > block.timestamp + sarcophagus.maximumRewrapInterval) {
+        if (block.timestamp + sarcophagus.maximumRewrapInterval < resurrectionTime) {
             revert LibErrors.NewResurrectionTimeTooLarge(resurrectionTime);
         }
 
         // track total digging fees across all archaeologists on the sarcophagus
         uint256 totalDiggingFees = 0;
 
-        // pay digging fee to each cursed archaeologist on the sarcophagus
+        // pay digging fee to each cursed archaeologist on the sarcophagus that has not been accused
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[archaeologistAddresses[i]];
 
-            // transfer digging fee to archaeologist's reward pool
-            // todo: consider adding this amount to archaeologistProfile.freeBond instead
-            s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
-            totalDiggingFees += cursedArchaeologist.diggingFee;
+            // if the archaeologist hasn't been accused transfer them their digging fees
+            if (!cursedArchaeologist.isAccused) {
+                // todo: consider adding this amount to archaeologistProfile.freeBond instead
+                s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
+                totalDiggingFees += cursedArchaeologist.diggingFee;
+            }
         }
 
         uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
@@ -282,8 +284,8 @@ contract EmbalmerFacet {
     }
 
     /// @notice Terminates a sarcophagus by setting its resurrection time to infinity and returning locked
-    /// bonds to all cursed archaeologists. Callable by the embalmer of a sarcophagus if its
-    /// resurrection time has not passed, it has not been compromised by >k accusals, and it has not been buried.
+    /// bonds to all innocent cursed archaeologists. Callable by the embalmer of a sarcophagus if its
+    /// resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried.
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
@@ -318,13 +320,13 @@ contract EmbalmerFacet {
         // for each archaeologist on the sarcophagus, unlock bond and pay digging fees
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
-            // return locked bond to archaeologist
-            LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
-            // Transfer the digging fees to the archaeologist's reward pool
-            // todo: consider adding this amount to archaeologistProfile.freeBond instead
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[archaeologistAddresses[i]];
-            s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
+            // if the archaeologist hasn't been accused transfer them their digging fees and return their locked bond
+            if (!cursedArchaeologist.isAccused) {
+                s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
+                LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
+            }
         }
 
         emit BurySarcophagus(sarcoId);
