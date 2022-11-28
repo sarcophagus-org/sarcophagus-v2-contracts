@@ -43,7 +43,10 @@ export async function createSarcophagi(
 
   // Get the contracts
   const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const embalmerFacet = await hre.ethers.getContractAt("EmbalmerFacet", diamond.address);
+  const embalmerFacet = await hre.ethers.getContractAt(
+    "EmbalmerFacet",
+    diamond.address
+  );
   const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
 
   console.log();
@@ -71,7 +74,8 @@ export async function createSarcophagi(
       .slice(0, selectedArchaeologistCount);
 
     // Create the shards using Shamirs Secret Sharing
-    const outerLayerPrivateKey = "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
+    const outerLayerPrivateKey =
+      "ce6cb1ae13d79a053daba0e960411eba8648b7f7e81c196fd6b36980ce3b3419";
     const shards: Uint8Array[] = split(outerLayerPrivateKey, {
       shares: selectedArchaeologistCount,
       threshold: minShards,
@@ -91,7 +95,9 @@ export async function createSarcophagi(
       const archaeologistSigner = selectedArchaeologistSigners[i];
 
       // Double hash this archaeologist's shard
-      const doubleHashedShard = keccak256(keccak256(shardsMap[archaeologistSigner.address]));
+      const doubleHashedShard = keccak256(
+        keccak256(shardsMap[archaeologistSigner.address])
+      );
       // arweaveTxId, unencryptedShardDoubleHash, agreedMaximumRewrapInterval, diggingFee, timestamp
       try {
         // The archaeologist signs the double hashed shard and a fake arweave transaction id
@@ -124,14 +130,20 @@ export async function createSarcophagi(
         });
       } catch (_error) {
         const error = _error as Error;
-        console.error(`(${i + 1}/${sarcophagusCount}) Failed to sign shard for archaeologist`);
+        console.error(
+          `(${
+            i + 1
+          }/${sarcophagusCount}) Failed to sign shard for archaeologist`
+        );
         throw new Error(error.message);
       }
     }
 
     try {
       // Approve the diamond contract to use the sarco token
-      await sarcoToken.connect(embalmer).approve(diamond.address, ethers.constants.MaxUint256);
+      await sarcoToken
+        .connect(embalmer)
+        .approve(diamond.address, ethers.constants.MaxUint256);
 
       // Create the sarcophagus
       await embalmerFacet.connect(embalmer).createSarcophagus(
@@ -148,7 +160,8 @@ export async function createSarcophagi(
         [fakePayloadTxId, fakeShardTxId]
       );
       console.log(
-        `(${i + 1
+        `(${
+          i + 1
         }/${sarcophagusCount}) Created sarcophagus ${fakeSarcoId} with ${minShards}/${selectedArchaeologistCount} shards`
       );
       sarcophagiData.push({
@@ -157,7 +170,9 @@ export async function createSarcophagi(
       });
     } catch (_error) {
       const error = _error as Error;
-      console.error(`(${i + 1}/${sarcophagusCount}) Failed to create sarcophagus.`);
+      console.error(
+        `(${i + 1}/${sarcophagusCount}) Failed to create sarcophagus.`
+      );
       console.error(
         "If generate-history has already been run on this node it will fail. Please restart the node and try again."
       );
