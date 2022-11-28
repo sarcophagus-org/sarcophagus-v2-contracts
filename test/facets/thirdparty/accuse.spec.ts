@@ -401,7 +401,7 @@ describe("accuse v2", () => {
               innocentArchaeologists[index].archAddress
             );
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
-            initialFreeBond!.add(
+            initialFreeBond?.add(
               innocentArchaeologists[index].diggingFeeSarquitos
             )
           );
@@ -615,7 +615,7 @@ describe("accuse v2", () => {
               innocentArchaeologists[index].archAddress
             );
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
-            initialFreeBond!.add(
+            initialFreeBond?.add(
               innocentArchaeologists[index].diggingFeeSarquitos
             )
           );

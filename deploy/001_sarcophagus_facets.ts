@@ -20,10 +20,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     sarcoTokenAddress = sarcoTokenMock.address;
   } else if (["goerli", "goerli-fork"].includes(hre.hardhatArguments.network)) {
     sarcoTokenAddress = process.env.SARCO_TOKEN_ADDRESS_GOERLI || "";
-  } else if (["mainnet", "mainnet-fork"].includes(hre.hardhatArguments.network)) {
+  } else if (
+    ["mainnet", "mainnet-fork"].includes(hre.hardhatArguments.network)
+  ) {
     sarcoTokenAddress = process.env.SARCO_TOKEN_ADDRESS_MAINNET || "";
   } else {
-    throw Error(`Sarcophagus is not set up for this network: ${hre.hardhatArguments.network}`);
+    throw Error(
+      `Sarcophagus is not set up for this network: ${hre.hardhatArguments.network}`
+    );
   }
 
   // Deploy the facets. Note that running diamond.deploy again will not redeploy
@@ -32,9 +36,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // The only reason for doing diamond.deploy again is to execute
   // AppStorageInit. This is pretty much just a convenience.
   // Protocol fee defaults to 1% (100bps)
-  const protocolFeeBasePercentage = process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "1";
+  const protocolFeeBasePercentage =
+    process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "1";
   const gracePeriod = process.env.GRACE_PERIOD_SECONDS || "3600";
-  const expirationThreshold = process.env.EXPIRATION_THRESHOLD_SECONDS || "3600";
+  const expirationThreshold =
+    process.env.EXPIRATION_THRESHOLD_SECONDS || "3600";
 
   await diamond.deploy("Diamond", {
     from: deployer,
@@ -53,7 +59,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         sarcoTokenAddress,
         protocolFeeBasePercentage,
         gracePeriod,
-        expirationThreshold
+        expirationThreshold,
       ],
     },
     log: true,

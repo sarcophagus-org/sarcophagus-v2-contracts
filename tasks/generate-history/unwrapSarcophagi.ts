@@ -16,34 +16,50 @@ export async function unwrapSarcophagi(
   archaeologistSigners: SignerWithAddress[],
   sarcophagiData: SarcophagusData[]
 ): Promise<void> {
-  const archaeologistUnwrapChance = generateHistoryConfig.archaeologistUnwrapChance;
+  const archaeologistUnwrapChance =
+    generateHistoryConfig.archaeologistUnwrapChance;
   const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const archaeologistFacet = await hre.ethers.getContractAt("ArchaeologistFacet", diamond.address);
-  const viewStateFacet = await hre.ethers.getContractAt("ViewStateFacet", diamond.address);
+  const archaeologistFacet = await hre.ethers.getContractAt(
+    "ArchaeologistFacet",
+    diamond.address
+  );
+  const viewStateFacet = await hre.ethers.getContractAt(
+    "ViewStateFacet",
+    diamond.address
+  );
 
   console.log();
   console.log("Unwrapping sarcophagi...");
-  console.log(`Chance for each archaeologist to unwrap set to ${archaeologistUnwrapChance * 100}%`);
+  console.log(
+    `Chance for each archaeologist to unwrap set to ${
+      archaeologistUnwrapChance * 100
+    }%`
+  );
   for (let i = 0; i < archaeologistSigners.length; i++) {
     const archaeologistSigner = archaeologistSigners[i];
 
     // Roll the dice to determine if this archaeologist will continue with the unwrap or not
     if (Math.random() >= archaeologistUnwrapChance) {
-      console.log(`Archaeologist ${archaeologistSigner.address} chose not to unwrap`);
+      console.log(
+        `Archaeologist ${archaeologistSigner.address} chose not to unwrap`
+      );
       continue;
     }
 
     // Read this archaeologist's sarcophagi from the contract
-    const archaeologistsSarcophagi = await viewStateFacet.getArchaeologistSarcophagi(
-      archaeologistSigner.address
-    );
+    const archaeologistsSarcophagi =
+      await viewStateFacet.getArchaeologistSarcophagi(
+        archaeologistSigner.address
+      );
 
     // The archaeologist unwraps each sarcophagus they are on
     for (let j = 0; j < archaeologistsSarcophagi.length; j++) {
       const sarcoId = archaeologistsSarcophagi[j];
 
       // Unwrap sarcophagus
-      const sarcophagusData = sarcophagiData.find(sarcophagus => sarcophagus.sarcoId === sarcoId);
+      const sarcophagusData = sarcophagiData.find(
+        (sarcophagus) => sarcophagus.sarcoId === sarcoId
+      );
       const archaeologistUnencryptedShard =
         sarcophagusData?.shards[archaeologistSigner.address] || "";
       try {

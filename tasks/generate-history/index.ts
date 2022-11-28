@@ -33,7 +33,11 @@ export async function generateHistory(
   const archaeologistSigners = await registerArchaeologists(hre);
 
   // Create some sarcophagi
-  const sarcophagiData = await createSarcophagi(hre, archaeologistSigners, resurrectionTime);
+  const sarcophagiData = await createSarcophagi(
+    hre,
+    archaeologistSigners,
+    resurrectionTime
+  );
 
   // Accuse the archaeologists on some sarcophagi
   const accusedSarcophagi = await accuseSarcophagus(hre, sarcophagiData);
@@ -45,7 +49,7 @@ export async function generateHistory(
 
   // Filter out the accuased sarcophagi for unwrapping
   const unaccusedSarcophagiData = sarcophagiData.filter(
-    sarcophagus => !accusedSarcophagi.includes(sarcophagus.sarcoId)
+    (sarcophagus) => !accusedSarcophagi.includes(sarcophagus.sarcoId)
   );
 
   // Unwrap some sarcohpagi
