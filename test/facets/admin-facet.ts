@@ -1,3 +1,4 @@
+import "@nomicfoundation/hardhat-chai-matchers";
 import { createSarcoFixture } from "../fixtures/create-sarco-fixture";
 import { BigNumber } from "ethers";
 import { expect } from "chai";
