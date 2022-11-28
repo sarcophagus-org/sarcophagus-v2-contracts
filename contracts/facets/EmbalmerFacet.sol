@@ -167,19 +167,19 @@ contract EmbalmerFacet {
 
             // save the cursedArchaeologist and cursedArchaeologistAddress to be stored on the new sarcophagus
             sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress] = LibTypes
-                .CursedArchaeologist({
-                    isAccused: false,
-                    diggingFee: selectedArchaeologists[i].diggingFee,
-                    doubleHashedKeyShare: selectedArchaeologists[i].doubleHashedKeyShare,
-                    rawKeyShare: ""
-                });
+            .CursedArchaeologist({
+            isAccused : false,
+            diggingFee : selectedArchaeologists[i].diggingFee,
+            doubleHashedKeyShare : selectedArchaeologists[i].doubleHashedKeyShare,
+            rawKeyShare : ""
+            });
 
 
             sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
             // update archaeologist-specific convenience lookup structures
             s.doubleHashedShardArchaeologists[
-                selectedArchaeologists[i].doubleHashedKeyShare
+            selectedArchaeologists[i].doubleHashedKeyShare
             ] = selectedArchaeologists[i].archAddress;
             s.archaeologistSarcophagi[selectedArchaeologists[i].archAddress].push(sarcoId);
         }
@@ -228,7 +228,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2**256 - 1) {
+        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -239,7 +239,7 @@ contract EmbalmerFacet {
 
         // Confirm resurrection time has not yet passed
         if (block.timestamp >= sarcophagus.resurrectionTime) {
-            revert LibErrors.SarcophagusIsUnwrappable();
+            revert LibErrors.ResurrectionTimeInPast(sarcophagus.resurrectionTime);
         }
 
         // Confirm that new resurrection time is in future
@@ -259,7 +259,7 @@ contract EmbalmerFacet {
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
-                .cursedArchaeologists[archaeologistAddresses[i]];
+            .cursedArchaeologists[archaeologistAddresses[i]];
 
             // if the archaeologist hasn't been accused transfer them their digging fees
             if (!cursedArchaeologist.isAccused) {
@@ -301,7 +301,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2**256 - 1) {
+        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -310,18 +310,18 @@ contract EmbalmerFacet {
             revert LibErrors.SenderNotEmbalmer(msg.sender, sarcophagus.embalmerAddress);
         }
         // Confirm that the current resurrection time is in the future
-        if (sarcophagus.resurrectionTime <= block.timestamp) {
+        if (block.timestamp >= sarcophagus.resurrectionTime) {
             revert LibErrors.ResurrectionTimeInPast(sarcophagus.resurrectionTime);
         }
 
         // Set resurrection time to infinity
-        sarcophagus.resurrectionTime = 2**256 - 1;
+        sarcophagus.resurrectionTime = 2 ** 256 - 1;
 
         // for each archaeologist on the sarcophagus, unlock bond and pay digging fees
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
-                .cursedArchaeologists[archaeologistAddresses[i]];
+            .cursedArchaeologists[archaeologistAddresses[i]];
             // if the archaeologist hasn't been accused transfer them their digging fees and return their locked bond
             if (!cursedArchaeologist.isAccused) {
                 s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;

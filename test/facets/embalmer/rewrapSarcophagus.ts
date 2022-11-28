@@ -1,4 +1,10 @@
 import "@nomicfoundation/hardhat-chai-matchers";
+import { getContracts } from "../helpers/contracts";
+import { registerSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
+import { expect } from "chai";
+import { compromiseSarcophagus } from "../helpers/accuse";
+import { getFreshAccount } from "../helpers/accounts";
+import time from "../../utils/time";
 
 const { deployments, ethers } = require("hardhat");
 
@@ -7,13 +13,125 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
   beforeEach(async () => await deployments.fixture());
 
   describe("Validates parameters. Should revert if:", function () {
-    it("no sarcophagus with the supplied id exists");
-    it("the sarcophagus has been compromised");
-    it("the sarcophagus has been buried");
-    it("the sender is not the embalmer");
-    it("the resurrection time has passed");
-    it("the new resurrection time is not in the future");
-    it("the new resurrection time exceeds sarcophagus maximumRewrapInterval");
+    it("no sarcophagus with the supplied id exists", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .rewrapSarcophagus(
+          ethers.utils.solidityKeccak256(["string"], ["nonexistent"]),
+          sarcophagusData.resurrectionTimeSeconds
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `SarcophagusDoesNotExist`
+      );
+    });
+    it("the sarcophagus has been compromised", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+
+      await compromiseSarcophagus(sarcophagusData, archaeologists);
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .rewrapSarcophagus(
+          sarcophagusData.sarcoId,
+          sarcophagusData.resurrectionTimeSeconds
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `SarcophagusCompromised`
+      );
+    });
+    it("the sarcophagus has been buried", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+
+      await embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .burySarcophagus(sarcophagusData.sarcoId);
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .rewrapSarcophagus(
+          sarcophagusData.sarcoId,
+          sarcophagusData.resurrectionTimeSeconds
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `SarcophagusInactive`
+      );
+    });
+    it("the sender is not the embalmer", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+
+      const tx = embalmerFacet
+        .connect(await getFreshAccount())
+        .rewrapSarcophagus(
+          sarcophagusData.sarcoId,
+          sarcophagusData.resurrectionTimeSeconds
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `SenderNotEmbalmer`
+      );
+    });
+    it("the resurrection time has passed", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+
+      await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .rewrapSarcophagus(
+          sarcophagusData.sarcoId,
+          sarcophagusData.resurrectionTimeSeconds
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `ResurrectionTimeInPast`
+      );
+    });
+    it("the new resurrection time is not in the future", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .rewrapSarcophagus(sarcophagusData.sarcoId, await time.latest());
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `NewResurrectionTimeInPast`
+      );
+    });
+    it("the new resurrection time exceeds sarcophagus maximumRewrapInterval", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .rewrapSarcophagus(
+          sarcophagusData.sarcoId,
+          (await time.latest()) +
+            sarcophagusData.maximumRewrapIntervalSeconds +
+            time.duration.minutes(1)
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `NewResurrectionTimeTooLarge`
+      );
+    });
   });
 
   describe("Successfully rewraps a sarcophagus with no accusals", function () {
