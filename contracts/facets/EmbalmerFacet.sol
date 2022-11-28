@@ -35,24 +35,24 @@ contract EmbalmerFacet {
     event BurySarcophagus(bytes32 indexed sarcoId);
 
     /**
-     * Parameters for a sarcophagus, supplied during creation
-     * maximumRewrapInterval - highest rewrap interval bonded archaeologists have agreed to accept for lifetime of sarcophagus
+     * Parameters for a sarcophagus, supplied during sarcophagus creation
      */
     struct SarcophagusParams {
         string name;
+        // highest rewrap interval bonded archaeologists have agreed to accept for lifetime of sarcophagus
+        uint256 maximumRewrapInterval;
         address recipientAddress;
         uint256 resurrectionTime;
-        uint256 maximumRewrapInterval;
         uint8 threshold;
         uint256 creationTime;
     }
 
     /**
      * Parameters for an archaeologist's curse, supplied during sarcophagus creation
-     * diggingFee - diggingFee archaeologist has agreed to receive on sarcophagus for its entire lifetime
      */
     struct SelectedArchaeologistData {
         address archAddress;
+        // diggingFee archaeologist has agreed to receive on sarcophagus for its entire lifetime
         uint256 diggingFee;
         bytes32 doubleHashedKeyShare;
         uint8 v;
@@ -62,9 +62,9 @@ contract EmbalmerFacet {
 
     /// @notice Creates a sarcophagus with the supplied parameters and locks
     /// a portion of each archaeologist's freeBond equal to the diggingFees for the sarcophagus.
-    /// Verifies that all supplied archaeologists have signed off on
-    ///    - doubleHashedKeyShare assigned to them
-    ///    - arweaveTxId for encrypted keyshares
+    /// Verifies that all supplied archaeologists have signed off on the sarcophagus negotiation parameters:
+    ///    - doubleHashedKeyShare they are responsible for
+    ///    - arweaveTxId of the tx uploading the encrypted key shares
     ///    - maximumRewrapInterval to be enforced for the lifetime of the sarcophagus
     ///    - creationTime of sarcophagus
     ///    - diggingFee to be paid to that archaeologist on all rewraps for the lifetime of the sarcophagus

@@ -11,7 +11,7 @@ const { ethers } = require("hardhat");
 export interface ArchaeologistData {
   archAddress: string;
   doubleHashedKeyShare: string;
-  diggingFee: string;
+  diggingFeeSarquitos: string;
   v: number;
   r: string;
   s: string;
@@ -61,7 +61,7 @@ export const createArchSignature = async (
 
   return {
     archAddress: archaeologistSigner.address,
-    diggingFee: sarcophagusDiggingFeeSarquitos,
+    diggingFeeSarquitos: sarcophagusDiggingFeeSarquitos,
     rawKeyShare: sarcophagusParams.rawKeyShare,
     doubleHashedKeyShare: doubleHashedShare,
     v,

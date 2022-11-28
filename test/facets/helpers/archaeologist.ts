@@ -12,7 +12,7 @@ const { ethers } = require("hardhat");
  * freeBondSarco - amount of SARCO to deduct from sarcoBalance and register as free bond
  */
 export interface ArchaeologistParameters {
-  profileMinDiggingFee: number;
+  profileMinDiggingFeeSarco: number;
   profileMaxRewrapIntervalSeconds: number;
   sarcoBalance: number;
   freeBondSarco: number;
@@ -32,7 +32,7 @@ export const registerArchaeologist = async (
 ): Promise<SignerWithAddress> => {
   // calculate archaeologist's minimum digging fee and free bond in sarquitos
   const archMinDiggingFeeSarquitos = ethers.utils
-    .parseEther(archaeologistParams.profileMinDiggingFee.toString())
+    .parseEther(archaeologistParams.profileMinDiggingFeeSarco.toString())
     .toString();
   const archaeologistFreeBondSarquitos = ethers.utils.parseEther(
     archaeologistParams.freeBondSarco.toString()

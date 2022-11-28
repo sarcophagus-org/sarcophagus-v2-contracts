@@ -36,10 +36,10 @@ struct AppStorage {
     mapping(address => bytes32[]) recipientSarcophagi;
 
     // double hashed keyshare => archaeologist address
-    // todo: do we need this?
     mapping(bytes32 => address) doubleHashedShardArchaeologists;
 
     // sarcophagus ids
+    // todo: is this used?
     bytes32[] sarcophagusIdentifiers;
     // sarcophagus id => sarcophagus object
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;

@@ -100,7 +100,9 @@ describe("accuse v2", () => {
 
       // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
       expect(await getSarquitoBalance(accuser.address)).to.equal(
-        BigNumber.from(accusedArchaeologist.diggingFee).div(2).toString()
+        BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)
+          .div(2)
+          .toString()
       );
 
       const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
@@ -112,9 +114,9 @@ describe("accuse v2", () => {
           .sub(embalmerPreAccuseSarquitoBalance)
           .toString()
       ).to.equal(
-        BigNumber.from(accusedArchaeologist.diggingFee)
+        BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)
           .div(2)
-          .add(BigNumber.from(accusedArchaeologist.diggingFee))
+          .add(BigNumber.from(accusedArchaeologist.diggingFeeSarquitos))
           .toString()
       );
 
@@ -178,7 +180,7 @@ describe("accuse v2", () => {
               innocentArchaeologist.archAddress
             );
           expect(innocentArchaeologistProfile.cursedBond.toString()).to.equal(
-            innocentArchaeologist.diggingFee
+            innocentArchaeologist.diggingFeeSarquitos
           );
         })
       );
@@ -213,15 +215,17 @@ describe("accuse v2", () => {
 
       // verify accuser and embalmer have received the expected funds
       expect(await getSarquitoBalance(accuser.address)).to.equal(
-        BigNumber.from(accusedArchaeologist.diggingFee).div(2).toString()
+        BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)
+          .div(2)
+          .toString()
       );
 
       expect(
         await getSarquitoBalance(sarcophagusData.embalmer.address)
       ).to.equal(
-        BigNumber.from(accusedArchaeologist.diggingFee)
+        BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)
           .div(2)
-          .add(BigNumber.from(accusedArchaeologist.diggingFee))
+          .add(BigNumber.from(accusedArchaeologist.diggingFeeSarquitos))
           .add(embalmerPreAccuseSarquitoBalance)
           .toString()
       );
@@ -332,7 +336,7 @@ describe("accuse v2", () => {
       const combinedDiggingFeesSarquito: BigNumber =
         accusedArchaeologists.reduce(
           (sum: BigNumber, accusedArchaeologist: ArchaeologistData) =>
-            sum.add(BigNumber.from(accusedArchaeologist.diggingFee)),
+            sum.add(BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)),
           BigNumber.from(0)
         );
       // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
@@ -397,7 +401,9 @@ describe("accuse v2", () => {
               innocentArchaeologists[index].archAddress
             );
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
-            initialFreeBond!.add(innocentArchaeologists[index].diggingFee)
+            initialFreeBond!.add(
+              innocentArchaeologists[index].diggingFeeSarquitos
+            )
           );
         }
       );
@@ -474,7 +480,7 @@ describe("accuse v2", () => {
               innocentArchaeologist.archAddress
             );
           expect(innocentArchaeologistProfile.cursedBond.toString()).to.equal(
-            innocentArchaeologist.diggingFee
+            innocentArchaeologist.diggingFeeSarquitos
           );
         })
       );
@@ -544,7 +550,7 @@ describe("accuse v2", () => {
       const combinedDiggingFeesSarquito: BigNumber =
         accusedArchaeologists.reduce(
           (sum: BigNumber, accusedArchaeologist: ArchaeologistData) =>
-            sum.add(BigNumber.from(accusedArchaeologist.diggingFee)),
+            sum.add(BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)),
           BigNumber.from(0)
         );
       // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
@@ -609,7 +615,9 @@ describe("accuse v2", () => {
               innocentArchaeologists[index].archAddress
             );
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
-            initialFreeBond!.add(innocentArchaeologists[index].diggingFee)
+            initialFreeBond!.add(
+              innocentArchaeologists[index].diggingFeeSarquitos
+            )
           );
         }
       );

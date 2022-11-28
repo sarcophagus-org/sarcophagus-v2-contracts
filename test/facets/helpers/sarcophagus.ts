@@ -13,7 +13,7 @@ import {
 } from "./archaeologistSignature";
 import { getContracts } from "./contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumberish, Bytes } from "ethers";
+import { BigNumber, BigNumberish, Bytes } from "ethers";
 import { BytesLike } from "ethers/lib/utils";
 
 const { ethers } = require("hardhat");
@@ -38,15 +38,16 @@ export interface SarcophagusData {
 
 /**
  * Accepts an optional set of sarcophagus parameters and falls back to defaults for missing values
- * does not modify any state (embalmers are not given a balance of sarco)
+ * funds the embalmer account and approves diamond spending
+ * does not modify contract state aside from funding embalmer
+ *
  * To create a sarcophagus from this data, send funds to the embalmer, generate funded archaeologists for each keyshare, and call createSarcophagus
- * @param params - required: threshold, totalShares, maximumRewrapIntervalSeconds
+ * @param params
  */
 export const createSarcophagusData = async (params: {
-  threshold: number;
-  totalShares: number;
-  maximumRewrapIntervalSeconds: number;
-  // optional
+  threshold?: number;
+  totalShares?: number;
+  maximumRewrapIntervalSeconds?: number;
   resurrectionTime?: number;
   sarcoId?: string;
   name?: string;
@@ -54,13 +55,23 @@ export const createSarcophagusData = async (params: {
   recipientAddress?: string;
   embalmerAddress?: string;
   arweaveTxIds?: [string, string];
+  embalmerFunds?: number;
 }): Promise<SarcophagusData> => {
+  const threshold = params.threshold !== undefined ? params.threshold : 3;
+  const totalShares = params.totalShares !== undefined ? params.totalShares : 5;
+  const maximumRewrapIntervalSeconds =
+    params.maximumRewrapIntervalSeconds !== undefined
+      ? params.maximumRewrapIntervalSeconds
+      : await time.duration.weeks(4);
+
   // generate new accounts for an embalmer and a recipient
   const embalmerAddress =
     params.embalmerAddress !== undefined
       ? params.embalmerAddress
       : (await getFreshAccount()).address;
   const embalmer = await ethers.getSigner(embalmerAddress);
+  await fundAndApproveAccount(embalmer, params.embalmerFunds || 100_000);
+
   const recipientAddress =
     params.recipientAddress !== undefined
       ? params.recipientAddress
@@ -82,16 +93,13 @@ export const createSarcophagusData = async (params: {
       ? params.creationTime
       : await time.latest();
 
-  const resurrectionTime =
+  const resurrectionTimeSeconds =
     params.resurrectionTime !== undefined
       ? params.resurrectionTime
-      : creationTime + params.maximumRewrapIntervalSeconds;
+      : creationTime + maximumRewrapIntervalSeconds;
 
   // generate the keyshares for the sarcophagus
-  const { shares, key } = generateKeyshares(
-    params.threshold,
-    params.totalShares
-  );
+  const { shares, key } = generateKeyshares(threshold, totalShares);
 
   const arweaveTxIds: [string, string] =
     params.arweaveTxIds !== undefined
@@ -102,13 +110,107 @@ export const createSarcophagusData = async (params: {
     name,
     recipientAddress,
     embalmer,
-    resurrectionTimeSeconds: resurrectionTime,
-    maximumRewrapIntervalSeconds: params.maximumRewrapIntervalSeconds,
-    threshold: params.threshold,
+    resurrectionTimeSeconds,
+    maximumRewrapIntervalSeconds,
+    threshold,
     creationTime,
     rawKeyShares: shares,
     rawOuterKey: key,
     arweaveTxIds,
+  };
+};
+
+/**
+ * Registers archaeologists for the supplied key shares on the contracts and funds them
+ * Creates archaeologist signatures on the key shares and sarcophagus negotiation parameters
+ *
+ * Sets default values on the archaeologists:
+ *  profileMinDiggingFee: 100
+ *  profileMaxRewrapIntervalSeconds: uses max rewrap interval set on the sarcophagus
+ *  sarcoBalance: 10_000
+ *  freeBondSarco: 10_000
+ * and on the sarcophagus/archaeologist agreement:
+ *  diggingFeeSarco: 100
+ *
+ * @param sarcophagusData
+ */
+export const registerDefaultArchaeologistsAndCreateSignatures = async (
+  sarcophagusData: SarcophagusData
+): Promise<ArchaeologistData[]> =>
+  await Promise.all(
+    sarcophagusData.rawKeyShares.map(async (rawKeyShare: Buffer) =>
+      registerArchaeologistAndCreateSignature(
+        {
+          arweaveTxId: sarcophagusData.arweaveTxIds[1],
+          rawKeyShare,
+          maximumRewrapIntervalSeconds:
+            sarcophagusData.maximumRewrapIntervalSeconds,
+          creationTime: sarcophagusData.creationTime,
+          diggingFeeSarco: 100,
+        },
+        {
+          profileMinDiggingFeeSarco: 100,
+          profileMaxRewrapIntervalSeconds:
+            sarcophagusData.maximumRewrapIntervalSeconds,
+          sarcoBalance: 10_000,
+          freeBondSarco: 10_000,
+        }
+      )
+    )
+  );
+
+/**
+ * Registers and funds an archaeologist for the supplied key share and sarcophagus negotiation parameters
+ * Creates a signature from the archaeologist signer
+ * @param sarcophagusNegotiationParams
+ * @param archaeologistParams
+ * @returns ArchaeologistData containing the signature, address, and digging fee allocated to the archaeologist on the sarcophagus
+ */
+export const registerArchaeologistAndCreateSignature = async (
+  sarcophagusNegotiationParams: SarcophagusNegotiationParams,
+  archaeologistParams: ArchaeologistParameters
+): Promise<ArchaeologistData> => {
+  const archaeologistSigner = await registerArchaeologist(archaeologistParams);
+  return await createArchSignature(
+    archaeologistSigner,
+    sarcophagusNegotiationParams
+  );
+};
+
+/**
+ * Creates a sarcophagus with the supplied parameters
+ * funds the embalmer account
+ * generates and registers a default archaeologist responsible for each keyshare
+ * @param params
+ */
+export const registerSarcophagusWithArchaeologists = async (params?: {
+  totalShares?: number;
+  threshold?: number;
+  maximumRewrapIntervalSeconds?: number;
+}): Promise<{
+  archaeologists: ArchaeologistData[];
+  sarcophagusData: SarcophagusData;
+}> => {
+  const sarcophagusData = await createSarcophagusData({
+    threshold: params?.threshold,
+    totalShares: params?.totalShares,
+    maximumRewrapIntervalSeconds: params?.maximumRewrapIntervalSeconds,
+  });
+
+  // register archaeologist profiles for each keyshare and create a signature from each archaeologist
+  const archaeologists = await registerDefaultArchaeologistsAndCreateSignatures(
+    sarcophagusData
+  );
+
+  await (await getContracts()).embalmerFacet
+    .connect(sarcophagusData.embalmer)
+    .createSarcophagus(
+      ...buildCreateSarcophagusArgs(sarcophagusData, archaeologists)
+    );
+
+  return {
+    sarcophagusData,
+    archaeologists,
   };
 };
 
@@ -151,104 +253,16 @@ export const buildCreateSarcophagusArgs = (
       threshold: sarcophagusData.threshold,
       creationTime: sarcophagusData.creationTime,
     },
-    archaeologists,
+    archaeologists.map((archaeologist: ArchaeologistData) => {
+      return {
+        archAddress: archaeologist.archAddress,
+        doubleHashedKeyShare: archaeologist.doubleHashedKeyShare,
+        diggingFee: BigNumber.from(archaeologist.diggingFeeSarquitos),
+        v: archaeologist.v,
+        r: archaeologist.r,
+        s: archaeologist.s,
+      };
+    }),
     sarcophagusData.arweaveTxIds,
   ];
-};
-
-/**
- * Registers and funds archaeologists for the supplied keyshares
- * Creates archaeologist signatures on the keyshares and sarcophagus negotiation parameters
- *
- * Sets default values on the archaeologists:
- *  profileMinDiggingFee: 100
- *  profileMaxRewrapIntervalSeconds: uses max rewrap interval set on the sarcophagus
- *  sarcoBalance: 10_000
- *  freeBondSarco: 10_000
- * and on the sarcophagus/archaeologist agreement:
- *  diggingFeeSarco: 100
- *
- * @param sarcophagusData
- */
-export const registerDefaultArchaeologistsAndCreateSignatures = async (
-  sarcophagusData: SarcophagusData
-): Promise<ArchaeologistData[]> =>
-  await Promise.all(
-    sarcophagusData.rawKeyShares.map(async (rawKeyShare: Buffer) =>
-      registerArchaeologistAndCreateSignature(
-        {
-          arweaveTxId: sarcophagusData.arweaveTxIds[1],
-          rawKeyShare,
-          maximumRewrapIntervalSeconds:
-            sarcophagusData.maximumRewrapIntervalSeconds,
-          creationTime: sarcophagusData.creationTime,
-          diggingFeeSarco: 100,
-        },
-        {
-          profileMinDiggingFee: 100,
-          profileMaxRewrapIntervalSeconds:
-            sarcophagusData.maximumRewrapIntervalSeconds,
-          sarcoBalance: 10_000,
-          freeBondSarco: 10_000,
-        }
-      )
-    )
-  );
-
-/**
- * Registers and funds an archaeologist for the supplied key share and sarcophagus negotiation parameters
- * Creates a signature from the archaeologist signer
- * @param sarcophagusNegotiationParams
- * @param archaeologistParams
- * @returns ArchaeologistData containing the signature, address, and digging fee allocated to the archaeologist on the sarcophagus
- */
-export const registerArchaeologistAndCreateSignature = async (
-  sarcophagusNegotiationParams: SarcophagusNegotiationParams,
-  archaeologistParams: ArchaeologistParameters
-): Promise<ArchaeologistData> => {
-  const archaeologistSigner = await registerArchaeologist(archaeologistParams);
-  return await createArchSignature(
-    archaeologistSigner,
-    sarcophagusNegotiationParams
-  );
-};
-
-/**
- * Creates a sarcophagus with the supplied parameters
- * funds the embalmer account
- * generates and registers a default archaeologist responsible for each keyshare
- * @param params
- */
-export const registerSarcophagusWithArchaeologists = async (params: {
-  totalShares: number;
-  threshold: number;
-  maximumRewrapIntervalSeconds: number;
-}): Promise<{
-  archaeologists: ArchaeologistData[];
-  sarcophagusData: SarcophagusData;
-}> => {
-  const sarcophagusData = await createSarcophagusData({
-    threshold: params.threshold,
-    totalShares: params.totalShares,
-    maximumRewrapIntervalSeconds: params.maximumRewrapIntervalSeconds,
-  });
-
-  // transfer 100k sarco to the embalmer and approve the diamond to spend on their behalf
-  await fundAndApproveAccount(sarcophagusData.embalmer, 100_000);
-
-  // register archaeologist profiles for each keyshare and create a signature from each archaeologist
-  const archaeologists = await registerDefaultArchaeologistsAndCreateSignatures(
-    sarcophagusData
-  );
-
-  await (await getContracts()).embalmerFacet
-    .connect(sarcophagusData.embalmer)
-    .createSarcophagus(
-      ...buildCreateSarcophagusArgs(sarcophagusData, archaeologists)
-    );
-
-  return {
-    sarcophagusData,
-    archaeologists,
-  };
 };
