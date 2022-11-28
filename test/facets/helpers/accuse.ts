@@ -27,7 +27,7 @@ export const compromiseSarcophagus = async (
   );
 
 /**
- * Accuses count archaeologists on the sarcophagus with the supplied id
+ * Accuses the first count archaeologists on the sarcophagus with the supplied id
  * @param count
  * @param sarcoId
  * @param archaeologists

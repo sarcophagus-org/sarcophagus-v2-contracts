@@ -965,7 +965,7 @@ describe("Contract: EmbalmerFacet", () => {
 
           const sarcophagus = await viewStateFacet.getSarcophagus(sarcoId);
           expect(sarcophagus.resurrectionTime).to.equal(
-            BigNumber.from(2).pow(256).sub(1)
+            ethers.constants.MaxUint256
           );
         });
 

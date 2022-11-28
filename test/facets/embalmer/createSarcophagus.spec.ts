@@ -18,8 +18,8 @@ import {
   getArchaeologistLockedBondSarquitos,
 } from "../helpers/bond";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
-import { BigNumber } from "ethers";
 import { doubleHashShare } from "../helpers/shamirSecretSharing";
+import { getDiggingFeesPlusProtocolFeesSarquitos } from "../helpers/diggingFees";
 
 const { deployments, ethers } = require("hardhat");
 
@@ -338,15 +338,15 @@ describe("EmbalmerFacet.createSarcophagus", () => {
                 archaeologist.archAddress
               );
 
-            expect(archaeologistPostCurseFreeBond.toString()).to.equal(
+            expect(archaeologistPostCurseFreeBond).to.equal(
               startingArchaeologistBonds[index].freeBond.sub(
-                archaeologist.diggingFeeSarquitos.toString()
+                archaeologist.diggingFeeSarquitos
               )
             );
 
-            expect(archaeologistPostCurseLockedBond.toString()).to.equal(
+            expect(archaeologistPostCurseLockedBond).to.equal(
               startingArchaeologistBonds[index].lockedBond.add(
-                archaeologist.diggingFeeSarquitos.toString()
+                archaeologist.diggingFeeSarquitos
               )
             );
           }
@@ -375,18 +375,11 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         sarcophagusData.embalmer.address
       );
 
-      const totalDiggingFees: BigNumber = archaeologists.reduce(
-        (sum: BigNumber, archaeologist: ArchaeologistData) =>
-          sum.add(BigNumber.from(archaeologist.diggingFeeSarquitos)),
-        BigNumber.from(0)
+      const totalCostToEmbalmer = await getDiggingFeesPlusProtocolFeesSarquitos(
+        archaeologists
       );
-      const totalCostToEmbalmer = totalDiggingFees.add(
-        totalDiggingFees
-          .mul(await viewStateFacet.getProtocolFeeBasePercentage())
-          .div(100)
-      );
-      expect(postCreationSarquitoBalance.toString()).to.equal(
-        startingEmbalmerSarquitoBalance.sub(totalCostToEmbalmer).toString()
+      expect(postCreationSarquitoBalance).to.equal(
+        startingEmbalmerSarquitoBalance.sub(totalCostToEmbalmer)
       );
     });
     it("Should store all selected archaeologists on the newly created sarcophagus", async function () {

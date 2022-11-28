@@ -7,8 +7,8 @@ import { getFreshAccount } from "../helpers/accounts";
 import { hashShare } from "../helpers/shamirSecretSharing";
 import { BigNumber } from "ethers";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
-import { ArchaeologistData } from "../helpers/archaeologistSignature";
 import { verifyAccusalStatusesForArchaeologists } from "../helpers/accuse";
+import { getTotalDiggingFeesSarquitos } from "../helpers/diggingFees";
 
 const { deployments, ethers } = require("hardhat");
 
@@ -334,11 +334,8 @@ describe("accuse v2", () => {
       await expect(tx).to.emit(thirdPartyFacet, `AccuseArchaeologist`);
 
       const combinedDiggingFeesSarquito: BigNumber =
-        accusedArchaeologists.reduce(
-          (sum: BigNumber, accusedArchaeologist: ArchaeologistData) =>
-            sum.add(BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)),
-          BigNumber.from(0)
-        );
+        getTotalDiggingFeesSarquitos(accusedArchaeologists);
+
       // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
       expect(await getSarquitoBalance(accuser.address)).to.equal(
         BigNumber.from(combinedDiggingFeesSarquito).div(2).toString()
@@ -548,11 +545,7 @@ describe("accuse v2", () => {
       await expect(tx2).to.emit(thirdPartyFacet, `AccuseArchaeologist`);
 
       const combinedDiggingFeesSarquito: BigNumber =
-        accusedArchaeologists.reduce(
-          (sum: BigNumber, accusedArchaeologist: ArchaeologistData) =>
-            sum.add(BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)),
-          BigNumber.from(0)
-        );
+        getTotalDiggingFeesSarquitos(accusedArchaeologists);
       // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
       expect(await getSarquitoBalance(accuser.address)).to.equal(
         BigNumber.from(combinedDiggingFeesSarquito).div(2).toString()
