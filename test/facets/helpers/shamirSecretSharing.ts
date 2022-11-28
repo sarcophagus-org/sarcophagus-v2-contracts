@@ -6,15 +6,17 @@ const crypto = require("crypto");
 const sss = require("shamirs-secret-sharing");
 
 /**
- * Returns the hash of the supplied keyshare
- * */
+ * hashes the key share once
+ * @param share
+ */
 export const hashShare = (share: BytesLike): string => {
   return ethers.utils.solidityKeccak256(["bytes"], [share]);
 };
 
 /**
- * Returns the double hash of the supplied keyshare
- * */
+ * hashes the key share twice
+ * @param share
+ */
 export const doubleHashShare = (share: Bytes): string => {
   return hashShare(hashShare(share));
 };
@@ -23,7 +25,9 @@ export const doubleHashShare = (share: Bytes): string => {
  * Generates a random 64 byte key
  * Splits the key into a set of n shares where a threshold of k is required to recover the original key
  * returns the array of shares and the original key as a hex string
- * */
+ * @param k the threshold of shares required to reconstruct the key
+ * @param n the total number of shares to create from the key
+ */
 export const generateKeyshares = (
   k: number,
   n: number

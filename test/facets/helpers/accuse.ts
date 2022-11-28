@@ -1,12 +1,13 @@
-import { ArchaeologistData } from "./archaeologist";
+import { ArchaeologistData } from "./archaeologistSignature";
 import { expect } from "chai";
 import { getContracts } from "./contracts";
+import { Bytes } from "ethers";
 
 /**
  * Given a set of archaeologists and sarcoId, asserts all have the expected accusal status
  * */
 export const verifyAccusalStatusesForArchaeologists = async (
-  sarcoId: string,
+  sarcoId: Bytes,
   archaeologists: ArchaeologistData[],
   isAccused: boolean
 ): Promise<void> => {

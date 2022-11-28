@@ -1,13 +1,13 @@
 import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai";
-import { generateSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
+import { registerSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
 import time from "../../utils/time";
 import { getContracts } from "../helpers/contracts";
 import { getFreshAccount } from "../helpers/accounts";
 import { hashShare } from "../helpers/shamirSecretSharing";
 import { BigNumber } from "ethers";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
-import { ArchaeologistData } from "../helpers/archaeologist";
+import { ArchaeologistData } from "../helpers/archaeologistSignature";
 import { verifyAccusalStatusesForArchaeologists } from "../helpers/accuse";
 
 const { deployments, ethers } = require("hardhat");
@@ -39,25 +39,22 @@ describe("accuse v2", () => {
 
     it("Should revert if the current time is past the resurrectionTime", async function () {
       const { thirdPartyFacet } = await getContracts();
-      // generate a sarcophagus with a resurrection time 1 week in the future
+      // generate a sarcophagus with a resurrection time 5 weeks in the future
       const resurrectionTimeSeconds =
-        (await time.latest()) + time.duration.weeks(1);
-      const { embalmer, sarcophagus } =
-        await generateSarcophagusWithArchaeologists({
-          totalShares: 5,
-          threshold: 3,
-          maximumRewrapIntervalSeconds: time.duration.weeks(4),
-          resurrectionTimeSeconds:
-            (await time.latest()) + time.duration.weeks(1),
-        });
+        (await time.latest()) + time.duration.weeks(5);
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists({
+        totalShares: 5,
+        threshold: 3,
+        maximumRewrapIntervalSeconds: time.duration.weeks(4),
+      });
 
       // set the current time to one week in the future, after the sarcophagus is allowed to be resurrected
       await time.increaseTo(resurrectionTimeSeconds);
 
       // accuse an archaeologist of leaking a keyshare
       const tx = thirdPartyFacet
-        .connect(embalmer)
-        .accuse(sarcophagus.sarcoId, [], embalmer.address);
+        .connect(sarcophagusData.embalmer)
+        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
 
       await expect(tx).to.be.revertedWithCustomError(
         thirdPartyFacet,
@@ -70,19 +67,17 @@ describe("accuse v2", () => {
     it("On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await getFreshAccount();
-      const { embalmer, sarcophagus, archaeologists } =
-        await generateSarcophagusWithArchaeologists({
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists({
           totalShares: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
-          resurrectionTimeSeconds:
-            (await time.latest()) + time.duration.weeks(3),
         });
       const accusedArchaeologist = archaeologists[0];
 
       // save the sarquito balance of the embalmer prior to the accusal
       const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
-        embalmer.address
+        sarcophagusData.embalmer.address
       );
       // save accused archaeologist initial free bond
       const accusedArchaeologistInitialFreeBondSarquitos = (
@@ -95,7 +90,7 @@ describe("accuse v2", () => {
       const tx = thirdPartyFacet
         .connect(accuser)
         .accuse(
-          sarcophagus.sarcoId,
+          sarcophagusData.sarcoId,
           [hashShare(accusedArchaeologist.rawKeyShare)],
           accuser.address
         );
@@ -109,7 +104,7 @@ describe("accuse v2", () => {
       );
 
       const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
-        embalmer.address
+        sarcophagusData.embalmer.address
       );
       // verify embalmer receives half of archaeologist cursed bond plus full digging fee
       expect(
@@ -137,7 +132,7 @@ describe("accuse v2", () => {
       // verify accused archaeologist has been marked as accused
       const accusedArchaeologistStorage =
         await viewStateFacet.getSarcophagusArchaeologist(
-          sarcophagus.sarcoId,
+          sarcophagusData.sarcoId,
           accusedArchaeologist.archAddress
         );
       expect(accusedArchaeologistStorage.isAccused).to.be.true;
@@ -154,13 +149,11 @@ describe("accuse v2", () => {
       const accuser = await getFreshAccount();
       const { viewStateFacet } = await getContracts();
 
-      const { sarcophagus, archaeologists } =
-        await generateSarcophagusWithArchaeologists({
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists({
           totalShares: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
-          resurrectionTimeSeconds:
-            (await time.latest()) + time.duration.weeks(3),
         });
 
       const accusedArchaeologist = archaeologists[0];
@@ -170,7 +163,7 @@ describe("accuse v2", () => {
       // accuse an archaeologist of leaking a keyshare
       await (await getContracts()).thirdPartyFacet
         .connect(accuser)
-        .accuse(sarcophagus.sarcoId, [hashedShare], accuser.address);
+        .accuse(sarcophagusData.sarcoId, [hashedShare], accuser.address);
 
       // verify the sarcophagus state is still active
       // expect(
@@ -193,17 +186,15 @@ describe("accuse v2", () => {
     it("Should not pay out digging fees or cursed bond or emit an event on accusal of an archaeologist that has already been accused once", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await getFreshAccount();
-      const { embalmer, sarcophagus, archaeologists } =
-        await generateSarcophagusWithArchaeologists({
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists({
           totalShares: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
-          resurrectionTimeSeconds:
-            (await time.latest()) + time.duration.weeks(3),
         });
       const accusedArchaeologist = archaeologists[0];
       const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
-        embalmer.address
+        sarcophagusData.embalmer.address
       );
       // save accused archaeologist initial free bond
       const accusedArchaeologistInitialFreeBondSarquitos = (
@@ -215,7 +206,7 @@ describe("accuse v2", () => {
       await thirdPartyFacet
         .connect(accuser)
         .accuse(
-          sarcophagus.sarcoId,
+          sarcophagusData.sarcoId,
           [hashShare(accusedArchaeologist.rawKeyShare)],
           accuser.address
         );
@@ -225,7 +216,9 @@ describe("accuse v2", () => {
         BigNumber.from(accusedArchaeologist.diggingFee).div(2).toString()
       );
 
-      expect(await getSarquitoBalance(embalmer.address)).to.equal(
+      expect(
+        await getSarquitoBalance(sarcophagusData.embalmer.address)
+      ).to.equal(
         BigNumber.from(accusedArchaeologist.diggingFee)
           .div(2)
           .add(BigNumber.from(accusedArchaeologist.diggingFee))
@@ -235,7 +228,7 @@ describe("accuse v2", () => {
 
       // save the sarquito balance of the embalmer and the accuser after the first accusal
       const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
-        embalmer.address
+        sarcophagusData.embalmer.address
       );
       const accuserPostAccuseSarquitoBalance = await getSarquitoBalance(
         accuser.address
@@ -245,7 +238,7 @@ describe("accuse v2", () => {
       const tx = thirdPartyFacet
         .connect(accuser)
         .accuse(
-          sarcophagus.sarcoId,
+          sarcophagusData.sarcoId,
           [hashShare(accusedArchaeologist.rawKeyShare)],
           accuser.address
         );
@@ -259,9 +252,9 @@ describe("accuse v2", () => {
       );
 
       // verify that the embalmer balance is unchanged
-      expect(await getSarquitoBalance(embalmer.address)).to.equal(
-        embalmerPostAccuseSarquitoBalance.toString()
-      );
+      expect(
+        await getSarquitoBalance(sarcophagusData.embalmer.address)
+      ).to.equal(embalmerPostAccuseSarquitoBalance.toString());
 
       // verify accused archaeologist cursed bond has been set to 0 and free bond has not been increased
       const accusedArchaeologistProfile =
@@ -276,7 +269,7 @@ describe("accuse v2", () => {
       // verify accused archaeologist has been marked as accused
       const accusedArchaeologistStorage =
         await viewStateFacet.getSarcophagusArchaeologist(
-          sarcophagus.sarcoId,
+          sarcophagusData.sarcoId,
           accusedArchaeologist.archAddress
         );
       expect(accusedArchaeologistStorage.isAccused).to.be.true;
@@ -294,20 +287,18 @@ describe("accuse v2", () => {
     it("On a successful accusal of 3 archaeologists on a 3 of 5 sarco, should split cursed bond for the 3 leaking archs between the embalmer and the accuser, refund digging fees for 3 archaeologists to the embalmer, slash the 3 leaking archaeologists' bonds, mark the archaeologists as accused, and emit an AccuseArchaeologist event", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await getFreshAccount();
-      const { embalmer, sarcophagus, archaeologists } =
-        await generateSarcophagusWithArchaeologists({
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists({
           totalShares: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
-          resurrectionTimeSeconds:
-            (await time.latest()) + time.duration.weeks(3),
         });
       const accusedArchaeologists = archaeologists.slice(0, 3);
       const innocentArchaeologists = archaeologists.slice(3, 5);
 
       // snapshot the balance of the embalmer prior to the accusal
       const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
-        embalmer.address
+        sarcophagusData.embalmer.address
       );
 
       // snapshot all archaeologist free bond values prior to accusal
@@ -328,7 +319,7 @@ describe("accuse v2", () => {
 
       // accuse the archaeologist of leaking a keyshare
       const tx = thirdPartyFacet.connect(accuser).accuse(
-        sarcophagus.sarcoId,
+        sarcophagusData.sarcoId,
         accusedArchaeologists.map((accusedArchaeologist) =>
           hashShare(accusedArchaeologist.rawKeyShare)
         ),
@@ -350,7 +341,7 @@ describe("accuse v2", () => {
       );
 
       const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
-        embalmer.address
+        sarcophagusData.embalmer.address
       );
       // verify embalmer receives half of archaeologist cursed bond plus full digging fee
       expect(
@@ -413,14 +404,14 @@ describe("accuse v2", () => {
 
       // verify accused archaeologists have been marked as accused
       await verifyAccusalStatusesForArchaeologists(
-        sarcophagus.sarcoId,
+        sarcophagusData.sarcoId,
         accusedArchaeologists,
         true
       );
 
       // verify innocent archaeologists have not been marked as accused
       await verifyAccusalStatusesForArchaeologists(
-        sarcophagus.sarcoId,
+        sarcophagusData.sarcoId,
         innocentArchaeologists,
         false
       );
@@ -452,20 +443,18 @@ describe("accuse v2", () => {
       const accuser = await getFreshAccount();
       const { viewStateFacet } = await getContracts();
 
-      const { sarcophagus, archaeologists } =
-        await generateSarcophagusWithArchaeologists({
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists({
           totalShares: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
-          resurrectionTimeSeconds:
-            (await time.latest()) + time.duration.weeks(3),
         });
 
       const accusedArchaeologists = archaeologists.splice(0, 2);
 
       // accuse an archaeologist of leaking a keyshare
       await (await getContracts()).thirdPartyFacet.connect(accuser).accuse(
-        sarcophagus.sarcoId,
+        sarcophagusData.sarcoId,
         accusedArchaeologists.map((accusedArchaeologist) =>
           hashShare(accusedArchaeologist.rawKeyShare)
         ),
@@ -494,20 +483,18 @@ describe("accuse v2", () => {
     it("Should free all unaccused archaeologists upon successful accusal of 1 archaeologist on a 3 of 5 sarcophagus where 2 have been accused on a previous call and update state to accused", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await getFreshAccount();
-      const { embalmer, sarcophagus, archaeologists } =
-        await generateSarcophagusWithArchaeologists({
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists({
           totalShares: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
-          resurrectionTimeSeconds:
-            (await time.latest()) + time.duration.weeks(3),
         });
       const accusedArchaeologists = archaeologists.slice(0, 3);
       const innocentArchaeologists = archaeologists.slice(3, 5);
 
       // snapshot the balance of the embalmer prior to the accusal
       const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
-        embalmer.address
+        sarcophagusData.embalmer.address
       );
 
       // snapshot all archaeologist free bond values prior to accusal
@@ -528,7 +515,7 @@ describe("accuse v2", () => {
 
       // accuse two archaeologists of leaking a keyshare
       const tx1 = thirdPartyFacet.connect(accuser).accuse(
-        sarcophagus.sarcoId,
+        sarcophagusData.sarcoId,
         accusedArchaeologists
           .slice(0, 2)
           .map((accusedArchaeologist) =>
@@ -542,7 +529,7 @@ describe("accuse v2", () => {
 
       // accuse one more archaeologist of leaking a keyshare
       const tx2 = thirdPartyFacet.connect(accuser).accuse(
-        sarcophagus.sarcoId,
+        sarcophagusData.sarcoId,
         accusedArchaeologists
           .slice(2, 3)
           .map((accusedArchaeologist) =>
@@ -566,7 +553,7 @@ describe("accuse v2", () => {
       );
 
       const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
-        embalmer.address
+        sarcophagusData.embalmer.address
       );
       // verify embalmer receives half of archaeologist cursed bond plus full digging fee
       expect(
@@ -629,14 +616,14 @@ describe("accuse v2", () => {
 
       // verify accused archaeologists have been marked as accused
       await verifyAccusalStatusesForArchaeologists(
-        sarcophagus.sarcoId,
+        sarcophagusData.sarcoId,
         accusedArchaeologists,
         true
       );
 
       // verify innocent archaeologists have not been marked as accused
       await verifyAccusalStatusesForArchaeologists(
-        sarcophagus.sarcoId,
+        sarcophagusData.sarcoId,
         innocentArchaeologists,
         false
       );
