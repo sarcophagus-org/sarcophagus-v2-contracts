@@ -406,7 +406,7 @@ describe("accuse v2", () => {
               innocentArchaeologists[index].archAddress
             );
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
-            initialFreeBond!.add(innocentArchaeologists[index].diggingFee)
+            initialFreeBond?.add(innocentArchaeologists[index].diggingFee)
           );
         }
       );
@@ -622,7 +622,7 @@ describe("accuse v2", () => {
               innocentArchaeologists[index].archAddress
             );
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
-            initialFreeBond!.add(innocentArchaeologists[index].diggingFee)
+            initialFreeBond?.add(innocentArchaeologists[index].diggingFee)
           );
         }
       );
