@@ -13,7 +13,10 @@
     "test": "npx hardhat test",
     "transfer": "npx hardhat run scripts/transfer.js --network localhost",
     "prepublish": "npm run clean && npx rimraf dist && npm run compile && npx tsc",
-    "history": "npx hardhat generate-history --network localhost"
+    "history": "npx hardhat generate-history --network localhost",
+    "lint": "npx eslint deploy scripts tasks test --fix",
+    "prettier": "npx prettier --write deploy scripts tasks test",
+    "prepare": "husky install"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
