@@ -51,7 +51,6 @@ struct AppStorage {
 
 
     // current balance of rewards available for the archaeologist to withdraw
-    // todo: Combine with ArchaeologistProfile.freeBond
     mapping(address => uint256) archaeologistRewards;
 
 

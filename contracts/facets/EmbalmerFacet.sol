@@ -106,7 +106,6 @@ contract EmbalmerFacet {
             );
         }
 
-        // todo: we may not need to validate k and n, is the embalmer hurting anybody by themselves by setting incorrect k/n values?
         // Confirm that archaeologists are provided
         if (selectedArchaeologists.length == 0) {
             revert LibErrors.NoArchaeologistsProvided();
@@ -140,7 +139,6 @@ contract EmbalmerFacet {
             LibUtils.revertIfArchProfileDoesNotExist(selectedArchaeologists[i].archAddress);
 
             // Confirm archaeologist isn't already cursed on sarcophagus
-            // todo: may be unnecessary, is cursing an archaeologist twice harming anybody but the caller?
             if (
                 sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress].doubleHashedKeyShare != 0
             ) {
@@ -263,7 +261,6 @@ contract EmbalmerFacet {
 
             // if the archaeologist hasn't been accused transfer them their digging fees
             if (!cursedArchaeologist.isAccused) {
-                // todo: consider adding this amount to archaeologistProfile.freeBond instead
                 s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
                 totalDiggingFees += cursedArchaeologist.diggingFee;
             }
@@ -320,8 +317,7 @@ contract EmbalmerFacet {
         // for each archaeologist on the sarcophagus, unlock bond and pay digging fees
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
-            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
-            .cursedArchaeologists[archaeologistAddresses[i]];
+            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus.cursedArchaeologists[archaeologistAddresses[i]];
             // if the archaeologist hasn't been accused transfer them their digging fees and return their locked bond
             if (!cursedArchaeologist.isAccused) {
                 s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
