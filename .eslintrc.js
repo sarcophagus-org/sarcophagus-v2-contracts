@@ -16,25 +16,14 @@ module.exports = {
     ecmaVersion: "latest",
   },
   rules: {
-    "node/no-unsupported-features/es-syntax": ["error", { ignores: ["modules"] }],
+    "node/no-unsupported-features/es-syntax": [
+      "error",
+      { ignores: ["modules"] },
+    ],
     "node/no-unpublished-require": 0,
     "node/no-unpublished-import": 0,
     "comma-dangle": "off",
     "@typescript-eslint/indent": "off",
-    // prettier config
-    "prettier/prettier": [
-      1,
-      {
-        printWidth: 100,
-        endOfLine: "lf",
-        tabWidth: 2,
-        useTabs: false,
-        singleQuote: false,
-        semi: true,
-        arrowParens: "avoid",
-        singleAttributePerLine: true,
-      },
-    ],
     // var rules
     "no-use-before-define": "off",
     "@typescript-eslint/comma-dangle": "off",

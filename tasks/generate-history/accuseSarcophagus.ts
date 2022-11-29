@@ -16,7 +16,10 @@ export async function accuseSarcophagus(
 
   // Get the contracts
   const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const thirdPartyFacet = await hre.ethers.getContractAt("ThirdPartyFacet", diamond.address);
+  const thirdPartyFacet = await hre.ethers.getContractAt(
+    "ThirdPartyFacet",
+    diamond.address
+  );
   const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
 
   // Pick random sarcophagi to accuse
@@ -29,18 +32,28 @@ export async function accuseSarcophagus(
   console.log("Accusing archaeologists on sarcophagi...");
   for (let i = 0; i < sarcophagiToAccuse; i++) {
     const { sarcoId, shards } = accusedSarcophagi[i];
-    const unencryptedShardHashes = Object.values(shards).map(shard => keccak256(shard));
+    const unencryptedShardHashes = Object.values(shards).map((shard) =>
+      keccak256(shard)
+    );
     try {
       await thirdPartyFacet
         .connect(accuser)
         .accuse(sarcoId, unencryptedShardHashes, accuser.address);
-      console.log(`(${i + 1}/${sarcophagiToAccuse}) Accused all archaeologists on ${sarcoId}`);
+      console.log(
+        `(${
+          i + 1
+        }/${sarcophagiToAccuse}) Accused all archaeologists on ${sarcoId}`
+      );
     } catch (_error) {
       const error = _error as Error;
-      console.log(`(${i + 1}/${sarcophagiToAccuse}) Failed to accuse archaeologists on ${sarcoId}`);
+      console.log(
+        `(${
+          i + 1
+        }/${sarcophagiToAccuse}) Failed to accuse archaeologists on ${sarcoId}`
+      );
       throw new Error(error.message);
     }
   }
 
-  return accusedSarcophagi.map(sarcophagus => sarcophagus.sarcoId);
+  return accusedSarcophagi.map((sarcophagus) => sarcophagus.sarcoId);
 }

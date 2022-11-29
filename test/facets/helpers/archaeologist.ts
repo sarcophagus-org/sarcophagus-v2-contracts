@@ -1,10 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ethers } from "hardhat";
 import { sign } from "../../utils/helpers";
 import { getFreshAccount } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
 import { getContracts } from "./contracts";
 import { doubleHashShare } from "./shamirSecretSharing";
+
+const { ethers } = require("hardhat");
 
 export interface ArchaeologistParameters {
   minDiggingFeeSarco: number;
@@ -64,8 +65,8 @@ export interface SarcophagusNegotiationParams {
 
 export interface ArchaeologistData {
   archAddress: string;
-  share: Buffer;
-  unencryptedShardDoubleHash: string;
+  rawKeyShare: Buffer;
+  doubleHashedKeyShare: string;
   diggingFee: string;
   v: number;
   r: string;
@@ -103,8 +104,8 @@ export const generateArchSignature = async (
   return {
     archAddress: archaeologistSigner.address,
     diggingFee: sarcophagusDiggingFeeSarquitos,
-    share: sarcophagusParams.share,
-    unencryptedShardDoubleHash: doubleHashedShare,
+    rawKeyShare: sarcophagusParams.share,
+    doubleHashedKeyShare: doubleHashedShare,
     v,
     r,
     s,

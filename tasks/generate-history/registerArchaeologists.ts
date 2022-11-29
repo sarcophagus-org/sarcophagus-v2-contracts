@@ -16,12 +16,17 @@ export async function registerArchaeologists(
   const count = generateHistoryConfig.archaeologistCount;
 
   if (count > accounts.length) {
-    throw new Error(`Not enough accounts. Count must be less than or equal to ${accounts.length}`);
+    throw new Error(
+      `Not enough accounts. Count must be less than or equal to ${accounts.length}`
+    );
   }
 
   // Get the contract
   const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const archaeologistFacet = await hre.ethers.getContractAt("ArchaeologistFacet", diamond.address);
+  const archaeologistFacet = await hre.ethers.getContractAt(
+    "ArchaeologistFacet",
+    diamond.address
+  );
   const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
 
   console.log("Registering archaeologists...");
@@ -38,7 +43,9 @@ export async function registerArchaeologists(
 
     // Register the archaeologist
     try {
-      await sarcoToken.connect(account).approve(diamond.address, hre.ethers.constants.MaxUint256);
+      await sarcoToken
+        .connect(account)
+        .approve(diamond.address, hre.ethers.constants.MaxUint256);
       await sarcoToken.transfer(account.address, freeBond * 10);
       await archaeologistFacet
         .connect(account)
@@ -48,7 +55,9 @@ export async function registerArchaeologists(
           BigNumber.from(maximumRewrapInterval),
           BigNumber.from(freeBond)
         );
-      console.log(`(${i + 1}/${count}) Registered archaeologist ${account.address}`);
+      console.log(
+        `(${i + 1}/${count}) Registered archaeologist ${account.address}`
+      );
     } catch (_error) {
       const error = _error as Error;
       console.error("Failed to register archaeologist", account.address);

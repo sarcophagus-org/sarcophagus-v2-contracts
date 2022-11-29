@@ -1,7 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, Signature } from "ethers";
 import { ethers } from "hardhat";
-import { ArchaeologistFacet, SarcoTokenMock, ViewStateFacet } from "../../typechain";
+import {
+  ArchaeologistFacet,
+  SarcoTokenMock,
+  ViewStateFacet,
+} from "../../typechain";
 import { SignatureWithAccount } from "../types";
 import { TestArchaeologist } from "../fixtures/spawn-archaeologists";
 
@@ -24,7 +28,10 @@ export async function sign(
   message: string | string[],
   type: string | string[]
 ): Promise<Signature> {
-  const dataHex = ethers.utils.defaultAbiCoder.encode(flat(type), flat(message));
+  const dataHex = ethers.utils.defaultAbiCoder.encode(
+    flat(type),
+    flat(message)
+  );
   const dataHash = ethers.utils.keccak256(dataHex);
   const dataHashBytes = ethers.utils.arrayify(dataHash);
   const signature = await signer.signMessage(dataHashBytes);
@@ -60,7 +67,9 @@ export async function signMultiple(
  *
  * @param sec The number of seconds to increase the next block by
  */
-export const increaseNextBlockTimestamp = async (sec: number): Promise<void> => {
+export const increaseNextBlockTimestamp = async (
+  sec: number
+): Promise<void> => {
   await ethers.provider.send("evm_setNextBlockTimestamp", [
     (await ethers.provider.getBlock("latest")).timestamp + sec,
   ]);
@@ -96,6 +105,7 @@ export const toSarco = (amount: number): BigNumber => {
  * Gets a list of archaeologist sarco rewards.
  *
  * @param archaeologists A list of archaeologist signers
+ * @param viewStateFacet
  * @returns a list of archaeologist sarco rewards
  */
 export const getArchaeologistSarcoRewards = async (
@@ -115,7 +125,8 @@ export const getArchaeologistSarcoRewards = async (
 };
 
 // TODO: update if calculate cursed bond algorithm changes (or possibly this function will be removed)
-export const calculateCursedBond = (diggingFee: BigNumber): BigNumber => diggingFee;
+export const calculateCursedBond = (diggingFee: BigNumber): BigNumber =>
+  diggingFee;
 
 export const registerArchaeologist = async (
   archaeologist: TestArchaeologist,

@@ -5,7 +5,10 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 /**
  * Increases the local node's next block timestap to the given timestamp.
  */
-export async function increaseTo(hre: HardhatRuntimeEnvironment, to: number): Promise<void> {
+export async function increaseTo(
+  hre: HardhatRuntimeEnvironment,
+  to: number
+): Promise<void> {
   await hre.ethers.provider.send("evm_setNextBlockTimestamp", [to]);
   await hre.ethers.provider.send("evm_mine", []);
 }
@@ -40,7 +43,10 @@ export async function signHre(
   message: string | string[],
   type: string | string[]
 ): Promise<Signature> {
-  const dataHex = hre.ethers.utils.defaultAbiCoder.encode(flat(type), flat(message));
+  const dataHex = hre.ethers.utils.defaultAbiCoder.encode(
+    flat(type),
+    flat(message)
+  );
   const dataHash = hre.ethers.utils.keccak256(dataHex);
   const dataHashBytes = hre.ethers.utils.arrayify(dataHash);
   const signature = await signer.signMessage(dataHashBytes);

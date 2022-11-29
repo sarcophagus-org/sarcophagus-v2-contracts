@@ -13,13 +13,11 @@ library LibErrors {
 
     error ArchaeologistAlreadyUnwrapped(address archaeologist);
 
-    error ArchaeologistListNotUnique(address[] archaeologists);
+    error ArchaeologistListNotUnique(address archaeologistAddress);
 
     error ArchaeologistNotOnSarcophagus(address archaeologist);
 
     error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);
-
-    error ArweaveTxIdsInvalid();
 
     error DiggingFeeTooLow(uint256 diggingFee, address archaeologist);
 
@@ -43,7 +41,10 @@ library LibErrors {
 
     error ResurrectionTimeInPast(uint256 resurrectionTime);
 
-    error ResurrectionTimeTooFarInFuture(uint256 resurrectionTime, uint256 sarcophagusMaximumRewrapInterval);
+    error ResurrectionTimeTooFarInFuture(
+        uint256 resurrectionTime,
+        uint256 sarcophagusMaximumRewrapInterval
+    );
 
     error SarcophagusAlreadyExists(bytes32 sarcoId);
 
@@ -51,12 +52,14 @@ library LibErrors {
 
     error SarcophagusInactive(bytes32 sarcoId);
 
+    error SarcophagusCompromised(bytes32 sarcoId);
+
     error SenderNotEmbalmer(address sender, address embalmer);
 
     error InvalidSignature(
-    // address recovered from signature via ecrecover
+        // address recovered from signature via ecrecover
         address recoveredAddress,
-    // address we expected to have signed the data
+        // address we expected to have signed the data
         address expectedAddress
     );
 
@@ -70,17 +73,9 @@ library LibErrors {
 
     error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
 
-    error TooLateToUnwrap(
-        uint256 resurrectionTime,
-        uint256 gracePeriod,
-        uint256 currentTime
-    );
+    error TooLateToUnwrap(uint256 resurrectionTime, uint256 gracePeriod, uint256 currentTime);
 
-    error UnencryptedShardHashMismatch(
-        bytes unencryptedShard,
-        bytes32 doubleHashedShard
-    );
+    error UnencryptedShardHashMismatch(bytes rawKeyShare, bytes32 doubleHashedKeyShare);
 
     error SarcophagusParametersExpired(uint256 timestamp);
 }
-

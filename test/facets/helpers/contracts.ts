@@ -1,5 +1,4 @@
 import { Contract } from "ethers";
-import { ethers } from "hardhat";
 import {
   AdminFacet,
   ArchaeologistFacet,
@@ -8,6 +7,8 @@ import {
   ThirdPartyFacet,
   ViewStateFacet,
 } from "../../../typechain";
+
+const { ethers } = require("hardhat");
 
 /**
  * Returns all contracts

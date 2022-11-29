@@ -15,12 +15,18 @@ const allowedNetworks = ["localhost"];
     );
   }
 
-  const sarcoToken = await hre.ethers.getContractAt("SarcoTokenMock", mockTokenAddress);
+  const sarcoToken = await hre.ethers.getContractAt(
+    "SarcoTokenMock",
+    mockTokenAddress
+  );
   const unsignedAccounts = await hre.getUnnamedAccounts();
 
   const transferAddress = process.env.TRANSFER_ADDRESS || unsignedAccounts[0];
 
-  await sarcoToken.transfer(transferAddress, hre.ethers.BigNumber.from(amountToTransfer));
+  await sarcoToken.transfer(
+    transferAddress,
+    hre.ethers.BigNumber.from(amountToTransfer)
+  );
 
   const newBalance = await sarcoToken.balanceOf(transferAddress);
   console.log("account balance:", newBalance.toString());

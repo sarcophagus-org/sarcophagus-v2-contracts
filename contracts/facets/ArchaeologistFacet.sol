@@ -11,7 +11,7 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ArchaeologistFacet {
     AppStorage internal s;
 
-    event UnwrapSarcophagus(bytes32 indexed sarcoId, bytes unencryptedShard);
+    event PublishKeyShare(bytes32 indexed sarcoId, bytes rawKeyShare);
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
@@ -31,15 +31,9 @@ contract ArchaeologistFacet {
         uint256 freeBond
     );
 
-    event WithdrawFreeBond(
-        address indexed archaeologist,
-        uint256 withdrawnBond
-    );
+    event WithdrawFreeBond(address indexed archaeologist, uint256 withdrawnBond);
 
-    event WithdrawReward(
-        address indexed archaeologist,
-        uint256 withdrawnReward
-    );
+    event WithdrawReward(address indexed archaeologist, uint256 withdrawnReward);
 
     /// @notice Registers the archaeologist profile
     /// @param peerId The libp2p identifier for the archaeologist
@@ -57,15 +51,14 @@ contract ArchaeologistFacet {
         LibUtils.revertIfArchProfileExists(msg.sender);
 
         // create a new archaeologist
-        LibTypes.ArchaeologistProfile memory newArch = LibTypes
-            .ArchaeologistProfile({
-                exists: true,
-                peerId: peerId,
-                minimumDiggingFee: minimumDiggingFee,
-                maximumRewrapInterval: maximumRewrapInterval,
-                freeBond: freeBond,
-                cursedBond: 0
-            });
+        LibTypes.ArchaeologistProfile memory newArch = LibTypes.ArchaeologistProfile({
+            exists: true,
+            peerId: peerId,
+            minimumDiggingFee: minimumDiggingFee,
+            maximumRewrapInterval: maximumRewrapInterval,
+            freeBond: freeBond,
+            cursedBond: 0
+        });
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
@@ -102,8 +95,7 @@ contract ArchaeologistFacet {
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
 
         // create a new archaeologist
-        LibTypes.ArchaeologistProfile storage existingArch = s
-            .archaeologistProfiles[msg.sender];
+        LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];
         existingArch.peerId = peerId;
         existingArch.minimumDiggingFee = minimumDiggingFee;
         existingArch.maximumRewrapInterval = maximumRewrapInterval;
@@ -163,58 +155,78 @@ contract ArchaeologistFacet {
         emit WithdrawReward(msg.sender, amountToWithdraw);
     }
 
-    /// @notice Unwraps the sarcophagus.
-    /// @dev Verifies that the unencrypted shard matches the hashedShard stored
-    /// on chain and pays the archaeologist.
+    /// @notice Publishes the raw key share for which the archaeologist is responsible during the
+    /// sarcophagus resurrection window.
+    /// Pays digging fees to the archaeologist and releases their locked bond.
+    /// Cannot be called on a compromised or buried sarcophagus.
     /// @param sarcoId The identifier of the sarcophagus to unwrap
-    /// @param unencryptedShard The archaeologist's corresponding unencrypted shard
-    function unwrapSarcophagus(bytes32 sarcoId, bytes memory unencryptedShard)
-        external
-    {
-        LibUtils.revertIfNotExistOrInactive(sarcoId);
+    /// @param rawKeyShare The keyshare the archaeologist is publishing
+    function publishKeyShare(bytes32 sarcoId, bytes calldata rawKeyShare) external {
+        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
-        // Confirm that the archaeologist has not already unwrapped by checking
-        // if the unencryptedShard is empty
-        LibUtils.archaeologistUnwrappedCheck(sarcoId, msg.sender);
-
-        // Confirm that the sender is an archaeologist on this sarcophagus
-        if (!LibUtils.archaeologistExistsOnSarc(sarcoId, msg.sender)) {
-            revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
+        // Confirm sarcophagus exists
+        if (sarcophagus.resurrectionTime == 0) {
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
-        // Confirm that the resurrection time has passed and that the
-        // grace period has not passed
-        LibUtils.unwrapTime(s.sarcophagi[sarcoId].resurrectionTime);
+        // Confirm sarcophagus has not been compromised
+        if (sarcophagus.isCompromised) {
+            revert LibErrors.SarcophagusCompromised(sarcoId);
+        }
 
-        // Get the archaeologist's data from storage
-        LibTypes.ArchaeologistStorage memory archaeologistData = LibUtils
-            .getArchaeologist(sarcoId, msg.sender);
+        // Confirm sarcophagus is not buried
+        if (sarcophagus.resurrectionTime == 2**256 - 1) {
+            revert LibErrors.SarcophagusInactive(sarcoId);
+        }
 
-        // Confirm that the double hash of the unencrypted shard matches the hashedShard in storage
-        bytes32 doubleHash = keccak256(abi.encode(keccak256(unencryptedShard)));
-        if (doubleHash != archaeologistData.unencryptedShardDoubleHash) {
-            revert LibErrors.UnencryptedShardHashMismatch(
-                unencryptedShard,
-                archaeologistData.unencryptedShardDoubleHash
+        // Confirm current time is after resurrectionTime
+        if (block.timestamp < sarcophagus.resurrectionTime) {
+            revert LibErrors.TooEarlyToUnwrap(sarcophagus.resurrectionTime, block.timestamp);
+        }
+
+        // Confirm current time is within gracePeriod
+        if (block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod) {
+            revert LibErrors.TooLateToUnwrap(
+                sarcophagus.resurrectionTime,
+                s.gracePeriod,
+                block.timestamp
             );
         }
 
-        // Store the unencrypted shard in on the archaeologist object in the sarcophagus
-        s
-        .sarcophagusArchaeologists[sarcoId][msg.sender]
-            .unencryptedShard = unencryptedShard;
+        // Confirm tx sender is an archaeologist on the sarcophagus
+        LibTypes.CursedArchaeologist storage cursedArchaeologist = s
+            .sarcophagi[sarcoId]
+            .cursedArchaeologists[msg.sender];
+        if (cursedArchaeologist.doubleHashedKeyShare == 0) {
+            revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
+        }
 
-        // Free the archaeologist's cursed bond
+        // Confirm archaeologist has not already published key share
+        if (cursedArchaeologist.rawKeyShare.length != 0) {
+            revert LibErrors.ArchaeologistAlreadyUnwrapped(msg.sender);
+        }
+
+        // Confirm key share being published matches double hash on CursedArchaeologist
+        if (
+            keccak256(abi.encode(keccak256(rawKeyShare))) !=
+            cursedArchaeologist.doubleHashedKeyShare
+        ) {
+            revert LibErrors.UnencryptedShardHashMismatch(
+                rawKeyShare,
+                cursedArchaeologist.doubleHashedKeyShare
+            );
+        }
+
+        // Store raw key share on cursed archaeologist
+        cursedArchaeologist.rawKeyShare = rawKeyShare;
+
+        // Free archaeologist locked bond and transfer digging fees
         LibBonds.freeArchaeologist(sarcoId, msg.sender);
+        s.archaeologistRewards[msg.sender] += cursedArchaeologist.diggingFee;
 
         // Save the successful sarcophagus against the archaeologist
-        s.archaeologistSarcoSuccesses[msg.sender][sarcoId] = true;
         s.archaeologistSuccesses[msg.sender].push(sarcoId);
 
-        // Transfer the digging fee to the archaeologist's reward pool
-        s.archaeologistRewards[msg.sender] += archaeologistData.diggingFee;
-
-        // Emit an event
-        emit UnwrapSarcophagus(sarcoId, unencryptedShard);
+        emit PublishKeyShare(sarcoId, rawKeyShare);
     }
 }

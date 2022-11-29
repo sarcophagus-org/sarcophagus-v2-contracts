@@ -9,7 +9,7 @@ export const verifyAccusalStatusesForArchaeologists = async (
   sarcoId: string,
   archaeologists: ArchaeologistData[],
   isAccused: boolean
-) => {
+): Promise<void> => {
   await Promise.all(
     archaeologists.map(async (archaeologist) => {
       const archaeologistStorage = await (

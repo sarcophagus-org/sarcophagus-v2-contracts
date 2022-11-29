@@ -1,6 +1,7 @@
 import { BigNumber, ContractTransaction } from "ethers";
 import time from "../utils/time";
 import { createSarcoFixture } from "./create-sarco-fixture";
+import { TestArchaeologist } from "./spawn-archaeologists";
 
 /**
  * A fixture to initialize and finalize a sarcophagus to set up a test that
@@ -44,22 +45,32 @@ export const rewrapFixture = async (
       : currentTime + newResurrectionDuration;
 
   // Get the embalmer's balance before rewrap
-  const embalmerBalanceBeforeRewrap = await sarcoToken.balanceOf(embalmer.address);
+  const embalmerBalanceBeforeRewrap = await sarcoToken.balanceOf(
+    embalmer.address
+  );
 
   // Get the total protocol fees on the contract before rewrap
-  const totalProtocolFeesBeforeRewrap = await viewStateFacet.getTotalProtocolFees();
+  const totalProtocolFeesBeforeRewrap =
+    await viewStateFacet.getTotalProtocolFees();
 
   // Get the contract's sarco balance before rewrap
-  const contractBalanceBefore = await sarcoToken.balanceOf(viewStateFacet.address);
+  const contractBalanceBefore = await sarcoToken.balanceOf(
+    viewStateFacet.address
+  );
 
   // Calculate the sarco balances for each archaeologist before unwrap
   const archBalancesBefore = await Promise.all(
-    archaeologists.map(async archaeologist => await sarcoToken.balanceOf(archaeologist.archAddress))
+    archaeologists.map(
+      async (archaeologist: TestArchaeologist) =>
+        await sarcoToken.balanceOf(archaeologist.archAddress)
+    )
   );
 
   let tx: Promise<ContractTransaction> | undefined;
   if (config.skipRewrap !== true) {
-    tx = embalmerFacet.connect(embalmer).rewrapSarcophagus(sarcoId, _newResurrectionTime);
+    tx = embalmerFacet
+      .connect(embalmer)
+      .rewrapSarcophagus(sarcoId, _newResurrectionTime);
   }
 
   if (config.skipAwaitRewrapTx !== true) {

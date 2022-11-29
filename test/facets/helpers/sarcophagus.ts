@@ -1,4 +1,3 @@
-import { ethers } from "hardhat";
 import time from "../../utils/time";
 import { getFreshAccount } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
@@ -10,6 +9,8 @@ import {
 } from "./archaeologist";
 import { getContracts } from "./contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
+const { ethers } = require("hardhat");
 
 /**
  * Creates a sarcophagus with the supplied parameters
@@ -33,7 +34,10 @@ export const generateSarcophagusWithArchaeologists = async (params: {
   };
 }> => {
   // arbitrary hardcoded tx ids - archaeologist must sign off on EncryptedShardTxId being used to create the sarcophagus
-  const arweaveTxIds = ["FilePayloadTxId", "EncryptedShardTxId"];
+  const arweaveTxIds: [string, string] = [
+    "FilePayloadTxId",
+    "EncryptedShardTxId",
+  ];
 
   // get the current time which will be signed off on by archaeologists as the negotiation timestamp
   const timestampSeconds = await time.latest();
@@ -78,11 +82,11 @@ export const generateSarcophagusWithArchaeologists = async (params: {
       sarcoId,
       {
         name,
-        recipient: recipient.address,
+        recipientAddress: recipient.address,
         resurrectionTime: params.resurrectionTimeSeconds,
         maximumRewrapInterval: params.maximumRewrapIntervalSeconds,
-        minShards: params.threshold,
-        timestamp: timestampSeconds,
+        threshold: params.threshold,
+        creationTime: timestampSeconds,
       },
       archaeologists,
       arweaveTxIds
