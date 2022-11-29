@@ -224,7 +224,6 @@ contract ViewStateFacet {
         address[] archaeologistAddresses;
         uint8 publishedKeyShareCount;
         bool hasLockedBond;
-
     }
 
     /// @notice Returns data on the sarcophagus with the supplied id
