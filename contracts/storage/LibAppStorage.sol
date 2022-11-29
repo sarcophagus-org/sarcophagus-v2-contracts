@@ -36,7 +36,6 @@ struct AppStorage {
     mapping(address => bytes32[]) recipientSarcophagi;
 
     // double hashed keyshare => archaeologist address
-    // todo: do we need this?
     mapping(bytes32 => address) doubleHashedShardArchaeologists;
 
     // sarcophagus ids
@@ -51,7 +50,6 @@ struct AppStorage {
 
 
     // current balance of rewards available for the archaeologist to withdraw
-    // todo: Combine with ArchaeologistProfile.freeBond
     mapping(address => uint256) archaeologistRewards;
 
 

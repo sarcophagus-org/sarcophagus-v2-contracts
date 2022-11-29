@@ -22,7 +22,7 @@ library LibTypes {
 
     struct CursedArchaeologist {
         // never zero - use for existence checks
-        bytes32 doubleHashedKeyShare; // todo: we shouldn't need this and the doublehash->arch mapping
+        bytes32 doubleHashedKeyShare;
         bool isAccused;
         uint256 diggingFee;
         bytes rawKeyShare;

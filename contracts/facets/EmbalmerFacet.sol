@@ -106,7 +106,6 @@ contract EmbalmerFacet {
             );
         }
 
-        // todo: we may not need to validate k and n, is the embalmer hurting anybody by themselves by setting incorrect k/n values?
         // Confirm that archaeologists are provided
         if (selectedArchaeologists.length == 0) {
             revert LibErrors.NoArchaeologistsProvided();
@@ -140,7 +139,6 @@ contract EmbalmerFacet {
             LibUtils.revertIfArchProfileDoesNotExist(selectedArchaeologists[i].archAddress);
 
             // Confirm archaeologist isn't already cursed on sarcophagus
-            // todo: may be unnecessary, is cursing an archaeologist twice harming anybody but the caller?
             if (
                 sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress].doubleHashedKeyShare != 0
             ) {
@@ -262,7 +260,6 @@ contract EmbalmerFacet {
                 .cursedArchaeologists[archaeologistAddresses[i]];
 
             // transfer digging fee to archaeologist's reward pool
-            // todo: consider adding this amount to archaeologistProfile.freeBond instead
             s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
             totalDiggingFees += cursedArchaeologist.diggingFee;
         }
@@ -321,7 +318,6 @@ contract EmbalmerFacet {
             // return locked bond to archaeologist
             LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
             // Transfer the digging fees to the archaeologist's reward pool
-            // todo: consider adding this amount to archaeologistProfile.freeBond instead
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[archaeologistAddresses[i]];
             s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
