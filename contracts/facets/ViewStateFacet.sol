@@ -187,6 +187,7 @@ contract ViewStateFacet {
         uint256 successes;
         uint256 accusals;
         uint256 cleanups;
+        uint256 failures;
     }
 
     /// @notice Gets all reputation statistics for each archaeologist
@@ -202,10 +203,29 @@ contract ViewStateFacet {
             memory statsList = new ArchaeologistStatistics[](addresses.length);
 
         for (uint256 i = 0; i < addresses.length; i++) {
+            // Count the failures for the arch
+            uint256 failures = 0;
+
+            // Get arch sarco ids
+            bytes32[] memory sarcoIds = this.getArchaeologistSarcophagi(addresses[i]);
+
+            // For each sarco id, if the sarco id is not included in successes and resurrection time
+            // has passed, it's a failure
+            for (uint j = 0; j < sarcoIds.length; j++) {
+                LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoIds[j]];
+                if (
+                    !this.getArchaeologistSuccessOnSarcophagus(addresses[i], sarcoIds[j]) &&
+                    block.timestamp > sarco.resurrectionTime + s.gracePeriod
+                ) {
+                    failures += 1;
+                }
+            }
+
             statsList[i] = ArchaeologistStatistics(
                 this.getArchaeologistSuccessesCount(addresses[i]),
                 this.getArchaeologistAccusalsCount(addresses[i]),
-                this.getArchaeologistCleanupsCount(addresses[i])
+                this.getArchaeologistCleanupsCount(addresses[i]),
+                failures
             );
         }
 
