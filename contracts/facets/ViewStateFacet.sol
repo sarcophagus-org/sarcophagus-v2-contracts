@@ -207,7 +207,7 @@ contract ViewStateFacet {
             uint256 failures = 0;
 
             // Get arch sarco ids
-            bytes32[] memory sarcoIds = this.getArchaeologistSarcophagi(addresses[i]);
+            bytes32[] storage sarcoIds = s.archaeologistSarcophagi[addresses[i]];
 
             // For each sarco id, if the sarco id is not included in successes and resurrection time
             // has passed, it's a failure
