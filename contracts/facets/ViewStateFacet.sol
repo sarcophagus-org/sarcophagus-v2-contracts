@@ -215,6 +215,7 @@ contract ViewStateFacet {
                 LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoIds[j]];
                 if (
                     !this.getArchaeologistSuccessOnSarcophagus(addresses[i], sarcoIds[j]) &&
+                    sarco.resurrectionTime != 2 ** 256 - 1 &&
                     block.timestamp > sarco.resurrectionTime + s.gracePeriod
                 ) {
                     failures += 1;
