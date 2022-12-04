@@ -175,7 +175,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2**256 - 1) {
+        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 

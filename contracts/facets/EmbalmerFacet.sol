@@ -140,7 +140,9 @@ contract EmbalmerFacet {
 
             // Confirm archaeologist isn't already cursed on sarcophagus
             if (
-                sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress].doubleHashedKeyShare != 0
+                sarcophagus
+                    .cursedArchaeologists[selectedArchaeologists[i].archAddress]
+                    .doubleHashedKeyShare != 0
             ) {
                 revert LibErrors.ArchaeologistListNotUnique(selectedArchaeologists[i].archAddress);
             }
@@ -161,23 +163,25 @@ contract EmbalmerFacet {
             totalDiggingFees += selectedArchaeologists[i].diggingFee;
 
             // Lock the archaeologist's free bond
-            LibBonds.lockUpBond(selectedArchaeologists[i].archAddress, selectedArchaeologists[i].diggingFee);
+            LibBonds.lockUpBond(
+                selectedArchaeologists[i].archAddress,
+                selectedArchaeologists[i].diggingFee
+            );
 
             // save the cursedArchaeologist and cursedArchaeologistAddress to be stored on the new sarcophagus
             sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress] = LibTypes
-            .CursedArchaeologist({
-            isAccused : false,
-            diggingFee : selectedArchaeologists[i].diggingFee,
-            doubleHashedKeyShare : selectedArchaeologists[i].doubleHashedKeyShare,
-            rawKeyShare : ""
-            });
-
+                .CursedArchaeologist({
+                    isAccused: false,
+                    diggingFee: selectedArchaeologists[i].diggingFee,
+                    doubleHashedKeyShare: selectedArchaeologists[i].doubleHashedKeyShare,
+                    rawKeyShare: ""
+                });
 
             sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
             // update archaeologist-specific convenience lookup structures
             s.doubleHashedShardArchaeologists[
-            selectedArchaeologists[i].doubleHashedKeyShare
+                selectedArchaeologists[i].doubleHashedKeyShare
             ] = selectedArchaeologists[i].archAddress;
             s.archaeologistSarcophagi[selectedArchaeologists[i].archAddress].push(sarcoId);
         }
@@ -257,7 +261,7 @@ contract EmbalmerFacet {
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
-            .cursedArchaeologists[archaeologistAddresses[i]];
+                .cursedArchaeologists[archaeologistAddresses[i]];
 
             // if the archaeologist hasn't been accused transfer them their digging fees
             if (!cursedArchaeologist.isAccused) {
@@ -317,7 +321,8 @@ contract EmbalmerFacet {
         // for each archaeologist on the sarcophagus, unlock bond and pay digging fees
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
-            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus.cursedArchaeologists[archaeologistAddresses[i]];
+            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
+                .cursedArchaeologists[archaeologistAddresses[i]];
             // if the archaeologist hasn't been accused transfer them their digging fees and return their locked bond
             if (!cursedArchaeologist.isAccused) {
                 s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
