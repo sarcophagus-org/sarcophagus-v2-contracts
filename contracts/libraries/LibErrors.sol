@@ -78,4 +78,7 @@ library LibErrors {
     error UnencryptedShardHashMismatch(bytes rawKeyShare, bytes32 doubleHashedKeyShare);
 
     error SarcophagusParametersExpired(uint256 timestamp);
+
+
+    error ArchaeologistHasBeenAccused(address archaeologistAddress, bytes32 sarcoId);
 }

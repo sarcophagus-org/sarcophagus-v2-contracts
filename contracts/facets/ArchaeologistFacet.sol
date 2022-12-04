@@ -201,6 +201,11 @@ contract ArchaeologistFacet {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
         }
 
+        // Confirm archaeologist has not already leaked their key share
+        if (cursedArchaeologist.isAccused) {
+            revert LibErrors.ArchaeologistHasBeenAccused(msg.sender, sarcoId);
+        }
+
         // Confirm archaeologist has not already published key share
         if (cursedArchaeologist.rawKeyShare.length != 0) {
             revert LibErrors.ArchaeologistAlreadyUnwrapped(msg.sender);

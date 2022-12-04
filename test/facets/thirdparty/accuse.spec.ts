@@ -19,7 +19,7 @@ describe("ThirdPartyFacet.accuse", () => {
   // reset to directly after the diamond deployment before each test
   beforeEach(async () => await deployments.fixture());
 
-  describe("breads Validates parameters. Should revert if:", function () {
+  describe("Validates parameters. Should revert if:", function () {
     it("no sarcophagus with the supplied id exists", async function () {
       const accuser = await getFreshAccount();
 
