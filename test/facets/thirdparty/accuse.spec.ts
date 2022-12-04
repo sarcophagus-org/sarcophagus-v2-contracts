@@ -7,27 +7,32 @@ import { getFreshAccount } from "../helpers/accounts";
 import { hashShare } from "../helpers/shamirSecretSharing";
 import { BigNumber } from "ethers";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
-import { verifyAccusalStatusesForArchaeologists } from "../helpers/accuse";
+import {
+  compromiseSarcophagus,
+  verifyAccusalStatusesForArchaeologists,
+} from "../helpers/accuse";
 import { getTotalDiggingFeesSarquitos } from "../helpers/diggingFees";
 
 const { deployments, ethers } = require("hardhat");
 
-describe("accuse v2", () => {
+describe("ThirdPartyFacet.accuse", () => {
   // reset to directly after the diamond deployment before each test
   beforeEach(async () => await deployments.fixture());
 
-  describe("Validates accusal parameters", function () {
-    it("Should revert on a nonexistent sarcophagus ID", async function () {
+  describe("breads Validates parameters. Should revert if:", function () {
+    it("no sarcophagus with the supplied id exists", async function () {
       const accuser = await getFreshAccount();
 
       // generate a nonexistent sarcoId
-      const name = "does not exist";
-      const sarcoId = ethers.utils.solidityKeccak256(["string"], [name]);
+      const nonexistentId = ethers.utils.solidityKeccak256(
+        ["string"],
+        ["does not exist"]
+      );
 
       // run accuse on a nonexistent sarcophagus
       const tx = (await getContracts()).thirdPartyFacet
         .connect(accuser)
-        .accuse(sarcoId, [], accuser.address);
+        .accuse(nonexistentId, [], accuser.address);
 
       await expect(tx).to.be.revertedWithCustomError(
         (
@@ -37,19 +42,10 @@ describe("accuse v2", () => {
       );
     });
 
-    it("Should revert if the current time is past the resurrectionTime", async function () {
+    it("the current time is past the resurrectionTime", async function () {
       const { thirdPartyFacet } = await getContracts();
-      // generate a sarcophagus with a resurrection time 5 weeks in the future
-      const resurrectionTimeSeconds =
-        (await time.latest()) + time.duration.weeks(5);
-      const { sarcophagusData } = await registerSarcophagusWithArchaeologists({
-        totalShares: 5,
-        threshold: 3,
-        maximumRewrapIntervalSeconds: time.duration.weeks(4),
-      });
-
-      // set the current time to one week in the future, after the sarcophagus is allowed to be resurrected
-      await time.increaseTo(resurrectionTimeSeconds);
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+      await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
 
       // accuse an archaeologist of leaking a keyshare
       const tx = thirdPartyFacet
@@ -61,6 +57,39 @@ describe("accuse v2", () => {
         `SarcophagusIsUnwrappable`
       );
     });
+    it("the sarcophagus has been compromised", async function () {
+      const { thirdPartyFacet } = await getContracts();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+
+      await compromiseSarcophagus(sarcophagusData, archaeologists);
+
+      const tx = thirdPartyFacet
+        .connect(sarcophagusData.embalmer)
+        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `SarcophagusCompromised`
+      );
+    });
+    it("the sarcophagus has been buried", async function () {
+      const { embalmerFacet, thirdPartyFacet } = await getContracts();
+      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+
+      await embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .burySarcophagus(sarcophagusData.sarcoId);
+
+      const tx = thirdPartyFacet
+        .connect(sarcophagusData.embalmer)
+        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `SarcophagusInactive`
+      );
+    });
   });
 
   describe("Supports accusal of fewer than k archaeologists", function () {
@@ -68,11 +97,7 @@ describe("accuse v2", () => {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await getFreshAccount();
       const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists({
-          totalShares: 5,
-          threshold: 3,
-          maximumRewrapIntervalSeconds: time.duration.weeks(4),
-        });
+        await registerSarcophagusWithArchaeologists();
       const accusedArchaeologist = archaeologists[0];
 
       // save the sarquito balance of the embalmer prior to the accusal
