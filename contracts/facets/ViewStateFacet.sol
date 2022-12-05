@@ -248,6 +248,7 @@ contract ViewStateFacet {
 
         uint8 publishedKeyShareCount = 0;
         bool hasLockedBond = false;
+        // todo: how should we mark an archaeologist as having had their bond cleaned?
         for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
             // archaeologist has published a keyshare
             if (
@@ -260,9 +261,11 @@ contract ViewStateFacet {
             } else if (
                 !sarcophagus
                     .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
-                    .isAccused
+                    .isAccused &&
+                    !sarcophagus.isCompromised &&
+                    sarcophagus.resurrectionTime != 2 ** 256 - 1
             ) {
-                // if archaeologist hasn't published a key share and is not accused, they still have locked bond
+                // if sarcophagus is neither compromised nor buried and archaeologist hasn't published a key share and is not accused they still have locked bond
                 hasLockedBond = true;
             }
         }
