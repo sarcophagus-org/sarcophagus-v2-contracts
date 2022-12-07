@@ -62,7 +62,7 @@ export const getArchaeologistAddressesToFreeBondSarquitos = async (
   ).forEach((archaeologistProfile, index) =>
     addressesToLockedBonds.set(
       archaeologists[index].archAddress,
-      archaeologistProfile.cursedBond
+      archaeologistProfile.freeBond
     )
   );
   return addressesToLockedBonds;

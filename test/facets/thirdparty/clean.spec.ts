@@ -2,25 +2,30 @@ import "@nomicfoundation/hardhat-chai-matchers";
 import { getContracts } from "../helpers/contracts";
 import { expect } from "chai";
 import { registerSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
-import { compromiseSarcophagus } from "../helpers/accuse";
+import {
+  accuseArchaeologistsOnSarcophagus,
+  compromiseSarcophagus,
+} from "../helpers/accuse";
 import {
   setTimeToAfterEmbalmerClaimWindowEnd,
   setTimeToEmbalmerClaimWindowStart,
 } from "../helpers/clean";
 import { getDeployer, getFreshAccount } from "../helpers/accounts";
 import { ArchaeologistData } from "../helpers/archaeologistSignature";
-import time from "../../utils/time";
 import { BigNumber } from "ethers";
 import {
+  getArchaeologistAddressesToFreeBondSarquitos,
   getArchaeologistAddressesToLockedBondSarquitos,
+  getArchaeologistFreeBondSarquitos,
   getArchaeologistLockedBondSarquitos,
 } from "../helpers/bond";
 import { getTotalDiggingFeesSarquitos } from "../helpers/diggingFees";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
+import { publishKeySharesForArchaeologists } from "../helpers/publish";
 
 const { deployments, ethers } = require("hardhat");
 
-describe("breads ThirdPartyFacet.clean", () => {
+describe("ThirdPartyFacet.clean", () => {
   // reset to directly after the diamond deployment before each test
   beforeEach(async () => await deployments.fixture());
 
@@ -185,38 +190,39 @@ describe("breads ThirdPartyFacet.clean", () => {
     });
 
     it("does not transfer bonds or digging fees for accused archaeologists", async function () {
-      const { thirdPartyFacet, viewStateFacet, archaeologistFacet } =
-        await getContracts();
+      const { thirdPartyFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
           totalShares: 7,
           threshold: 4,
         });
-      const nonPublishingArchaeologists = archaeologists.slice(0, 3);
 
-      // have publishing archaeologists publish their key shares
-      await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
-      const publishingArchaeologists = archaeologists.slice(3, 7);
-      await Promise.all(
-        publishingArchaeologists.map(
-          async (archaeologist: ArchaeologistData) =>
-            await archaeologistFacet
-              .connect(await ethers.getSigner(archaeologist.archAddress))
-              .publishKeyShare(
-                sarcophagusData.sarcoId,
-                archaeologist.rawKeyShare
-              )
-        )
+      // accuse first 3 archaeologists
+      const { accusedArchaeologists } = await accuseArchaeologistsOnSarcophagus(
+        3,
+        sarcophagusData.sarcoId,
+        archaeologists
+      );
+
+      // have non accused archaeologists publish their keyshares
+      await publishKeySharesForArchaeologists(
+        sarcophagusData,
+        archaeologists.slice(3, 7)
       );
 
       // save starting embalmer balance before clean
       const embalmerPreCleanSarquitoBalance = await getSarquitoBalance(
         sarcophagusData.embalmer.address
       );
-      // save the locked bonds of each archaeologist that has failed to publish key shares before clean is called
-      const nonPublishingArchaeologistAddressesToInitialLockedBondsSarquitos =
+      // save the locked bonds of each accused archaeologist
+      const accusedArchaeologistAddressesToInitialLockedBondsSarquitos =
         await getArchaeologistAddressesToLockedBondSarquitos(
-          nonPublishingArchaeologists
+          accusedArchaeologists
+        );
+      // save the free bonds of each accused archaeologist
+      const accusedArchaeologistAddressesToInitialFreeBondsSarquitos =
+        await getArchaeologistAddressesToFreeBondSarquitos(
+          accusedArchaeologists
         );
 
       await setTimeToEmbalmerClaimWindowStart(
@@ -227,55 +233,103 @@ describe("breads ThirdPartyFacet.clean", () => {
         .connect(sarcophagusData.embalmer)
         .clean(sarcophagusData.sarcoId);
 
-      // verify that all archaeologists that have failed to publish key shares have had their locked bonds slashed
+      // verify that all accused archaeologists have not had their locked or free bonds altered
       await Promise.all(
-        nonPublishingArchaeologists.map(
-          async (nonPublishingArchaeologist: ArchaeologistData) => {
-            const balanceAfterClean = await getArchaeologistLockedBondSarquitos(
-              nonPublishingArchaeologist.archAddress
+        accusedArchaeologists.map(
+          async (accusedArchaeologist: ArchaeologistData) => {
+            const currentLockedBond = await getArchaeologistLockedBondSarquitos(
+              accusedArchaeologist.archAddress
             );
-            expect(balanceAfterClean).to.equal(
-              nonPublishingArchaeologistAddressesToInitialLockedBondsSarquitos
-                .get(nonPublishingArchaeologist.archAddress)!
-                .sub(nonPublishingArchaeologist.diggingFeeSarquitos)
+            expect(currentLockedBond).to.equal(
+              accusedArchaeologistAddressesToInitialLockedBondsSarquitos.get(
+                accusedArchaeologist.archAddress
+              )
+            );
+            const currentFreeBond = await getArchaeologistFreeBondSarquitos(
+              accusedArchaeologist.archAddress
+            );
+            expect(currentFreeBond).to.equal(
+              accusedArchaeologistAddressesToInitialFreeBondsSarquitos.get(
+                accusedArchaeologist.archAddress
+              )
             );
           }
         )
       );
 
-      // verify embalmer has been paid the digging fees for all non publishing archaeologists
-      // plus the locked bonds for all non publishing archaeologists
-      const combinedDiggingFeesSarquito: BigNumber =
-        getTotalDiggingFeesSarquitos(nonPublishingArchaeologists);
+      // verify embalmer has not received funds from the clean
       expect(
         await getSarquitoBalance(sarcophagusData.embalmer.address)
-      ).to.equal(
-        embalmerPreCleanSarquitoBalance.add(combinedDiggingFeesSarquito.mul(2))
+      ).to.equal(embalmerPreCleanSarquitoBalance);
+    });
+    it("does not transfer bonds or digging fees for archaeologists that have published their key shares", async function () {
+      const { thirdPartyFacet, viewStateFacet } = await getContracts();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+
+      await publishKeySharesForArchaeologists(sarcophagusData, archaeologists);
+
+      // save starting protocol fees before clean
+      const startingProtocolFees = await viewStateFacet.getTotalProtocolFees();
+
+      // save the locked bonds of each archaeologist
+      const archaeologistAddressesToInitialLockedBondsSarquitos =
+        await getArchaeologistAddressesToLockedBondSarquitos(archaeologists);
+      // save the free bonds of each archaeologist
+      const archaeologistAddressesToInitialFreeBondsSarquitos =
+        await getArchaeologistAddressesToFreeBondSarquitos(archaeologists);
+
+      await setTimeToEmbalmerClaimWindowStart(
+        sarcophagusData.resurrectionTimeSeconds
+      );
+      // clean the sarcophagus
+      await thirdPartyFacet
+        .connect(sarcophagusData.embalmer)
+        .clean(sarcophagusData.sarcoId);
+
+      // verify that all accused archaeologists have not had their locked or free bonds altered
+      await Promise.all(
+        archaeologists.map(async (archaeologist: ArchaeologistData) => {
+          const currentLockedBond = await getArchaeologistLockedBondSarquitos(
+            archaeologist.archAddress
+          );
+          expect(currentLockedBond).to.equal(
+            archaeologistAddressesToInitialLockedBondsSarquitos.get(
+              archaeologist.archAddress
+            )
+          );
+          const currentFreeBond = await getArchaeologistFreeBondSarquitos(
+            archaeologist.archAddress
+          );
+          expect(currentFreeBond).to.equal(
+            archaeologistAddressesToInitialFreeBondsSarquitos.get(
+              archaeologist.archAddress
+            )
+          );
+        })
+      );
+
+      // verify embalmer has not received funds from the clean
+      expect(await viewStateFacet.getTotalProtocolFees()).to.equal(
+        startingProtocolFees
       );
     });
+
     it("stores the sarcoId and archaeologist address in archaeologistCleanups", async function () {
-      const { thirdPartyFacet, viewStateFacet, archaeologistFacet } =
-        await getContracts();
+      const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
           totalShares: 7,
           threshold: 4,
         });
 
-      await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const nonPublishingArchaeologists = archaeologists.slice(0, 3);
       const publishingArchaeologists = archaeologists.slice(3, 7);
-      await Promise.all(
-        publishingArchaeologists.map(
-          async (archaeologist: ArchaeologistData) =>
-            await archaeologistFacet
-              .connect(await ethers.getSigner(archaeologist.archAddress))
-              .publishKeyShare(
-                sarcophagusData.sarcoId,
-                archaeologist.rawKeyShare
-              )
-        )
+      await publishKeySharesForArchaeologists(
+        sarcophagusData,
+        publishingArchaeologists
       );
+
       await setTimeToEmbalmerClaimWindowStart(
         sarcophagusData.resurrectionTimeSeconds
       );
@@ -313,8 +367,7 @@ describe("breads ThirdPartyFacet.clean", () => {
 
   describe("Handles payout to the embalmer", function () {
     it("transfers all locked bonds and digging fees for archaeologists that have failed to supply keyshares to the embalmer", async function () {
-      const { thirdPartyFacet, viewStateFacet, archaeologistFacet } =
-        await getContracts();
+      const { thirdPartyFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
           totalShares: 7,
@@ -323,18 +376,10 @@ describe("breads ThirdPartyFacet.clean", () => {
       const nonPublishingArchaeologists = archaeologists.slice(0, 3);
 
       // have publishing archaeologists publish their key shares
-      await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const publishingArchaeologists = archaeologists.slice(3, 7);
-      await Promise.all(
-        publishingArchaeologists.map(
-          async (archaeologist: ArchaeologistData) =>
-            await archaeologistFacet
-              .connect(await ethers.getSigner(archaeologist.archAddress))
-              .publishKeyShare(
-                sarcophagusData.sarcoId,
-                archaeologist.rawKeyShare
-              )
-        )
+      await publishKeySharesForArchaeologists(
+        sarcophagusData,
+        publishingArchaeologists
       );
 
       // save starting embalmer balance before clean
@@ -381,9 +426,31 @@ describe("breads ThirdPartyFacet.clean", () => {
         embalmerPreCleanSarquitoBalance.add(combinedDiggingFeesSarquito.mul(2))
       );
     });
-    it(
-      "does not transfer any funds to the embalmer if all archaeologists have supplied keyshares"
-    );
+    it("does not transfer any funds to the embalmer if all archaeologists have supplied keyshares", async function () {
+      const { thirdPartyFacet } = await getContracts();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+      // have all archaeologists publish their key shares
+      await publishKeySharesForArchaeologists(sarcophagusData, archaeologists);
+
+      // save starting embalmer balance before clean
+      const embalmerPreCleanSarquitoBalance = await getSarquitoBalance(
+        sarcophagusData.embalmer.address
+      );
+
+      await setTimeToEmbalmerClaimWindowStart(
+        sarcophagusData.resurrectionTimeSeconds
+      );
+      // clean the sarcophagus
+      await thirdPartyFacet
+        .connect(sarcophagusData.embalmer)
+        .clean(sarcophagusData.sarcoId);
+
+      // verify embalmer has not received any funds
+      expect(
+        await getSarquitoBalance(sarcophagusData.embalmer.address)
+      ).to.equal(embalmerPreCleanSarquitoBalance);
+    });
   });
 
   describe("Handles payout to the admin", function () {
@@ -398,18 +465,10 @@ describe("breads ThirdPartyFacet.clean", () => {
       const nonPublishingArchaeologists = archaeologists.slice(0, 3);
 
       // have publishing archaeologists publish their key shares
-      await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const publishingArchaeologists = archaeologists.slice(3, 7);
-      await Promise.all(
-        publishingArchaeologists.map(
-          async (archaeologist: ArchaeologistData) =>
-            await archaeologistFacet
-              .connect(await ethers.getSigner(archaeologist.archAddress))
-              .publishKeyShare(
-                sarcophagusData.sarcoId,
-                archaeologist.rawKeyShare
-              )
-        )
+      await publishKeySharesForArchaeologists(
+        sarcophagusData,
+        publishingArchaeologists
       );
 
       // save starting protocol fees before clean
@@ -453,8 +512,28 @@ describe("breads ThirdPartyFacet.clean", () => {
         startingProtocolFees.add(combinedDiggingFeesSarquito.mul(2))
       );
     });
-    it(
-      "does not transfer any funds to protocol fees if all archaeologists have supplied keyshares"
-    );
+    it("does not transfer any funds to protocol fees if all archaeologists have supplied keyshares", async function () {
+      const { thirdPartyFacet, viewStateFacet } = await getContracts();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+      // have all archaeologists publish their key shares
+      await publishKeySharesForArchaeologists(sarcophagusData, archaeologists);
+
+      // save starting protocol fees before clean
+      const startingProtocolFees = await viewStateFacet.getTotalProtocolFees();
+
+      await setTimeToAfterEmbalmerClaimWindowEnd(
+        sarcophagusData.resurrectionTimeSeconds
+      );
+      // clean the sarcophagus
+      await thirdPartyFacet
+        .connect(await getDeployer())
+        .clean(sarcophagusData.sarcoId);
+
+      // verify protocol fees have not been increased
+      expect(await viewStateFacet.getTotalProtocolFees()).to.equal(
+        startingProtocolFees
+      );
+    });
   });
 });
