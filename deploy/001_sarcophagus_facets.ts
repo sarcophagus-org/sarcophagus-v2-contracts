@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import time from "../test/utils/time";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   let sarcoTokenAddress: string;
@@ -39,6 +40,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const protocolFeeBasePercentage =
     process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "1";
   const gracePeriod = process.env.GRACE_PERIOD_SECONDS || "3600";
+  const embalmerClaimWindow =
+    process.env.EMBALMER_CLAIM_WINDOW_SECONDS || time.duration.weeks(1);
   const expirationThreshold =
     process.env.EXPIRATION_THRESHOLD_SECONDS || "3600";
 
@@ -59,6 +62,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         sarcoTokenAddress,
         protocolFeeBasePercentage,
         gracePeriod,
+        embalmerClaimWindow,
         expirationThreshold,
       ],
     },

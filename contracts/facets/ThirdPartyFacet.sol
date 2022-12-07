@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
+import {LibDiamond} from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol";
+
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
+import "../libraries/LibTypes.sol";
 
 contract ThirdPartyFacet {
     AppStorage internal s;
@@ -18,61 +21,112 @@ contract ThirdPartyFacet {
         uint256 embalmerBondReward
     );
 
-    event CleanUpSarcophagus(
+    event Clean(
         bytes32 indexed sarcoId,
-        address indexed cleaner,
-        uint256 cleanerBondReward,
-        uint256 embalmerBondReward
+        address indexed cleaner
     );
 
-    /// @notice Close a sarcophagus that has not been unwrapped within its grace period
+    /// @notice Clean has been called on a sarcophagus that has already been cleaned
+    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on
+    error SarcophagusAlreadyCleaned(bytes32 sarcoId);
+
+    /// @notice Clean has been called before the deadline for archaeologists to publish key shares has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param publishDeadline Latest time an archaeologist may publish a key share on a sarcophagus: esurrectionTime + gracePeriod
+    error TooEarlyForClean(uint256 currentTime, uint256 publishDeadline);
+
+    /// @notice Clean has been called by someone other than the admin or embalmer of the sarcophagus
+    /// @param senderAddress Address of sender
+    error SenderNotEmbalmerOrAdmin(address senderAddress);
+
+    /// @notice Embalmer has attempted to clean a sarcophagus after the embalmerClaimWindow has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
+    error EmbalmerClaimWindowPassed(uint256 currentTime, uint256 embalmerClaimWindowEnd);
+
+    /// @notice Admin has attempted to clean a sarcophagus before the embalmerClaimWindow has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
+    error TooEarlyForAdminClean(uint256 currentTime, uint256 embalmerClaimWindowEnd);
+
+
+    /// @notice If archaeologists fail to publish their key shares on a sarcophagus before the end of the gracePeriod,
+    /// their locked bonds and diggingFees may be claimed by either the embalmer or the admin
+    /// embalmers may claim during a limited embalmerClaimWindow after the end of the gracePeriod, after that only the admin will
+    /// be able to claim remaining locked bond and diggingFees
     /// @param sarcoId The identifier of the sarcophagus to clean
-    /// @param paymentAddress The address to which rewards will be sent
-//    function clean(bytes32 sarcoId, address paymentAddress) external {
-//        LibUtils.revertIfNotExistOrInactive(sarcoId);
-//
-//        LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoId];
-//
-//        // Make sure the sarco is cleanable
-//        if (block.timestamp < s.gracePeriod + sarco.resurrectionTime) {
-//            revert LibErrors.SarcophagusNotCleanable();
-//        }
-//
-//        // Figure out which archaeoligists did not fulfil their duties;
-//        // accumulate their digging fees
-//        address[] memory archAddresses = sarco.archaeologists;
-//
-//        uint256 totalDiggingFee;
-//
-//        for (uint256 i = 0; i < archAddresses.length; i++) {
-//            // todo: consider skipping this mapping and just retrieving the keyshares
-//            bool didNotUnwrap = s.archaeologistSarcoSuccesses[archAddresses[i]][sarcoId] == false;
-//
-//            if (didNotUnwrap) {
-//                LibTypes.ArchaeologistStorage memory defaulter = s.sarcophagusArchaeologists[
-//                    sarcoId
-//                ][archAddresses[i]];
-//
-//                totalDiggingFee += defaulter.diggingFee;
-//
-//                // decrease the defaulter's cursed bond
-//                LibBonds.decreaseCursedBond(archAddresses[i], defaulter.diggingFee);
-//
-//                // Save the failure to unwrap against the archaeologist
-//                s.archaeologistCleanups[archAddresses[i]].push(sarcoId);
-//            }
-//        }
-//
-//        (uint256 cleanerBondReward, uint256 embalmerBondReward) = _distributeLoot(
-//            paymentAddress,
-//            sarco,
-//            totalDiggingFee
-//        );
-//
-//        sarco.state = LibTypes.SarcophagusState.Cleaned;
-//
-//        emit CleanUpSarcophagus(sarcoId, msg.sender, cleanerBondReward, embalmerBondReward);
-//    }
+    function clean(bytes32 sarcoId) external {
+        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
+
+        // Confirm the sarcophagus exists
+        if (sarcophagus.resurrectionTime == 0) {
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
+        }
+
+        // Confirm the sarcophagus has not been compromised
+        if (sarcophagus.isCompromised) {
+            revert LibErrors.SarcophagusCompromised(sarcoId);
+        }
+
+        // Confirm the sarcophagus is not buried
+        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
+            revert LibErrors.SarcophagusInactive(sarcoId);
+        }
+
+        // Confirm the sarcophagus has not already been cleaned
+        if (sarcophagus.isCleaned) {
+            revert SarcophagusAlreadyCleaned(sarcoId);
+        }
+
+        // Confirm that the resurrectionTime + gracePeriod have passed
+        if (block.timestamp <= sarcophagus.resurrectionTime + s.gracePeriod) {
+            revert TooEarlyForClean(block.timestamp, sarcophagus.resurrectionTime + s.gracePeriod);
+        }
+
+        // Confirm tx sender is embalmer or admin
+        if (msg.sender != sarcophagus.embalmerAddress &&
+            msg.sender != LibDiamond.contractOwner()) {
+            revert SenderNotEmbalmerOrAdmin(msg.sender);
+        }
+
+        // if sender is embalmer, confirm current time is within embalmerClaimWindow
+        if (msg.sender == sarcophagus.embalmerAddress &&
+            block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow) {
+            revert EmbalmerClaimWindowPassed(block.timestamp, sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow);
+        }
+
+        // if sender is admin, confirm embalmerClaimWindow has passed
+        if (msg.sender == LibDiamond.contractOwner() &&
+            block.timestamp <= sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow) {
+            revert TooEarlyForAdminClean(block.timestamp, sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow);
+        }
+
+        // sum of locked bonds and digging fees for all archaeologists that have failed to publish key shares before publish deadline and have not been accused
+        uint256 totalDiggingFeesAndLockedBonds = 0;
+        for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
+            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]];
+            if (!cursedArchaeologist.isAccused && cursedArchaeologist.rawKeyShare.length == 0) {
+                totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee; // add digging fee for cursedArchaeologist
+                totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee; // add locked bond for cursedArchaeologist
+
+                // slash the archaeologist's locked bond for the sarcophagus
+                LibBonds.decreaseCursedBond(sarcophagus.cursedArchaeologistAddresses[i], cursedArchaeologist.diggingFee);
+            }
+        }
+
+        // if caller is embalmer, transfer them the total locked bonds and digging fees
+        if (msg.sender == sarcophagus.embalmerAddress) {
+            s.sarcoToken.transfer(sarcophagus.embalmerAddress, totalDiggingFeesAndLockedBonds);
+        }
+
+        // if caller is admin, add total locked bonds and digging fees into protocolFees
+        if (msg.sender == LibDiamond.contractOwner()) {
+            s.totalProtocolFees += totalDiggingFeesAndLockedBonds;
+        }
+
+        sarcophagus.isCleaned = true;
+        emit Clean(sarcoId, msg.sender);
+    }
 
     /**
      * @notice Accuse one or more archaeologists of leaking key shares by submitting the hashes of the leaked shares
@@ -109,7 +163,7 @@ contract ThirdPartyFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2**256 - 1) {
+        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
