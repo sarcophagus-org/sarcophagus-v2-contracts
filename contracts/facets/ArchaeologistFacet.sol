@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
+import {LibPrivateKeys} from "../libraries/LibPrivateKeys.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
@@ -11,7 +12,7 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ArchaeologistFacet {
     AppStorage internal s;
 
-    event PublishKeyShare(bytes32 indexed sarcoId, bytes rawKeyShare);
+    event PublishPrivateKey(bytes32 indexed sarcoId, bytes32 privateKey);
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
@@ -155,13 +156,13 @@ contract ArchaeologistFacet {
         emit WithdrawReward(msg.sender, amountToWithdraw);
     }
 
-    /// @notice Publishes the raw key share for which the archaeologist is responsible during the
+    /// @notice Publishes the private key for which the archaeologist is responsible during the
     /// sarcophagus resurrection window.
     /// Pays digging fees to the archaeologist and releases their locked bond.
     /// Cannot be called on a compromised or buried sarcophagus.
     /// @param sarcoId The identifier of the sarcophagus to unwrap
-    /// @param rawKeyShare The keyshare the archaeologist is publishing
-    function publishKeyShare(bytes32 sarcoId, bytes calldata rawKeyShare) external {
+    /// @param privateKey The private key the archaeologist is publishing
+    function publishPrivateKey(bytes32 sarcoId, bytes32 privateKey) external {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm sarcophagus exists
@@ -175,7 +176,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2**256 - 1) {
+        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -197,28 +198,26 @@ contract ArchaeologistFacet {
         LibTypes.CursedArchaeologist storage cursedArchaeologist = s
             .sarcophagi[sarcoId]
             .cursedArchaeologists[msg.sender];
-        if (cursedArchaeologist.doubleHashedKeyShare == 0) {
+        if (cursedArchaeologist.publicKey.length == 0) {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
         }
 
         // Confirm archaeologist has not already published key share
-        if (cursedArchaeologist.rawKeyShare.length != 0) {
+        if (cursedArchaeologist.privateKey != 0) {
             revert LibErrors.ArchaeologistAlreadyUnwrapped(msg.sender);
         }
 
-        // Confirm key share being published matches double hash on CursedArchaeologist
-        if (
-            keccak256(abi.encode(keccak256(rawKeyShare))) !=
-            cursedArchaeologist.doubleHashedKeyShare
-        ) {
-            revert LibErrors.UnencryptedShardHashMismatch(
-                rawKeyShare,
-                cursedArchaeologist.doubleHashedKeyShare
+        // Confirm that the private key being submitted matches the public key stored on the
+        // sarcophagus for this archaeologist
+        if (LibPrivateKeys.keyVerification(privateKey, cursedArchaeologist.publicKey)) {
+            revert LibErrors.PrivateKeyDoesNotMatchPublicKey(
+                privateKey,
+                cursedArchaeologist.publicKey
             );
         }
 
-        // Store raw key share on cursed archaeologist
-        cursedArchaeologist.rawKeyShare = rawKeyShare;
+        // Store the private key on cursed archaeologist
+        cursedArchaeologist.privateKey = privateKey;
 
         // Free archaeologist locked bond and transfer digging fees
         LibBonds.freeArchaeologist(sarcoId, msg.sender);
@@ -227,6 +226,6 @@ contract ArchaeologistFacet {
         // Save the successful sarcophagus against the archaeologist
         s.archaeologistSuccesses[msg.sender].push(sarcoId);
 
-        emit PublishKeyShare(sarcoId, rawKeyShare);
+        emit PublishPrivateKey(sarcoId, privateKey);
     }
 }

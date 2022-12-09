@@ -39,6 +39,8 @@ library LibErrors {
 
     error NotEnoughReward(uint256 reward, uint256 amount);
 
+    error PrivateKeyDoesNotMatchPublicKey(bytes32 privateKey, bytes publicKey);
+
     error ResurrectionTimeInPast(uint256 resurrectionTime);
 
     error ResurrectionTimeTooFarInFuture(
