@@ -175,7 +175,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2**256 - 1) {
+        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -199,6 +199,11 @@ contract ArchaeologistFacet {
             .cursedArchaeologists[msg.sender];
         if (cursedArchaeologist.doubleHashedKeyShare == 0) {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
+        }
+
+        // Confirm archaeologist has not already leaked their key share
+        if (cursedArchaeologist.isAccused) {
+            revert LibErrors.ArchaeologistHasBeenAccused(msg.sender, sarcoId);
         }
 
         // Confirm archaeologist has not already published key share

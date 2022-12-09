@@ -3,105 +3,266 @@ import { getFreshAccount } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
 import { generateKeyshares } from "./shamirSecretSharing";
 import {
-  ArchaeologistData,
-  createAndRegisterArchaeologist,
-  generateArchSignature,
+  ArchaeologistParameters,
+  registerArchaeologist,
 } from "./archaeologist";
+import {
+  ArchaeologistData,
+  createArchSignature,
+  SarcophagusNegotiationParams,
+} from "./archaeologistSignature";
 import { getContracts } from "./contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber, BigNumberish, Bytes } from "ethers";
+import { BytesLike } from "ethers/lib/utils";
 
 const { ethers } = require("hardhat");
 
 /**
- * Creates a sarcophagus with the supplied parameters
- * generates and registers an archaeologist with 10k cursed bond and no free bond to manage each keyshare
- * */
-export const generateSarcophagusWithArchaeologists = async (params: {
-  totalShares: number;
-  threshold: number;
-  maximumRewrapIntervalSeconds: number;
-  resurrectionTimeSeconds: number;
-}): Promise<{
-  archaeologists: ArchaeologistData[];
+ * Contains information on a test sarcophagus
+ * used to generate archaeologists and signatures and register a sarcophagus
+ */
+export interface SarcophagusData {
+  sarcoId: Bytes;
+  name: string;
   embalmer: SignerWithAddress;
-  sarcophagus: {
-    minShards: number;
-    maximumRewrapInterval: number;
-    resurrectionTime: number;
-    recipient: string;
-    sarcoId: string;
-    timestampSeconds: number;
-  };
-}> => {
-  // arbitrary hardcoded tx ids - archaeologist must sign off on EncryptedShardTxId being used to create the sarcophagus
-  const arweaveTxIds: [string, string] = [
-    "FilePayloadTxId",
-    "EncryptedShardTxId",
-  ];
+  recipientAddress: string;
+  resurrectionTimeSeconds: number;
+  maximumRewrapIntervalSeconds: number;
+  creationTime: number;
+  threshold: number;
+  rawKeyShares: Buffer[];
+  rawOuterKey: string;
+  arweaveTxIds: [string, string];
+}
 
-  // get the current time which will be signed off on by archaeologists as the negotiation timestamp
-  const timestampSeconds = await time.latest();
+/**
+ * Accepts an optional set of sarcophagus parameters and falls back to defaults for missing values
+ * funds the embalmer account and approves diamond spending
+ * does not modify contract state aside from funding embalmer
+ *
+ * To create a sarcophagus from this data, send funds to the embalmer, generate funded archaeologists for each keyshare, and call createSarcophagus
+ * @param params
+ */
+export const createSarcophagusData = async (params: {
+  threshold?: number;
+  totalShares?: number;
+  maximumRewrapIntervalSeconds?: number;
+  resurrectionTime?: number;
+  sarcoId?: string;
+  name?: string;
+  creationTime?: number;
+  recipientAddress?: string;
+  embalmerAddress?: string;
+  arweaveTxIds?: [string, string];
+  embalmerFunds?: number;
+}): Promise<SarcophagusData> => {
+  const threshold = params.threshold !== undefined ? params.threshold : 3;
+  const totalShares = params.totalShares !== undefined ? params.totalShares : 5;
+  const maximumRewrapIntervalSeconds =
+    params.maximumRewrapIntervalSeconds !== undefined
+      ? params.maximumRewrapIntervalSeconds
+      : await time.duration.weeks(4);
 
   // generate new accounts for an embalmer and a recipient
-  const embalmer = await getFreshAccount();
-  const recipient = await getFreshAccount();
+  const embalmerAddress =
+    params.embalmerAddress !== undefined
+      ? params.embalmerAddress
+      : (await getFreshAccount()).address;
+  const embalmer = await ethers.getSigner(embalmerAddress);
+  await fundAndApproveAccount(embalmer, params.embalmerFunds || 100_000);
+
+  const recipientAddress =
+    params.recipientAddress !== undefined
+      ? params.recipientAddress
+      : (await getFreshAccount()).address;
 
   // create a unique name for the sarcophagus and derive the id
-  const name = `Sarcophagus by ${embalmer.address} for ${recipient.address}`;
-  const sarcoId = ethers.utils.solidityKeccak256(["string"], [name]);
+  const name =
+    params.name !== undefined
+      ? params.name
+      : `Sarcophagus by ${embalmerAddress} for ${recipientAddress}`;
+  const sarcoId =
+    params.sarcoId !== undefined
+      ? params.sarcoId
+      : ethers.utils.solidityKeccak256(["string"], [name]);
 
-  // transfer 100k sarco to the embalmer and approve the diamond to spend on their behalf
-  await fundAndApproveAccount(embalmer, 100_000);
+  // get the current time which will be signed off on by archaeologists as the negotiation timestamp
+  const creationTime =
+    params.creationTime !== undefined
+      ? params.creationTime
+      : await time.latest();
+
+  const resurrectionTimeSeconds =
+    params.resurrectionTime !== undefined
+      ? params.resurrectionTime
+      : creationTime + maximumRewrapIntervalSeconds;
 
   // generate the keyshares for the sarcophagus
-  const { shares } = generateKeyshares(params.threshold, params.totalShares);
+  const { shares, key } = generateKeyshares(threshold, totalShares);
 
-  // create and register an archaeologist for each keyshare
-  const archaeologists: ArchaeologistData[] = await Promise.all(
-    shares.map(async (share: Buffer) => {
-      const archaeologistSigner = await createAndRegisterArchaeologist({
-        minDiggingFeeSarco: 100,
-        maximumRewrapIntervalSeconds:
-          params.maximumRewrapIntervalSeconds + time.duration.weeks(1),
-        sarcoBalance: 10_000,
-        freeBondSarco: 10_000,
-      });
-      return await generateArchSignature(archaeologistSigner, {
-        arweaveTxId: arweaveTxIds[1],
-        share,
-        maximumRewrapIntervalSeconds: params.maximumRewrapIntervalSeconds,
-        timestampSeconds,
-        diggingFeeSarco: 100,
-      });
-    })
+  const arweaveTxIds: [string, string] =
+    params.arweaveTxIds !== undefined
+      ? params.arweaveTxIds
+      : ["FilePayloadTxId", "EncryptedShardTxId"];
+  return {
+    sarcoId,
+    name,
+    recipientAddress,
+    embalmer,
+    resurrectionTimeSeconds,
+    maximumRewrapIntervalSeconds,
+    threshold,
+    creationTime,
+    rawKeyShares: shares,
+    rawOuterKey: key,
+    arweaveTxIds,
+  };
+};
+
+/**
+ * Registers archaeologists for the supplied key shares on the contracts and funds them
+ * Creates archaeologist signatures on the key shares and sarcophagus negotiation parameters
+ *
+ * Sets default values on the archaeologists:
+ *  profileMinDiggingFee: 100
+ *  profileMaxRewrapIntervalSeconds: uses max rewrap interval set on the sarcophagus
+ *  sarcoBalance: 10_000
+ *  freeBondSarco: 10_000
+ * and on the sarcophagus/archaeologist agreement:
+ *  diggingFeeSarco: 100
+ *
+ * @param sarcophagusData
+ */
+export const registerDefaultArchaeologistsAndCreateSignatures = async (
+  sarcophagusData: SarcophagusData
+): Promise<ArchaeologistData[]> =>
+  await Promise.all(
+    sarcophagusData.rawKeyShares.map(async (rawKeyShare: Buffer) =>
+      registerArchaeologistAndCreateSignature(
+        {
+          arweaveTxId: sarcophagusData.arweaveTxIds[1],
+          rawKeyShare,
+          maximumRewrapIntervalSeconds:
+            sarcophagusData.maximumRewrapIntervalSeconds,
+          creationTime: sarcophagusData.creationTime,
+          diggingFeeSarco: 100,
+        },
+        {
+          profileMinDiggingFeeSarco: 100,
+          profileMaxRewrapIntervalSeconds:
+            sarcophagusData.maximumRewrapIntervalSeconds,
+          sarcoBalance: 10_000,
+          freeBondSarco: 10_000,
+        }
+      )
+    )
+  );
+
+/**
+ * Registers and funds an archaeologist for the supplied key share and sarcophagus negotiation parameters
+ * Creates a signature from the archaeologist signer
+ * @param sarcophagusNegotiationParams
+ * @param archaeologistParams
+ * @returns ArchaeologistData containing the signature, address, and digging fee allocated to the archaeologist on the sarcophagus
+ */
+export const registerArchaeologistAndCreateSignature = async (
+  sarcophagusNegotiationParams: SarcophagusNegotiationParams,
+  archaeologistParams: ArchaeologistParameters
+): Promise<ArchaeologistData> => {
+  const archaeologistSigner = await registerArchaeologist(archaeologistParams);
+  return await createArchSignature(
+    archaeologistSigner,
+    sarcophagusNegotiationParams
+  );
+};
+
+/**
+ * Creates a sarcophagus with the supplied parameters
+ * funds the embalmer account
+ * generates and registers a default archaeologist responsible for each keyshare
+ * @param params
+ */
+export const registerSarcophagusWithArchaeologists = async (params?: {
+  totalShares?: number;
+  threshold?: number;
+  maximumRewrapIntervalSeconds?: number;
+}): Promise<{
+  archaeologists: ArchaeologistData[];
+  sarcophagusData: SarcophagusData;
+}> => {
+  const sarcophagusData = await createSarcophagusData({
+    threshold: params?.threshold,
+    totalShares: params?.totalShares,
+    maximumRewrapIntervalSeconds: params?.maximumRewrapIntervalSeconds,
+  });
+
+  // register archaeologist profiles for each keyshare and create a signature from each archaeologist
+  const archaeologists = await registerDefaultArchaeologistsAndCreateSignatures(
+    sarcophagusData
   );
 
   await (await getContracts()).embalmerFacet
-    .connect(embalmer)
+    .connect(sarcophagusData.embalmer)
     .createSarcophagus(
-      sarcoId,
-      {
-        name,
-        recipientAddress: recipient.address,
-        resurrectionTime: params.resurrectionTimeSeconds,
-        maximumRewrapInterval: params.maximumRewrapIntervalSeconds,
-        threshold: params.threshold,
-        creationTime: timestampSeconds,
-      },
-      archaeologists,
-      arweaveTxIds
+      ...buildCreateSarcophagusArgs(sarcophagusData, archaeologists)
     );
 
   return {
-    embalmer,
-    sarcophagus: {
-      sarcoId,
-      recipient: recipient.address,
-      resurrectionTime: params.resurrectionTimeSeconds,
-      maximumRewrapInterval: params.maximumRewrapIntervalSeconds,
-      minShards: params.threshold,
-      timestampSeconds,
-    },
+    sarcophagusData,
     archaeologists,
   };
+};
+
+/**
+ * Formats a sarcophagusData object and set of archaeologists to be passed into createSarcophagus contract call
+ * @param sarcophagusData
+ * @param archaeologists
+ * @returns tuple of createSarcophagus arguments
+ */
+export const buildCreateSarcophagusArgs = (
+  sarcophagusData: SarcophagusData,
+  archaeologists: ArchaeologistData[]
+): [
+  sarcoId: BytesLike,
+  sarcophagusParams: {
+    name: string;
+    recipientAddress: string;
+    resurrectionTime: BigNumberish;
+    maximumRewrapInterval: BigNumberish;
+    threshold: BigNumberish;
+    creationTime: BigNumberish;
+  },
+  selectedArchaeologists: {
+    archAddress: string;
+    diggingFee: BigNumberish;
+    doubleHashedKeyShare: BytesLike;
+    v: BigNumberish;
+    r: BytesLike;
+    s: BytesLike;
+  }[],
+  arweaveTxIds: [string, string]
+] => {
+  return [
+    sarcophagusData.sarcoId,
+    {
+      name: sarcophagusData.name,
+      recipientAddress: sarcophagusData.recipientAddress,
+      resurrectionTime: sarcophagusData.resurrectionTimeSeconds,
+      maximumRewrapInterval: sarcophagusData.maximumRewrapIntervalSeconds,
+      threshold: sarcophagusData.threshold,
+      creationTime: sarcophagusData.creationTime,
+    },
+    archaeologists.map((archaeologist: ArchaeologistData) => {
+      return {
+        archAddress: archaeologist.archAddress,
+        doubleHashedKeyShare: archaeologist.doubleHashedKeyShare,
+        diggingFee: BigNumber.from(archaeologist.diggingFeeSarquitos),
+        v: archaeologist.v,
+        r: archaeologist.r,
+        s: archaeologist.s,
+      };
+    }),
+    sarcophagusData.arweaveTxIds,
+  ];
 };

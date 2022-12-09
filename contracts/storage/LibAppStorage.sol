@@ -39,6 +39,7 @@ struct AppStorage {
     mapping(bytes32 => address) doubleHashedShardArchaeologists;
 
     // sarcophagus ids
+    // todo: is this used?
     bytes32[] sarcophagusIdentifiers;
     // sarcophagus id => sarcophagus object
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;

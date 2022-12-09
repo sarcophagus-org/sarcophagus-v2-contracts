@@ -7,7 +7,9 @@ const { ethers } = require("hardhat");
 /**
  * Transfers the supplied amount of whole SARCO to the supplied account
  * Approves the diamond contract to spend any amount of SARCO on behalf of the account
- * */
+ * @param account
+ * @param amountSarco
+ */
 export const fundAndApproveAccount = async (
   account: SignerWithAddress,
   amountSarco: number

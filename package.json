@@ -1,6 +1,6 @@
 {
   "name": "@sarcophagus-org/sarcophagus-v2-contracts",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "engines": {
     "node": ">=16.15.0"
   },
@@ -13,7 +13,10 @@
     "test": "npx hardhat test",
     "transfer": "npx hardhat run scripts/transfer.js --network localhost",
     "prepublish": "npm run clean && npx rimraf dist && npm run compile && npx tsc",
-    "history": "npx hardhat generate-history --network localhost"
+    "history": "npx hardhat generate-history --network localhost",
+    "lint": "npx eslint deploy scripts tasks test --fix",
+    "prettier": "npx prettier --write deploy scripts tasks test",
+    "prepare": "husky install"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -62,6 +65,7 @@
     "hardhat-contract-sizer": "^2.5.1",
     "hardhat-deploy": "^0.11.10",
     "hardhat-gas-reporter": "^1.0.8",
+    "husky": "^8.0.2",
     "keyv": "^4.5.0",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
