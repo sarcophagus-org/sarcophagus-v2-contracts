@@ -36,4 +36,10 @@ library LibTypes {
         uint256 freeBond;
         uint256 cursedBond;
     }
+
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
 }

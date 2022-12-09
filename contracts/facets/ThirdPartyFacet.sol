@@ -75,20 +75,23 @@ contract ThirdPartyFacet {
 //    }
 
     /**
-     * @notice Accuse one or more archaeologists of leaking key shares by submitting the hashes of the leaked shares
-     * If the archaeologists responsible for those shares haven't already been accused, their locked bond will be
-     * split between the embalmer and the supplied payment address and digging fees allocated for those archaeologists will be refunded to the embalmer
+     * @notice Accuse one or more archaeologists of leaking private keys by submitting signatures
+     * signed by the leaked private keys. If the archaeologists responsible for those private keys
+     * haven't already been accused, their locked bond will be split between the embalmer and the
+     * supplied payment address and digging fees allocated for those archaeologists will be refunded
+     * to the embalmer
      *
-     * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus state will be updated to Accused
-     * and bonds for all remaining unaccused archaeologists will be returned
+     * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus
+     * state will be updated to Accused and bonds for all remaining unaccused archaeologists will be
+     * returned
      *
-     * @param sarcoId The identifier of the sarcophagus having leaked shares
-     * @param keyShareHashes hashes of the leaked key shares
+     * @param sarcoId The identifier of the sarcophagus having leaked private keys
+     * @param signatures an array of signatures of the sarcoId signed by the leaked private keys
      * @param paymentAddress the address to which rewards should be sent if successful
      */
     function accuse(
         bytes32 sarcoId,
-        bytes32[] calldata keyShareHashes,
+        LibTypes.Signature[] calldata signatures,
         address paymentAddress
     ) external {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
@@ -109,28 +112,35 @@ contract ThirdPartyFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2**256 - 1) {
+        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
         // build an array of the addresses of the archaeologists currently being accused
-        address[] memory accusedArchAddresses = new address[](keyShareHashes.length);
+        address[] memory accusedArchAddresses = new address[](signatures.length);
 
         // track the combined locked bond across all archaeologists being accused in this call
         // locked bond will be equal to the amount of diggingFees allocated by the embalmer to pay the archaeologist
         uint256 totalDiggingFees = 0;
         uint256 accusalCount = 0;
-        for (uint256 i = 0; i < keyShareHashes.length; i++) {
-            // generate the double hash of the key share
-            bytes32 doubleHashedKeyShare = keccak256(abi.encode(keyShareHashes[i]));
+        for (uint256 i = 0; i < signatures.length; i++) {
+            // Recover the archaeologist's address from the signature. Note that the recoverAddress
+            // function will always return a valid address, even if the message does not match the
+            // signature.
+            address accusedArchaeologistAddress = LibUtils.recoverAddress(
+                abi.encodePacked(sarcoId),
+                signatures[i].v,
+                signatures[i].r,
+                signatures[i].s
+            );
 
-            // look up the archaeologist responsible for the key share
-            address accusedArchaeologistAddress = s.doubleHashedShardArchaeologists[doubleHashedKeyShare];
-            LibTypes.CursedArchaeologist storage accusedArchaeologist = sarcophagus.cursedArchaeologists[accusedArchaeologistAddress];
+            // Look up the archaeologist on the sarcohpagus
+            LibTypes.CursedArchaeologist storage accusedArchaeologist = sarcophagus
+                .cursedArchaeologists[accusedArchaeologistAddress];
 
-            // verify the accused archaeologist is cursed on the sarcophagus
-            if (accusedArchaeologist.doubleHashedKeyShare == 0) {
-                revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
+            // Verify that the address belongs to a cursed archaeologist on this sarcophagus
+            if (accusedArchaeologist.publicKey.length == 0) {
+                revert LibErrors.ArchaeologistNotOnSarcophagus(accusedArchaeologistAddress);
             }
 
             // if the archaeologist has already been accused on this sarcophagus break without taking action
