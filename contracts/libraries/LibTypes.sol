@@ -22,11 +22,15 @@ library LibTypes {
     }
 
     struct CursedArchaeologist {
-        // never zero - use for existence checks
+        // never empty - use for existence checks
+        bytes publicKey;
+        // todo: remove
         bytes32 doubleHashedKeyShare;
         bool isAccused;
         uint256 diggingFee;
+        // todo: remove
         bytes rawKeyShare;
+        bytes32 privateKey;
     }
 
     struct ArchaeologistProfile {
