@@ -111,6 +111,9 @@ contract ThirdPartyFacet {
 
                 // slash the archaeologist's locked bond for the sarcophagus
                 LibBonds.decreaseCursedBond(sarcophagus.cursedArchaeologistAddresses[i], cursedArchaeologist.diggingFee);
+
+                // track that the archaeologist has had a clean on this sarcophagus
+                s.archaeologistCleanups[sarcophagus.cursedArchaeologistAddresses[i]].push(sarcoId);
             }
         }
 

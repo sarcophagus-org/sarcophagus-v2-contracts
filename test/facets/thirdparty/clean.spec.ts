@@ -315,7 +315,7 @@ describe("ThirdPartyFacet.clean", () => {
       );
     });
 
-    it("stores the sarcoId and archaeologist address in archaeologistCleanups", async function () {
+    it("bread stores the sarcoId and archaeologist address in archaeologistCleanups", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
@@ -358,7 +358,7 @@ describe("ThirdPartyFacet.clean", () => {
               await viewStateFacet.getArchaeologistCleanupsCount(
                 archaeologist.archAddress
               );
-            expect(cleanUpCount).to.equal(0);
+            expect(cleanUpCount).to.equal(1);
           }
         )
       );
