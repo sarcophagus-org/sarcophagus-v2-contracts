@@ -37,6 +37,14 @@ contract AdminFacet {
         s.gracePeriod = gracePeriod;
     }
 
+    /// @notice Updates the embalmerClaimWindow
+    /// @param embalmerClaimWindow to set
+    /// @dev Can only be called by the diamond owner.
+    function setEmbalmerClaimWindow(uint256 embalmerClaimWindow) external {
+        LibDiamond.enforceIsContractOwner();
+        s.embalmerClaimWindow = embalmerClaimWindow;
+    }
+
     /// @notice Updates the expirationThreshold used during sarcophagus creation
     /// @param expirationThreshold to set
     /// @dev Can only be called by the diamond owner.

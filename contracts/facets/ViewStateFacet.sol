@@ -48,6 +48,12 @@ contract ViewStateFacet {
         return s.gracePeriod;
     }
 
+    /// @notice Gets the window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish key shares
+    /// @return The embalmer claim window
+    function getEmbalmerClaimWindow() external view returns (uint256) {
+        return s.embalmerClaimWindow;
+    }
+
     /// @notice Gets the expiration threshold after which a sarcophagus must be renegotiated
     /// @return The expiration threshold
     function getExpirationThreshold() external view returns (uint256) {
@@ -227,6 +233,7 @@ contract ViewStateFacet {
     struct SarcophagusResponse {
         uint256 resurrectionTime;
         bool isCompromised;
+        bool isCleaned;
         string name;
         uint8 threshold;
         uint256 maximumRewrapInterval;
@@ -260,9 +267,13 @@ contract ViewStateFacet {
             } else if (
                 !sarcophagus
                     .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
-                    .isAccused
+                    .isAccused &&
+                    !sarcophagus.isCompromised &&
+                    !sarcophagus.isCleaned &&
+                    sarcophagus.resurrectionTime != 2 ** 256 - 1
             ) {
-                // if archaeologist hasn't published a key share and is not accused, they still have locked bond
+                // if the sarcophagus is not compromised, buried, or cleaned and
+                // one or more unaccused archaeologists hasn't published a key share there is locked bond on the sarcophagus
                 hasLockedBond = true;
             }
         }
@@ -271,6 +282,7 @@ contract ViewStateFacet {
             SarcophagusResponse({
                 resurrectionTime: sarcophagus.resurrectionTime,
                 isCompromised: sarcophagus.isCompromised,
+                isCleaned:sarcophagus.isCleaned,
                 name: sarcophagus.name,
                 threshold: sarcophagus.threshold,
                 maximumRewrapInterval: sarcophagus.maximumRewrapInterval,

@@ -68,9 +68,6 @@ library LibErrors {
     // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)
     error SarcophagusIsUnwrappable();
 
-    // Used when an attempt is made to clean a sarcophagus before the grace period after the resurrection time has passed
-    error SarcophagusNotCleanable();
-
     error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);
 
     error TooLateToUnwrap(uint256 resurrectionTime, uint256 gracePeriod, uint256 currentTime);
@@ -79,6 +76,34 @@ library LibErrors {
 
     error SarcophagusParametersExpired(uint256 timestamp);
 
-
+    /// @notice An archaeologist that has already been accused has attempted to publish a key share
+    /// @param archaeologistAddress Address of accused archaeologist
+    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on
     error ArchaeologistHasBeenAccused(address archaeologistAddress, bytes32 sarcoId);
+
+    /// @notice Clean has been called on a sarcophagus that has already been cleaned
+    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on
+    error SarcophagusAlreadyCleaned(bytes32 sarcoId);
+
+    /// @notice Clean has been called before the deadline for archaeologists to publish key shares has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param publishDeadline Latest time an archaeologist may publish a key share on a sarcophagus: esurrectionTime + gracePeriod
+    error TooEarlyForClean(uint256 currentTime, uint256 publishDeadline);
+
+    /// @notice Clean has been called by someone other than the admin or embalmer of the sarcophagus
+    /// @param senderAddress Address of sender
+    error SenderNotEmbalmerOrAdmin(address senderAddress);
+
+    /// @notice Embalmer has attempted to clean a sarcophagus after the embalmerClaimWindow has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
+    error EmbalmerClaimWindowPassed(uint256 currentTime, uint256 embalmerClaimWindowEnd);
+
+    /// @notice Admin has attempted to clean a sarcophagus before the embalmerClaimWindow has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
+    error TooEarlyForAdminClean(uint256 currentTime, uint256 embalmerClaimWindowEnd);
+
+
+
 }

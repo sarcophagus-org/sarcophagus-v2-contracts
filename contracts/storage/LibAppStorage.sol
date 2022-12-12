@@ -24,6 +24,8 @@ struct AppStorage {
     uint256 gracePeriod;
     // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated
     uint256 expirationThreshold;
+    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish key shares
+    uint256 embalmerClaimWindow;
 
     /**
     * Ownership mappings

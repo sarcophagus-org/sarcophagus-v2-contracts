@@ -11,6 +11,7 @@ contract AppStorageInit {
         IERC20 sarcoToken,
         uint256 protocolFeeBasePercentage,
         uint256 gracePeriod,
+        uint256 embalmerClaimWindow,
         uint256 expirationThreshold
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
@@ -19,6 +20,7 @@ contract AppStorageInit {
         s.sarcoToken = sarcoToken;
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
         s.gracePeriod = gracePeriod;
+        s.embalmerClaimWindow = embalmerClaimWindow;
         s.expirationThreshold = expirationThreshold;
     }
 }

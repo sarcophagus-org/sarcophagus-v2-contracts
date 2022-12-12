@@ -10,6 +10,7 @@ library LibTypes {
         uint256 resurrectionTime;
         // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused
         bool isCompromised;
+        bool isCleaned;
         string name;
         uint8 threshold;
         uint256 maximumRewrapInterval;
