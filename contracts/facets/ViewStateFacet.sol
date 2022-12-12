@@ -255,7 +255,6 @@ contract ViewStateFacet {
 
         uint8 publishedKeyShareCount = 0;
         bool hasLockedBond = false;
-        // todo: how should we mark an archaeologist as having had their bond cleaned?
         for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
             // archaeologist has published a keyshare
             if (
