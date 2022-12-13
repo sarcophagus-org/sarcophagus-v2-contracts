@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {AppStorage} from "../storage/LibAppStorage.sol";
-import { LibDiamond } from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol";
+import {LibDiamond} from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol";
 
 contract AdminFacet {
     AppStorage internal s;

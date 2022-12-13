@@ -24,7 +24,7 @@ struct AppStorage {
     uint256 gracePeriod;
     // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated
     uint256 expirationThreshold;
-    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish key shares
+    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys
     uint256 embalmerClaimWindow;
 
     /**
@@ -37,11 +37,8 @@ struct AppStorage {
     // recipient address =>  ids of sarcophagi they're recipient on
     mapping(address => bytes32[]) recipientSarcophagi;
 
-    // double hashed keyshare => archaeologist address
-    mapping(bytes32 => address) doubleHashedShardArchaeologists;
-
     // public key => archaeologist address
-    mapping(bytes => address) publicKeyArchaeologist;
+    mapping(bytes => address) publicKeyToArchaeologistAddress;
 
     // sarcophagus id => sarcophagus object
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;

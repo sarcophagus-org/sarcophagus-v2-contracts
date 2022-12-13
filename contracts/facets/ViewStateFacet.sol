@@ -48,7 +48,7 @@ contract ViewStateFacet {
         return s.gracePeriod;
     }
 
-    /// @notice Gets the window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish key shares
+    /// @notice Gets the window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys
     /// @return The embalmer claim window
     function getEmbalmerClaimWindow() external view returns (uint256) {
         return s.embalmerClaimWindow;
@@ -115,7 +115,7 @@ contract ViewStateFacet {
         address archaeologist,
         bytes32 sarcoId
     ) external view returns (bool) {
-        return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist].rawKeyShare.length != 0;
+        return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist].privateKey != 0;
     }
 
     /// @notice Returns the number of successful unwraps for an archaeologist.
@@ -241,39 +241,38 @@ contract ViewStateFacet {
         address embalmerAddress;
         address recipientAddress;
         address[] archaeologistAddresses;
-        uint8 publishedKeyShareCount;
+        uint8 publishedPrivateKeyCount;
         bool hasLockedBond;
     }
 
     /// @notice Returns data on the sarcophagus with the supplied id
     /// includes aggregate data on cursed archaeologists associated with the sarcophagus
-    ///     - publishedKeyShareCount - the total number of keyshares published by archaeologists on the sarcophagus
+    ///     - publishedPrivateKeyCount - the total number of private keys published by archaeologists on the sarcophagus
     ///     - hasLockedBond - true if archaeologists still have bond locked in the contract for this sarcophagus
     /// @param sarcoId The identifier of the sarcophagus being returned
     function getSarcophagus(bytes32 sarcoId) external view returns (SarcophagusResponse memory) {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
-        uint8 publishedKeyShareCount = 0;
+        uint8 publishedPrivateKeyCount = 0;
         bool hasLockedBond = false;
         for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
-            // archaeologist has published a keyshare
+            // archaeologist has published a private key
             if (
                 sarcophagus
                     .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
-                    .rawKeyShare
-                    .length != 0
+                    .privateKey != 0
             ) {
-                publishedKeyShareCount++;
+                publishedPrivateKeyCount++;
             } else if (
                 !sarcophagus
                     .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
                     .isAccused &&
-                    !sarcophagus.isCompromised &&
-                    !sarcophagus.isCleaned &&
-                    sarcophagus.resurrectionTime != 2 ** 256 - 1
+                !sarcophagus.isCompromised &&
+                !sarcophagus.isCleaned &&
+                sarcophagus.resurrectionTime != 2 ** 256 - 1
             ) {
                 // if the sarcophagus is not compromised, buried, or cleaned and
-                // one or more unaccused archaeologists hasn't published a key share there is locked bond on the sarcophagus
+                // one or more unaccused archaeologists hasn't published a private key there is locked bond on the sarcophagus
                 hasLockedBond = true;
             }
         }
@@ -282,7 +281,7 @@ contract ViewStateFacet {
             SarcophagusResponse({
                 resurrectionTime: sarcophagus.resurrectionTime,
                 isCompromised: sarcophagus.isCompromised,
-                isCleaned:sarcophagus.isCleaned,
+                isCleaned: sarcophagus.isCleaned,
                 name: sarcophagus.name,
                 threshold: sarcophagus.threshold,
                 maximumRewrapInterval: sarcophagus.maximumRewrapInterval,
@@ -290,7 +289,7 @@ contract ViewStateFacet {
                 embalmerAddress: sarcophagus.embalmerAddress,
                 recipientAddress: sarcophagus.recipientAddress,
                 archaeologistAddresses: sarcophagus.cursedArchaeologistAddresses,
-                publishedKeyShareCount: publishedKeyShareCount,
+                publishedPrivateKeyCount: publishedPrivateKeyCount,
                 hasLockedBond: hasLockedBond
             });
     }

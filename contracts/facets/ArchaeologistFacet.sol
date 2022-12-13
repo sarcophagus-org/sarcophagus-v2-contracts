@@ -11,7 +11,7 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ArchaeologistFacet {
     AppStorage internal s;
 
-    event PublishKeyShare(bytes32 indexed sarcoId, bytes rawKeyShare);
+    event PublishPrivateKey(bytes32 indexed sarcoId, bytes32 privateKey);
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
@@ -34,6 +34,47 @@ contract ArchaeologistFacet {
     event WithdrawFreeBond(address indexed archaeologist, uint256 withdrawnBond);
 
     event WithdrawReward(address indexed archaeologist, uint256 withdrawnReward);
+
+    /// @notice An archaeologist that has already been accused has attempted to publish a key share
+    /// @param archaeologistAddress Address of accused archaeologist
+    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on
+    error ArchaeologistHasBeenAccused(address archaeologistAddress, bytes32 sarcoId);
+
+    /// @notice Clean has been called on a sarcophagus that has already been cleaned
+    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on
+    error SarcophagusAlreadyCleaned(bytes32 sarcoId);
+
+    /// @notice Clean has been called before the deadline for archaeologists to publish key shares has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param publishDeadline Latest time an archaeologist may publish a key share on a sarcophagus: esurrectionTime + gracePeriod
+    error TooEarlyForClean(uint256 currentTime, uint256 publishDeadline);
+
+    /// @notice Clean has been called by someone other than the admin or embalmer of the sarcophagus
+    /// @param senderAddress Address of sender
+    error SenderNotEmbalmerOrAdmin(address senderAddress);
+
+    /// @notice Embalmer has attempted to clean a sarcophagus after the embalmerClaimWindow has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
+    error EmbalmerClaimWindowPassed(uint256 currentTime, uint256 embalmerClaimWindowEnd);
+
+    /// @notice Admin has attempted to clean a sarcophagus before the embalmerClaimWindow has passed
+    /// @param currentTime Timestamp of the failed clean attempt
+    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
+    error TooEarlyForAdminClean(uint256 currentTime, uint256 embalmerClaimWindowEnd);
+
+    /// @notice Archaeologist has attempted to publish a keyshare before the resurrection time
+    /// @param currentTime Timestamp of the failed publish attempt
+    /// @param resurrectionTime Time after which the sarcophagus can be resurrected
+    error TooEarlyForPublish(uint256 currentTime, uint256 resurrectionTime);
+
+    /// @notice Archaeologist has attempted to publish a keyshare after the end of the resurrection window
+    /// @param currentTime Timestamp of the failed publish attempt
+    /// @param publishDeadline Time after which the sarcophagus can no longer be resurrected  (resurrectionTime + gracePeriod)
+    error TooLateForPublish(uint256 currentTime, uint256 publishDeadline);
+
+    error ArchaeologistAlreadyPublishedPrivateKey(address archaeologistAddress);
+
 
     /// @notice Registers the archaeologist profile
     /// @param peerId The libp2p identifier for the archaeologist
@@ -155,13 +196,13 @@ contract ArchaeologistFacet {
         emit WithdrawReward(msg.sender, amountToWithdraw);
     }
 
-    /// @notice Publishes the raw key share for which the archaeologist is responsible during the
+    /// @notice Publishes the private key for which the archaeologist is responsible during the
     /// sarcophagus resurrection window.
     /// Pays digging fees to the archaeologist and releases their locked bond.
     /// Cannot be called on a compromised or buried sarcophagus.
     /// @param sarcoId The identifier of the sarcophagus to unwrap
-    /// @param rawKeyShare The keyshare the archaeologist is publishing
-    function publishKeyShare(bytes32 sarcoId, bytes calldata rawKeyShare) external {
+    /// @param privateKey The private key the archaeologist is publishing
+    function publishPrivateKey(bytes32 sarcoId, bytes32 privateKey) external {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm sarcophagus exists
@@ -181,49 +222,36 @@ contract ArchaeologistFacet {
 
         // Confirm current time is after resurrectionTime
         if (block.timestamp < sarcophagus.resurrectionTime) {
-            revert LibErrors.TooEarlyToUnwrap(sarcophagus.resurrectionTime, block.timestamp);
+            revert TooEarlyForPublish(block.timestamp, sarcophagus.resurrectionTime);
         }
 
         // Confirm current time is within gracePeriod
         if (block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod) {
-            revert LibErrors.TooLateToUnwrap(
-                sarcophagus.resurrectionTime,
-                s.gracePeriod,
-                block.timestamp
-            );
+            revert TooLateForPublish(block.timestamp, sarcophagus.resurrectionTime + s.gracePeriod);
         }
 
         // Confirm tx sender is an archaeologist on the sarcophagus
         LibTypes.CursedArchaeologist storage cursedArchaeologist = s
             .sarcophagi[sarcoId]
             .cursedArchaeologists[msg.sender];
-        if (cursedArchaeologist.doubleHashedKeyShare == 0) {
+        if (cursedArchaeologist.publicKey.length == 0) {
             revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
         }
 
-        // Confirm archaeologist has not already leaked their key share
+        // Confirm archaeologist has not already leaked their private key
         if (cursedArchaeologist.isAccused) {
-            revert LibErrors.ArchaeologistHasBeenAccused(msg.sender, sarcoId);
+            revert ArchaeologistHasBeenAccused(msg.sender, sarcoId);
         }
 
-        // Confirm archaeologist has not already published key share
-        if (cursedArchaeologist.rawKeyShare.length != 0) {
-            revert LibErrors.ArchaeologistAlreadyUnwrapped(msg.sender);
+        // Confirm archaeologist has not already published their private key
+        if (cursedArchaeologist.privateKey != 0) {
+            revert ArchaeologistAlreadyPublishedPrivateKey(msg.sender);
         }
 
-        // Confirm key share being published matches double hash on CursedArchaeologist
-        if (
-            keccak256(abi.encode(keccak256(rawKeyShare))) !=
-            cursedArchaeologist.doubleHashedKeyShare
-        ) {
-            revert LibErrors.UnencryptedShardHashMismatch(
-                rawKeyShare,
-                cursedArchaeologist.doubleHashedKeyShare
-            );
-        }
+        // todo: confirm private key being published matches public key on CursedArchaeologist
 
-        // Store raw key share on cursed archaeologist
-        cursedArchaeologist.rawKeyShare = rawKeyShare;
+        // Store private key on cursed archaeologist
+        cursedArchaeologist.privateKey = privateKey;
 
         // Free archaeologist locked bond and transfer digging fees
         LibBonds.freeArchaeologist(sarcoId, msg.sender);
@@ -232,6 +260,6 @@ contract ArchaeologistFacet {
         // Save the successful sarcophagus against the archaeologist
         s.archaeologistSuccesses[msg.sender].push(sarcoId);
 
-        emit PublishKeyShare(sarcoId, rawKeyShare);
+        emit PublishPrivateKey(sarcoId, privateKey);
     }
 }

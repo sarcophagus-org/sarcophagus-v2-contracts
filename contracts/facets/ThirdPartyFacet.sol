@@ -21,18 +21,20 @@ contract ThirdPartyFacet {
         uint256 embalmerBondReward
     );
 
-    event Clean(
-        bytes32 indexed sarcoId,
-        address indexed cleaner
-    );
+    event Clean(bytes32 indexed sarcoId, address indexed cleaner);
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
 
     /// @notice Clean has been called on a sarcophagus that has already been cleaned
-    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on
+    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a private key on
     error SarcophagusAlreadyCleaned(bytes32 sarcoId);
 
-    /// @notice Clean has been called before the deadline for archaeologists to publish key shares has passed
+    /// @notice Clean has been called before the deadline for archaeologists to publish private keys has passed
     /// @param currentTime Timestamp of the failed clean attempt
-    /// @param publishDeadline Latest time an archaeologist may publish a key share on a sarcophagus: esurrectionTime + gracePeriod
+    /// @param publishDeadline Latest time an archaeologist may publish a private key on a sarcophagus: resurrectionTime + gracePeriod
     error TooEarlyForClean(uint256 currentTime, uint256 publishDeadline);
 
     /// @notice Clean has been called by someone other than the admin or embalmer of the sarcophagus
@@ -49,8 +51,7 @@ contract ThirdPartyFacet {
     /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
     error TooEarlyForAdminClean(uint256 currentTime, uint256 embalmerClaimWindowEnd);
 
-
-    /// @notice If archaeologists fail to publish their key shares on a sarcophagus before the end of the gracePeriod,
+    /// @notice If archaeologists fail to publish their private keys on a sarcophagus before the end of the gracePeriod,
     /// their locked bonds and diggingFees may be claimed by either the embalmer or the admin
     /// embalmers may claim during a limited embalmerClaimWindow after the end of the gracePeriod, after that only the admin will
     /// be able to claim remaining locked bond and diggingFees
@@ -84,33 +85,46 @@ contract ThirdPartyFacet {
         }
 
         // Confirm tx sender is embalmer or admin
-        if (msg.sender != sarcophagus.embalmerAddress &&
-            msg.sender != LibDiamond.contractOwner()) {
+        if (msg.sender != sarcophagus.embalmerAddress && msg.sender != LibDiamond.contractOwner()) {
             revert SenderNotEmbalmerOrAdmin(msg.sender);
         }
 
         // if sender is embalmer, confirm current time is within embalmerClaimWindow
-        if (msg.sender == sarcophagus.embalmerAddress &&
-            block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow) {
-            revert EmbalmerClaimWindowPassed(block.timestamp, sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow);
+        if (
+            msg.sender == sarcophagus.embalmerAddress &&
+            block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow
+        ) {
+            revert EmbalmerClaimWindowPassed(
+                block.timestamp,
+                sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow
+            );
         }
 
         // if sender is admin, confirm embalmerClaimWindow has passed
-        if (msg.sender == LibDiamond.contractOwner() &&
-            block.timestamp <= sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow) {
-            revert TooEarlyForAdminClean(block.timestamp, sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow);
+        if (
+            msg.sender == LibDiamond.contractOwner() &&
+            block.timestamp <= sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow
+        ) {
+            revert TooEarlyForAdminClean(
+                block.timestamp,
+                sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow
+            );
         }
 
-        // sum of locked bonds and digging fees for all archaeologists that have failed to publish key shares before publish deadline and have not been accused
+        // sum of locked bonds and digging fees for all archaeologists that have failed to publish private keys before publish deadline and have not been accused
         uint256 totalDiggingFeesAndLockedBonds = 0;
         for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
-            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]];
-            if (!cursedArchaeologist.isAccused && cursedArchaeologist.rawKeyShare.length == 0) {
+            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
+                .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]];
+            if (!cursedArchaeologist.isAccused && cursedArchaeologist.privateKey == 0) {
                 totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee; // add digging fee for cursedArchaeologist
                 totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee; // add locked bond for cursedArchaeologist
 
                 // slash the archaeologist's locked bond for the sarcophagus
-                LibBonds.decreaseCursedBond(sarcophagus.cursedArchaeologistAddresses[i], cursedArchaeologist.diggingFee);
+                LibBonds.decreaseCursedBond(
+                    sarcophagus.cursedArchaeologistAddresses[i],
+                    cursedArchaeologist.diggingFee
+                );
 
                 // track that the archaeologist has had a clean on this sarcophagus
                 s.archaeologistCleanups[sarcophagus.cursedArchaeologistAddresses[i]].push(sarcoId);
@@ -132,20 +146,20 @@ contract ThirdPartyFacet {
     }
 
     /**
-     * @notice Accuse one or more archaeologists of leaking key shares by submitting the hashes of the leaked shares
-     * If the archaeologists responsible for those shares haven't already been accused, their locked bond will be
+     * @notice Accuse one or more archaeologists of leaking private keys by submitting signatures on the sarco id generated with the leaked private keys
+     * If the archaeologists responsible for those private keys haven't already been accused, their locked bond will be
      * split between the embalmer and the supplied payment address and digging fees allocated for those archaeologists will be refunded to the embalmer
      *
      * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus state will be updated to Accused
      * and bonds for all remaining unaccused archaeologists will be returned
      *
-     * @param sarcoId The identifier of the sarcophagus having leaked shares
-     * @param keyShareHashes hashes of the leaked key shares
+     * @param sarcoId The identifier of the sarcophagus having leaked private keys
+     * @param signatures an array of signatures of the sarcoId signed by the leaked private keys
      * @param paymentAddress the address to which rewards should be sent if successful
      */
     function accuse(
         bytes32 sarcoId,
-        bytes32[] calldata keyShareHashes,
+        Signature[] calldata signatures,
         address paymentAddress
     ) external {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
@@ -171,22 +185,22 @@ contract ThirdPartyFacet {
         }
 
         // build an array of the addresses of the archaeologists currently being accused
-        address[] memory accusedArchAddresses = new address[](keyShareHashes.length);
+        address[] memory accusedArchAddresses = new address[](signatures.length);
 
         // track the combined locked bond across all archaeologists being accused in this call
         // locked bond will be equal to the amount of diggingFees allocated by the embalmer to pay the archaeologist
         uint256 totalDiggingFees = 0;
         uint256 accusalCount = 0;
-        for (uint256 i = 0; i < keyShareHashes.length; i++) {
-            // generate the double hash of the key share
-            bytes32 doubleHashedKeyShare = keccak256(abi.encode(keyShareHashes[i]));
-
-            // look up the archaeologist responsible for the key share
-            address accusedArchaeologistAddress = s.doubleHashedShardArchaeologists[doubleHashedKeyShare];
-            LibTypes.CursedArchaeologist storage accusedArchaeologist = sarcophagus.cursedArchaeologists[accusedArchaeologistAddress];
+        for (uint256 i = 0; i < signatures.length; i++) {
+            // todo: obtain signing key for signature
+            bytes memory publicKey = bytes("");
+            // look up the archaeologist responsible for the publicKey
+            address accusedArchaeologistAddress = s.publicKeyToArchaeologistAddress[publicKey];
+            LibTypes.CursedArchaeologist storage accusedArchaeologist = sarcophagus
+                .cursedArchaeologists[accusedArchaeologistAddress];
 
             // verify the accused archaeologist is cursed on the sarcophagus
-            if (accusedArchaeologist.doubleHashedKeyShare == 0) {
+            if (accusedArchaeologist.publicKey.length == 0) {
                 revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
             }
 
@@ -203,7 +217,10 @@ contract ThirdPartyFacet {
             totalDiggingFees += accusedArchaeologist.diggingFee;
 
             // slash the accused archaeologist's bond
-            LibBonds.decreaseCursedBond(accusedArchaeologistAddress, accusedArchaeologist.diggingFee);
+            LibBonds.decreaseCursedBond(
+                accusedArchaeologistAddress,
+                accusedArchaeologist.diggingFee
+            );
 
             // Save the accusal against the archaeologist
             s.archaeologistAccusals[accusedArchaeologistAddress].push(sarcoId);
@@ -222,7 +239,11 @@ contract ThirdPartyFacet {
             // check if total number of historical accusals on sarcophagus is greater than threshold
             uint256 totalAccusals = 0;
             for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
-                if (sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].isAccused) {
+                if (
+                    sarcophagus
+                        .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
+                        .isAccused
+                ) {
                     totalAccusals++;
                 }
             }
@@ -238,8 +259,15 @@ contract ThirdPartyFacet {
             // iterate through all archaeologist addresses on the sarcophagus
             for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
                 // if the archaeologist has never been accused, release their locked bond back to them
-                if (!sarcophagus.cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]].isAccused) {
-                    LibBonds.freeArchaeologist(sarcoId, sarcophagus.cursedArchaeologistAddresses[i]);
+                if (
+                    !sarcophagus
+                        .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
+                        .isAccused
+                ) {
+                    LibBonds.freeArchaeologist(
+                        sarcoId,
+                        sarcophagus.cursedArchaeologistAddresses[i]
+                    );
                 }
             }
         }
