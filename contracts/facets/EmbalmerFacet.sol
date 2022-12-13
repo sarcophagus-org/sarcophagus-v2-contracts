@@ -13,6 +13,16 @@ contract EmbalmerFacet {
     // IMPORTANT: AppStorage must be the first state variable in the facet.
     AppStorage internal s;
 
+    /// @notice Emitted when a sarcophagus is created
+    /// @param sarcoId Id of the new sarcophagus
+    /// @param name Name of the new sarcophagus
+    /// @param resurrectionTime Resurrection time of the new sarcophagus
+    /// @param embalmer Address of embalmer
+    /// @param recipient Address of recipient
+    /// @param cursedArchaeologists Array of addresses of cursed archaeologists
+    /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus
+    /// @param createSarcophagusProtocolFees Total protocol fees charged to embalmer to create the sarcophagus
+    /// @param arweaveTxIds arweaveTxIds ordered pair of arweave tx ids for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]
     event CreateSarcophagus(
         bytes32 indexed sarcoId,
         string name,
@@ -25,6 +35,11 @@ contract EmbalmerFacet {
         string[2] arweaveTxIds
     );
 
+    /// @notice Emitted when a sarcophagus is buried
+    /// @param sarcoId Id of sarcophagus that was buried
+    /// @param resurrectionTime New resurrection time for the sarcophagus
+    /// @param totalDiggingFees Total digging fees charged to the embalmer for the rewrap
+    /// @param rewrapSarcophagusProtocolFees Total protocol fees charged to the embalmer for the rewrap
     event RewrapSarcophagus(
         bytes32 indexed sarcoId,
         uint256 resurrectionTime,
@@ -32,11 +47,11 @@ contract EmbalmerFacet {
         uint256 rewrapSarcophagusProtocolFees
     );
 
+    /// @notice Emitted when a sarcophagus is buried
+    /// @param sarcoId Id of sarcophagus that was buried
     event BurySarcophagus(bytes32 indexed sarcoId);
 
-    /**
-     * Parameters for a sarcophagus, supplied during sarcophagus creation
-     */
+    /// @notice Parameters of a sarcophagus, supplied during sarcophagus creation
     struct SarcophagusParams {
         string name;
         // highest rewrap interval bonded archaeologists have agreed to accept for lifetime of sarcophagus
@@ -47,9 +62,7 @@ contract EmbalmerFacet {
         uint256 creationTime;
     }
 
-    /**
-     * Parameters for an archaeologist's curse, supplied during sarcophagus creation
-     */
+    /// @notice Parameters of an archaeologist's curse, supplied during sarcophagus creation
     struct SelectedArchaeologistData {
         bytes publicKey;
         address archAddress;
@@ -60,28 +73,46 @@ contract EmbalmerFacet {
         bytes32 s;
     }
 
-
-
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with an id that is already in use
+    /// @param sarcoId Id that is already in use
     error SarcophagusAlreadyExists(bytes32 sarcoId);
 
-    error SarcophagusParametersExpired(uint256 currentTime, uint256 timestamp);
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with expired parameters
+    /// @param currentTime Timestamp of the failed create attempt
+    /// @param creationTime Time when the sarcophagus parameters were created
+    /// @param creationDeadline Deadline for creation of a sarcophagus with the supplied parameters
+    error SarcophagusParametersExpired(
+        uint256 currentTime,
+        uint256 creationTime,
+        uint256 creationDeadline
+    );
 
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with no archaeologists
+    error NoArchaeologistsProvided();
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with a shamir secret sharing threshold of 0
+    error ThresholdCannotBeZero();
+
+    error ThresholdGreaterThanTotalNumberOfArchaeologists(
+        uint8 threshold,
+        uint256 totalNumberOfArchaeologists
+    );
+
+    error ArchaeologistListContainsDuplicate(address archaeologistAddress);
+
+    /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that has already passed
+    /// @param currentTime Timestamp of the failed rewrap attempt
+    /// @param resurrectionTime Resurrection timestamp which has already passed
     error ResurrectionTimeInPast(uint256 currentTime, uint256 resurrectionTime);
 
+    /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that exceeds the maximum rewrap interval
+    /// @param resurrectionTime Resurrection timestamp which is too far in the future
+    /// @param sarcophagusMaximumRewrapInterval Maximum rewrap interval set for the sarcophagus
+    /// @param maximumPermissibleResurrectionTime Resurrection timestamp which is too far in the future
     error ResurrectionTimeTooFarInFuture(
         uint256 resurrectionTime,
         uint256 sarcophagusMaximumRewrapInterval,
         uint256 maximumPermissibleResurrectionTime
     );
-
-    error NoArchaeologistsProvided();
-
-    error ThresholdCannotBeZero();
-
-    error ThresholdGreaterThanTotalNumberOfArchaeologists(uint8 threshold, uint256 totalNumberOfArchaeologists);
-
-    error ArchaeologistListContainsDuplicate(address archaeologistAddress);
-
 
     error NewResurrectionTimeInPast(uint256 currentTime, uint256 newResurrectionTime);
 
@@ -90,7 +121,6 @@ contract EmbalmerFacet {
         uint256 sarcophagusMaximumRewrapInterval,
         uint256 maximumPermissibleResurrectionTime
     );
-
 
     /// @notice Creates a sarcophagus with the supplied parameters and locks
     /// a portion of each archaeologist's freeBond equal to the diggingFees for the sarcophagus.
@@ -117,7 +147,11 @@ contract EmbalmerFacet {
 
         // Confirm that agreed upon sarcophagus parameters have not expired
         if (block.timestamp > sarcophagusParams.creationTime + s.expirationThreshold) {
-            revert SarcophagusParametersExpired(block.timestamp, sarcophagusParams.creationTime);
+            revert SarcophagusParametersExpired(
+                block.timestamp,
+                sarcophagusParams.creationTime,
+                sarcophagusParams.creationTime + s.expirationThreshold
+            );
         }
 
         // Confirm that resurrection time is in the future
@@ -148,7 +182,10 @@ contract EmbalmerFacet {
         // Confirm that threshold is less than or equal to the number of archaeologists
         // (k <= n in a shamir secret sharing scheme)
         if (sarcophagusParams.threshold > selectedArchaeologists.length) {
-            revert ThresholdGreaterThanTotalNumberOfArchaeologists(sarcophagusParams.threshold, selectedArchaeologists.length);
+            revert ThresholdGreaterThanTotalNumberOfArchaeologists(
+                sarcophagusParams.threshold,
+                selectedArchaeologists.length
+            );
         }
 
         // create the sarcophagus
@@ -278,7 +315,11 @@ contract EmbalmerFacet {
 
         // Confirm that new resurrection time doesn't exceed sarcophagus's maximumRewrapInterval
         if (block.timestamp + sarcophagus.maximumRewrapInterval < resurrectionTime) {
-            revert NewResurrectionTimeTooFarInFuture(resurrectionTime, sarcophagus.maximumRewrapInterval, block.timestamp + sarcophagus.maximumRewrapInterval);
+            revert NewResurrectionTimeTooFarInFuture(
+                resurrectionTime,
+                sarcophagus.maximumRewrapInterval,
+                block.timestamp + sarcophagus.maximumRewrapInterval
+            );
         }
 
         // track total digging fees across all archaeologists on the sarcophagus
