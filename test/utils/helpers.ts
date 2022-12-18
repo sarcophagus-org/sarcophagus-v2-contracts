@@ -1,5 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumber, Signature } from "ethers";
+import { BigNumber, Signature, Signer } from "ethers";
 import { ethers } from "hardhat";
 import {
   ArchaeologistFacet,
@@ -24,7 +24,7 @@ const flat = (data: string | string[]): string[] => {
  * @returns The signature and the bytes that were signed
  */
 export async function sign(
-  signer: SignerWithAddress,
+  signer: Signer,
   message: string | string[],
   type: string | string[]
 ): Promise<Signature> {

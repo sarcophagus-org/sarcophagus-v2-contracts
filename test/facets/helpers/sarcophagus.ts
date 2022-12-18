@@ -15,6 +15,7 @@ import { getContracts } from "./contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, BigNumberish, Bytes } from "ethers";
 import { BytesLike } from "ethers/lib/utils";
+const crypto = require("crypto");
 
 const { ethers } = require("hardhat");
 
@@ -31,9 +32,8 @@ export interface SarcophagusData {
   maximumRewrapIntervalSeconds: number;
   creationTime: number;
   threshold: number;
-  rawKeyShares: Buffer[];
-  rawOuterKey: string;
-  arweaveTxIds: [string, string];
+  privateKeys: string[];
+  publicKeys: string[];
 }
 
 /**
@@ -46,7 +46,7 @@ export interface SarcophagusData {
  */
 export const createSarcophagusData = async (params: {
   threshold?: number;
-  totalShares?: number;
+  totalArchaeologists?: number;
   maximumRewrapIntervalSeconds?: number;
   resurrectionTime?: number;
   sarcoId?: string;
@@ -54,11 +54,11 @@ export const createSarcophagusData = async (params: {
   creationTime?: number;
   recipientAddress?: string;
   embalmerAddress?: string;
-  arweaveTxIds?: [string, string];
   embalmerFunds?: number;
 }): Promise<SarcophagusData> => {
   const threshold = params.threshold !== undefined ? params.threshold : 3;
-  const totalShares = params.totalShares !== undefined ? params.totalShares : 5;
+  const totalShares =
+    params.totalArchaeologists !== undefined ? params.totalArchaeologists : 5;
   const maximumRewrapIntervalSeconds =
     params.maximumRewrapIntervalSeconds !== undefined
       ? params.maximumRewrapIntervalSeconds
@@ -98,13 +98,15 @@ export const createSarcophagusData = async (params: {
       ? params.resurrectionTime
       : creationTime + maximumRewrapIntervalSeconds;
 
-  // generate the keyshares for the sarcophagus
-  const { shares, key } = generateKeyshares(threshold, totalShares);
+  // generate the key pairs for the sarcophagus
+  const privateKeys = Array.from({ length: totalShares }, () =>
+    crypto.randomBytes(32).toString("hex")
+  );
+  const publicKeys = privateKeys.map(
+    (privateKey: string) =>
+      new ethers.utils.SigningKey("0x" + privateKey).publicKey
+  );
 
-  const arweaveTxIds: [string, string] =
-    params.arweaveTxIds !== undefined
-      ? params.arweaveTxIds
-      : ["FilePayloadTxId", "EncryptedShardTxId"];
   return {
     sarcoId,
     name,
@@ -114,9 +116,8 @@ export const createSarcophagusData = async (params: {
     maximumRewrapIntervalSeconds,
     threshold,
     creationTime,
-    rawKeyShares: shares,
-    rawOuterKey: key,
-    arweaveTxIds,
+    privateKeys,
+    publicKeys,
   };
 };
 
@@ -138,11 +139,11 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
   sarcophagusData: SarcophagusData
 ): Promise<ArchaeologistData[]> =>
   await Promise.all(
-    sarcophagusData.rawKeyShares.map(async (rawKeyShare: Buffer) =>
+    sarcophagusData.privateKeys.map(async (privateKey: string, index: number) =>
       registerArchaeologistAndCreateSignature(
         {
-          arweaveTxId: sarcophagusData.arweaveTxIds[1],
-          rawKeyShare,
+          publicKey: sarcophagusData.publicKeys[index],
+          privateKey,
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
           creationTime: sarcophagusData.creationTime,
@@ -184,7 +185,7 @@ export const registerArchaeologistAndCreateSignature = async (
  * @param params
  */
 export const registerSarcophagusWithArchaeologists = async (params?: {
-  totalShares?: number;
+  totalArchaeologists?: number;
   threshold?: number;
   maximumRewrapIntervalSeconds?: number;
 }): Promise<{
@@ -193,11 +194,11 @@ export const registerSarcophagusWithArchaeologists = async (params?: {
 }> => {
   const sarcophagusData = await createSarcophagusData({
     threshold: params?.threshold,
-    totalShares: params?.totalShares,
+    totalArchaeologists: params?.totalArchaeologists,
     maximumRewrapIntervalSeconds: params?.maximumRewrapIntervalSeconds,
   });
 
-  // register archaeologist profiles for each keyshare and create a signature from each archaeologist
+  // register archaeologist profiles for each key and create a signature from each archaeologist
   const archaeologists = await registerDefaultArchaeologistsAndCreateSignatures(
     sarcophagusData
   );
@@ -236,7 +237,7 @@ export const buildCreateSarcophagusArgs = (
   selectedArchaeologists: {
     archAddress: string;
     diggingFee: BigNumberish;
-    doubleHashedKeyShare: BytesLike;
+    publicKey: BytesLike;
     v: BigNumberish;
     r: BytesLike;
     s: BytesLike;
@@ -253,16 +254,14 @@ export const buildCreateSarcophagusArgs = (
       threshold: sarcophagusData.threshold,
       creationTime: sarcophagusData.creationTime,
     },
-    archaeologists.map((archaeologist: ArchaeologistData) => {
-      return {
-        archAddress: archaeologist.archAddress,
-        doubleHashedKeyShare: archaeologist.doubleHashedKeyShare,
-        diggingFee: BigNumber.from(archaeologist.diggingFeeSarquitos),
-        v: archaeologist.v,
-        r: archaeologist.r,
-        s: archaeologist.s,
-      };
-    }),
-    sarcophagusData.arweaveTxIds,
+    archaeologists.map((archaeologist: ArchaeologistData) => ({
+      archAddress: archaeologist.archAddress,
+      publicKey: archaeologist.publicKey,
+      diggingFee: BigNumber.from(archaeologist.diggingFeeSarquitos),
+      v: archaeologist.v,
+      r: archaeologist.r,
+      s: archaeologist.s,
+    })),
+    ["sarcophagus payload tx", "encrypted key share tx"],
   ];
 };
