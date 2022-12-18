@@ -2,9 +2,11 @@ import "@nomicfoundation/hardhat-chai-matchers";
 import { getContracts } from "../helpers/contracts";
 import { registerSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
 import { expect } from "chai";
-import { compromiseSarcophagus } from "../helpers/accuse";
+import {
+  accuseArchaeologistsOnSarcophagus,
+  compromiseSarcophagus,
+} from "../helpers/accuse";
 import time from "../../utils/time";
-import { hashShare } from "../helpers/shamirSecretSharing";
 import {
   getArchaeologistFreeBondSarquitos,
   getArchaeologistLockedBondSarquitos,
@@ -12,7 +14,7 @@ import {
 
 const { deployments, ethers } = require("hardhat");
 
-describe("ArchaeologistFacet.publishKeyShare", () => {
+describe("bread ArchaeologistFacet.publishPrivateKey", () => {
   // reset to directly after the diamond deployment before each test
   beforeEach(async () => await deployments.fixture());
 
@@ -24,9 +26,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           ethers.utils.solidityKeccak256(["string"], ["nonexistent"]),
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
 
       await expect(tx).to.be.revertedWithCustomError(
@@ -44,9 +46,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
 
       await expect(tx).to.be.revertedWithCustomError(
@@ -66,9 +68,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
 
       await expect(tx).to.be.revertedWithCustomError(
@@ -83,9 +85,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
 
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
 
       await expect(tx).to.be.revertedWithCustomError(
@@ -106,9 +108,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
 
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
 
       await expect(tx).to.be.revertedWithCustomError(
@@ -126,9 +128,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
 
       const tx = archaeologistFacet
         .connect(sarcophagusData.embalmer)
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
       await expect(tx).to.be.revertedWithCustomError(
         archaeologistFacet,
@@ -136,24 +138,22 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       );
     });
     it("the archaeologist has been accused", async function () {
-      const { archaeologistFacet, thirdPartyFacet } = await getContracts();
+      const { archaeologistFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
 
-      await thirdPartyFacet
-        .connect(sarcophagusData.embalmer)
-        .accuse(
-          sarcophagusData.sarcoId,
-          [hashShare(archaeologists[0].rawKeyShare)],
-          sarcophagusData.embalmer.address
-        );
+      await accuseArchaeologistsOnSarcophagus(
+        1,
+        sarcophagusData.sarcoId,
+        archaeologists
+      );
 
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
 
       await expect(tx).to.be.revertedWithCustomError(
@@ -168,15 +168,15 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       await archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
       await expect(tx).to.be.revertedWithCustomError(
         archaeologistFacet,
@@ -190,9 +190,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[1].rawKeyShare
+          archaeologists[1].privateKey
         );
       await expect(tx).to.be.revertedWithCustomError(
         archaeologistFacet,
@@ -202,16 +202,16 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
   });
 
   describe("Successfully publishes a keyshare", function () {
-    it("updates the cursedArchaeologist on the sarcophagus with the rawKeyShare that was published", async function () {
+    it("updates the cursedArchaeologist on the sarcophagus with the privateKey that was published", async function () {
       const { archaeologistFacet, viewStateFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       await archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
 
       const cursedArchaeologist =
@@ -219,8 +219,8 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
           sarcophagusData.sarcoId,
           archaeologists[0].archAddress
         );
-      await expect(cursedArchaeologist.rawKeyShare).to.equal(
-        "0x" + archaeologists[0].rawKeyShare.toString("hex")
+      await expect(cursedArchaeologist.privateKey).to.equal(
+        archaeologists[0].privateKey
       );
     });
     it("returns the locked bond for the cursed archaeologist equal to their digging fees on the sarcophagus", async function () {
@@ -239,9 +239,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       await archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
 
       const postPublishFreeBondSarquitos =
@@ -266,11 +266,11 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
-      await expect(tx).to.emit(archaeologistFacet, `PublishKeyShare`);
+      await expect(tx).to.emit(archaeologistFacet, `PublishPrivateKey`);
     });
     it("stores the sarcoId in archaeologistSuccesses", async function () {
       const { archaeologistFacet, viewStateFacet } = await getContracts();
@@ -279,9 +279,9 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       await archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
       const successCount = await viewStateFacet.getArchaeologistSuccessesCount(
         archaeologists[0].archAddress
@@ -295,18 +295,18 @@ describe("ArchaeologistFacet.publishKeyShare", () => {
         );
       await expect(archaeologistSuccessOnSarcophagus).to.equal(true);
     });
-    it("emits PublishKeyShare", async function () {
+    it("emits PublishPrivateKey", async function () {
       const { archaeologistFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       const tx = archaeologistFacet
         .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishKeyShare(
+        .publishPrivateKey(
           sarcophagusData.sarcoId,
-          archaeologists[0].rawKeyShare
+          archaeologists[0].privateKey
         );
-      await expect(tx).to.emit(archaeologistFacet, `PublishKeyShare`);
+      await expect(tx).to.emit(archaeologistFacet, `PublishPrivateKey`);
     });
   });
 });

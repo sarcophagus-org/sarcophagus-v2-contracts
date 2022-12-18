@@ -1,7 +1,7 @@
 import { ArchaeologistData } from "./archaeologistSignature";
 import { expect } from "chai";
 import { getContracts } from "./contracts";
-import { Bytes, ethers } from "ethers";
+import { Bytes, ethers, Signature } from "ethers";
 import { getFreshAccount } from "./accounts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { SarcophagusData } from "./sarcophagus";
@@ -61,6 +61,16 @@ export const accuseArchaeologistsOnSarcophagus = async (
     .accuse(sarcoId, signatures, accuser.address);
   return { accusedArchaeologists, accuser };
 };
+export const generateAccusalSignature = async (
+  sarcoId: Bytes,
+  accusedArchaeologistPrivateKey: string,
+  accuserAddress: string
+): Promise<Signature> =>
+  await sign(
+    new ethers.Wallet(accusedArchaeologistPrivateKey),
+    [sarcoId.toString(), accuserAddress],
+    ["bytes32", "address"]
+  );
 
 /**
  * Given a set of archaeologists and sarcoId, asserts all have the expected accusal status
