@@ -21,10 +21,7 @@ export const publishPrivateKeysForArchaeologists = async (
       async (archaeologist: ArchaeologistData) =>
         await archaeologistFacet
           .connect(await ethers.getSigner(archaeologist.archAddress))
-          .publishPrivateKey(
-            sarcophagusData.sarcoId,
-            "0x" + archaeologist.privateKey
-          )
+          .publishPrivateKey(sarcophagusData.sarcoId, archaeologist.privateKey)
     )
   );
 };

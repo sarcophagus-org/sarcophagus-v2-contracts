@@ -99,12 +99,12 @@ export const createSarcophagusData = async (params: {
       : creationTime + maximumRewrapIntervalSeconds;
 
   // generate the key pairs for the sarcophagus
-  const privateKeys = Array.from({ length: totalShares }, () =>
-    crypto.randomBytes(32).toString("hex")
+  const privateKeys = Array.from(
+    { length: totalShares },
+    () => "0x" + crypto.randomBytes(32).toString("hex")
   );
   const publicKeys = privateKeys.map(
-    (privateKey: string) =>
-      new ethers.utils.SigningKey("0x" + privateKey).publicKey
+    (privateKey: string) => new ethers.utils.SigningKey(privateKey).publicKey
   );
 
   return {

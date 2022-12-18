@@ -92,7 +92,7 @@ describe("bread ArchaeologistFacet.publishPrivateKey", () => {
 
       await expect(tx).to.be.revertedWithCustomError(
         archaeologistFacet,
-        `TooEarlyToUnwrap`
+        `TooEarlyForPublish`
       );
     });
 
@@ -115,7 +115,7 @@ describe("bread ArchaeologistFacet.publishPrivateKey", () => {
 
       await expect(tx).to.be.revertedWithCustomError(
         archaeologistFacet,
-        `TooLateToUnwrap`
+        `TooLateForPublish`
       );
     });
 
@@ -161,7 +161,7 @@ describe("bread ArchaeologistFacet.publishPrivateKey", () => {
         `ArchaeologistHasBeenAccused`
       );
     });
-    it("the archaeologist has already published their key share", async function () {
+    it("the archaeologist has already published their key", async function () {
       const { archaeologistFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
@@ -180,10 +180,10 @@ describe("bread ArchaeologistFacet.publishPrivateKey", () => {
         );
       await expect(tx).to.be.revertedWithCustomError(
         archaeologistFacet,
-        `ArchaeologistAlreadyUnwrapped`
+        `ArchaeologistAlreadyPublishedPrivateKey`
       );
     });
-    it("the key share being published does not match the double hash on the cursedArchaeologist", async function () {
+    it("the private key being published does not match the public key on the cursedArchaeologist", async function () {
       const { archaeologistFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
@@ -196,12 +196,12 @@ describe("bread ArchaeologistFacet.publishPrivateKey", () => {
         );
       await expect(tx).to.be.revertedWithCustomError(
         archaeologistFacet,
-        `UnencryptedShardHashMismatch`
+        `ArchaeologistPublishedIncorrectPrivateKey`
       );
     });
   });
 
-  describe("Successfully publishes a keyshare", function () {
+  describe("Successfully publishes a private key", function () {
     it("updates the cursedArchaeologist on the sarcophagus with the privateKey that was published", async function () {
       const { archaeologistFacet, viewStateFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =

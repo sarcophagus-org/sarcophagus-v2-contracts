@@ -75,6 +75,8 @@ contract ArchaeologistFacet {
 
     error ArchaeologistAlreadyPublishedPrivateKey(address archaeologistAddress);
 
+    error ArchaeologistPublishedIncorrectPrivateKey(address archaeologistAddress, bytes publicKey, bytes32 privateKey);
+
 
     /// @notice Registers the archaeologist profile
     /// @param peerId The libp2p identifier for the archaeologist
