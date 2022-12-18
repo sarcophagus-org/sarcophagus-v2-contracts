@@ -216,17 +216,9 @@ contract EmbalmerFacet {
                 revert ArchaeologistListContainsDuplicate(selectedArchaeologists[i].archAddress);
             }
 
-            // Validate the archaeologist has signed off on the sarcophagus parameters
-            LibUtils.verifyArchaeologistSignature(
-                selectedArchaeologists[i].publicKey,
-                sarcophagusParams.maximumRewrapInterval,
-                sarcophagusParams.creationTime,
-                selectedArchaeologists[i].diggingFee,
-                selectedArchaeologists[i].v,
-                selectedArchaeologists[i].r,
-                selectedArchaeologists[i].s,
-                selectedArchaeologists[i].archAddress
-            );
+            // todo: check convenience structure for public keys that have already been used
+
+            // todo: verify that the sarcophagus parameters have been signed with the private key corresponding to the supplied public key
 
             totalDiggingFees += selectedArchaeologists[i].diggingFee;
 

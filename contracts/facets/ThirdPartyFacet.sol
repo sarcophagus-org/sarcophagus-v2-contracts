@@ -146,7 +146,8 @@ contract ThirdPartyFacet {
     }
 
     /**
-     * @notice Accuse one or more archaeologists of leaking private keys by submitting signatures on the sarco id generated with the leaked private keys
+     * @notice Accuse one or more archaeologists of leaking private keys by submitting signatures on the sarco id
+     * and payment address generated with the leaked private keys
      * If the archaeologists responsible for those private keys haven't already been accused, their locked bond will be
      * split between the embalmer and the supplied payment address and digging fees allocated for those archaeologists will be refunded to the embalmer
      *
