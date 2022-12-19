@@ -254,6 +254,9 @@ contract EmbalmerFacet {
 
             sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
+            // add address to pub key mapping
+            s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] = selectedArchaeologists[i].archAddress;
+
             // update archaeologist-specific convenience lookup structures
             s.publicKeyToArchaeologistAddress[
                 selectedArchaeologists[i].publicKey
@@ -264,9 +267,6 @@ contract EmbalmerFacet {
         // update sarcophagus-specific convenience lookup structures
         s.embalmerSarcophagi[msg.sender].push(sarcoId);
         s.recipientSarcophagi[sarcophagusParams.recipientAddress].push(sarcoId);
-
-        // add address to pub key mapping
-        s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] = selectedArchaeologists[i].archAddress;
 
         // Transfer totalDiggingFees and the protocolFees in SARCO from embalmer to this contract
         uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
