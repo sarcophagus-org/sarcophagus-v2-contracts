@@ -265,6 +265,9 @@ contract EmbalmerFacet {
         s.embalmerSarcophagi[msg.sender].push(sarcoId);
         s.recipientSarcophagi[sarcophagusParams.recipientAddress].push(sarcoId);
 
+        // add address to pub key mapping
+        s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] = selectedArchaeologists[i].archAddress;
+
         // Transfer totalDiggingFees and the protocolFees in SARCO from embalmer to this contract
         uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
         s.totalProtocolFees += protocolFees;
