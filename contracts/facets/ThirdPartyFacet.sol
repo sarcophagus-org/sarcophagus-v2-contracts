@@ -151,8 +151,9 @@ contract ThirdPartyFacet {
      * If the archaeologists responsible for those private keys haven't already been accused, their locked bond will be
      * split between the embalmer and the supplied payment address and digging fees allocated for those archaeologists will be refunded to the embalmer
      *
-     * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus state will be updated to Accused
-     * and bonds for all remaining unaccused archaeologists will be returned
+     * If k or more archaeologists are accused over the lifetime of a sarcophagus, the sarcophagus
+     * state will be updated to Accused and bonds for all remaining unaccused archaeologists will be
+     * returned
      *
      * @param sarcoId The identifier of the sarcophagus having leaked private keys
      * @param signatures an array of signatures of the sarcoId signed by the leaked private keys

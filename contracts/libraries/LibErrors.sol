@@ -8,7 +8,6 @@ pragma solidity ^0.8.13;
  */
 library LibErrors {
 
-
     error ArchaeologistNotOnSarcophagus(address archaeologist);
 
     error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
@@ -17,8 +16,7 @@ library LibErrors {
 
     error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);
 
-
-
+    error PrivateKeyDoesNotMatchPublicKey(bytes32 privateKey, bytes publicKey);
 
     error SarcophagusDoesNotExist(bytes32 sarcoId);
 
