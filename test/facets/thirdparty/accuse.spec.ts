@@ -16,7 +16,7 @@ import { getTotalDiggingFeesSarquitos } from "../helpers/diggingFees";
 
 const { deployments, ethers } = require("hardhat");
 
-describe("doot ThirdPartyFacet.accuse", () => {
+describe("ThirdPartyFacet.accuse", () => {
   // reset to directly after the diamond deployment before each test
   beforeEach(async () => await deployments.fixture());
 

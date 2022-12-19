@@ -35,7 +35,7 @@ contract EmbalmerFacet {
         string[2] arweaveTxIds
     );
 
-    /// @notice Emitted when a sarcophagus is buried
+    /// @notice Emitted when a sarcophagus is rewrapped
     /// @param sarcoId Id of sarcophagus that was buried
     /// @param resurrectionTime New resurrection time for the sarcophagus
     /// @param totalDiggingFees Total digging fees charged to the embalmer for the rewrap
