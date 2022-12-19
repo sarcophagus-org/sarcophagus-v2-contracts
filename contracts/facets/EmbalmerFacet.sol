@@ -223,7 +223,6 @@ contract EmbalmerFacet {
                 revert PublicKeyAlreadyUsed();
             }
 
-            // todo: verify that the sarcophagus parameters have been signed with the private key corresponding to the supplied public key
             LibUtils.verifyArchaeologistSignature(
                 selectedArchaeologists[i].publicKey,
                 sarcophagusParams.maximumRewrapInterval,
