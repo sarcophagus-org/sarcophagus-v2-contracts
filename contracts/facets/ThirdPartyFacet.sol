@@ -51,6 +51,12 @@ contract ThirdPartyFacet {
     /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
     error TooEarlyForAdminClean(uint256 currentTime, uint256 embalmerClaimWindowEnd);
 
+
+    /// @notice Emitted when a third party attempts to accuse an archaeologist on a sarcophagus where the resurrection time has already passed
+    /// @param currentTime Timestamp of the failed accuse attempt
+    /// @param resurrectionTime Resurrection timestamp which has already passed
+    error ResurrectionTimeInPast(uint256 currentTime, uint256 resurrectionTime);
+
     /// @notice If archaeologists fail to publish their private keys on a sarcophagus before the end of the gracePeriod,
     /// their locked bonds and diggingFees may be claimed by either the embalmer or the admin
     /// embalmers may claim during a limited embalmerClaimWindow after the end of the gracePeriod, after that only the admin will
@@ -173,7 +179,7 @@ contract ThirdPartyFacet {
 
         // verify that current time is not past resurrection time
         if (block.timestamp > sarcophagus.resurrectionTime) {
-            revert LibErrors.SarcophagusIsUnwrappable();
+            revert ResurrectionTimeInPast(block.timestamp, sarcophagus.resurrectionTime);
         }
 
         // Confirm the sarcophagus has not been compromised

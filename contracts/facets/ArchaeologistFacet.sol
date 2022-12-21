@@ -253,10 +253,11 @@ contract ArchaeologistFacet {
 
         // Confirm that the private key being submitted matches the public key stored on the
         // sarcophagus for this archaeologist
-        if (LibPrivateKeys.keyVerification(privateKey, cursedArchaeologist.publicKey)) {
-            revert LibErrors.PrivateKeyDoesNotMatchPublicKey(
-                privateKey,
-                cursedArchaeologist.publicKey
+        if (!LibPrivateKeys.isPublicKeyFromPrivateKey(privateKey, cursedArchaeologist.publicKey)) {
+            revert ArchaeologistPublishedIncorrectPrivateKey(
+                msg.sender,
+                cursedArchaeologist.publicKey,
+                privateKey
             );
         }
 

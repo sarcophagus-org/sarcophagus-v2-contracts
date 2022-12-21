@@ -5,6 +5,6 @@ import {LibPrivateKeys} from "../libraries/LibPrivateKeys.sol";
 
 contract LibPrivateKeysTest {
     function keyVerification(bytes32 privKey, bytes memory pubKey) public pure returns (bool) {
-        return LibPrivateKeys.keyVerification(privKey, pubKey);
+        return LibPrivateKeys.isPublicKeyFromPrivateKey(privKey, pubKey);
     }
 }
