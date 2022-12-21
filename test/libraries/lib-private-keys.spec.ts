@@ -26,7 +26,7 @@ describe("LibPrivateKeys", () => {
         .connect(owner)
         .keyVerification(
           wallet.privateKey,
-          "0x" + ethers.utils.computePublicKey(wallet.privateKey).substring(4)
+          ethers.utils.computePublicKey(wallet.privateKey)
         );
 
       expect(result).to.be.true;
@@ -47,7 +47,7 @@ describe("LibPrivateKeys", () => {
         .connect(owner)
         .keyVerification(
           wallet1.privateKey,
-          "0x" + ethers.utils.computePublicKey(wallet2.privateKey).substring(4)
+          ethers.utils.computePublicKey(wallet2.privateKey)
         );
 
       expect(result).to.be.false;
@@ -76,8 +76,8 @@ describe("LibPrivateKeys", () => {
             .connect(owner)
             .keyVerification(
               wallet.privateKey,
-              "0x" +
-                ethers.utils.computePublicKey(wallet.privateKey).substring(4)
+
+              ethers.utils.computePublicKey(wallet.privateKey)
             );
 
           results.push(result);

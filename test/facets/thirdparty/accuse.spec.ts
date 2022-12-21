@@ -55,7 +55,7 @@ describe("ThirdPartyFacet.accuse", () => {
 
       await expect(tx).to.be.revertedWithCustomError(
         thirdPartyFacet,
-        `SarcophagusIsUnwrappable`
+        `ResurrectionTimeInPast`
       );
     });
     it("the sarcophagus has been compromised", async function () {
