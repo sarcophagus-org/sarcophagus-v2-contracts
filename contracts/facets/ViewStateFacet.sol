@@ -237,7 +237,7 @@ contract ViewStateFacet {
         string name;
         uint8 threshold;
         uint256 maximumRewrapInterval;
-        string[2] arweaveTxIds;
+        string arweaveTxId;
         address embalmerAddress;
         address recipientAddress;
         address[] archaeologistAddresses;
@@ -285,7 +285,7 @@ contract ViewStateFacet {
                 name: sarcophagus.name,
                 threshold: sarcophagus.threshold,
                 maximumRewrapInterval: sarcophagus.maximumRewrapInterval,
-                arweaveTxIds: sarcophagus.arweaveTxIds,
+                arweaveTxId: sarcophagus.arweaveTxId,
                 embalmerAddress: sarcophagus.embalmerAddress,
                 recipientAddress: sarcophagus.recipientAddress,
                 archaeologistAddresses: sarcophagus.cursedArchaeologistAddresses,

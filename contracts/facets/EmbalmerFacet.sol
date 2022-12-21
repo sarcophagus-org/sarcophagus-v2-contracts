@@ -22,7 +22,7 @@ contract EmbalmerFacet {
     /// @param cursedArchaeologists Array of addresses of cursed archaeologists
     /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus
     /// @param createSarcophagusProtocolFees Total protocol fees charged to embalmer to create the sarcophagus
-    /// @param arweaveTxIds arweaveTxIds ordered pair of arweave tx ids for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]
+    /// @param arweaveTxId arweave tx id for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]
     event CreateSarcophagus(
         bytes32 indexed sarcoId,
         string name,
@@ -32,7 +32,7 @@ contract EmbalmerFacet {
         address[] cursedArchaeologists,
         uint256 totalDiggingFees,
         uint256 createSarcophagusProtocolFees,
-        string[2] arweaveTxIds
+        string arweaveTxId
     );
 
     /// @notice Emitted when a sarcophagus is rewrapped
@@ -104,6 +104,10 @@ contract EmbalmerFacet {
     /// @param resurrectionTime Resurrection timestamp which has already passed
     error ResurrectionTimeInPast(uint256 currentTime, uint256 resurrectionTime);
 
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with a public key that has already been assigned to another sarcophagus
+    /// @param publicKey the duplicated public key
+    error DuplicatePublicKey(bytes publicKey);
+
     /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that exceeds the maximum rewrap interval
     /// @param resurrectionTime Resurrection timestamp which is too far in the future
     /// @param sarcophagusMaximumRewrapInterval Maximum rewrap interval set for the sarcophagus
@@ -133,12 +137,12 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     /// @param sarcophagusParams params to set on sarcophagus being created
     /// @param selectedArchaeologists the archaeologists the embalmer has selected to curse
-    /// @param arweaveTxIds ordered pair of arweave tx ids: [sarcophagus payload tx, encrypted key share tx]
+    /// @param arweaveTxId ordered pair of arweave tx ids: [sarcophagus payload tx, encrypted key share tx]
     function createSarcophagus(
         bytes32 sarcoId,
         SarcophagusParams calldata sarcophagusParams,
         SelectedArchaeologistData[] calldata selectedArchaeologists,
-        string[2] memory arweaveTxIds
+        string memory arweaveTxId
     ) external {
         // Confirm that sarcophagus with supplied id doesn't already exist
         if (s.sarcophagi[sarcoId].resurrectionTime > 0) {
@@ -194,7 +198,7 @@ contract EmbalmerFacet {
         sarcophagus.threshold = sarcophagusParams.threshold;
         sarcophagus.resurrectionTime = sarcophagusParams.resurrectionTime;
         sarcophagus.maximumRewrapInterval = sarcophagusParams.maximumRewrapInterval;
-        sarcophagus.arweaveTxIds = arweaveTxIds;
+        sarcophagus.arweaveTxId = arweaveTxId;
         sarcophagus.embalmerAddress = msg.sender;
         sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
         sarcophagus.cursedArchaeologistAddresses = new address[](selectedArchaeologists.length);
@@ -216,9 +220,20 @@ contract EmbalmerFacet {
                 revert ArchaeologistListContainsDuplicate(selectedArchaeologists[i].archAddress);
             }
 
-            // todo: check convenience structure for public keys that have already been used
+            if(s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] != address(0)) {
+                revert DuplicatePublicKey(selectedArchaeologists[i].publicKey);
+            }
 
-            // todo: verify that the sarcophagus parameters have been signed with the private key corresponding to the supplied public key
+            LibUtils.verifyArchaeologistSignature(
+                selectedArchaeologists[i].publicKey,
+                sarcophagusParams.maximumRewrapInterval,
+                sarcophagusParams.creationTime,
+                selectedArchaeologists[i].diggingFee,
+                selectedArchaeologists[i].v,
+                selectedArchaeologists[i].r,
+                selectedArchaeologists[i].s,
+                selectedArchaeologists[i].archAddress
+            );
 
             totalDiggingFees += selectedArchaeologists[i].diggingFee;
 
@@ -238,6 +253,9 @@ contract EmbalmerFacet {
                 });
 
             sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
+
+            // add address to pub key mapping
+            s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] = selectedArchaeologists[i].archAddress;
 
             // update archaeologist-specific convenience lookup structures
             s.publicKeyToArchaeologistAddress[
@@ -264,7 +282,7 @@ contract EmbalmerFacet {
             sarcophagus.cursedArchaeologistAddresses,
             totalDiggingFees,
             protocolFees,
-            arweaveTxIds
+            arweaveTxId
         );
     }
 

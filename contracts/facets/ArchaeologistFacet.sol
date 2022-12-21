@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
+import {LibPrivateKeys} from "../libraries/LibPrivateKeys.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {AppStorage} from "../storage/LibAppStorage.sol";
@@ -250,9 +251,17 @@ contract ArchaeologistFacet {
             revert ArchaeologistAlreadyPublishedPrivateKey(msg.sender);
         }
 
-        // todo: confirm private key being published matches public key on CursedArchaeologist
+        // Confirm that the private key being submitted matches the public key stored on the
+        // sarcophagus for this archaeologist
+        if (!LibPrivateKeys.isPublicKeyFromPrivateKey(privateKey, cursedArchaeologist.publicKey)) {
+            revert ArchaeologistPublishedIncorrectPrivateKey(
+                msg.sender,
+                cursedArchaeologist.publicKey,
+                privateKey
+            );
+        }
 
-        // Store private key on cursed archaeologist
+        // Store the private key on cursed archaeologist
         cursedArchaeologist.privateKey = privateKey;
 
         // Free archaeologist locked bond and transfer digging fees

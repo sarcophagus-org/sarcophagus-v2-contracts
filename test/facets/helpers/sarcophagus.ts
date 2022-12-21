@@ -242,7 +242,7 @@ export const buildCreateSarcophagusArgs = (
     r: BytesLike;
     s: BytesLike;
   }[],
-  arweaveTxIds: [string, string]
+  arweaveTxId: string
 ] => {
   return [
     sarcophagusData.sarcoId,
@@ -262,6 +262,6 @@ export const buildCreateSarcophagusArgs = (
       r: archaeologist.r,
       s: archaeologist.s,
     })),
-    ["sarcophagus payload tx", "encrypted key share tx"],
+    "encrypted key share tx",
   ];
 };

@@ -1,0 +1,1107 @@
+{
+  "address": "0xE902620C2294f0cBbee9eaE79cF72A5872F17125",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologistAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ArchaeologistListContainsDuplicate",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "exists",
+          "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "archaeologist",
+          "type": "address"
+        }
+      ],
+      "name": "ArchaeologistProfileExistsShouldBe",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recoveredAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "expectedAddress",
+          "type": "address"
+        }
+      ],
+      "name": "InvalidSignature",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "currentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newResurrectionTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "NewResurrectionTimeInPast",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "resurrectionTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "sarcophagusMaximumRewrapInterval",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maximumPermissibleResurrectionTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "NewResurrectionTimeTooFarInFuture",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoArchaeologistsProvided",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "cursedBond",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "NotEnoughCursedBond",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "freeBond",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "NotEnoughFreeBond",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "PublicKeyAlreadyUsed",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "currentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "resurrectionTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "ResurrectionTimeInPast",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "resurrectionTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "sarcophagusMaximumRewrapInterval",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maximumPermissibleResurrectionTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "ResurrectionTimeTooFarInFuture",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "SarcophagusAlreadyExists",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "SarcophagusCompromised",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "SarcophagusDoesNotExist",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "SarcophagusInactive",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "currentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "creationTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "creationDeadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "SarcophagusParametersExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "embalmer",
+          "type": "address"
+        }
+      ],
+      "name": "SenderNotEmbalmer",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ThresholdCannotBeZero",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "threshold",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalNumberOfArchaeologists",
+          "type": "uint256"
+        }
+      ],
+      "name": "ThresholdGreaterThanTotalNumberOfArchaeologists",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "BurySarcophagus",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "resurrectionTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "embalmer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address[]",
+          "name": "cursedArchaeologists",
+          "type": "address[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalDiggingFees",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "createSarcophagusProtocolFees",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "arweaveTxId",
+          "type": "string"
+        }
+      ],
+      "name": "CreateSarcophagus",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "resurrectionTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalDiggingFees",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "rewrapSarcophagusProtocolFees",
+          "type": "uint256"
+        }
+      ],
+      "name": "RewrapSarcophagus",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "burySarcophagus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximumRewrapInterval",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "recipientAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "resurrectionTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "threshold",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "creationTime",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct EmbalmerFacet.SarcophagusParams",
+          "name": "sarcophagusParams",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "publicKey",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "archAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "diggingFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "v",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "r",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "s",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct EmbalmerFacet.SelectedArchaeologistData[]",
+          "name": "selectedArchaeologists",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "string",
+          "name": "arweaveTxId",
+          "type": "string"
+        }
+      ],
+      "name": "createSarcophagus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "resurrectionTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "rewrapSarcophagus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x5d367b519523ba90fb0aec5c62c0a4beb125a22ebb1a0652ecea9c899dd9cf58",
+  "receipt": {
+    "to": "0x4e59b44847b379578588920cA78FbF26c0B4956C",
+    "from": "0x60e021fE3F1567752D97f1Bc9Fc77E24efc8FBDC",
+    "contractAddress": null,
+    "transactionIndex": 2,
+    "gasUsed": "2674282",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x179690b7d9e0bb90ad062bfef5b42d6caf09cdb839d381a96e21d809ffa5ca5a",
+    "transactionHash": "0x5d367b519523ba90fb0aec5c62c0a4beb125a22ebb1a0652ecea9c899dd9cf58",
+    "logs": [],
+    "blockNumber": 2519867,
+    "cumulativeGasUsed": "6207082",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "42471760eeb4bacfb61bed2f34ebc9c9",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologistAddress\",\"type\":\"address\"}],\"name\":\"ArchaeologistListContainsDuplicate\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"ArchaeologistProfileExistsShouldBe\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recoveredAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"expectedAddress\",\"type\":\"address\"}],\"name\":\"InvalidSignature\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"newResurrectionTime\",\"type\":\"uint256\"}],\"name\":\"NewResurrectionTimeInPast\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sarcophagusMaximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumPermissibleResurrectionTime\",\"type\":\"uint256\"}],\"name\":\"NewResurrectionTimeTooFarInFuture\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NoArchaeologistsProvided\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"cursedBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"NotEnoughCursedBond\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"NotEnoughFreeBond\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PublicKeyAlreadyUsed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"}],\"name\":\"ResurrectionTimeInPast\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sarcophagusMaximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumPermissibleResurrectionTime\",\"type\":\"uint256\"}],\"name\":\"ResurrectionTimeTooFarInFuture\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusAlreadyExists\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusCompromised\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusDoesNotExist\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusInactive\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"creationTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"creationDeadline\",\"type\":\"uint256\"}],\"name\":\"SarcophagusParametersExpired\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"embalmer\",\"type\":\"address\"}],\"name\":\"SenderNotEmbalmer\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ThresholdCannotBeZero\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"threshold\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"totalNumberOfArchaeologists\",\"type\":\"uint256\"}],\"name\":\"ThresholdGreaterThanTotalNumberOfArchaeologists\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"BurySarcophagus\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"embalmer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"cursedArchaeologists\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalDiggingFees\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"createSarcophagusProtocolFees\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"arweaveTxId\",\"type\":\"string\"}],\"name\":\"CreateSarcophagus\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalDiggingFees\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"rewrapSarcophagusProtocolFees\",\"type\":\"uint256\"}],\"name\":\"RewrapSarcophagus\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"burySarcophagus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"recipientAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"threshold\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"creationTime\",\"type\":\"uint256\"}],\"internalType\":\"struct EmbalmerFacet.SarcophagusParams\",\"name\":\"sarcophagusParams\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"bytes\",\"name\":\"publicKey\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"archAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"diggingFee\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"internalType\":\"struct EmbalmerFacet.SelectedArchaeologistData[]\",\"name\":\"selectedArchaeologists\",\"type\":\"tuple[]\"},{\"internalType\":\"string\",\"name\":\"arweaveTxId\",\"type\":\"string\"}],\"name\":\"createSarcophagus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"}],\"name\":\"rewrapSarcophagus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"ResurrectionTimeInPast(uint256,uint256)\":[{\"params\":{\"currentTime\":\"Timestamp of the failed rewrap attempt\",\"resurrectionTime\":\"Resurrection timestamp which has already passed\"}}],\"ResurrectionTimeTooFarInFuture(uint256,uint256,uint256)\":[{\"params\":{\"maximumPermissibleResurrectionTime\":\"Resurrection timestamp which is too far in the future\",\"resurrectionTime\":\"Resurrection timestamp which is too far in the future\",\"sarcophagusMaximumRewrapInterval\":\"Maximum rewrap interval set for the sarcophagus\"}}],\"SarcophagusAlreadyExists(bytes32)\":[{\"params\":{\"sarcoId\":\"Id that is already in use\"}}],\"SarcophagusParametersExpired(uint256,uint256,uint256)\":[{\"params\":{\"creationDeadline\":\"Deadline for creation of a sarcophagus with the supplied parameters\",\"creationTime\":\"Time when the sarcophagus parameters were created\",\"currentTime\":\"Timestamp of the failed create attempt\"}}]},\"events\":{\"BurySarcophagus(bytes32)\":{\"params\":{\"sarcoId\":\"Id of sarcophagus that was buried\"}},\"CreateSarcophagus(bytes32,string,uint256,address,address,address[],uint256,uint256,string)\":{\"params\":{\"arweaveTxId\":\"arweaveTxId arweave tx id for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]\",\"createSarcophagusProtocolFees\":\"Total protocol fees charged to embalmer to create the sarcophagus\",\"cursedArchaeologists\":\"Array of addresses of cursed archaeologists\",\"embalmer\":\"Address of embalmer\",\"name\":\"Name of the new sarcophagus\",\"recipient\":\"Address of recipient\",\"resurrectionTime\":\"Resurrection time of the new sarcophagus\",\"sarcoId\":\"Id of the new sarcophagus\",\"totalDiggingFees\":\"Total digging fees charged to embalmer to create the sarcophagus\"}},\"RewrapSarcophagus(bytes32,uint256,uint256,uint256)\":{\"params\":{\"resurrectionTime\":\"New resurrection time for the sarcophagus\",\"rewrapSarcophagusProtocolFees\":\"Total protocol fees charged to the embalmer for the rewrap\",\"sarcoId\":\"Id of sarcophagus that was buried\",\"totalDiggingFees\":\"Total digging fees charged to the embalmer for the rewrap\"}}},\"kind\":\"dev\",\"methods\":{\"burySarcophagus(bytes32)\":{\"params\":{\"sarcoId\":\"the identifier of the sarcophagus\"}},\"createSarcophagus(bytes32,(string,uint256,address,uint256,uint8,uint256),(bytes,address,uint256,uint8,bytes32,bytes32)[],string)\":{\"params\":{\"arweaveTxId\":\"ordered pair of arweave tx ids: [sarcophagus payload tx, encrypted key share tx]\",\"sarcoId\":\"the identifier of the sarcophagus\",\"sarcophagusParams\":\"params to set on sarcophagus being created\",\"selectedArchaeologists\":\"the archaeologists the embalmer has selected to curse\"}},\"rewrapSarcophagus(bytes32,uint256)\":{\"params\":{\"resurrectionTime\":\"the new resurrection time\",\"sarcoId\":\"the identifier of the sarcophagus\"}}},\"version\":1},\"userdoc\":{\"errors\":{\"NoArchaeologistsProvided()\":[{\"notice\":\"Emitted when an embalmer attempts to create a sarcophagus with no archaeologists\"}],\"ResurrectionTimeInPast(uint256,uint256)\":[{\"notice\":\"Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that has already passed\"}],\"ResurrectionTimeTooFarInFuture(uint256,uint256,uint256)\":[{\"notice\":\"Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that exceeds the maximum rewrap interval\"}],\"SarcophagusAlreadyExists(bytes32)\":[{\"notice\":\"Emitted when an embalmer attempts to create a sarcophagus with an id that is already in use\"}],\"SarcophagusParametersExpired(uint256,uint256,uint256)\":[{\"notice\":\"Emitted when an embalmer attempts to create a sarcophagus with expired parameters\"}],\"ThresholdCannotBeZero()\":[{\"notice\":\"Emitted when an embalmer attempts to create a sarcophagus with a shamir secret sharing threshold of 0\"}]},\"events\":{\"BurySarcophagus(bytes32)\":{\"notice\":\"Emitted when a sarcophagus is buried\"},\"CreateSarcophagus(bytes32,string,uint256,address,address,address[],uint256,uint256,string)\":{\"notice\":\"Emitted when a sarcophagus is created\"},\"RewrapSarcophagus(bytes32,uint256,uint256,uint256)\":{\"notice\":\"Emitted when a sarcophagus is rewrapped\"}},\"kind\":\"user\",\"methods\":{\"burySarcophagus(bytes32)\":{\"notice\":\"Terminates a sarcophagus by setting its resurrection time to infinity and returning locked bonds to all innocent cursed archaeologists. Callable by the embalmer of a sarcophagus if its resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried.\"},\"createSarcophagus(bytes32,(string,uint256,address,uint256,uint8,uint256),(bytes,address,uint256,uint8,bytes32,bytes32)[],string)\":{\"notice\":\"Creates a sarcophagus with the supplied parameters and locks a portion of each archaeologist's freeBond equal to the diggingFees for the sarcophagus. Verifies that all supplied archaeologists have signed off on the sarcophagus negotiation parameters:    - publicKey key they are responsible for    - maximumRewrapInterval to be enforced for the lifetime of the sarcophagus    - creationTime of sarcophagus    - diggingFee to be paid to that archaeologist on all rewraps for the lifetime of the sarcophagus\"},\"rewrapSarcophagus(bytes32,uint256)\":{\"notice\":\"Updates the resurrectionTime on a sarcophagus. Callable by the embalmer of a sarcophagus if its resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/facets/EmbalmerFacet.sol\":\"EmbalmerFacet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) external returns (bool);\\n}\\n\",\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Strings.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.8.0) (utils/Strings.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"./math/Math.sol\\\";\\n\\n/**\\n * @dev String operations.\\n */\\nlibrary Strings {\\n    bytes16 private constant _SYMBOLS = \\\"0123456789abcdef\\\";\\n    uint8 private constant _ADDRESS_LENGTH = 20;\\n\\n    /**\\n     * @dev Converts a `uint256` to its ASCII `string` decimal representation.\\n     */\\n    function toString(uint256 value) internal pure returns (string memory) {\\n        unchecked {\\n            uint256 length = Math.log10(value) + 1;\\n            string memory buffer = new string(length);\\n            uint256 ptr;\\n            /// @solidity memory-safe-assembly\\n            assembly {\\n                ptr := add(buffer, add(32, length))\\n            }\\n            while (true) {\\n                ptr--;\\n                /// @solidity memory-safe-assembly\\n                assembly {\\n                    mstore8(ptr, byte(mod(value, 10), _SYMBOLS))\\n                }\\n                value /= 10;\\n                if (value == 0) break;\\n            }\\n            return buffer;\\n        }\\n    }\\n\\n    /**\\n     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.\\n     */\\n    function toHexString(uint256 value) internal pure returns (string memory) {\\n        unchecked {\\n            return toHexString(value, Math.log256(value) + 1);\\n        }\\n    }\\n\\n    /**\\n     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.\\n     */\\n    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {\\n        bytes memory buffer = new bytes(2 * length + 2);\\n        buffer[0] = \\\"0\\\";\\n        buffer[1] = \\\"x\\\";\\n        for (uint256 i = 2 * length + 1; i > 1; --i) {\\n            buffer[i] = _SYMBOLS[value & 0xf];\\n            value >>= 4;\\n        }\\n        require(value == 0, \\\"Strings: hex length insufficient\\\");\\n        return string(buffer);\\n    }\\n\\n    /**\\n     * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation.\\n     */\\n    function toHexString(address addr) internal pure returns (string memory) {\\n        return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);\\n    }\\n}\\n\",\"keccak256\":\"0xa4d1d62251f8574deb032a35fc948386a9b4de74b812d4f545a1ac120486b48a\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/math/Math.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Standard math utilities missing in the Solidity language.\\n */\\nlibrary Math {\\n    enum Rounding {\\n        Down, // Toward negative infinity\\n        Up, // Toward infinity\\n        Zero // Toward zero\\n    }\\n\\n    /**\\n     * @dev Returns the largest of two numbers.\\n     */\\n    function max(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a > b ? a : b;\\n    }\\n\\n    /**\\n     * @dev Returns the smallest of two numbers.\\n     */\\n    function min(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a < b ? a : b;\\n    }\\n\\n    /**\\n     * @dev Returns the average of two numbers. The result is rounded towards\\n     * zero.\\n     */\\n    function average(uint256 a, uint256 b) internal pure returns (uint256) {\\n        // (a + b) / 2 can overflow.\\n        return (a & b) + (a ^ b) / 2;\\n    }\\n\\n    /**\\n     * @dev Returns the ceiling of the division of two numbers.\\n     *\\n     * This differs from standard division with `/` in that it rounds up instead\\n     * of rounding down.\\n     */\\n    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {\\n        // (a + b - 1) / b can overflow on addition, so we distribute.\\n        return a == 0 ? 0 : (a - 1) / b + 1;\\n    }\\n\\n    /**\\n     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or denominator == 0\\n     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)\\n     * with further edits by Uniswap Labs also under MIT license.\\n     */\\n    function mulDiv(\\n        uint256 x,\\n        uint256 y,\\n        uint256 denominator\\n    ) internal pure returns (uint256 result) {\\n        unchecked {\\n            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use\\n            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256\\n            // variables such that product = prod1 * 2^256 + prod0.\\n            uint256 prod0; // Least significant 256 bits of the product\\n            uint256 prod1; // Most significant 256 bits of the product\\n            assembly {\\n                let mm := mulmod(x, y, not(0))\\n                prod0 := mul(x, y)\\n                prod1 := sub(sub(mm, prod0), lt(mm, prod0))\\n            }\\n\\n            // Handle non-overflow cases, 256 by 256 division.\\n            if (prod1 == 0) {\\n                return prod0 / denominator;\\n            }\\n\\n            // Make sure the result is less than 2^256. Also prevents denominator == 0.\\n            require(denominator > prod1);\\n\\n            ///////////////////////////////////////////////\\n            // 512 by 256 division.\\n            ///////////////////////////////////////////////\\n\\n            // Make division exact by subtracting the remainder from [prod1 prod0].\\n            uint256 remainder;\\n            assembly {\\n                // Compute remainder using mulmod.\\n                remainder := mulmod(x, y, denominator)\\n\\n                // Subtract 256 bit number from 512 bit number.\\n                prod1 := sub(prod1, gt(remainder, prod0))\\n                prod0 := sub(prod0, remainder)\\n            }\\n\\n            // Factor powers of two out of denominator and compute largest power of two divisor of denominator. Always >= 1.\\n            // See https://cs.stackexchange.com/q/138556/92363.\\n\\n            // Does not overflow because the denominator cannot be zero at this stage in the function.\\n            uint256 twos = denominator & (~denominator + 1);\\n            assembly {\\n                // Divide denominator by twos.\\n                denominator := div(denominator, twos)\\n\\n                // Divide [prod1 prod0] by twos.\\n                prod0 := div(prod0, twos)\\n\\n                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.\\n                twos := add(div(sub(0, twos), twos), 1)\\n            }\\n\\n            // Shift in bits from prod1 into prod0.\\n            prod0 |= prod1 * twos;\\n\\n            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such\\n            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for\\n            // four bits. That is, denominator * inv = 1 mod 2^4.\\n            uint256 inverse = (3 * denominator) ^ 2;\\n\\n            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also works\\n            // in modular arithmetic, doubling the correct bits in each step.\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^8\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^16\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^32\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^64\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^128\\n            inverse *= 2 - denominator * inverse; // inverse mod 2^256\\n\\n            // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.\\n            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is\\n            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1\\n            // is no longer required.\\n            result = prod0 * inverse;\\n            return result;\\n        }\\n    }\\n\\n    /**\\n     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.\\n     */\\n    function mulDiv(\\n        uint256 x,\\n        uint256 y,\\n        uint256 denominator,\\n        Rounding rounding\\n    ) internal pure returns (uint256) {\\n        uint256 result = mulDiv(x, y, denominator);\\n        if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {\\n            result += 1;\\n        }\\n        return result;\\n    }\\n\\n    /**\\n     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded down.\\n     *\\n     * Inspired by Henry S. Warren, Jr.'s \\\"Hacker's Delight\\\" (Chapter 11).\\n     */\\n    function sqrt(uint256 a) internal pure returns (uint256) {\\n        if (a == 0) {\\n            return 0;\\n        }\\n\\n        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.\\n        //\\n        // We know that the \\\"msb\\\" (most significant bit) of our target number `a` is a power of 2 such that we have\\n        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.\\n        //\\n        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`\\n        // \\u2192 `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`\\n        // \\u2192 `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`\\n        //\\n        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.\\n        uint256 result = 1 << (log2(a) >> 1);\\n\\n        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,\\n        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at\\n        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision\\n        // into the expected uint128 result.\\n        unchecked {\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            result = (result + a / result) >> 1;\\n            return min(result, a / result);\\n        }\\n    }\\n\\n    /**\\n     * @notice Calculates sqrt(a), following the selected rounding direction.\\n     */\\n    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {\\n        unchecked {\\n            uint256 result = sqrt(a);\\n            return result + (rounding == Rounding.Up && result * result < a ? 1 : 0);\\n        }\\n    }\\n\\n    /**\\n     * @dev Return the log in base 2, rounded down, of a positive value.\\n     * Returns 0 if given 0.\\n     */\\n    function log2(uint256 value) internal pure returns (uint256) {\\n        uint256 result = 0;\\n        unchecked {\\n            if (value >> 128 > 0) {\\n                value >>= 128;\\n                result += 128;\\n            }\\n            if (value >> 64 > 0) {\\n                value >>= 64;\\n                result += 64;\\n            }\\n            if (value >> 32 > 0) {\\n                value >>= 32;\\n                result += 32;\\n            }\\n            if (value >> 16 > 0) {\\n                value >>= 16;\\n                result += 16;\\n            }\\n            if (value >> 8 > 0) {\\n                value >>= 8;\\n                result += 8;\\n            }\\n            if (value >> 4 > 0) {\\n                value >>= 4;\\n                result += 4;\\n            }\\n            if (value >> 2 > 0) {\\n                value >>= 2;\\n                result += 2;\\n            }\\n            if (value >> 1 > 0) {\\n                result += 1;\\n            }\\n        }\\n        return result;\\n    }\\n\\n    /**\\n     * @dev Return the log in base 2, following the selected rounding direction, of a positive value.\\n     * Returns 0 if given 0.\\n     */\\n    function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {\\n        unchecked {\\n            uint256 result = log2(value);\\n            return result + (rounding == Rounding.Up && 1 << result < value ? 1 : 0);\\n        }\\n    }\\n\\n    /**\\n     * @dev Return the log in base 10, rounded down, of a positive value.\\n     * Returns 0 if given 0.\\n     */\\n    function log10(uint256 value) internal pure returns (uint256) {\\n        uint256 result = 0;\\n        unchecked {\\n            if (value >= 10**64) {\\n                value /= 10**64;\\n                result += 64;\\n            }\\n            if (value >= 10**32) {\\n                value /= 10**32;\\n                result += 32;\\n            }\\n            if (value >= 10**16) {\\n                value /= 10**16;\\n                result += 16;\\n            }\\n            if (value >= 10**8) {\\n                value /= 10**8;\\n                result += 8;\\n            }\\n            if (value >= 10**4) {\\n                value /= 10**4;\\n                result += 4;\\n            }\\n            if (value >= 10**2) {\\n                value /= 10**2;\\n                result += 2;\\n            }\\n            if (value >= 10**1) {\\n                result += 1;\\n            }\\n        }\\n        return result;\\n    }\\n\\n    /**\\n     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.\\n     * Returns 0 if given 0.\\n     */\\n    function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {\\n        unchecked {\\n            uint256 result = log10(value);\\n            return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);\\n        }\\n    }\\n\\n    /**\\n     * @dev Return the log in base 256, rounded down, of a positive value.\\n     * Returns 0 if given 0.\\n     *\\n     * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.\\n     */\\n    function log256(uint256 value) internal pure returns (uint256) {\\n        uint256 result = 0;\\n        unchecked {\\n            if (value >> 128 > 0) {\\n                value >>= 128;\\n                result += 16;\\n            }\\n            if (value >> 64 > 0) {\\n                value >>= 64;\\n                result += 8;\\n            }\\n            if (value >> 32 > 0) {\\n                value >>= 32;\\n                result += 4;\\n            }\\n            if (value >> 16 > 0) {\\n                value >>= 16;\\n                result += 2;\\n            }\\n            if (value >> 8 > 0) {\\n                result += 1;\\n            }\\n        }\\n        return result;\\n    }\\n\\n    /**\\n     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.\\n     * Returns 0 if given 0.\\n     */\\n    function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {\\n        unchecked {\\n            uint256 result = log256(value);\\n            return result + (rounding == Rounding.Up && 1 << (result * 8) < value ? 1 : 0);\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xa1e8e83cd0087785df04ac79fb395d9f3684caeaf973d9e2c71caef723a3a5d6\",\"license\":\"MIT\"},\"contracts/facets/EmbalmerFacet.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"@openzeppelin/contracts/utils/Strings.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\nimport {LibBonds} from \\\"../libraries/LibBonds.sol\\\";\\nimport {LibUtils} from \\\"../libraries/LibUtils.sol\\\";\\nimport {AppStorage} from \\\"../storage/LibAppStorage.sol\\\";\\n\\ncontract EmbalmerFacet {\\n    // IMPORTANT: AppStorage must be the first state variable in the facet.\\n    AppStorage internal s;\\n\\n    /// @notice Emitted when a sarcophagus is created\\n    /// @param sarcoId Id of the new sarcophagus\\n    /// @param name Name of the new sarcophagus\\n    /// @param resurrectionTime Resurrection time of the new sarcophagus\\n    /// @param embalmer Address of embalmer\\n    /// @param recipient Address of recipient\\n    /// @param cursedArchaeologists Array of addresses of cursed archaeologists\\n    /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus\\n    /// @param createSarcophagusProtocolFees Total protocol fees charged to embalmer to create the sarcophagus\\n    /// @param arweaveTxId arweaveTxId arweave tx id for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]\\n    event CreateSarcophagus(\\n        bytes32 indexed sarcoId,\\n        string name,\\n        uint256 resurrectionTime,\\n        address embalmer,\\n        address recipient,\\n        address[] cursedArchaeologists,\\n        uint256 totalDiggingFees,\\n        uint256 createSarcophagusProtocolFees,\\n        string arweaveTxId\\n    );\\n\\n    /// @notice Emitted when a sarcophagus is rewrapped\\n    /// @param sarcoId Id of sarcophagus that was buried\\n    /// @param resurrectionTime New resurrection time for the sarcophagus\\n    /// @param totalDiggingFees Total digging fees charged to the embalmer for the rewrap\\n    /// @param rewrapSarcophagusProtocolFees Total protocol fees charged to the embalmer for the rewrap\\n    event RewrapSarcophagus(\\n        bytes32 indexed sarcoId,\\n        uint256 resurrectionTime,\\n        uint256 totalDiggingFees,\\n        uint256 rewrapSarcophagusProtocolFees\\n    );\\n\\n    /// @notice Emitted when a sarcophagus is buried\\n    /// @param sarcoId Id of sarcophagus that was buried\\n    event BurySarcophagus(bytes32 indexed sarcoId);\\n\\n    /// @notice Parameters of a sarcophagus, supplied during sarcophagus creation\\n    struct SarcophagusParams {\\n        string name;\\n        // highest rewrap interval bonded archaeologists have agreed to accept for lifetime of sarcophagus\\n        uint256 maximumRewrapInterval;\\n        address recipientAddress;\\n        uint256 resurrectionTime;\\n        uint8 threshold;\\n        uint256 creationTime;\\n    }\\n\\n    /// @notice Parameters of an archaeologist's curse, supplied during sarcophagus creation\\n    struct SelectedArchaeologistData {\\n        bytes publicKey;\\n        address archAddress;\\n        // diggingFee archaeologist has agreed to receive on sarcophagus for its entire lifetime\\n        uint256 diggingFee;\\n        uint8 v;\\n        bytes32 r;\\n        bytes32 s;\\n    }\\n\\n    /// @notice Emitted when an embalmer attempts to create a sarcophagus with an id that is already in use\\n    /// @param sarcoId Id that is already in use\\n    error SarcophagusAlreadyExists(bytes32 sarcoId);\\n\\n    /// @notice Emitted when an embalmer attempts to create a sarcophagus with expired parameters\\n    /// @param currentTime Timestamp of the failed create attempt\\n    /// @param creationTime Time when the sarcophagus parameters were created\\n    /// @param creationDeadline Deadline for creation of a sarcophagus with the supplied parameters\\n    error SarcophagusParametersExpired(\\n        uint256 currentTime,\\n        uint256 creationTime,\\n        uint256 creationDeadline\\n    );\\n\\n    /// @notice Emitted when an embalmer attempts to create a sarcophagus with no archaeologists\\n    error NoArchaeologistsProvided();\\n    /// @notice Emitted when an embalmer attempts to create a sarcophagus with a shamir secret sharing threshold of 0\\n    error ThresholdCannotBeZero();\\n\\n    error ThresholdGreaterThanTotalNumberOfArchaeologists(\\n        uint8 threshold,\\n        uint256 totalNumberOfArchaeologists\\n    );\\n\\n    error ArchaeologistListContainsDuplicate(address archaeologistAddress);\\n\\n    /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that has already passed\\n    /// @param currentTime Timestamp of the failed rewrap attempt\\n    /// @param resurrectionTime Resurrection timestamp which has already passed\\n    error ResurrectionTimeInPast(uint256 currentTime, uint256 resurrectionTime);\\n\\n    error PublicKeyAlreadyUsed();\\n\\n    /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that exceeds the maximum rewrap interval\\n    /// @param resurrectionTime Resurrection timestamp which is too far in the future\\n    /// @param sarcophagusMaximumRewrapInterval Maximum rewrap interval set for the sarcophagus\\n    /// @param maximumPermissibleResurrectionTime Resurrection timestamp which is too far in the future\\n    error ResurrectionTimeTooFarInFuture(\\n        uint256 resurrectionTime,\\n        uint256 sarcophagusMaximumRewrapInterval,\\n        uint256 maximumPermissibleResurrectionTime\\n    );\\n\\n    error NewResurrectionTimeInPast(uint256 currentTime, uint256 newResurrectionTime);\\n\\n    error NewResurrectionTimeTooFarInFuture(\\n        uint256 resurrectionTime,\\n        uint256 sarcophagusMaximumRewrapInterval,\\n        uint256 maximumPermissibleResurrectionTime\\n    );\\n\\n    /// @notice Creates a sarcophagus with the supplied parameters and locks\\n    /// a portion of each archaeologist's freeBond equal to the diggingFees for the sarcophagus.\\n    /// Verifies that all supplied archaeologists have signed off on the sarcophagus negotiation parameters:\\n    ///    - publicKey key they are responsible for\\n    ///    - maximumRewrapInterval to be enforced for the lifetime of the sarcophagus\\n    ///    - creationTime of sarcophagus\\n    ///    - diggingFee to be paid to that archaeologist on all rewraps for the lifetime of the sarcophagus\\n    ///\\n    /// @param sarcoId the identifier of the sarcophagus\\n    /// @param sarcophagusParams params to set on sarcophagus being created\\n    /// @param selectedArchaeologists the archaeologists the embalmer has selected to curse\\n    /// @param arweaveTxId ordered pair of arweave tx ids: [sarcophagus payload tx, encrypted key share tx]\\n    function createSarcophagus(\\n        bytes32 sarcoId,\\n        SarcophagusParams calldata sarcophagusParams,\\n        SelectedArchaeologistData[] calldata selectedArchaeologists,\\n        string memory arweaveTxId\\n    ) external {\\n        // Confirm that sarcophagus with supplied id doesn't already exist\\n        if (s.sarcophagi[sarcoId].resurrectionTime > 0) {\\n            revert SarcophagusAlreadyExists(sarcoId);\\n        }\\n\\n        // Confirm that agreed upon sarcophagus parameters have not expired\\n        if (block.timestamp > sarcophagusParams.creationTime + s.expirationThreshold) {\\n            revert SarcophagusParametersExpired(\\n                block.timestamp,\\n                sarcophagusParams.creationTime,\\n                sarcophagusParams.creationTime + s.expirationThreshold\\n            );\\n        }\\n\\n        // Confirm that resurrection time is in the future\\n        if (block.timestamp >= sarcophagusParams.resurrectionTime) {\\n            revert ResurrectionTimeInPast(block.timestamp, sarcophagusParams.resurrectionTime);\\n        }\\n\\n        // Confirm that resurrection or rewrap will occur before the maximumRewrapInterval elapses\\n        if (\\n            block.timestamp + sarcophagusParams.maximumRewrapInterval <\\n            sarcophagusParams.resurrectionTime\\n        ) {\\n            revert ResurrectionTimeTooFarInFuture(\\n                sarcophagusParams.resurrectionTime,\\n                sarcophagusParams.maximumRewrapInterval,\\n                block.timestamp + sarcophagusParams.maximumRewrapInterval\\n            );\\n        }\\n\\n        // Confirm that archaeologists are provided\\n        if (selectedArchaeologists.length == 0) {\\n            revert NoArchaeologistsProvided();\\n        }\\n        // Confirm that threshold is greater than 0\\n        if (sarcophagusParams.threshold == 0) {\\n            revert ThresholdCannotBeZero();\\n        }\\n        // Confirm that threshold is less than or equal to the number of archaeologists\\n        // (k <= n in a shamir secret sharing scheme)\\n        if (sarcophagusParams.threshold > selectedArchaeologists.length) {\\n            revert ThresholdGreaterThanTotalNumberOfArchaeologists(\\n                sarcophagusParams.threshold,\\n                selectedArchaeologists.length\\n            );\\n        }\\n\\n        // create the sarcophagus\\n        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];\\n        sarcophagus.name = sarcophagusParams.name;\\n        sarcophagus.threshold = sarcophagusParams.threshold;\\n        sarcophagus.resurrectionTime = sarcophagusParams.resurrectionTime;\\n        sarcophagus.maximumRewrapInterval = sarcophagusParams.maximumRewrapInterval;\\n        sarcophagus.arweaveTxId = arweaveTxId;\\n        sarcophagus.embalmerAddress = msg.sender;\\n        sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;\\n        sarcophagus.cursedArchaeologistAddresses = new address[](selectedArchaeologists.length);\\n\\n        // track total digging fees due upon creation of sarcophagus\\n        uint256 totalDiggingFees = 0;\\n\\n        for (uint256 i = 0; i < selectedArchaeologists.length; i++) {\\n            // confirm archaeologist is registered\\n            LibUtils.revertIfArchProfileDoesNotExist(selectedArchaeologists[i].archAddress);\\n\\n            // Confirm archaeologist isn't already cursed on sarcophagus\\n            if (\\n                sarcophagus\\n                    .cursedArchaeologists[selectedArchaeologists[i].archAddress]\\n                    .publicKey\\n                    .length != 0\\n            ) {\\n                revert ArchaeologistListContainsDuplicate(selectedArchaeologists[i].archAddress);\\n            }\\n\\n            // todo: check convenience structure for public keys that have already been used\\n            if(s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] != address(0)) {\\n                revert PublicKeyAlreadyUsed();\\n            }\\n\\n            LibUtils.verifyArchaeologistSignature(\\n                selectedArchaeologists[i].publicKey,\\n                sarcophagusParams.maximumRewrapInterval,\\n                sarcophagusParams.creationTime,\\n                selectedArchaeologists[i].diggingFee,\\n                selectedArchaeologists[i].v,\\n                selectedArchaeologists[i].r,\\n                selectedArchaeologists[i].s,\\n                selectedArchaeologists[i].archAddress\\n            );\\n\\n            totalDiggingFees += selectedArchaeologists[i].diggingFee;\\n\\n            // Lock the archaeologist's free bond\\n            LibBonds.lockUpBond(\\n                selectedArchaeologists[i].archAddress,\\n                selectedArchaeologists[i].diggingFee\\n            );\\n\\n            // save the cursedArchaeologist and cursedArchaeologistAddress to be stored on the new sarcophagus\\n            sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress] = LibTypes\\n                .CursedArchaeologist({\\n                    publicKey: selectedArchaeologists[i].publicKey,\\n                    privateKey: 0,\\n                    isAccused: false,\\n                    diggingFee: selectedArchaeologists[i].diggingFee\\n                });\\n\\n            sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;\\n\\n            // add address to pub key mapping\\n            s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] = selectedArchaeologists[i].archAddress;\\n\\n            // update archaeologist-specific convenience lookup structures\\n            s.publicKeyToArchaeologistAddress[\\n                selectedArchaeologists[i].publicKey\\n            ] = selectedArchaeologists[i].archAddress;\\n            s.archaeologistSarcophagi[selectedArchaeologists[i].archAddress].push(sarcoId);\\n        }\\n\\n        // update sarcophagus-specific convenience lookup structures\\n        s.embalmerSarcophagi[msg.sender].push(sarcoId);\\n        s.recipientSarcophagi[sarcophagusParams.recipientAddress].push(sarcoId);\\n\\n        // Transfer totalDiggingFees and the protocolFees in SARCO from embalmer to this contract\\n        uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);\\n        s.totalProtocolFees += protocolFees;\\n        s.sarcoToken.transferFrom(msg.sender, address(this), totalDiggingFees + protocolFees);\\n\\n        emit CreateSarcophagus(\\n            sarcoId,\\n            sarcophagusParams.name,\\n            sarcophagusParams.resurrectionTime,\\n            msg.sender,\\n            sarcophagusParams.recipientAddress,\\n            sarcophagus.cursedArchaeologistAddresses,\\n            totalDiggingFees,\\n            protocolFees,\\n            arweaveTxId\\n        );\\n    }\\n\\n    /// @notice Updates the resurrectionTime on a sarcophagus. Callable by the embalmer of a sarcophagus if its\\n    /// resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried.\\n    /// @param sarcoId the identifier of the sarcophagus\\n    /// @param resurrectionTime the new resurrection time\\n    function rewrapSarcophagus(bytes32 sarcoId, uint256 resurrectionTime) external {\\n        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];\\n\\n        // Confirm the sarcophagus exists\\n        if (sarcophagus.resurrectionTime == 0) {\\n            revert LibErrors.SarcophagusDoesNotExist(sarcoId);\\n        }\\n\\n        // Confirm the sarcophagus has not been compromised\\n        if (sarcophagus.isCompromised) {\\n            revert LibErrors.SarcophagusCompromised(sarcoId);\\n        }\\n\\n        // Confirm the sarcophagus is not buried\\n        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {\\n            revert LibErrors.SarcophagusInactive(sarcoId);\\n        }\\n\\n        // Confirm tx sender is embalmer\\n        if (sarcophagus.embalmerAddress != msg.sender) {\\n            revert LibErrors.SenderNotEmbalmer(msg.sender, sarcophagus.embalmerAddress);\\n        }\\n\\n        // Confirm resurrection time has not yet passed\\n        if (block.timestamp >= sarcophagus.resurrectionTime) {\\n            revert ResurrectionTimeInPast(block.timestamp, sarcophagus.resurrectionTime);\\n        }\\n\\n        // Confirm that new resurrection time is in future\\n        if (block.timestamp >= resurrectionTime) {\\n            revert NewResurrectionTimeInPast(block.timestamp, resurrectionTime);\\n        }\\n\\n        // Confirm that new resurrection time doesn't exceed sarcophagus's maximumRewrapInterval\\n        if (block.timestamp + sarcophagus.maximumRewrapInterval < resurrectionTime) {\\n            revert NewResurrectionTimeTooFarInFuture(\\n                resurrectionTime,\\n                sarcophagus.maximumRewrapInterval,\\n                block.timestamp + sarcophagus.maximumRewrapInterval\\n            );\\n        }\\n\\n        // track total digging fees across all archaeologists on the sarcophagus\\n        uint256 totalDiggingFees = 0;\\n\\n        // pay digging fee to each cursed archaeologist on the sarcophagus that has not been accused\\n        address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;\\n        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {\\n            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus\\n                .cursedArchaeologists[archaeologistAddresses[i]];\\n\\n            // if the archaeologist hasn't been accused transfer them their digging fees\\n            if (!cursedArchaeologist.isAccused) {\\n                s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;\\n                totalDiggingFees += cursedArchaeologist.diggingFee;\\n            }\\n        }\\n\\n        uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);\\n\\n        // Add the protocol fee to the total protocol fees in storage\\n        s.totalProtocolFees += protocolFees;\\n\\n        // Update the resurrectionTime on the sarcophagus to the supplied value\\n        sarcophagus.resurrectionTime = resurrectionTime;\\n\\n        // Transfer the new digging fees and protocol fees from embalmer to contract\\n        s.sarcoToken.transferFrom(msg.sender, address(this), totalDiggingFees + protocolFees);\\n\\n        emit RewrapSarcophagus(sarcoId, resurrectionTime, totalDiggingFees, protocolFees);\\n    }\\n\\n    /// @notice Terminates a sarcophagus by setting its resurrection time to infinity and returning locked\\n    /// bonds to all innocent cursed archaeologists. Callable by the embalmer of a sarcophagus if its\\n    /// resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried.\\n    /// @param sarcoId the identifier of the sarcophagus\\n    function burySarcophagus(bytes32 sarcoId) external {\\n        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];\\n\\n        // Confirm the sarcophagus exists\\n        if (sarcophagus.resurrectionTime == 0) {\\n            revert LibErrors.SarcophagusDoesNotExist(sarcoId);\\n        }\\n\\n        // Confirm the sarcophagus has not been compromised\\n        if (sarcophagus.isCompromised) {\\n            revert LibErrors.SarcophagusCompromised(sarcoId);\\n        }\\n\\n        // Confirm the sarcophagus is not buried\\n        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {\\n            revert LibErrors.SarcophagusInactive(sarcoId);\\n        }\\n\\n        // Confirm tx sender is embalmer\\n        if (sarcophagus.embalmerAddress != msg.sender) {\\n            revert LibErrors.SenderNotEmbalmer(msg.sender, sarcophagus.embalmerAddress);\\n        }\\n        // Confirm that the current resurrection time is in the future\\n        if (block.timestamp >= sarcophagus.resurrectionTime) {\\n            revert ResurrectionTimeInPast(block.timestamp, sarcophagus.resurrectionTime);\\n        }\\n\\n        // Set resurrection time to infinity\\n        sarcophagus.resurrectionTime = 2 ** 256 - 1;\\n\\n        // for each archaeologist on the sarcophagus, unlock bond and pay digging fees\\n        address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;\\n        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {\\n            LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus\\n                .cursedArchaeologists[archaeologistAddresses[i]];\\n            // if the archaeologist hasn't been accused transfer them their digging fees and return their locked bond\\n            if (!cursedArchaeologist.isAccused) {\\n                s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;\\n                LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);\\n            }\\n        }\\n\\n        emit BurySarcophagus(sarcoId);\\n    }\\n}\\n\",\"keccak256\":\"0xebd0e6552b7331643c8a6e3fb605081b1d8065f811ecec2c4279aa4b5f895311\",\"license\":\"Unlicense\"},\"contracts/libraries/LibBonds.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\n\\nlibrary LibBonds {\\n    /// @notice Decreases the amount stored in the freeBond mapping for an\\n    /// archaeologist. Reverts if the archaeologist's free bond is lower than\\n    /// the amount.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being decreased\\n    /// @param amount The amount to decrease the free bond by\\n    function decreaseFreeBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Revert if the amount is greater than the current free bond\\n        if (amount > s.archaeologistProfiles[archaeologist].freeBond) {\\n            revert LibErrors.NotEnoughFreeBond(\\n                s.archaeologistProfiles[archaeologist].freeBond,\\n                amount\\n            );\\n        }\\n\\n        // Decrease the free bond amount\\n        s.archaeologistProfiles[archaeologist].freeBond -= amount;\\n    }\\n\\n    /// @notice Increases the amount stored in the freeBond mapping for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being decreased\\n    /// @param amount The amount to decrease the free bond by\\n    function increaseFreeBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Increase the free bond amount\\n        s.archaeologistProfiles[archaeologist].freeBond += amount;\\n    }\\n\\n    /// @notice Decreases the amount stored in the cursedBond mapping for an\\n    /// archaeologist. Reverts if the archaeologist's cursed bond is lower than\\n    /// the amount.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being decreased\\n    /// @param amount The amount to decrease the cursed bond by\\n    function decreaseCursedBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Revert if the amount is greater than the current cursed bond\\n        if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {\\n            revert LibErrors.NotEnoughCursedBond(\\n                s.archaeologistProfiles[archaeologist].cursedBond,\\n                amount\\n            );\\n        }\\n\\n        // Decrease the cursed bond amount\\n        s.archaeologistProfiles[archaeologist].cursedBond -= amount;\\n    }\\n\\n    /// @notice Increases the amount stored in the cursedBond mapping for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being decreased\\n    /// @param amount The amount to decrease the cursed bond by\\n    function increaseCursedBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Increase the cursed bond amount\\n        s.archaeologistProfiles[archaeologist].cursedBond += amount;\\n    }\\n\\n    /// @notice Locks up the archaeologist's bond, decreasing the\\n    /// archaeologist's free bond by an amount and increasing the\\n    /// archaeologist's cursed bond by the same amount.\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param amount The amount to lock up\\n    function lockUpBond(address archaeologist, uint256 amount) internal {\\n        // Decrease the free bond amount\\n        decreaseFreeBond(archaeologist, amount);\\n\\n        // Increase the cursed bond amount\\n        increaseCursedBond(archaeologist, amount);\\n    }\\n\\n    /// @notice Unlocks the archaeologist's bond, increasing the\\n    /// archaeologist's free bond by an amount and decreasing the\\n    /// archaeologist's cursed bond by the same amount.\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param amount The amount to unlock\\n    function unlockBond(address archaeologist, uint256 amount) internal {\\n        // Decrease the cursed bond amount\\n        decreaseCursedBond(archaeologist, amount);\\n\\n        // Increase the free bond amount\\n        increaseFreeBond(archaeologist, amount);\\n    }\\n\\n\\n    /// @notice Calculates an archaeologist's cursed bond and frees them\\n    /// (unlocks the cursed bond).\\n    /// @param sarcoId the identifier of the sarcophagus to free the archaeologist from\\n    /// @param archaeologistAddress the address of the archaeologist to free\\n    function freeArchaeologist(bytes32 sarcoId, address archaeologistAddress) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        LibTypes.CursedArchaeologist storage cursedArchaeologist = s\\n            .sarcophagi[sarcoId]\\n            .cursedArchaeologists[archaeologistAddress];\\n\\n        // Free up the archaeologist's locked bond\\n        unlockBond(archaeologistAddress, cursedArchaeologist.diggingFee);\\n    }\\n}\\n\",\"keccak256\":\"0xc74cba3d575a7d40f467c7e0601e31c829a8b2b658c4234692c609e189637478\",\"license\":\"Unlicense\"},\"contracts/libraries/LibErrors.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title A collection of Errors\\n * @notice This library defines all of the Errors that the Sarcophagus system\\n * uses.\\n */\\nlibrary LibErrors {\\n\\n    error ArchaeologistNotOnSarcophagus(address archaeologist);\\n\\n    error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);\\n\\n    error NotEnoughFreeBond(uint256 freeBond, uint256 amount);\\n\\n    error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);\\n\\n    error PrivateKeyDoesNotMatchPublicKey(bytes32 privateKey, bytes publicKey);\\n\\n    error SarcophagusDoesNotExist(bytes32 sarcoId);\\n\\n    error SarcophagusInactive(bytes32 sarcoId);\\n\\n    error SarcophagusCompromised(bytes32 sarcoId);\\n\\n    error SenderNotEmbalmer(address sender, address embalmer);\\n\\n    error InvalidSignature(\\n        // address recovered from signature via ecrecover\\n        address recoveredAddress,\\n        // address we expected to have signed the data\\n        address expectedAddress\\n    );\\n\\n    // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)\\n    error SarcophagusIsUnwrappable();\\n\\n}\\n\",\"keccak256\":\"0x6f4ec50d4efeafbaa98ee904c442c44e95e8c7317add80a32beeaf09e9063481\",\"license\":\"Unlicense\"},\"contracts/libraries/LibTypes.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title Types shared across facets for the Sarcophagus diamond\\n */\\nlibrary LibTypes {\\n    struct Sarcophagus {\\n        // never zero - use for existence checks\\n        uint256 resurrectionTime;\\n        // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused\\n        bool isCompromised;\\n        bool isCleaned;\\n        string name;\\n        uint8 threshold;\\n        uint256 maximumRewrapInterval;\\n        string arweaveTxId;\\n        address embalmerAddress;\\n        address recipientAddress;\\n        address[] cursedArchaeologistAddresses;\\n        mapping(address => CursedArchaeologist) cursedArchaeologists;\\n    }\\n\\n    struct CursedArchaeologist {\\n        // never empty - use for existence checks\\n        bytes publicKey;\\n        bytes32 privateKey;\\n        bool isAccused;\\n        uint256 diggingFee;\\n    }\\n\\n    struct ArchaeologistProfile {\\n        bool exists; // todo: use peerid.length instead of exists\\n        string peerId;\\n        uint256 minimumDiggingFee;\\n        uint256 maximumRewrapInterval;\\n        uint256 freeBond;\\n        uint256 cursedBond;\\n    }\\n\\n    struct Signature {\\n        uint8 v;\\n        bytes32 r;\\n        bytes32 s;\\n    }\\n}\\n\",\"keccak256\":\"0xd36dac645e4d3af3bda54c124479e6d932f54aad472b2ee48920b36e81fc10e9\",\"license\":\"Unlicense\"},\"contracts/libraries/LibUtils.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\n\\n/**\\n * @title Utility functions used within the Sarcophagus system\\n * @notice This library implements various functions that are used throughout\\n * Sarcophagus, mainly to DRY up the codebase\\n * @dev these functions are all stateless, public, pure/view\\n */\\nlibrary LibUtils {\\n    /**\\n     * @notice The archaeologist needs to sign off on two pieces of data\\n     * to guarantee their unrwap will be successful\\n     *\\n     * @param publicKey public key archaeologist is responsible for\\n     * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus\\n     * @param timestamp that the archaeologist has agreed to for the sarcophagus\\n     * @param diggingFee that the archaeologist has agreed to for the sarcophagus\\n     * @param v signature element\\n     * @param r signature element\\n     * @param s signature element\\n     * @param account address to confirm signature of data came from\\n     */\\n    function verifyArchaeologistSignature(\\n        bytes memory publicKey, // todo: data location?\\n        uint256 agreedMaximumRewrapInterval,\\n        uint256 timestamp,\\n        uint256 diggingFee,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s,\\n        address account\\n    ) internal pure {\\n        // Hash the hash of the data payload\\n        bytes32 messageHash = keccak256(\\n            abi.encodePacked(\\n                \\\"\\\\x19Ethereum Signed Message:\\\\n32\\\",\\n                keccak256(\\n                    abi.encode(\\n                        publicKey,\\n                        agreedMaximumRewrapInterval,\\n                        diggingFee,\\n                        timestamp\\n                    )\\n                )\\n            )\\n        );\\n\\n        // Generate the address from the signature.\\n        // ecrecover should always return a valid address.\\n        address recoveredAddress = ecrecover(messageHash, v, r, s);\\n\\n        if (recoveredAddress != account) {\\n            revert LibErrors.InvalidSignature(recoveredAddress, account);\\n        }\\n    }\\n\\n    /// @notice Checks if an archaeologist profile exists and\\n    /// reverts if so\\n    ///\\n    /// @param archaeologist the archaeologist address to check existence of\\n    function revertIfArchProfileExists(address archaeologist) internal view {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        if (s.archaeologistProfiles[archaeologist].exists) {\\n            revert LibErrors.ArchaeologistProfileExistsShouldBe(false, archaeologist);\\n        }\\n    }\\n\\n    /// @notice Checks if an archaeologist profile doesn't exist and\\n    /// reverts if so\\n    ///\\n    /// @param archaeologist the archaeologist address to check lack of existence of\\n    function revertIfArchProfileDoesNotExist(address archaeologist) internal view {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        if (!s.archaeologistProfiles[archaeologist].exists) {\\n            revert LibErrors.ArchaeologistProfileExistsShouldBe(true, archaeologist);\\n        }\\n    }\\n\\n    /// @notice Calculates the protocol fees to be taken from the embalmer.\\n    /// @return The protocol fees amount\\n    function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        return (totalDiggingFees * s.protocolFeeBasePercentage) / 100;\\n    }\\n}\\n\",\"keccak256\":\"0xb64e29c11af874ae1f3dacef8d24eb3a8b581cec8a907cd059de419c33711c65\",\"license\":\"Unlicense\"},\"contracts/storage/LibAppStorage.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\n\\n/**\\n* Global diamond storage struct to be shared across facets\\n* TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs\\n*/\\nstruct AppStorage {\\n    // SARCO token contract\\n    IERC20 sarcoToken;\\n\\n    // total protocol fees available to be withdrawn by the admin\\n    uint256 totalProtocolFees;\\n\\n    /**\\n    * Protocol level admin configurations\\n    */\\n    // % of total digging fees for sarcophagus to charge embalmer on create and rewrap\\n    uint256 protocolFeeBasePercentage;\\n    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time\\n    uint256 gracePeriod;\\n    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated\\n    uint256 expirationThreshold;\\n    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys\\n    uint256 embalmerClaimWindow;\\n\\n    /**\\n    * Ownership mappings\\n    */\\n    // embalmer address => ids of sarcophagi they've created\\n    mapping(address => bytes32[]) embalmerSarcophagi;\\n    // archaeologist address =>  ids of sarcophagi they're protecting\\n    mapping(address => bytes32[]) archaeologistSarcophagi;\\n    // recipient address =>  ids of sarcophagi they're recipient on\\n    mapping(address => bytes32[]) recipientSarcophagi;\\n\\n    // public key => archaeologist address\\n    mapping(bytes => address) publicKeyToArchaeologistAddress;\\n\\n    // sarcophagus id => sarcophagus object\\n    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;\\n\\n    // archaeologist addresses\\n    address[] archaeologistProfileAddresses;\\n    // archaeologist address => profile\\n    mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;\\n\\n\\n    // current balance of rewards available for the archaeologist to withdraw\\n    mapping(address => uint256) archaeologistRewards;\\n\\n\\n    /**\\n    * Archaeologist reputation statistics\\n    * todo: could these be organized differently?\\n    */\\n    mapping(address => bytes32[]) archaeologistSuccesses;\\n    mapping(address => bytes32[]) archaeologistAccusals;\\n    mapping(address => bytes32[]) archaeologistCleanups;\\n}\\n\\nlibrary LibAppStorage {\\n    function getAppStorage() internal pure returns (AppStorage storage s) {\\n        // Set the position of our struct in contract storage\\n        // Since AppStorage s is the first and only state variable declared in\\n        // facets its position in contract storage is 0\\n        assembly {\\n            s.slot := 0\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x930c8b51585d3b62feb595057a35cf9c7a38e162d8f914b564cbb9168d6035c3\",\"license\":\"Unlicense\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50612f85806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80630511f2ec1461004657806327554c5614610062578063ab7d79691461007e575b600080fd5b610060600480360381019061005b91906121b7565b61009a565b005b61007c600480360381019061007791906123ae565b6104c1565b005b610098600480360381019061009391906124a4565b6113ca565b005b600080600a016000838152602001908152602001600020905060008160000154036100fc57816040517f018da6880000000000000000000000000000000000000000000000000000000081526004016100f391906124f3565b60405180910390fd5b8060010160009054906101000a900460ff161561015057816040517f9af72b8600000000000000000000000000000000000000000000000000000000815260040161014791906124f3565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8160000154036101b857816040517f7c6a6d700000000000000000000000000000000000000000000000000000000081526004016101af91906124f3565b60405180910390fd5b3373ffffffffffffffffffffffffffffffffffffffff168160060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff161461027257338160060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166040517f0e37d99c00000000000000000000000000000000000000000000000000000000815260040161026992919061254f565b60405180910390fd5b806000015442106102c0574281600001546040517f2458293a0000000000000000000000000000000000000000000000000000000081526004016102b7929190612587565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8160000181905550600081600801905060005b818054905081101561048e57600083600901600084848154811061031b5761031a6125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508060020160009054906101000a900460ff1661047a5780600301546000600d0160008585815481106103b7576103b66125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825461042b919061260e565b9250508190555061047985848481548110610449576104486125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16611939565b5b50808061048690612664565b9150506102f4565b50827f3a0205aa93b1a96da7d6405b2967f91b441383623de2d1ee3b27bfd1642b167a60405160405180910390a2505050565b600080600a01600087815260200190815260200160002060000154111561051f57846040517fb9d0d58400000000000000000000000000000000000000000000000000000000815260040161051691906124f3565b60405180910390fd5b6000600401548460a00135610534919061260e565b42111561059457428460a001356000600401548660a00135610556919061260e565b6040517ffafba49500000000000000000000000000000000000000000000000000000000815260040161058b939291906126ac565b60405180910390fd5b836060013542106105e2574284606001356040517f2458293a0000000000000000000000000000000000000000000000000000000081526004016105d9929190612587565b60405180910390fd5b83606001358460200135426105f7919061260e565b10156106555783606001358460200135856020013542610617919061260e565b6040517f3d7ad69000000000000000000000000000000000000000000000000000000000815260040161064c939291906126ac565b60405180910390fd5b60008383905003610692576040517fb274cdd900000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b60008460800160208101906106a7919061271c565b60ff16036106e1576040517ff412416600000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b828290508460800160208101906106f8919061271c565b60ff16111561075557836080016020810190610714919061271c565b838390506040517fa44e438a00000000000000000000000000000000000000000000000000000000815260040161074c929190612758565b60405180910390fd5b600080600a016000878152602001908152602001600020905084806000019061077e9190612790565b82600201919061078f929190611f34565b508460800160208101906107a3919061271c565b8160030160006101000a81548160ff021916908360ff1602179055508460600135816000018190555084602001358160040181905550818160050190805190602001906107f1929190611fba565b50338160060160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550846040016020810190610848919061281f565b8160070160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055508383905067ffffffffffffffff8111156108a7576108a6612283565b5b6040519080825280602002602001820160405280156108d55781602001602082028036833780820191505090505b508160080190805190602001906108ed929190612040565b506000805b858590508110156111935761093c868683818110610913576109126125b0565b5b9050602002810190610925919061284c565b6020016020810190610937919061281f565b6119b2565b6000836009016000888885818110610957576109566125b0565b5b9050602002810190610969919061284c565b602001602081019061097b919061281f565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000180546109c3906128a3565b905014610a3d578585828181106109dd576109dc6125b0565b5b90506020028101906109ef919061284c565b6020016020810190610a01919061281f565b6040517f11298b2f000000000000000000000000000000000000000000000000000000008152600401610a3491906128d4565b60405180910390fd5b600073ffffffffffffffffffffffffffffffffffffffff166000600901878784818110610a6d57610a6c6125b0565b5b9050602002810190610a7f919061284c565b8060000190610a8e91906128ef565b604051610a9c929190612982565b908152602001604051809103902060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1614610b18576040517fb201da3e00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b610c8a868683818110610b2e57610b2d6125b0565b5b9050602002810190610b40919061284c565b8060000190610b4f91906128ef565b8080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505088602001358960a00135898986818110610baf57610bae6125b0565b5b9050602002810190610bc1919061284c565b604001358a8a87818110610bd857610bd76125b0565b5b9050602002810190610bea919061284c565b6060016020810190610bfc919061271c565b8b8b88818110610c0f57610c0e6125b0565b5b9050602002810190610c21919061284c565b608001358c8c89818110610c3857610c376125b0565b5b9050602002810190610c4a919061284c565b60a001358d8d8a818110610c6157610c606125b0565b5b9050602002810190610c73919061284c565b6020016020810190610c85919061281f565b611a58565b858582818110610c9d57610c9c6125b0565b5b9050602002810190610caf919061284c565b6040013582610cbe919061260e565b9150610d28868683818110610cd657610cd56125b0565b5b9050602002810190610ce8919061284c565b6020016020810190610cfa919061281f565b878784818110610d0d57610d0c6125b0565b5b9050602002810190610d1f919061284c565b60400135611b80565b6040518060800160405280878784818110610d4657610d456125b0565b5b9050602002810190610d58919061284c565b8060000190610d6791906128ef565b8080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505081526020016000801b8152602001600015158152602001878784818110610dd457610dd36125b0565b5b9050602002810190610de6919061284c565b60400135815250836009016000888885818110610e0657610e056125b0565b5b9050602002810190610e18919061284c565b6020016020810190610e2a919061281f565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000820151816000019080519060200190610e809291906120ca565b506020820151816001015560408201518160020160006101000a81548160ff02191690831515021790555060608201518160030155905050858582818110610ecb57610eca6125b0565b5b9050602002810190610edd919061284c565b6020016020810190610eef919061281f565b836008018281548110610f0557610f046125b0565b5b9060005260206000200160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550858582818110610f6057610f5f6125b0565b5b9050602002810190610f72919061284c565b6020016020810190610f84919061281f565b6000600901878784818110610f9c57610f9b6125b0565b5b9050602002810190610fae919061284c565b8060000190610fbd91906128ef565b604051610fcb929190612982565b908152602001604051809103902060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555085858281811061102a576110296125b0565b5b905060200281019061103c919061284c565b602001602081019061104e919061281f565b6000600901878784818110611066576110656125b0565b5b9050602002810190611078919061284c565b806000019061108791906128ef565b604051611095929190612982565b908152602001604051809103902060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600060070160008787848181106110fb576110fa6125b0565b5b905060200281019061110d919061284c565b602001602081019061111f919061281f565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020889080600181540180825580915050600190039060005260206000200160009091909190915055808061118b90612664565b9150506108f2565b50600060060160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002087908060018154018082558091505060019003906000526020600020016000909190919091505560006008016000876040016020810190611217919061281f565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020879080600181540180825580915050600190039060005260206000200160009091909190915055600061128382611b98565b9050806000600101600082825461129a919061260e565b925050819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd333084866112ef919061260e565b6040518463ffffffff1660e01b815260040161130d9392919061299b565b6020604051808303816000875af115801561132c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906113509190612a0a565b50877f79b5ec1668a72e295838ca20013c4502cce4b5e7a00d4c01cd88936b26303aad8880600001906113839190612790565b8a60600135338c604001602081019061139c919061281f565b8960080189898d6040516113b899989796959493929190612c10565b60405180910390a25050505050505050565b600080600a0160008481526020019081526020016000209050600081600001540361142c57826040517f018da68800000000000000000000000000000000000000000000000000000000815260040161142391906124f3565b60405180910390fd5b8060010160009054906101000a900460ff161561148057826040517f9af72b8600000000000000000000000000000000000000000000000000000000815260040161147791906124f3565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8160000154036114e857826040517f7c6a6d700000000000000000000000000000000000000000000000000000000081526004016114df91906124f3565b60405180910390fd5b3373ffffffffffffffffffffffffffffffffffffffff168160060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16146115a257338160060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166040517f0e37d99c00000000000000000000000000000000000000000000000000000000815260040161159992919061254f565b60405180910390fd5b806000015442106115f0574281600001546040517f2458293a0000000000000000000000000000000000000000000000000000000081526004016115e7929190612587565b60405180910390fd5b8142106116365742826040517f3c6870c000000000000000000000000000000000000000000000000000000000815260040161162d929190612587565b60405180910390fd5b81816004015442611647919061260e565b10156116a157818160040154826004015442611663919061260e565b6040517fca9b0f90000000000000000000000000000000000000000000000000000000008152600401611698939291906126ac565b60405180910390fd5b60008082600801905060005b81805490508110156118125760008460090160008484815481106116d4576116d36125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508060020160009054906101000a900460ff166117fe5780600301546000600d0160008585815481106117705761176f6125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008282546117e4919061260e565b925050819055508060030154846117fb919061260e565b93505b50808061180a90612664565b9150506116ad565b50600061181e83611b98565b90508060006001016000828254611835919061260e565b925050819055508484600001819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd33308487611893919061260e565b6040518463ffffffff1660e01b81526004016118b19392919061299b565b6020604051808303816000875af11580156118d0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906118f49190612a0a565b50857ff2ded5f77c6de574fac210979efbdd01ff3071d109e50651be4e05211f6e4943868584604051611929939291906126ac565b60405180910390a2505050505050565b6000611943611bc9565b9050600081600a01600085815260200190815260200160002060090160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090506119ac838260030154611bce565b50505050565b60006119bc611bc9565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff16611a54576001826040517f2eeb3571000000000000000000000000000000000000000000000000000000008152600401611a4b929190612cb4565b60405180910390fd5b5050565b600088888789604051602001611a719493929190612d32565b60405160208183030381529060405280519060200120604051602001611a979190612df6565b604051602081830303815290604052805190602001209050600060018287878760405160008152602001604052604051611ad49493929190612e1c565b6020604051602081039080840390855afa158015611af6573d6000803e3d6000fd5b5050506020604051035190508273ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1614611b745780836040517f42d750dc000000000000000000000000000000000000000000000000000000008152600401611b6b92919061254f565b60405180910390fd5b50505050505050505050565b611b8a8282611be6565b611b948282611d21565b5050565b600080611ba3611bc9565b90506064816002015484611bb79190612e61565b611bc19190612eea565b915050919050565b600090565b611bd88282611d8d565b611be28282611ec8565b5050565b6000611bf0611bc9565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154821115611cc15780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154826040517fa4e3bead000000000000000000000000000000000000000000000000000000008152600401611cb8929190612587565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254611d159190612f1b565b92505081905550505050565b6000611d2b611bc9565b90508181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206005016000828254611d81919061260e565b92505081905550505050565b6000611d97611bc9565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050154821115611e685780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050154826040517faf5a111b000000000000000000000000000000000000000000000000000000008152600401611e5f929190612587565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206005016000828254611ebc9190612f1b565b92505081905550505050565b6000611ed2611bc9565b90508181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254611f28919061260e565b92505081905550505050565b828054611f40906128a3565b90600052602060002090601f016020900481019282611f625760008555611fa9565b82601f10611f7b57803560ff1916838001178555611fa9565b82800160010185558215611fa9579182015b82811115611fa8578235825591602001919060010190611f8d565b5b509050611fb69190612150565b5090565b828054611fc6906128a3565b90600052602060002090601f016020900481019282611fe8576000855561202f565b82601f1061200157805160ff191683800117855561202f565b8280016001018555821561202f579182015b8281111561202e578251825591602001919060010190612013565b5b50905061203c9190612150565b5090565b8280548282559060005260206000209081019282156120b9579160200282015b828111156120b85782518260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555091602001919060010190612060565b5b5090506120c69190612150565b5090565b8280546120d6906128a3565b90600052602060002090601f0160209004810192826120f8576000855561213f565b82601f1061211157805160ff191683800117855561213f565b8280016001018555821561213f579182015b8281111561213e578251825591602001919060010190612123565b5b50905061214c9190612150565b5090565b5b80821115612169576000816000905550600101612151565b5090565b6000604051905090565b600080fd5b600080fd5b6000819050919050565b61219481612181565b811461219f57600080fd5b50565b6000813590506121b18161218b565b92915050565b6000602082840312156121cd576121cc612177565b5b60006121db848285016121a2565b91505092915050565b600080fd5b600060c082840312156121ff576121fe6121e4565b5b81905092915050565b600080fd5b600080fd5b600080fd5b60008083601f84011261222d5761222c612208565b5b8235905067ffffffffffffffff81111561224a5761224961220d565b5b60208301915083602082028301111561226657612265612212565b5b9250929050565b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6122bb82612272565b810181811067ffffffffffffffff821117156122da576122d9612283565b5b80604052505050565b60006122ed61216d565b90506122f982826122b2565b919050565b600067ffffffffffffffff82111561231957612318612283565b5b61232282612272565b9050602081019050919050565b82818337600083830152505050565b600061235161234c846122fe565b6122e3565b90508281526020810184848401111561236d5761236c61226d565b5b61237884828561232f565b509392505050565b600082601f83011261239557612394612208565b5b81356123a584826020860161233e565b91505092915050565b6000806000806000608086880312156123ca576123c9612177565b5b60006123d8888289016121a2565b955050602086013567ffffffffffffffff8111156123f9576123f861217c565b5b612405888289016121e9565b945050604086013567ffffffffffffffff8111156124265761242561217c565b5b61243288828901612217565b9350935050606086013567ffffffffffffffff8111156124555761245461217c565b5b61246188828901612380565b9150509295509295909350565b6000819050919050565b6124818161246e565b811461248c57600080fd5b50565b60008135905061249e81612478565b92915050565b600080604083850312156124bb576124ba612177565b5b60006124c9858286016121a2565b92505060206124da8582860161248f565b9150509250929050565b6124ed81612181565b82525050565b600060208201905061250860008301846124e4565b92915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006125398261250e565b9050919050565b6125498161252e565b82525050565b60006040820190506125646000830185612540565b6125716020830184612540565b9392505050565b6125818161246e565b82525050565b600060408201905061259c6000830185612578565b6125a96020830184612578565b9392505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b60006126198261246e565b91506126248361246e565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115612659576126586125df565b5b828201905092915050565b600061266f8261246e565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff82036126a1576126a06125df565b5b600182019050919050565b60006060820190506126c16000830186612578565b6126ce6020830185612578565b6126db6040830184612578565b949350505050565b600060ff82169050919050565b6126f9816126e3565b811461270457600080fd5b50565b600081359050612716816126f0565b92915050565b60006020828403121561273257612731612177565b5b600061274084828501612707565b91505092915050565b612752816126e3565b82525050565b600060408201905061276d6000830185612749565b61277a6020830184612578565b9392505050565b600080fd5b600080fd5b600080fd5b600080833560016020038436030381126127ad576127ac612781565b5b80840192508235915067ffffffffffffffff8211156127cf576127ce612786565b5b6020830192506001820236038313156127eb576127ea61278b565b5b509250929050565b6127fc8161252e565b811461280757600080fd5b50565b600081359050612819816127f3565b92915050565b60006020828403121561283557612834612177565b5b60006128438482850161280a565b91505092915050565b60008235600160c00383360303811261286857612867612781565b5b80830191505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b600060028204905060018216806128bb57607f821691505b6020821081036128ce576128cd612874565b5b50919050565b60006020820190506128e96000830184612540565b92915050565b6000808335600160200384360303811261290c5761290b612781565b5b80840192508235915067ffffffffffffffff82111561292e5761292d612786565b5b60208301925060018202360383131561294a5761294961278b565b5b509250929050565b600081905092915050565b60006129698385612952565b935061297683858461232f565b82840190509392505050565b600061298f82848661295d565b91508190509392505050565b60006060820190506129b06000830186612540565b6129bd6020830185612540565b6129ca6040830184612578565b949350505050565b60008115159050919050565b6129e7816129d2565b81146129f257600080fd5b50565b600081519050612a04816129de565b92915050565b600060208284031215612a2057612a1f612177565b5b6000612a2e848285016129f5565b91505092915050565b600082825260208201905092915050565b6000612a548385612a37565b9350612a6183858461232f565b612a6a83612272565b840190509392505050565b600081549050919050565b600082825260208201905092915050565b60008190508160005260206000209050919050565b612aaf8161252e565b82525050565b6000612ac18383612aa6565b60208301905092915050565b60008160001c9050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000612b0d612b0883612acd565b612ada565b9050919050565b6000612b208254612afa565b9050919050565b6000600182019050919050565b6000612b3f82612a75565b612b498185612a80565b9350612b5483612a91565b8060005b83811015612b8c57612b6982612b14565b612b738882612ab5565b9750612b7e83612b27565b925050600181019050612b58565b5085935050505092915050565b600081519050919050565b60005b83811015612bc2578082015181840152602081019050612ba7565b83811115612bd1576000848401525b50505050565b6000612be282612b99565b612bec8185612a37565b9350612bfc818560208601612ba4565b612c0581612272565b840191505092915050565b6000610100820190508181036000830152612c2c818b8d612a48565b9050612c3b602083018a612578565b612c486040830189612540565b612c556060830188612540565b8181036080830152612c678187612b34565b9050612c7660a0830186612578565b612c8360c0830185612578565b81810360e0830152612c958184612bd7565b90509a9950505050505050505050565b612cae816129d2565b82525050565b6000604082019050612cc96000830185612ca5565b612cd66020830184612540565b9392505050565b600081519050919050565b600082825260208201905092915050565b6000612d0482612cdd565b612d0e8185612ce8565b9350612d1e818560208601612ba4565b612d2781612272565b840191505092915050565b60006080820190508181036000830152612d4c8187612cf9565b9050612d5b6020830186612578565b612d686040830185612578565b612d756060830184612578565b95945050505050565b600081905092915050565b7f19457468657265756d205369676e6564204d6573736167653a0a333200000000600082015250565b6000612dbf601c83612d7e565b9150612dca82612d89565b601c82019050919050565b6000819050919050565b612df0612deb82612181565b612dd5565b82525050565b6000612e0182612db2565b9150612e0d8284612ddf565b60208201915081905092915050565b6000608082019050612e3160008301876124e4565b612e3e6020830186612749565b612e4b60408301856124e4565b612e5860608301846124e4565b95945050505050565b6000612e6c8261246e565b9150612e778361246e565b9250817fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0483118215151615612eb057612eaf6125df565b5b828202905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b6000612ef58261246e565b9150612f008361246e565b925082612f1057612f0f612ebb565b5b828204905092915050565b6000612f268261246e565b9150612f318361246e565b925082821015612f4457612f436125df565b5b82820390509291505056fea2646970667358221220232bd2989590bb8fe3cc4d5ed6fd5971065ff7e774272ddd89f9e7a28f1ff4d064736f6c634300080d0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80630511f2ec1461004657806327554c5614610062578063ab7d79691461007e575b600080fd5b610060600480360381019061005b91906121b7565b61009a565b005b61007c600480360381019061007791906123ae565b6104c1565b005b610098600480360381019061009391906124a4565b6113ca565b005b600080600a016000838152602001908152602001600020905060008160000154036100fc57816040517f018da6880000000000000000000000000000000000000000000000000000000081526004016100f391906124f3565b60405180910390fd5b8060010160009054906101000a900460ff161561015057816040517f9af72b8600000000000000000000000000000000000000000000000000000000815260040161014791906124f3565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8160000154036101b857816040517f7c6a6d700000000000000000000000000000000000000000000000000000000081526004016101af91906124f3565b60405180910390fd5b3373ffffffffffffffffffffffffffffffffffffffff168160060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff161461027257338160060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166040517f0e37d99c00000000000000000000000000000000000000000000000000000000815260040161026992919061254f565b60405180910390fd5b806000015442106102c0574281600001546040517f2458293a0000000000000000000000000000000000000000000000000000000081526004016102b7929190612587565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8160000181905550600081600801905060005b818054905081101561048e57600083600901600084848154811061031b5761031a6125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508060020160009054906101000a900460ff1661047a5780600301546000600d0160008585815481106103b7576103b66125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825461042b919061260e565b9250508190555061047985848481548110610449576104486125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16611939565b5b50808061048690612664565b9150506102f4565b50827f3a0205aa93b1a96da7d6405b2967f91b441383623de2d1ee3b27bfd1642b167a60405160405180910390a2505050565b600080600a01600087815260200190815260200160002060000154111561051f57846040517fb9d0d58400000000000000000000000000000000000000000000000000000000815260040161051691906124f3565b60405180910390fd5b6000600401548460a00135610534919061260e565b42111561059457428460a001356000600401548660a00135610556919061260e565b6040517ffafba49500000000000000000000000000000000000000000000000000000000815260040161058b939291906126ac565b60405180910390fd5b836060013542106105e2574284606001356040517f2458293a0000000000000000000000000000000000000000000000000000000081526004016105d9929190612587565b60405180910390fd5b83606001358460200135426105f7919061260e565b10156106555783606001358460200135856020013542610617919061260e565b6040517f3d7ad69000000000000000000000000000000000000000000000000000000000815260040161064c939291906126ac565b60405180910390fd5b60008383905003610692576040517fb274cdd900000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b60008460800160208101906106a7919061271c565b60ff16036106e1576040517ff412416600000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b828290508460800160208101906106f8919061271c565b60ff16111561075557836080016020810190610714919061271c565b838390506040517fa44e438a00000000000000000000000000000000000000000000000000000000815260040161074c929190612758565b60405180910390fd5b600080600a016000878152602001908152602001600020905084806000019061077e9190612790565b82600201919061078f929190611f34565b508460800160208101906107a3919061271c565b8160030160006101000a81548160ff021916908360ff1602179055508460600135816000018190555084602001358160040181905550818160050190805190602001906107f1929190611fba565b50338160060160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550846040016020810190610848919061281f565b8160070160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055508383905067ffffffffffffffff8111156108a7576108a6612283565b5b6040519080825280602002602001820160405280156108d55781602001602082028036833780820191505090505b508160080190805190602001906108ed929190612040565b506000805b858590508110156111935761093c868683818110610913576109126125b0565b5b9050602002810190610925919061284c565b6020016020810190610937919061281f565b6119b2565b6000836009016000888885818110610957576109566125b0565b5b9050602002810190610969919061284c565b602001602081019061097b919061281f565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000180546109c3906128a3565b905014610a3d578585828181106109dd576109dc6125b0565b5b90506020028101906109ef919061284c565b6020016020810190610a01919061281f565b6040517f11298b2f000000000000000000000000000000000000000000000000000000008152600401610a3491906128d4565b60405180910390fd5b600073ffffffffffffffffffffffffffffffffffffffff166000600901878784818110610a6d57610a6c6125b0565b5b9050602002810190610a7f919061284c565b8060000190610a8e91906128ef565b604051610a9c929190612982565b908152602001604051809103902060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1614610b18576040517fb201da3e00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b610c8a868683818110610b2e57610b2d6125b0565b5b9050602002810190610b40919061284c565b8060000190610b4f91906128ef565b8080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505088602001358960a00135898986818110610baf57610bae6125b0565b5b9050602002810190610bc1919061284c565b604001358a8a87818110610bd857610bd76125b0565b5b9050602002810190610bea919061284c565b6060016020810190610bfc919061271c565b8b8b88818110610c0f57610c0e6125b0565b5b9050602002810190610c21919061284c565b608001358c8c89818110610c3857610c376125b0565b5b9050602002810190610c4a919061284c565b60a001358d8d8a818110610c6157610c606125b0565b5b9050602002810190610c73919061284c565b6020016020810190610c85919061281f565b611a58565b858582818110610c9d57610c9c6125b0565b5b9050602002810190610caf919061284c565b6040013582610cbe919061260e565b9150610d28868683818110610cd657610cd56125b0565b5b9050602002810190610ce8919061284c565b6020016020810190610cfa919061281f565b878784818110610d0d57610d0c6125b0565b5b9050602002810190610d1f919061284c565b60400135611b80565b6040518060800160405280878784818110610d4657610d456125b0565b5b9050602002810190610d58919061284c565b8060000190610d6791906128ef565b8080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505081526020016000801b8152602001600015158152602001878784818110610dd457610dd36125b0565b5b9050602002810190610de6919061284c565b60400135815250836009016000888885818110610e0657610e056125b0565b5b9050602002810190610e18919061284c565b6020016020810190610e2a919061281f565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000820151816000019080519060200190610e809291906120ca565b506020820151816001015560408201518160020160006101000a81548160ff02191690831515021790555060608201518160030155905050858582818110610ecb57610eca6125b0565b5b9050602002810190610edd919061284c565b6020016020810190610eef919061281f565b836008018281548110610f0557610f046125b0565b5b9060005260206000200160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550858582818110610f6057610f5f6125b0565b5b9050602002810190610f72919061284c565b6020016020810190610f84919061281f565b6000600901878784818110610f9c57610f9b6125b0565b5b9050602002810190610fae919061284c565b8060000190610fbd91906128ef565b604051610fcb929190612982565b908152602001604051809103902060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555085858281811061102a576110296125b0565b5b905060200281019061103c919061284c565b602001602081019061104e919061281f565b6000600901878784818110611066576110656125b0565b5b9050602002810190611078919061284c565b806000019061108791906128ef565b604051611095929190612982565b908152602001604051809103902060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600060070160008787848181106110fb576110fa6125b0565b5b905060200281019061110d919061284c565b602001602081019061111f919061281f565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020889080600181540180825580915050600190039060005260206000200160009091909190915055808061118b90612664565b9150506108f2565b50600060060160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002087908060018154018082558091505060019003906000526020600020016000909190919091505560006008016000876040016020810190611217919061281f565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020879080600181540180825580915050600190039060005260206000200160009091909190915055600061128382611b98565b9050806000600101600082825461129a919061260e565b925050819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd333084866112ef919061260e565b6040518463ffffffff1660e01b815260040161130d9392919061299b565b6020604051808303816000875af115801561132c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906113509190612a0a565b50877f79b5ec1668a72e295838ca20013c4502cce4b5e7a00d4c01cd88936b26303aad8880600001906113839190612790565b8a60600135338c604001602081019061139c919061281f565b8960080189898d6040516113b899989796959493929190612c10565b60405180910390a25050505050505050565b600080600a0160008481526020019081526020016000209050600081600001540361142c57826040517f018da68800000000000000000000000000000000000000000000000000000000815260040161142391906124f3565b60405180910390fd5b8060010160009054906101000a900460ff161561148057826040517f9af72b8600000000000000000000000000000000000000000000000000000000815260040161147791906124f3565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8160000154036114e857826040517f7c6a6d700000000000000000000000000000000000000000000000000000000081526004016114df91906124f3565b60405180910390fd5b3373ffffffffffffffffffffffffffffffffffffffff168160060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16146115a257338160060160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166040517f0e37d99c00000000000000000000000000000000000000000000000000000000815260040161159992919061254f565b60405180910390fd5b806000015442106115f0574281600001546040517f2458293a0000000000000000000000000000000000000000000000000000000081526004016115e7929190612587565b60405180910390fd5b8142106116365742826040517f3c6870c000000000000000000000000000000000000000000000000000000000815260040161162d929190612587565b60405180910390fd5b81816004015442611647919061260e565b10156116a157818160040154826004015442611663919061260e565b6040517fca9b0f90000000000000000000000000000000000000000000000000000000008152600401611698939291906126ac565b60405180910390fd5b60008082600801905060005b81805490508110156118125760008460090160008484815481106116d4576116d36125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508060020160009054906101000a900460ff166117fe5780600301546000600d0160008585815481106117705761176f6125b0565b5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008282546117e4919061260e565b925050819055508060030154846117fb919061260e565b93505b50808061180a90612664565b9150506116ad565b50600061181e83611b98565b90508060006001016000828254611835919061260e565b925050819055508484600001819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd33308487611893919061260e565b6040518463ffffffff1660e01b81526004016118b19392919061299b565b6020604051808303816000875af11580156118d0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906118f49190612a0a565b50857ff2ded5f77c6de574fac210979efbdd01ff3071d109e50651be4e05211f6e4943868584604051611929939291906126ac565b60405180910390a2505050505050565b6000611943611bc9565b9050600081600a01600085815260200190815260200160002060090160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090506119ac838260030154611bce565b50505050565b60006119bc611bc9565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff16611a54576001826040517f2eeb3571000000000000000000000000000000000000000000000000000000008152600401611a4b929190612cb4565b60405180910390fd5b5050565b600088888789604051602001611a719493929190612d32565b60405160208183030381529060405280519060200120604051602001611a979190612df6565b604051602081830303815290604052805190602001209050600060018287878760405160008152602001604052604051611ad49493929190612e1c565b6020604051602081039080840390855afa158015611af6573d6000803e3d6000fd5b5050506020604051035190508273ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1614611b745780836040517f42d750dc000000000000000000000000000000000000000000000000000000008152600401611b6b92919061254f565b60405180910390fd5b50505050505050505050565b611b8a8282611be6565b611b948282611d21565b5050565b600080611ba3611bc9565b90506064816002015484611bb79190612e61565b611bc19190612eea565b915050919050565b600090565b611bd88282611d8d565b611be28282611ec8565b5050565b6000611bf0611bc9565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154821115611cc15780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154826040517fa4e3bead000000000000000000000000000000000000000000000000000000008152600401611cb8929190612587565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254611d159190612f1b565b92505081905550505050565b6000611d2b611bc9565b90508181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206005016000828254611d81919061260e565b92505081905550505050565b6000611d97611bc9565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050154821115611e685780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050154826040517faf5a111b000000000000000000000000000000000000000000000000000000008152600401611e5f929190612587565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206005016000828254611ebc9190612f1b565b92505081905550505050565b6000611ed2611bc9565b90508181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254611f28919061260e565b92505081905550505050565b828054611f40906128a3565b90600052602060002090601f016020900481019282611f625760008555611fa9565b82601f10611f7b57803560ff1916838001178555611fa9565b82800160010185558215611fa9579182015b82811115611fa8578235825591602001919060010190611f8d565b5b509050611fb69190612150565b5090565b828054611fc6906128a3565b90600052602060002090601f016020900481019282611fe8576000855561202f565b82601f1061200157805160ff191683800117855561202f565b8280016001018555821561202f579182015b8281111561202e578251825591602001919060010190612013565b5b50905061203c9190612150565b5090565b8280548282559060005260206000209081019282156120b9579160200282015b828111156120b85782518260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555091602001919060010190612060565b5b5090506120c69190612150565b5090565b8280546120d6906128a3565b90600052602060002090601f0160209004810192826120f8576000855561213f565b82601f1061211157805160ff191683800117855561213f565b8280016001018555821561213f579182015b8281111561213e578251825591602001919060010190612123565b5b50905061214c9190612150565b5090565b5b80821115612169576000816000905550600101612151565b5090565b6000604051905090565b600080fd5b600080fd5b6000819050919050565b61219481612181565b811461219f57600080fd5b50565b6000813590506121b18161218b565b92915050565b6000602082840312156121cd576121cc612177565b5b60006121db848285016121a2565b91505092915050565b600080fd5b600060c082840312156121ff576121fe6121e4565b5b81905092915050565b600080fd5b600080fd5b600080fd5b60008083601f84011261222d5761222c612208565b5b8235905067ffffffffffffffff81111561224a5761224961220d565b5b60208301915083602082028301111561226657612265612212565b5b9250929050565b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6122bb82612272565b810181811067ffffffffffffffff821117156122da576122d9612283565b5b80604052505050565b60006122ed61216d565b90506122f982826122b2565b919050565b600067ffffffffffffffff82111561231957612318612283565b5b61232282612272565b9050602081019050919050565b82818337600083830152505050565b600061235161234c846122fe565b6122e3565b90508281526020810184848401111561236d5761236c61226d565b5b61237884828561232f565b509392505050565b600082601f83011261239557612394612208565b5b81356123a584826020860161233e565b91505092915050565b6000806000806000608086880312156123ca576123c9612177565b5b60006123d8888289016121a2565b955050602086013567ffffffffffffffff8111156123f9576123f861217c565b5b612405888289016121e9565b945050604086013567ffffffffffffffff8111156124265761242561217c565b5b61243288828901612217565b9350935050606086013567ffffffffffffffff8111156124555761245461217c565b5b61246188828901612380565b9150509295509295909350565b6000819050919050565b6124818161246e565b811461248c57600080fd5b50565b60008135905061249e81612478565b92915050565b600080604083850312156124bb576124ba612177565b5b60006124c9858286016121a2565b92505060206124da8582860161248f565b9150509250929050565b6124ed81612181565b82525050565b600060208201905061250860008301846124e4565b92915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006125398261250e565b9050919050565b6125498161252e565b82525050565b60006040820190506125646000830185612540565b6125716020830184612540565b9392505050565b6125818161246e565b82525050565b600060408201905061259c6000830185612578565b6125a96020830184612578565b9392505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b60006126198261246e565b91506126248361246e565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115612659576126586125df565b5b828201905092915050565b600061266f8261246e565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff82036126a1576126a06125df565b5b600182019050919050565b60006060820190506126c16000830186612578565b6126ce6020830185612578565b6126db6040830184612578565b949350505050565b600060ff82169050919050565b6126f9816126e3565b811461270457600080fd5b50565b600081359050612716816126f0565b92915050565b60006020828403121561273257612731612177565b5b600061274084828501612707565b91505092915050565b612752816126e3565b82525050565b600060408201905061276d6000830185612749565b61277a6020830184612578565b9392505050565b600080fd5b600080fd5b600080fd5b600080833560016020038436030381126127ad576127ac612781565b5b80840192508235915067ffffffffffffffff8211156127cf576127ce612786565b5b6020830192506001820236038313156127eb576127ea61278b565b5b509250929050565b6127fc8161252e565b811461280757600080fd5b50565b600081359050612819816127f3565b92915050565b60006020828403121561283557612834612177565b5b60006128438482850161280a565b91505092915050565b60008235600160c00383360303811261286857612867612781565b5b80830191505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b600060028204905060018216806128bb57607f821691505b6020821081036128ce576128cd612874565b5b50919050565b60006020820190506128e96000830184612540565b92915050565b6000808335600160200384360303811261290c5761290b612781565b5b80840192508235915067ffffffffffffffff82111561292e5761292d612786565b5b60208301925060018202360383131561294a5761294961278b565b5b509250929050565b600081905092915050565b60006129698385612952565b935061297683858461232f565b82840190509392505050565b600061298f82848661295d565b91508190509392505050565b60006060820190506129b06000830186612540565b6129bd6020830185612540565b6129ca6040830184612578565b949350505050565b60008115159050919050565b6129e7816129d2565b81146129f257600080fd5b50565b600081519050612a04816129de565b92915050565b600060208284031215612a2057612a1f612177565b5b6000612a2e848285016129f5565b91505092915050565b600082825260208201905092915050565b6000612a548385612a37565b9350612a6183858461232f565b612a6a83612272565b840190509392505050565b600081549050919050565b600082825260208201905092915050565b60008190508160005260206000209050919050565b612aaf8161252e565b82525050565b6000612ac18383612aa6565b60208301905092915050565b60008160001c9050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000612b0d612b0883612acd565b612ada565b9050919050565b6000612b208254612afa565b9050919050565b6000600182019050919050565b6000612b3f82612a75565b612b498185612a80565b9350612b5483612a91565b8060005b83811015612b8c57612b6982612b14565b612b738882612ab5565b9750612b7e83612b27565b925050600181019050612b58565b5085935050505092915050565b600081519050919050565b60005b83811015612bc2578082015181840152602081019050612ba7565b83811115612bd1576000848401525b50505050565b6000612be282612b99565b612bec8185612a37565b9350612bfc818560208601612ba4565b612c0581612272565b840191505092915050565b6000610100820190508181036000830152612c2c818b8d612a48565b9050612c3b602083018a612578565b612c486040830189612540565b612c556060830188612540565b8181036080830152612c678187612b34565b9050612c7660a0830186612578565b612c8360c0830185612578565b81810360e0830152612c958184612bd7565b90509a9950505050505050505050565b612cae816129d2565b82525050565b6000604082019050612cc96000830185612ca5565b612cd66020830184612540565b9392505050565b600081519050919050565b600082825260208201905092915050565b6000612d0482612cdd565b612d0e8185612ce8565b9350612d1e818560208601612ba4565b612d2781612272565b840191505092915050565b60006080820190508181036000830152612d4c8187612cf9565b9050612d5b6020830186612578565b612d686040830185612578565b612d756060830184612578565b95945050505050565b600081905092915050565b7f19457468657265756d205369676e6564204d6573736167653a0a333200000000600082015250565b6000612dbf601c83612d7e565b9150612dca82612d89565b601c82019050919050565b6000819050919050565b612df0612deb82612181565b612dd5565b82525050565b6000612e0182612db2565b9150612e0d8284612ddf565b60208201915081905092915050565b6000608082019050612e3160008301876124e4565b612e3e6020830186612749565b612e4b60408301856124e4565b612e5860608301846124e4565b95945050505050565b6000612e6c8261246e565b9150612e778361246e565b9250817fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0483118215151615612eb057612eaf6125df565b5b828202905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b6000612ef58261246e565b9150612f008361246e565b925082612f1057612f0f612ebb565b5b828204905092915050565b6000612f268261246e565b9150612f318361246e565b925082821015612f4457612f436125df565b5b82820390509291505056fea2646970667358221220232bd2989590bb8fe3cc4d5ed6fd5971065ff7e774272ddd89f9e7a28f1ff4d064736f6c634300080d0033",
+  "devdoc": {
+    "errors": {
+      "ResurrectionTimeInPast(uint256,uint256)": [
+        {
+          "params": {
+            "currentTime": "Timestamp of the failed rewrap attempt",
+            "resurrectionTime": "Resurrection timestamp which has already passed"
+          }
+        }
+      ],
+      "ResurrectionTimeTooFarInFuture(uint256,uint256,uint256)": [
+        {
+          "params": {
+            "maximumPermissibleResurrectionTime": "Resurrection timestamp which is too far in the future",
+            "resurrectionTime": "Resurrection timestamp which is too far in the future",
+            "sarcophagusMaximumRewrapInterval": "Maximum rewrap interval set for the sarcophagus"
+          }
+        }
+      ],
+      "SarcophagusAlreadyExists(bytes32)": [
+        {
+          "params": {
+            "sarcoId": "Id that is already in use"
+          }
+        }
+      ],
+      "SarcophagusParametersExpired(uint256,uint256,uint256)": [
+        {
+          "params": {
+            "creationDeadline": "Deadline for creation of a sarcophagus with the supplied parameters",
+            "creationTime": "Time when the sarcophagus parameters were created",
+            "currentTime": "Timestamp of the failed create attempt"
+          }
+        }
+      ]
+    },
+    "events": {
+      "BurySarcophagus(bytes32)": {
+        "params": {
+          "sarcoId": "Id of sarcophagus that was buried"
+        }
+      },
+      "CreateSarcophagus(bytes32,string,uint256,address,address,address[],uint256,uint256,string)": {
+        "params": {
+          "arweaveTxId": "arweaveTxId arweave tx id for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]",
+          "createSarcophagusProtocolFees": "Total protocol fees charged to embalmer to create the sarcophagus",
+          "cursedArchaeologists": "Array of addresses of cursed archaeologists",
+          "embalmer": "Address of embalmer",
+          "name": "Name of the new sarcophagus",
+          "recipient": "Address of recipient",
+          "resurrectionTime": "Resurrection time of the new sarcophagus",
+          "sarcoId": "Id of the new sarcophagus",
+          "totalDiggingFees": "Total digging fees charged to embalmer to create the sarcophagus"
+        }
+      },
+      "RewrapSarcophagus(bytes32,uint256,uint256,uint256)": {
+        "params": {
+          "resurrectionTime": "New resurrection time for the sarcophagus",
+          "rewrapSarcophagusProtocolFees": "Total protocol fees charged to the embalmer for the rewrap",
+          "sarcoId": "Id of sarcophagus that was buried",
+          "totalDiggingFees": "Total digging fees charged to the embalmer for the rewrap"
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "burySarcophagus(bytes32)": {
+        "params": {
+          "sarcoId": "the identifier of the sarcophagus"
+        }
+      },
+      "createSarcophagus(bytes32,(string,uint256,address,uint256,uint8,uint256),(bytes,address,uint256,uint8,bytes32,bytes32)[],string)": {
+        "params": {
+          "arweaveTxId": "ordered pair of arweave tx ids: [sarcophagus payload tx, encrypted key share tx]",
+          "sarcoId": "the identifier of the sarcophagus",
+          "sarcophagusParams": "params to set on sarcophagus being created",
+          "selectedArchaeologists": "the archaeologists the embalmer has selected to curse"
+        }
+      },
+      "rewrapSarcophagus(bytes32,uint256)": {
+        "params": {
+          "resurrectionTime": "the new resurrection time",
+          "sarcoId": "the identifier of the sarcophagus"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "errors": {
+      "NoArchaeologistsProvided()": [
+        {
+          "notice": "Emitted when an embalmer attempts to create a sarcophagus with no archaeologists"
+        }
+      ],
+      "ResurrectionTimeInPast(uint256,uint256)": [
+        {
+          "notice": "Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that has already passed"
+        }
+      ],
+      "ResurrectionTimeTooFarInFuture(uint256,uint256,uint256)": [
+        {
+          "notice": "Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that exceeds the maximum rewrap interval"
+        }
+      ],
+      "SarcophagusAlreadyExists(bytes32)": [
+        {
+          "notice": "Emitted when an embalmer attempts to create a sarcophagus with an id that is already in use"
+        }
+      ],
+      "SarcophagusParametersExpired(uint256,uint256,uint256)": [
+        {
+          "notice": "Emitted when an embalmer attempts to create a sarcophagus with expired parameters"
+        }
+      ],
+      "ThresholdCannotBeZero()": [
+        {
+          "notice": "Emitted when an embalmer attempts to create a sarcophagus with a shamir secret sharing threshold of 0"
+        }
+      ]
+    },
+    "events": {
+      "BurySarcophagus(bytes32)": {
+        "notice": "Emitted when a sarcophagus is buried"
+      },
+      "CreateSarcophagus(bytes32,string,uint256,address,address,address[],uint256,uint256,string)": {
+        "notice": "Emitted when a sarcophagus is created"
+      },
+      "RewrapSarcophagus(bytes32,uint256,uint256,uint256)": {
+        "notice": "Emitted when a sarcophagus is rewrapped"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "burySarcophagus(bytes32)": {
+        "notice": "Terminates a sarcophagus by setting its resurrection time to infinity and returning locked bonds to all innocent cursed archaeologists. Callable by the embalmer of a sarcophagus if its resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried."
+      },
+      "createSarcophagus(bytes32,(string,uint256,address,uint256,uint8,uint256),(bytes,address,uint256,uint8,bytes32,bytes32)[],string)": {
+        "notice": "Creates a sarcophagus with the supplied parameters and locks a portion of each archaeologist's freeBond equal to the diggingFees for the sarcophagus. Verifies that all supplied archaeologists have signed off on the sarcophagus negotiation parameters:    - publicKey key they are responsible for    - maximumRewrapInterval to be enforced for the lifetime of the sarcophagus    - creationTime of sarcophagus    - diggingFee to be paid to that archaeologist on all rewraps for the lifetime of the sarcophagus"
+      },
+      "rewrapSarcophagus(bytes32,uint256)": {
+        "notice": "Updates the resurrectionTime on a sarcophagus. Callable by the embalmer of a sarcophagus if its resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1133,
+        "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+        "label": "s",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_struct(AppStorage)2639_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_bytes32)dyn_storage": {
+        "base": "t_bytes32",
+        "encoding": "dynamic_array",
+        "label": "bytes32[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_bytes_memory_ptr": {
+        "encoding": "bytes",
+        "label": "bytes",
+        "numberOfBytes": "32"
+      },
+      "t_bytes_storage": {
+        "encoding": "bytes",
+        "label": "bytes",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IERC20)77": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bytes32[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_bytes32)dyn_storage"
+      },
+      "t_mapping(t_address,t_struct(ArchaeologistProfile)2410_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct LibTypes.ArchaeologistProfile)",
+        "numberOfBytes": "32",
+        "value": "t_struct(ArchaeologistProfile)2410_storage"
+      },
+      "t_mapping(t_address,t_struct(CursedArchaeologist)2397_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct LibTypes.CursedArchaeologist)",
+        "numberOfBytes": "32",
+        "value": "t_struct(CursedArchaeologist)2397_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_bytes32,t_struct(Sarcophagus)2388_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct LibTypes.Sarcophagus)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Sarcophagus)2388_storage"
+      },
+      "t_mapping(t_bytes_memory_ptr,t_address)": {
+        "encoding": "mapping",
+        "key": "t_bytes_memory_ptr",
+        "label": "mapping(bytes => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(AppStorage)2639_storage": {
+        "encoding": "inplace",
+        "label": "struct AppStorage",
+        "members": [
+          {
+            "astId": 2574,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "sarcoToken",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IERC20)77"
+          },
+          {
+            "astId": 2576,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "totalProtocolFees",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2579,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "protocolFeeBasePercentage",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2581,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "gracePeriod",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2583,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "expirationThreshold",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2585,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "embalmerClaimWindow",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2591,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "embalmerSarcophagi",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 2596,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "archaeologistSarcophagi",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 2601,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "recipientSarcophagi",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 2605,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "publicKeyToArchaeologistAddress",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_bytes_memory_ptr,t_address)"
+          },
+          {
+            "astId": 2610,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "sarcophagi",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_mapping(t_bytes32,t_struct(Sarcophagus)2388_storage)"
+          },
+          {
+            "astId": 2613,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "archaeologistProfileAddresses",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_array(t_address)dyn_storage"
+          },
+          {
+            "astId": 2618,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "archaeologistProfiles",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_address,t_struct(ArchaeologistProfile)2410_storage)"
+          },
+          {
+            "astId": 2622,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "archaeologistRewards",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_address,t_uint256)"
+          },
+          {
+            "astId": 2628,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "archaeologistSuccesses",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 2633,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "archaeologistAccusals",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          },
+          {
+            "astId": 2638,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "archaeologistCleanups",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+          }
+        ],
+        "numberOfBytes": "544"
+      },
+      "t_struct(ArchaeologistProfile)2410_storage": {
+        "encoding": "inplace",
+        "label": "struct LibTypes.ArchaeologistProfile",
+        "members": [
+          {
+            "astId": 2399,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "exists",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool"
+          },
+          {
+            "astId": 2401,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "peerId",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 2403,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "minimumDiggingFee",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2405,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "maximumRewrapInterval",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2407,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "freeBond",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2409,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "cursedBond",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "192"
+      },
+      "t_struct(CursedArchaeologist)2397_storage": {
+        "encoding": "inplace",
+        "label": "struct LibTypes.CursedArchaeologist",
+        "members": [
+          {
+            "astId": 2390,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "publicKey",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes_storage"
+          },
+          {
+            "astId": 2392,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "privateKey",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 2394,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "isAccused",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bool"
+          },
+          {
+            "astId": 2396,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "diggingFee",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_struct(Sarcophagus)2388_storage": {
+        "encoding": "inplace",
+        "label": "struct LibTypes.Sarcophagus",
+        "members": [
+          {
+            "astId": 2363,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "resurrectionTime",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2365,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "isCompromised",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bool"
+          },
+          {
+            "astId": 2367,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "isCleaned",
+            "offset": 1,
+            "slot": "1",
+            "type": "t_bool"
+          },
+          {
+            "astId": 2369,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "name",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 2371,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "threshold",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 2373,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "maximumRewrapInterval",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2375,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "arweaveTxId",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 2377,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "embalmerAddress",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_address"
+          },
+          {
+            "astId": 2379,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "recipientAddress",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_address"
+          },
+          {
+            "astId": 2382,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "cursedArchaeologistAddresses",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_array(t_address)dyn_storage"
+          },
+          {
+            "astId": 2387,
+            "contract": "contracts/facets/EmbalmerFacet.sol:EmbalmerFacet",
+            "label": "cursedArchaeologists",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_address,t_struct(CursedArchaeologist)2397_storage)"
+          }
+        ],
+        "numberOfBytes": "320"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}

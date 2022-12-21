@@ -8,7 +8,6 @@ pragma solidity ^0.8.13;
  */
 library LibErrors {
 
-
     error ArchaeologistNotOnSarcophagus(address archaeologist);
 
     error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
@@ -16,9 +15,6 @@ library LibErrors {
     error NotEnoughFreeBond(uint256 freeBond, uint256 amount);
 
     error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);
-
-
-
 
     error SarcophagusDoesNotExist(bytes32 sarcoId);
 
@@ -34,8 +30,5 @@ library LibErrors {
         // address we expected to have signed the data
         address expectedAddress
     );
-
-    // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)
-    error SarcophagusIsUnwrappable();
 
 }

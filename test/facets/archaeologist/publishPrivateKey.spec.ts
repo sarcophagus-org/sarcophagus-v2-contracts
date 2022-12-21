@@ -14,7 +14,7 @@ import {
 
 const { deployments, ethers } = require("hardhat");
 
-describe("bread ArchaeologistFacet.publishPrivateKey", () => {
+describe("ArchaeologistFacet.publishPrivateKey", () => {
   // reset to directly after the diamond deployment before each test
   beforeEach(async () => await deployments.fixture());
 

@@ -14,7 +14,7 @@ library LibTypes {
         string name;
         uint8 threshold;
         uint256 maximumRewrapInterval;
-        string[2] arweaveTxIds;
+        string arweaveTxId;
         address embalmerAddress;
         address recipientAddress;
         address[] cursedArchaeologistAddresses;

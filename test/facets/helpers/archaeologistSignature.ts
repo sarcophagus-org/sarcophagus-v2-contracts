@@ -53,7 +53,7 @@ export const createArchSignature = async (
       sarcophagusDiggingFeeSarquitos,
       sarcophagusParams.creationTime.toString(),
     ],
-    ["string", "uint256", "uint256", "uint256"]
+    ["bytes", "uint256", "uint256", "uint256"]
   );
 
   return {
