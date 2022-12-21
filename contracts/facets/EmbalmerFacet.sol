@@ -104,7 +104,9 @@ contract EmbalmerFacet {
     /// @param resurrectionTime Resurrection timestamp which has already passed
     error ResurrectionTimeInPast(uint256 currentTime, uint256 resurrectionTime);
 
-    error PublicKeyAlreadyUsed();
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with a public key that has already been assigned to another sarcophagus
+    /// @param publicKey the duplicated public key
+    error DuplicatePublicKey(bytes publicKey);
 
     /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that exceeds the maximum rewrap interval
     /// @param resurrectionTime Resurrection timestamp which is too far in the future
@@ -218,9 +220,8 @@ contract EmbalmerFacet {
                 revert ArchaeologistListContainsDuplicate(selectedArchaeologists[i].archAddress);
             }
 
-            // todo: check convenience structure for public keys that have already been used
             if(s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] != address(0)) {
-                revert PublicKeyAlreadyUsed();
+                revert DuplicatePublicKey(selectedArchaeologists[i].publicKey);
             }
 
             LibUtils.verifyArchaeologistSignature(
