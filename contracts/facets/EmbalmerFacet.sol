@@ -22,7 +22,7 @@ contract EmbalmerFacet {
     /// @param cursedArchaeologists Array of addresses of cursed archaeologists
     /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus
     /// @param createSarcophagusProtocolFees Total protocol fees charged to embalmer to create the sarcophagus
-    /// @param arweaveTxId arweaveTxId arweave tx id for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]
+    /// @param arweaveTxId arweave tx id for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]
     event CreateSarcophagus(
         bytes32 indexed sarcoId,
         string name,
