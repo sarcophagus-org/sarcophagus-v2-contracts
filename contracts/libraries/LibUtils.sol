@@ -59,6 +59,33 @@ library LibUtils {
         }
     }
 
+    /// @notice Verifies that a signature belongs to a given public key
+    /// @param message the message that was signed
+    /// @param publicKey the public key that was used to sign the message
+    /// @param v signature element
+    /// @param r signature element
+    /// @param s signature element
+    /// @return true if the signature is valid, false otherwise
+    function verifySignature(
+        bytes calldata message,
+        bytes calldata publicKey,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal pure returns (bool) {
+        bytes32 messageHash = keccak256(
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(message))
+        );
+        // Use ecrecover to get the address that signed the message (the signer is not the archaeologist)
+        address recoveredAddress = ecrecover(messageHash, v, r, s);
+
+        address derivedAddress = address(
+            uint160(uint256(keccak256(publicKey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+        );
+
+        return recoveredAddress == derivedAddress;
+    }
+
     /// @notice Checks if an archaeologist profile exists and
     /// reverts if so
     ///
