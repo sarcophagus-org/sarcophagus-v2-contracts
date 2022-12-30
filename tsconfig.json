@@ -7,5 +7,5 @@
     "outDir": "dist",
     "declaration": true
   },
-  "include": ["./typechain"]
+  "include": ["./typechain", "./test"]
 }
