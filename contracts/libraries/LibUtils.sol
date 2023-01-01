@@ -59,31 +59,37 @@ library LibUtils {
         }
     }
 
-    /// @notice Verifies that a signature belongs to a given public key
+    /// @notice Verifies that a signature and public key were created from the same private key
     /// @param message the message that was signed
-    /// @param publicKey the public key that was used to sign the message
+    /// @param publicKey an uncompressed 65 byte secp256k1 public key
     /// @param v signature element
     /// @param r signature element
     /// @param s signature element
-    /// @return true if the signature is valid, false otherwise
-    function verifySignature(
+    /// @return true if the signature was signed by the private key corresponding to the supplied public key
+    function verifyAccusalSignature(
         bytes calldata message,
         bytes calldata publicKey,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) internal pure returns (bool) {
+        // removes the 0x04 prefix from an uncompressed public key
+        bytes memory truncatedPublicKey = new bytes(publicKey.length-1);
+        for (uint256 i = 1; i < publicKey.length; i++) {
+            truncatedPublicKey[i-1] = publicKey[i];
+        }
         bytes32 messageHash = keccak256(
             abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(message))
         );
-        // Use ecrecover to get the address that signed the message (the signer is not the archaeologist)
-        address recoveredAddress = ecrecover(messageHash, v, r, s);
+        // Use ecrecover to get the address that signed the message
+        address signingAddress = ecrecover(messageHash, v, r, s);
 
-        address derivedAddress = address(
-            uint160(uint256(keccak256(publicKey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+
+        address publicKeyAddress = address(
+            uint160(uint256(keccak256(truncatedPublicKey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
         );
 
-        return recoveredAddress == derivedAddress;
+        return signingAddress == publicKeyAddress;
     }
 
     /// @notice Checks if an archaeologist profile exists and

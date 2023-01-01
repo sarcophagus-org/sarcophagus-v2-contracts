@@ -2,9 +2,9 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 
 import { Contract } from "ethers";
-import { hexDataSlice } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 import { sign } from "../utils/helpers";
+import crypto from "crypto";
 
 describe("LibUtils", () => {
   let libUtilsTest: Contract;
@@ -35,7 +35,7 @@ describe("LibUtils", () => {
 
       const result = await libUtilsTest.verifySignature(
         messageHex,
-        hexDataSlice(wallet.publicKey, 1),
+        wallet.publicKey,
         v,
         r,
         s
@@ -56,7 +56,7 @@ describe("LibUtils", () => {
 
       const result = await libUtilsTest.verifySignature(
         messageHex,
-        hexDataSlice(wallet.publicKey, 1),
+        wallet.publicKey,
         v,
         r,
         s
@@ -77,7 +77,9 @@ describe("LibUtils", () => {
 
       const result = await libUtilsTest.verifySignature(
         messageHex,
-        "0x",
+        new ethers.utils.SigningKey(
+          "0x" + crypto.randomBytes(32).toString("hex")
+        ).publicKey,
         v,
         r,
         s

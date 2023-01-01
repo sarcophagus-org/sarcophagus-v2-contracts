@@ -47,7 +47,7 @@ contract ArchaeologistFacet {
 
     /// @notice Clean has been called before the deadline for archaeologists to publish key shares has passed
     /// @param currentTime Timestamp of the failed clean attempt
-    /// @param publishDeadline Latest time an archaeologist may publish a key share on a sarcophagus: esurrectionTime + gracePeriod
+    /// @param publishDeadline Latest time an archaeologist may publish a key share on a sarcophagus: resurrectionTime + gracePeriod
     error TooEarlyForClean(uint256 currentTime, uint256 publishDeadline);
 
     /// @notice Clean has been called by someone other than the admin or embalmer of the sarcophagus

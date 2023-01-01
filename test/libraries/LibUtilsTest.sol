@@ -11,6 +11,6 @@ contract LibUtilsTest {
         bytes32 r,
         bytes32 s
     ) external pure returns (bool) {
-        return LibUtils.verifySignature(message, publicKey, v, r, s);
+        return LibUtils.verifyAccusalSignature(message, publicKey, v, r, s);
     }
 }
