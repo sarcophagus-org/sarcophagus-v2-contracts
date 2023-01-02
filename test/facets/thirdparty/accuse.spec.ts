@@ -106,6 +106,87 @@ describe("ThirdPartyFacet.accuse", () => {
         `SarcophagusInactive`
       );
     });
+    it("an unequal number of public keys and signatures have been supplied", async function () {
+      const { thirdPartyFacet } = await getContracts();
+      const accuser = await getFreshAccount();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+      const accusedArchaeologist = archaeologists[0];
+
+      const tx = thirdPartyFacet
+        .connect(accuser)
+        .accuse(
+          sarcophagusData.sarcoId,
+          [accusedArchaeologist.publicKey, archaeologists[1].publicKey],
+          [
+            await generateAccusalSignature(
+              sarcophagusData.sarcoId,
+              accusedArchaeologist.privateKey,
+              accuser.address
+            ),
+          ],
+          accuser.address
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `DifferentNumberOfSignaturesAndPublicKeys`
+      );
+    });
+  });
+  describe("Rejects invalid accusal signatures", function () {
+    it("Should revert if the accusal signature was made on the wrong payment address", async function () {
+      const { thirdPartyFacet } = await getContracts();
+      const accuser = await getFreshAccount();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+      const accusedArchaeologist = archaeologists[0];
+
+      const tx = thirdPartyFacet.connect(accuser).accuse(
+        sarcophagusData.sarcoId,
+        [accusedArchaeologist.publicKey],
+        [
+          await generateAccusalSignature(
+            sarcophagusData.sarcoId,
+            accusedArchaeologist.privateKey,
+            // sign incorrect payment address
+            accusedArchaeologist.archAddress
+          ),
+        ],
+        accuser.address
+      );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `InvalidAccusalSignature`
+      );
+    });
+    it("Should revert if the accusal signature was made with the wrong private key", async function () {
+      const { thirdPartyFacet } = await getContracts();
+      const accuser = await getFreshAccount();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+      const accusedArchaeologist = archaeologists[0];
+
+      const tx = thirdPartyFacet.connect(accuser).accuse(
+        sarcophagusData.sarcoId,
+        [accusedArchaeologist.publicKey],
+        [
+          await generateAccusalSignature(
+            sarcophagusData.sarcoId,
+            // sign with incorrect private key
+            archaeologists[1].privateKey,
+            accuser.address
+          ),
+        ],
+        accuser.address
+      );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `InvalidAccusalSignature`
+      );
+    });
   });
 
   describe("Supports accusal of fewer than k archaeologists", function () {
@@ -196,7 +277,6 @@ describe("ThirdPartyFacet.accuse", () => {
     });
 
     it("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async function () {
-      const accuser = await getFreshAccount();
       const { viewStateFacet } = await getContracts();
 
       const { sarcophagusData, archaeologists } =
