@@ -28,7 +28,7 @@ library LibUtils {
      * @param account address to confirm signature of data came from
      */
     function verifyArchaeologistSignature(
-        bytes memory publicKey, // todo: data location?
+        bytes calldata publicKey,
         uint256 agreedMaximumRewrapInterval,
         uint256 timestamp,
         uint256 diggingFee,

@@ -137,7 +137,7 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     /// @param sarcophagusParams params to set on sarcophagus being created
     /// @param selectedArchaeologists the archaeologists the embalmer has selected to curse
-    /// @param arweaveTxId ordered pair of arweave tx ids: [sarcophagus payload tx, encrypted key share tx]
+    /// @param arweaveTxId id of tx storing the sarcophagus payload on arweave
     function createSarcophagus(
         bytes32 sarcoId,
         SarcophagusParams calldata sarcophagusParams,

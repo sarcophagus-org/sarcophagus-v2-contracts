@@ -12,6 +12,9 @@ import {AppStorage} from "../storage/LibAppStorage.sol";
 contract ArchaeologistFacet {
     AppStorage internal s;
 
+    /// @notice Emitted when an archaeologist successfully publishes their private key for a sarcophagus
+    /// @param sarcoId ID of sarcophagus archaeologist has published the private key on
+    /// @param privateKey private key that has been published
     event PublishPrivateKey(bytes32 indexed sarcoId, bytes32 privateKey);
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
@@ -36,48 +39,34 @@ contract ArchaeologistFacet {
 
     event WithdrawReward(address indexed archaeologist, uint256 withdrawnReward);
 
-    /// @notice An archaeologist that has already been accused has attempted to publish a key share
-    /// @param archaeologistAddress Address of accused archaeologist
-    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on
+    /// @notice An archaeologist that has already been successfully accused has attempted to publish their private key
+    /// @param archaeologistAddress Address of accused archaeologist who is attempting to publish their private key
+    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a key on
     error ArchaeologistHasBeenAccused(address archaeologistAddress, bytes32 sarcoId);
 
-    /// @notice Clean has been called on a sarcophagus that has already been cleaned
-    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on
-    error SarcophagusAlreadyCleaned(bytes32 sarcoId);
-
-    /// @notice Clean has been called before the deadline for archaeologists to publish key shares has passed
-    /// @param currentTime Timestamp of the failed clean attempt
-    /// @param publishDeadline Latest time an archaeologist may publish a key share on a sarcophagus: resurrectionTime + gracePeriod
-    error TooEarlyForClean(uint256 currentTime, uint256 publishDeadline);
-
-    /// @notice Clean has been called by someone other than the admin or embalmer of the sarcophagus
-    /// @param senderAddress Address of sender
-    error SenderNotEmbalmerOrAdmin(address senderAddress);
-
-    /// @notice Embalmer has attempted to clean a sarcophagus after the embalmerClaimWindow has passed
-    /// @param currentTime Timestamp of the failed clean attempt
-    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
-    error EmbalmerClaimWindowPassed(uint256 currentTime, uint256 embalmerClaimWindowEnd);
-
-    /// @notice Admin has attempted to clean a sarcophagus before the embalmerClaimWindow has passed
-    /// @param currentTime Timestamp of the failed clean attempt
-    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow
-    error TooEarlyForAdminClean(uint256 currentTime, uint256 embalmerClaimWindowEnd);
-
-    /// @notice Archaeologist has attempted to publish a keyshare before the resurrection time
+    /// @notice Archaeologist has attempted to publish a key before the resurrection time
     /// @param currentTime Timestamp of the failed publish attempt
     /// @param resurrectionTime Time after which the sarcophagus can be resurrected
     error TooEarlyForPublish(uint256 currentTime, uint256 resurrectionTime);
 
-    /// @notice Archaeologist has attempted to publish a keyshare after the end of the resurrection window
+    /// @notice Archaeologist has attempted to publish a key after the end of the resurrection window
     /// @param currentTime Timestamp of the failed publish attempt
     /// @param publishDeadline Time after which the sarcophagus can no longer be resurrected  (resurrectionTime + gracePeriod)
     error TooLateForPublish(uint256 currentTime, uint256 publishDeadline);
 
+    /// @notice Archaeologist has attempted to publish a key for a sarcophagus twice
+    /// @param archaeologistAddress address of publishing archaeologist
     error ArchaeologistAlreadyPublishedPrivateKey(address archaeologistAddress);
 
-    error ArchaeologistPublishedIncorrectPrivateKey(address archaeologistAddress, bytes publicKey, bytes32 privateKey);
-
+    /// @notice Archaeologist has attempted to publish the incorrect private key for a sarcophagus
+    /// @param archaeologistAddress address of publishing archaeologist
+    /// @param publicKey publicKey stored for archaeologist on the sarcophagus
+    /// @param privateKey privateKey the archaeologist has attempted to publish
+    error ArchaeologistPublishedIncorrectPrivateKey(
+        address archaeologistAddress,
+        bytes publicKey,
+        bytes32 privateKey
+    );
 
     /// @notice Registers the archaeologist profile
     /// @param peerId The libp2p identifier for the archaeologist
