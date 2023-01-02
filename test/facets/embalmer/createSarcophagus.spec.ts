@@ -19,6 +19,7 @@ import {
 } from "../helpers/bond";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
 import { getDiggingFeesPlusProtocolFeesSarquitos } from "../helpers/diggingFees";
+
 const crypto = require("crypto");
 
 const { deployments, ethers } = require("hardhat");
@@ -213,10 +214,26 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       );
     });
 
-    // todo: complete
-    it(
-      "Should revert if one of the supplied public keys has already been used"
-    );
+    it("Should revert if one of the supplied public keys has already been used", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+
+      const sarcophagusData2 = await createSarcophagusData({});
+
+      const archaeologists2 =
+        await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .createSarcophagus(
+          ...buildCreateSarcophagusArgs(sarcophagusData2, archaeologists2)
+        );
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `DuplicatePublicKey`
+      );
+    });
   });
   describe("Validates archaeologist signatures", function () {
     it("Should revert if an archaeologist has not signed off on their assigned publicKey", async function () {

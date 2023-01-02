@@ -22,7 +22,7 @@ contract EmbalmerFacet {
     /// @param cursedArchaeologists Array of addresses of cursed archaeologists
     /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus
     /// @param createSarcophagusProtocolFees Total protocol fees charged to embalmer to create the sarcophagus
-    /// @param arweaveTxId arweave tx id for the sarcophagus: [sarcophagus payload tx, encrypted key share tx]
+    /// @param arweaveTxId arweave tx id for the sarcophagus
     event CreateSarcophagus(
         bytes32 indexed sarcoId,
         string name,
@@ -36,7 +36,7 @@ contract EmbalmerFacet {
     );
 
     /// @notice Emitted when a sarcophagus is rewrapped
-    /// @param sarcoId Id of sarcophagus that was buried
+    /// @param sarcoId Id of sarcophagus that was rewrapped
     /// @param resurrectionTime New resurrection time for the sarcophagus
     /// @param totalDiggingFees Total digging fees charged to the embalmer for the rewrap
     /// @param rewrapSarcophagusProtocolFees Total protocol fees charged to the embalmer for the rewrap
@@ -89,14 +89,16 @@ contract EmbalmerFacet {
 
     /// @notice Emitted when an embalmer attempts to create a sarcophagus with no archaeologists
     error NoArchaeologistsProvided();
+
     /// @notice Emitted when an embalmer attempts to create a sarcophagus with a shamir secret sharing threshold of 0
     error ThresholdCannotBeZero();
 
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with more required archaeologists than total archaeologists
     error ThresholdGreaterThanTotalNumberOfArchaeologists(
         uint8 threshold,
         uint256 totalNumberOfArchaeologists
     );
-
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with an archaeologist list that contains the same archaeologist more than once
     error ArchaeologistListContainsDuplicate(address archaeologistAddress);
 
     /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that has already passed
@@ -220,7 +222,9 @@ contract EmbalmerFacet {
                 revert ArchaeologistListContainsDuplicate(selectedArchaeologists[i].archAddress);
             }
 
-            if(s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] != address(0)) {
+            if (
+                s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] != address(0)
+            ) {
                 revert DuplicatePublicKey(selectedArchaeologists[i].publicKey);
             }
 
@@ -255,7 +259,9 @@ contract EmbalmerFacet {
             sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
             // add address to pub key mapping
-            s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] = selectedArchaeologists[i].archAddress;
+            s.publicKeyToArchaeologistAddress[
+                selectedArchaeologists[i].publicKey
+            ] = selectedArchaeologists[i].archAddress;
 
             // update archaeologist-specific convenience lookup structures
             s.publicKeyToArchaeologistAddress[
