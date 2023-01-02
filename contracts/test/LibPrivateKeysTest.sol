@@ -4,7 +4,17 @@ pragma solidity ^0.8.13;
 import {LibPrivateKeys} from "../libraries/LibPrivateKeys.sol";
 
 contract LibPrivateKeysTest {
-    function keyVerification(bytes32 privKey, bytes memory pubKey) public pure returns (bool) {
-        return LibPrivateKeys.isPublicKeyFromPrivateKey(privKey, pubKey);
+    bytes publicKey;
+
+    event True();
+    event False();
+
+    function keyVerification(bytes32 privKey, bytes calldata pubKey) public {
+        publicKey = pubKey;
+        if (LibPrivateKeys.isPublicKeyFromPrivateKey(privKey, publicKey)) {
+            emit True();
+        } else {
+            emit False();
+        }
     }
 }

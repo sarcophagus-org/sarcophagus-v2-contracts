@@ -18,7 +18,7 @@ library LibPrivateKeys {
      * @return bool indicating whether the public key is derived from the
      * private key
      */
-    function isPublicKeyFromPrivateKey(bytes32 privKey, bytes memory pubKey) internal pure returns (bool) {
+    function isPublicKeyFromPrivateKey(bytes32 privKey, bytes storage pubKey) internal view returns (bool) {
         // removes the 0x04 prefix from an uncompressed public key
         bytes memory truncatedPublicKey = new bytes(pubKey.length-1);
         for (uint256 i = 1; i < pubKey.length; i++) {

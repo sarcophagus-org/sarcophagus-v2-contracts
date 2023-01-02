@@ -144,7 +144,7 @@ contract EmbalmerFacet {
         bytes32 sarcoId,
         SarcophagusParams calldata sarcophagusParams,
         SelectedArchaeologistData[] calldata selectedArchaeologists,
-        string memory arweaveTxId
+        string calldata arweaveTxId
     ) external {
         // Confirm that sarcophagus with supplied id doesn't already exist
         if (s.sarcophagi[sarcoId].resurrectionTime > 0) {

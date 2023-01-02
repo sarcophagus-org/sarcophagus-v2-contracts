@@ -22,14 +22,14 @@ describe("LibPrivateKeys", () => {
         "sport prize void success viable play party catalog mimic april engage knock dial glad reflect"
       );
 
-      const result = await libPrivateKeysTest
+      const tx = libPrivateKeysTest
         .connect(owner)
         .keyVerification(
           wallet.privateKey,
           ethers.utils.computePublicKey(wallet.privateKey)
         );
 
-      expect(result).to.be.true;
+      await expect(tx).to.emit(libPrivateKeysTest, `True`);
     });
 
     it("should return false if the private and public keys do not match", async () => {
@@ -43,14 +43,14 @@ describe("LibPrivateKeys", () => {
         "submit tissue swap slow omit hospital blame perfect equal caught switch amazing"
       );
 
-      const result = await libPrivateKeysTest
+      const tx = libPrivateKeysTest
         .connect(owner)
         .keyVerification(
           wallet1.privateKey,
           ethers.utils.computePublicKey(wallet2.privateKey)
         );
 
-      expect(result).to.be.false;
+      await expect(tx).to.emit(libPrivateKeysTest, `False`);
     });
 
     context("with 100 wallets", () => {
@@ -67,23 +67,24 @@ describe("LibPrivateKeys", () => {
       // This test makes 100 transactions on the block chain but should only take about 1 second
       it("should return true if the private and public keys match", async () => {
         const [owner] = await ethers.getSigners();
-        const results: boolean[] = [];
+        const txs = [];
 
         for (let i = 0; i < mnemonics.length; i++) {
           const wallet = ethers.utils.HDNode.fromMnemonic(mnemonics[i]);
 
-          const result = await libPrivateKeysTest
-            .connect(owner)
-            .keyVerification(
-              wallet.privateKey,
+          const tx = libPrivateKeysTest.connect(owner).keyVerification(
+            wallet.privateKey,
 
-              ethers.utils.computePublicKey(wallet.privateKey)
-            );
+            ethers.utils.computePublicKey(wallet.privateKey)
+          );
 
-          results.push(result);
+          txs.push(tx);
         }
-
-        expect(results.every((result) => result)).to.be.true;
+        await Promise.all(
+          txs.map(async (tx) => {
+            await expect(tx).to.emit(libPrivateKeysTest, `True`);
+          })
+        );
       });
     });
   });
