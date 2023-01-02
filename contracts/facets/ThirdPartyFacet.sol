@@ -22,11 +22,7 @@ contract ThirdPartyFacet {
     );
 
     event Clean(bytes32 indexed sarcoId, address indexed cleaner);
-    struct Signature {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-    }
+
 
     /// @notice Clean has been called on a sarcophagus that has already been cleaned
     /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a private key on
@@ -56,6 +52,18 @@ contract ThirdPartyFacet {
     /// @param currentTime Timestamp of the failed accuse attempt
     /// @param resurrectionTime Resurrection timestamp which has already passed
     error ResurrectionTimeInPast(uint256 currentTime, uint256 resurrectionTime);
+
+    /// @notice Emitted when accuse is called with an unequal numbers of public keys and signatures
+    /// @param signatures the number of signatures passed into the accuse call
+    /// @param publicKeys the number of public keys passed into the accuse call
+    error DifferentNumberOfSignaturesAndPublicKeys(uint256 signatures, uint256 publicKeys);
+
+    /// @notice Emitted when accuse is called with an invalid signature for the supplied sarcoId, paymentAddress, and publicKey
+    /// @param sarcoId that should have been signed
+    /// @param paymentAddress payment address that should have been signed
+    /// @param publicKey publicKey that should be derived from signing key
+    /// @param signature invalid signature
+    error InvalidAccusalSignature(bytes32 sarcoId, address paymentAddress, bytes publicKey, LibTypes.Signature signature);
 
     /// @notice If archaeologists fail to publish their private keys on a sarcophagus before the end of the gracePeriod,
     /// their locked bonds and diggingFees may be claimed by either the embalmer or the admin
@@ -121,10 +129,12 @@ contract ThirdPartyFacet {
         uint256 totalDiggingFeesAndLockedBonds = 0;
         for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
-                .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]];
+            .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]];
             if (!cursedArchaeologist.isAccused && cursedArchaeologist.privateKey == 0) {
-                totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee; // add digging fee for cursedArchaeologist
-                totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee; // add locked bond for cursedArchaeologist
+                totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee;
+                // add digging fee for cursedArchaeologist
+                totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee;
+                // add locked bond for cursedArchaeologist
 
                 // slash the archaeologist's locked bond for the sarcophagus
                 LibBonds.decreaseCursedBond(
@@ -162,12 +172,14 @@ contract ThirdPartyFacet {
      * returned
      *
      * @param sarcoId The identifier of the sarcophagus having leaked private keys
-     * @param signatures an array of signatures of the sarcoId signed by the leaked private keys
+     * @param publicKeys an array of public keys corresponding to leaked private keys - order must match order of signatures
+     * @param signatures an array of signatures of the sarcoId and payment address signed by the leaked private keys - order must match order of publicKeys
      * @param paymentAddress the address to which rewards should be sent if successful
      */
     function accuse(
         bytes32 sarcoId,
-        Signature[] calldata signatures,
+        bytes[] calldata publicKeys,
+        LibTypes.Signature[] calldata signatures,
         address paymentAddress
     ) external {
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
@@ -191,7 +203,9 @@ contract ThirdPartyFacet {
         if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
-
+        if (signatures.length != publicKeys.length) {
+            revert DifferentNumberOfSignaturesAndPublicKeys(signatures.length, publicKeys.length);
+        }
         // build an array of the addresses of the archaeologists currently being accused
         address[] memory accusedArchAddresses = new address[](signatures.length);
 
@@ -200,12 +214,15 @@ contract ThirdPartyFacet {
         uint256 totalDiggingFees = 0;
         uint256 accusalCount = 0;
         for (uint256 i = 0; i < signatures.length; i++) {
-            // todo: obtain signing key for signature
-            bytes memory publicKey = bytes("");
+            bytes calldata publicKey = publicKeys[i];
+            if (!LibUtils.verifyAccusalSignature(sarcoId, paymentAddress, publicKey, signatures[i])) {
+                revert InvalidAccusalSignature(sarcoId, paymentAddress, publicKey, signatures[i]);
+            }
+
             // look up the archaeologist responsible for the publicKey
             address accusedArchaeologistAddress = s.publicKeyToArchaeologistAddress[publicKey];
             LibTypes.CursedArchaeologist storage accusedArchaeologist = sarcophagus
-                .cursedArchaeologists[accusedArchaeologistAddress];
+            .cursedArchaeologists[accusedArchaeologistAddress];
 
             // verify the accused archaeologist is cursed on the sarcophagus
             if (accusedArchaeologist.publicKey.length == 0) {
@@ -249,8 +266,8 @@ contract ThirdPartyFacet {
             for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
                 if (
                     sarcophagus
-                        .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
-                        .isAccused
+                    .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
+                    .isAccused
                 ) {
                     totalAccusals++;
                 }
@@ -269,8 +286,8 @@ contract ThirdPartyFacet {
                 // if the archaeologist has never been accused, release their locked bond back to them
                 if (
                     !sarcophagus
-                        .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
-                        .isAccused
+                .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
+                .isAccused
                 ) {
                     LibBonds.freeArchaeologist(
                         sarcoId,

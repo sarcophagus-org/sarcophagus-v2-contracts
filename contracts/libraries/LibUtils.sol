@@ -4,6 +4,8 @@ pragma solidity ^0.8.13;
 import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
+import "../facets/ThirdPartyFacet.sol";
+import "./LibTypes.sol";
 
 /**
  * @title Utility functions used within the Sarcophagus system
@@ -60,30 +62,25 @@ library LibUtils {
     }
 
     /// @notice Verifies that a signature and public key were created from the same private key
-    /// @param message the message that was signed
+    /// @param sarcoId the sarcoId that was signed
+    /// @param paymentAddress the payment address that was signed
     /// @param publicKey an uncompressed 65 byte secp256k1 public key
-    /// @param v signature element
-    /// @param r signature element
-    /// @param s signature element
+    /// @param signature signature on the sarco id and payment address
     /// @return true if the signature was signed by the private key corresponding to the supplied public key
     function verifyAccusalSignature(
-        bytes calldata message,
+        bytes32 sarcoId,
+        address paymentAddress,
         bytes calldata publicKey,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        LibTypes.Signature calldata signature
     ) internal pure returns (bool) {
         // removes the 0x04 prefix from an uncompressed public key
-        bytes memory truncatedPublicKey = new bytes(publicKey.length-1);
+        bytes memory truncatedPublicKey = new bytes(publicKey.length - 1);
         for (uint256 i = 1; i < publicKey.length; i++) {
-            truncatedPublicKey[i-1] = publicKey[i];
+            truncatedPublicKey[i - 1] = publicKey[i];
         }
-        bytes32 messageHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(message))
-        );
+        bytes32 messageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(sarcoId, paymentAddress))));
         // Use ecrecover to get the address that signed the message
-        address signingAddress = ecrecover(messageHash, v, r, s);
-
+        address signingAddress = ecrecover(messageHash, signature.v, signature.r, signature.s);
 
         address publicKeyAddress = address(
             uint160(uint256(keccak256(truncatedPublicKey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)

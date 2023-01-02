@@ -135,7 +135,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
 
       await expect(tx).to.be.revertedWithCustomError(
         embalmerFacet,
-        `NewResurrectionTimeTooLarge`
+        `NewResurrectionTimeTooFarInFuture`
       );
     });
   });

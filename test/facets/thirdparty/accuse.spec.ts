@@ -33,7 +33,7 @@ describe("ThirdPartyFacet.accuse", () => {
       // run accuse on a nonexistent sarcophagus
       const tx = (await getContracts()).thirdPartyFacet
         .connect(accuser)
-        .accuse(nonexistentId, [], accuser.address);
+        .accuse(nonexistentId, [], [], accuser.address);
 
       await expect(tx).to.be.revertedWithCustomError(
         (
@@ -51,7 +51,12 @@ describe("ThirdPartyFacet.accuse", () => {
       // accuse an archaeologist of leaking a keyshare
       const tx = thirdPartyFacet
         .connect(sarcophagusData.embalmer)
-        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
+        .accuse(
+          sarcophagusData.sarcoId,
+          [],
+          [],
+          sarcophagusData.embalmer.address
+        );
 
       await expect(tx).to.be.revertedWithCustomError(
         thirdPartyFacet,
@@ -67,7 +72,12 @@ describe("ThirdPartyFacet.accuse", () => {
 
       const tx = thirdPartyFacet
         .connect(sarcophagusData.embalmer)
-        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
+        .accuse(
+          sarcophagusData.sarcoId,
+          [],
+          [],
+          sarcophagusData.embalmer.address
+        );
 
       await expect(tx).to.be.revertedWithCustomError(
         thirdPartyFacet,
@@ -84,7 +94,12 @@ describe("ThirdPartyFacet.accuse", () => {
 
       const tx = thirdPartyFacet
         .connect(sarcophagusData.embalmer)
-        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
+        .accuse(
+          sarcophagusData.sarcoId,
+          [],
+          [],
+          sarcophagusData.embalmer.address
+        );
 
       await expect(tx).to.be.revertedWithCustomError(
         thirdPartyFacet,
@@ -117,6 +132,7 @@ describe("ThirdPartyFacet.accuse", () => {
         .connect(accuser)
         .accuse(
           sarcophagusData.sarcoId,
+          [accusedArchaeologist.publicKey],
           [
             await generateAccusalSignature(
               sarcophagusData.sarcoId,
@@ -233,6 +249,7 @@ describe("ThirdPartyFacet.accuse", () => {
         .connect(accuser)
         .accuse(
           sarcophagusData.sarcoId,
+          [accusedArchaeologist.publicKey],
           [
             await generateAccusalSignature(
               sarcophagusData.sarcoId,
@@ -273,6 +290,7 @@ describe("ThirdPartyFacet.accuse", () => {
         .connect(accuser)
         .accuse(
           sarcophagusData.sarcoId,
+          [accusedArchaeologist.publicKey],
           [
             await generateAccusalSignature(
               sarcophagusData.sarcoId,
@@ -358,22 +376,21 @@ describe("ThirdPartyFacet.accuse", () => {
       );
 
       // accuse the archaeologist of leaking a keyshare
-      const tx = thirdPartyFacet
-        .connect(accuser)
-        .accuse(
-          sarcophagusData.sarcoId,
-          await Promise.all(
-            accusedArchaeologists.map(
-              async (accusedArchaeologist) =>
-                await generateAccusalSignature(
-                  sarcophagusData.sarcoId,
-                  accusedArchaeologist.privateKey,
-                  accuser.address
-                )
-            )
-          ),
-          accuser.address
-        );
+      const tx = thirdPartyFacet.connect(accuser).accuse(
+        sarcophagusData.sarcoId,
+        accusedArchaeologists.map((arch) => arch.publicKey),
+        await Promise.all(
+          accusedArchaeologists.map(
+            async (accusedArchaeologist) =>
+              await generateAccusalSignature(
+                sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              )
+          )
+        ),
+        accuser.address
+      );
 
       // verify that AccuseArchaeologist is emitted
       await expect(tx).to.emit(thirdPartyFacet, `AccuseArchaeologist`);
@@ -501,22 +518,21 @@ describe("ThirdPartyFacet.accuse", () => {
       const accusedArchaeologists = archaeologists.splice(0, 2);
 
       // accuse an archaeologist of leaking a keyshare
-      await (await getContracts()).thirdPartyFacet
-        .connect(accuser)
-        .accuse(
-          sarcophagusData.sarcoId,
-          await Promise.all(
-            accusedArchaeologists.map(
-              async (accusedArchaeologist) =>
-                await generateAccusalSignature(
-                  sarcophagusData.sarcoId,
-                  accusedArchaeologist.privateKey,
-                  accuser.address
-                )
-            )
-          ),
-          accuser.address
-        );
+      await (await getContracts()).thirdPartyFacet.connect(accuser).accuse(
+        sarcophagusData.sarcoId,
+        accusedArchaeologists.map((arch) => arch.publicKey),
+        await Promise.all(
+          accusedArchaeologists.map(
+            async (accusedArchaeologist) =>
+              await generateAccusalSignature(
+                sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              )
+          )
+        ),
+        accuser.address
+      );
 
       // verify the remaining 4 archaeologists still have their bonds locked
       await Promise.all(
@@ -566,47 +582,45 @@ describe("ThirdPartyFacet.accuse", () => {
       );
 
       // accuse two archaeologists of leaking a keyshare
-      const tx1 = thirdPartyFacet
-        .connect(accuser)
-        .accuse(
-          sarcophagusData.sarcoId,
-          await Promise.all(
-            accusedArchaeologists
-              .slice(0, 2)
-              .map(
-                async (accusedArchaeologist) =>
-                  await generateAccusalSignature(
-                    sarcophagusData.sarcoId,
-                    accusedArchaeologist.privateKey,
-                    accuser.address
-                  )
-              )
-          ),
-          accuser.address
-        );
+      const tx1 = thirdPartyFacet.connect(accuser).accuse(
+        sarcophagusData.sarcoId,
+        accusedArchaeologists.slice(0, 2).map((arch) => arch.publicKey),
+        await Promise.all(
+          accusedArchaeologists
+            .slice(0, 2)
+            .map(
+              async (accusedArchaeologist) =>
+                await generateAccusalSignature(
+                  sarcophagusData.sarcoId,
+                  accusedArchaeologist.privateKey,
+                  accuser.address
+                )
+            )
+        ),
+        accuser.address
+      );
 
       // verify that AccuseArchaeologist is emitted
       await expect(tx1).to.emit(thirdPartyFacet, `AccuseArchaeologist`);
 
       // accuse one more archaeologist of leaking a keyshare
-      const tx2 = thirdPartyFacet
-        .connect(accuser)
-        .accuse(
-          sarcophagusData.sarcoId,
-          await Promise.all(
-            accusedArchaeologists
-              .slice(2, 3)
-              .map(
-                async (accusedArchaeologist) =>
-                  await generateAccusalSignature(
-                    sarcophagusData.sarcoId,
-                    accusedArchaeologist.privateKey,
-                    accuser.address
-                  )
-              )
-          ),
-          accuser.address
-        );
+      const tx2 = thirdPartyFacet.connect(accuser).accuse(
+        sarcophagusData.sarcoId,
+        accusedArchaeologists.slice(2, 3).map((arch) => arch.publicKey),
+        await Promise.all(
+          accusedArchaeologists
+            .slice(2, 3)
+            .map(
+              async (accusedArchaeologist) =>
+                await generateAccusalSignature(
+                  sarcophagusData.sarcoId,
+                  accusedArchaeologist.privateKey,
+                  accuser.address
+                )
+            )
+        ),
+        accuser.address
+      );
 
       // verify that AccuseArchaeologist is emitted
       await expect(tx2).to.emit(thirdPartyFacet, `AccuseArchaeologist`);

@@ -19,17 +19,20 @@ describe("LibUtils", () => {
     const wallet = new ethers.Wallet(
       "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
     );
-    const message = "Hello";
+    const message = ethers.utils.solidityKeccak256(
+      ["string"],
+      ["sarcophagus id"]
+    );
 
     beforeEach(async () => {
       signer = await ethers.getSigner(wallet.address);
     });
 
     it("should successfully verify a signature", async () => {
-      const { v, r, s } = await sign(signer, [message], ["string"]);
+      const { v, r, s } = await sign(signer, [message], ["bytes"]);
 
       const messageHex = ethers.utils.defaultAbiCoder.encode(
-        ["string"],
+        ["bytes"],
         [message]
       );
 
@@ -45,13 +48,15 @@ describe("LibUtils", () => {
     });
 
     it("should return false if message is incorrect", async () => {
-      const message = "Hello";
-
-      const { v, r, s } = await sign(signer, [message], ["string"]);
+      const message = ethers.utils.solidityKeccak256(
+        ["string"],
+        ["sarcophagus id"]
+      );
+      const { v, r, s } = await sign(signer, [message], ["bytes"]);
 
       const messageHex = ethers.utils.defaultAbiCoder.encode(
-        ["string"],
-        ["incorrect message"]
+        ["bytes"],
+        [ethers.utils.solidityKeccak256(["string"], ["incorrect id"])]
       );
 
       const result = await libUtilsTest.verifySignature(
@@ -66,12 +71,15 @@ describe("LibUtils", () => {
     });
 
     it("should return false if public key is incorrect", async () => {
-      const message = "Hello";
+      const message = ethers.utils.solidityKeccak256(
+        ["string"],
+        ["sarcophagus id"]
+      );
 
-      const { v, r, s } = await sign(signer, [message], ["string"]);
+      const { v, r, s } = await sign(signer, [message], ["bytes"]);
 
       const messageHex = ethers.utils.defaultAbiCoder.encode(
-        ["string"],
+        ["bytes"],
         [message]
       );
 

@@ -56,9 +56,12 @@ export const accuseArchaeologistsOnSarcophagus = async (
     )
   );
   // accuse count archaeologists of leaking a keyshare
-  await thirdPartyFacet
-    .connect(accuser)
-    .accuse(sarcoId, signatures, accuser.address);
+  await thirdPartyFacet.connect(accuser).accuse(
+    sarcoId,
+    accusedArchaeologists.map((a: ArchaeologistData) => a.publicKey),
+    signatures,
+    accuser.address
+  );
   return { accusedArchaeologists, accuser };
 };
 export const generateAccusalSignature = async (

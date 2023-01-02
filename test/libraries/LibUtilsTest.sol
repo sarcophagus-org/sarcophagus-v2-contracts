@@ -5,12 +5,10 @@ import {LibUtils} from "../../contracts/libraries/LibUtils.sol";
 
 contract LibUtilsTest {
     function verifySignature(
-        bytes calldata message,
+        bytes32 sarcoId,
         bytes calldata publicKey,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        LibTypes.Signature calldata signature
     ) external pure returns (bool) {
-        return LibUtils.verifyAccusalSignature(message, publicKey, v, r, s);
+        return LibUtils.verifyAccusalSignature(sarcoId, publicKey, signature);
     }
 }
