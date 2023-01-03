@@ -1,4 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import crypto from "crypto";
 
 const { ethers, getNamedAccounts, getUnnamedAccounts } = require("hardhat");
 
