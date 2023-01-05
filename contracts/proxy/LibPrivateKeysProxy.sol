@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {LibPrivateKeys} from "../../../contracts/libraries/LibPrivateKeys.sol";
+import {LibPrivateKeys} from "../libraries/LibPrivateKeys.sol";
 
 contract LibPrivateKeysTest {
     bytes storedPublicKey;

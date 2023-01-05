@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {LibUtils} from "../../../contracts/libraries/LibUtils.sol";
-import {LibTypes} from "../../../contracts/libraries/LibTypes.sol";
+import {LibUtils} from "../libraries/LibUtils.sol";
+import {LibTypes} from "../libraries/LibTypes.sol";
 
 contract LibUtilsTest {
     function verifySignature(
