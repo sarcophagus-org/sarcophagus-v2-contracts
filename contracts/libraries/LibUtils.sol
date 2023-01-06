@@ -6,6 +6,7 @@ import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import "../facets/ThirdPartyFacet.sol";
 import "./LibTypes.sol";
+import "../facets/EmbalmerFacet.sol";
 
 /**
  * @title Utility functions used within the Sarcophagus system
@@ -21,21 +22,13 @@ library LibUtils {
      * @param publicKey public key archaeologist is responsible for
      * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
      * @param timestamp that the archaeologist has agreed to for the sarcophagus
-     * @param diggingFee that the archaeologist has agreed to for the sarcophagus
-     * @param v signature element
-     * @param r signature element
-     * @param s signature element
-     * @param account address to confirm signature of data came from
+     * @param curseParams parameters of curse signed by archaeologist
      */
     function verifyArchaeologistSignature(
         bytes calldata publicKey,
         uint256 agreedMaximumRewrapInterval,
         uint256 timestamp,
-        uint256 diggingFee,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        address account
+        EmbalmerFacet.CurseParams calldata curseParams
     ) internal pure {
         // Hash the hash of the data payload
         bytes32 messageHash = keccak256(
@@ -43,9 +36,9 @@ library LibUtils {
                 "\x19Ethereum Signed Message:\n32",
                 keccak256(
                     abi.encode(
-                        publicKey,
+                        curseParams.publicKey,
                         agreedMaximumRewrapInterval,
-                        diggingFee,
+                        curseParams.diggingFee,
                         timestamp
                     )
                 )
@@ -54,10 +47,10 @@ library LibUtils {
 
         // Generate the address from the signature.
         // ecrecover should always return a valid address.
-        address recoveredAddress = ecrecover(messageHash, v, r, s);
+        address recoveredAddress = ecrecover(messageHash, curseParams.v, curseParams.r, curseParams.s);
 
-        if (recoveredAddress != account) {
-            revert LibErrors.InvalidSignature(recoveredAddress, account);
+        if (recoveredAddress != curseParams.archAddress) {
+            revert LibErrors.InvalidSignature(recoveredAddress, curseParams.archAddress);
         }
     }
 

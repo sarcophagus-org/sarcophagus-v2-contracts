@@ -3,14 +3,13 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
+import "../storage/LibAppStorage.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 import {LibPrivateKeys} from "../libraries/LibPrivateKeys.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
-import {AppStorage} from "../storage/LibAppStorage.sol";
 
 contract ArchaeologistFacet {
-    AppStorage internal s;
 
     /// @notice Emitted when an archaeologist successfully publishes their private key for a sarcophagus
     /// @param sarcoId ID of sarcophagus archaeologist has published the private key on
@@ -80,6 +79,7 @@ contract ArchaeologistFacet {
         uint256 maximumRewrapInterval,
         uint256 freeBond
     ) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         // verify that the archaeologist does not already exist
         LibUtils.revertIfArchProfileExists(msg.sender);
 
@@ -124,6 +124,7 @@ contract ArchaeologistFacet {
         uint256 maximumRewrapInterval,
         uint256 freeBond
     ) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         // verify that the archaeologist exists
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
 
@@ -152,6 +153,7 @@ contract ArchaeologistFacet {
     /// @notice Deposits an archaeologist's free bond to the contract.
     /// @param amount The amount to deposit
     function depositFreeBond(uint256 amount) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
         // Increase the archaeologist's free bond in app storage
         LibBonds.increaseFreeBond(msg.sender, amount);
@@ -165,6 +167,7 @@ contract ArchaeologistFacet {
     /// @notice Withdraws an archaeologist's free bond from the contract.
     /// @param amount The amount to withdraw
     function withdrawFreeBond(uint256 amount) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
         // Decrease the archaeologist's free bond amount.
         // Reverts if there is not enough free bond on the contract.
@@ -179,6 +182,7 @@ contract ArchaeologistFacet {
 
     /// @notice Withdraws all rewards from an archaeologist's reward pool
     function withdrawReward() external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         uint256 amountToWithdraw = s.archaeologistRewards[msg.sender];
         s.archaeologistRewards[msg.sender] = 0;
 
@@ -195,6 +199,7 @@ contract ArchaeologistFacet {
     /// @param sarcoId The identifier of the sarcophagus to unwrap
     /// @param privateKey The private key the archaeologist is publishing
     function publishPrivateKey(bytes32 sarcoId, bytes32 privateKey) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm sarcophagus exists

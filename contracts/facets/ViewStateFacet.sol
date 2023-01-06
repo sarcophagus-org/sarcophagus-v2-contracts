@@ -3,20 +3,21 @@ pragma solidity ^0.8.13;
 
 import "../libraries/LibTypes.sol";
 import "hardhat/console.sol";
-import {AppStorage} from "../storage/LibAppStorage.sol";
+import "../storage/LibAppStorage.sol";
 
 contract ViewStateFacet {
-    AppStorage internal s;
 
     /// @notice Gets the total protocol fees from the contract.
     /// @return The total protocol fees
     function getTotalProtocolFees() external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.totalProtocolFees;
     }
 
     /// @notice Get the protocol fee base percentage from the contract.
     /// @return The protocol fee base percentage - protocolFeeBasePercentage
     function getProtocolFeeBasePercentage() external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.protocolFeeBasePercentage;
     }
 
@@ -27,6 +28,7 @@ contract ViewStateFacet {
     function getArchaeologistProfiles(
         address[] memory addresses
     ) external view returns (LibTypes.ArchaeologistProfile[] memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.ArchaeologistProfile[] memory profiles = new LibTypes.ArchaeologistProfile[](
             addresses.length
         );
@@ -45,18 +47,21 @@ contract ViewStateFacet {
     /// @notice Gets the grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time passes
     /// @return The resurrection grace period
     function getGracePeriod() external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.gracePeriod;
     }
 
     /// @notice Gets the window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys
     /// @return The embalmer claim window
     function getEmbalmerClaimWindow() external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.embalmerClaimWindow;
     }
 
     /// @notice Gets the expiration threshold after which a sarcophagus must be renegotiated
     /// @return The expiration threshold
     function getExpirationThreshold() external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.expirationThreshold;
     }
 
@@ -67,12 +72,14 @@ contract ViewStateFacet {
     function getArchaeologistProfile(
         address archaeologist
     ) external view returns (LibTypes.ArchaeologistProfile memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistProfiles[archaeologist];
     }
 
     /// @notice Return the list of registereed archaeologist addresses.
     /// @return addresses of registered archaeologists
     function getArchaeologistProfileAddresses() external view returns (address[] memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistProfileAddresses;
     }
 
@@ -81,6 +88,7 @@ contract ViewStateFacet {
     /// @param index The index of the registered archaeologist
     /// @return address of the archaeologist
     function getArchaeologistProfileAddressAtIndex(uint256 index) external view returns (address) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistProfileAddresses[index];
     }
 
@@ -89,6 +97,7 @@ contract ViewStateFacet {
     /// @param archaeologist The address of the archaeologist whose
     /// free bond is being returned
     function getFreeBond(address archaeologist) external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistProfiles[archaeologist].freeBond;
     }
 
@@ -97,6 +106,7 @@ contract ViewStateFacet {
     /// @param archaeologist The address of the archaeologist whose
     /// reward is being returned
     function getRewards(address archaeologist) external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistRewards[archaeologist];
     }
 
@@ -105,6 +115,7 @@ contract ViewStateFacet {
     /// @param archaeologist The address of the archaeologist whose
     /// cursed bond is being returned
     function getCursedBond(address archaeologist) external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistProfiles[archaeologist].cursedBond;
     }
 
@@ -115,6 +126,7 @@ contract ViewStateFacet {
         address archaeologist,
         bytes32 sarcoId
     ) external view returns (bool) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist].privateKey != 0;
     }
 
@@ -122,6 +134,7 @@ contract ViewStateFacet {
     /// @param archaeologist The address of the archaeologist whose success
     //  count is being returned
     function getArchaeologistSuccessesCount(address archaeologist) external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistSuccesses[archaeologist].length;
     }
 
@@ -135,6 +148,7 @@ contract ViewStateFacet {
         address archaeologist,
         uint256 index
     ) external view returns (bytes32) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistSuccesses[archaeologist][index];
     }
 
@@ -142,6 +156,7 @@ contract ViewStateFacet {
     /// @param archaeologist The address of the archaeologist whose accusations
     /// count is being returned
     function getArchaeologistAccusalsCount(address archaeologist) external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistAccusals[archaeologist].length;
     }
 
@@ -155,6 +170,7 @@ contract ViewStateFacet {
         address archaeologist,
         uint256 index
     ) external view returns (bytes32) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistAccusals[archaeologist][index];
     }
 
@@ -162,6 +178,7 @@ contract ViewStateFacet {
     /// @param archaeologist The address of the archaeologist whose cleanups
     /// count is being returned
     function getArchaeologistCleanupsCount(address archaeologist) external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistCleanups[archaeologist].length;
     }
 
@@ -175,6 +192,7 @@ contract ViewStateFacet {
         address archaeologist,
         uint256 index
     ) external view returns (bytes32) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistCleanups[archaeologist][index];
     }
 
@@ -195,6 +213,7 @@ contract ViewStateFacet {
     function getArchaeologistsStatistics(
         address[] memory addresses
     ) external view returns (ArchaeologistStatistics[] memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         ArchaeologistStatistics[] memory statsList = new ArchaeologistStatistics[](
             addresses.length
         );
@@ -251,6 +270,7 @@ contract ViewStateFacet {
     ///     - hasLockedBond - true if archaeologists still have bond locked in the contract for this sarcophagus
     /// @param sarcoId The identifier of the sarcophagus being returned
     function getSarcophagus(bytes32 sarcoId) external view returns (SarcophagusResponse memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         uint8 publishedPrivateKeyCount = 0;
@@ -299,6 +319,7 @@ contract ViewStateFacet {
     /// @param embalmer The address of the embalmer whose sarcophagi are being
     /// returned
     function getEmbalmerSarcophagi(address embalmer) external view returns (bytes32[] memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.embalmerSarcophagi[embalmer];
     }
 
@@ -309,6 +330,7 @@ contract ViewStateFacet {
     function getArchaeologistSarcophagi(
         address archaeologist
     ) external view returns (bytes32[] memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.archaeologistSarcophagi[archaeologist];
     }
 
@@ -317,6 +339,7 @@ contract ViewStateFacet {
     /// @param recipient The address of the recipient whose sarcophagi are being
     /// returned
     function getRecipientSarcophagi(address recipient) external view returns (bytes32[] memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.recipientSarcophagi[recipient];
     }
 
@@ -329,6 +352,7 @@ contract ViewStateFacet {
         bytes32 sarcoId,
         address archaeologist
     ) external view returns (LibTypes.CursedArchaeologist memory) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist];
     }
 }

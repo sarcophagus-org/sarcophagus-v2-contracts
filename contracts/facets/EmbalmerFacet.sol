@@ -4,14 +4,13 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../libraries/LibTypes.sol";
+import "../storage/LibAppStorage.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
-import {AppStorage} from "../storage/LibAppStorage.sol";
+import "hardhat/console.sol";
 
 contract EmbalmerFacet {
-    // IMPORTANT: AppStorage must be the first state variable in the facet.
-    AppStorage internal s;
 
     /// @notice Emitted when a sarcophagus is created
     /// @param sarcoId Id of the new sarcophagus
@@ -63,7 +62,7 @@ contract EmbalmerFacet {
     }
 
     /// @notice Parameters of an archaeologist's curse, supplied during sarcophagus creation
-    struct SelectedArchaeologistData {
+    struct CurseParams {
         bytes publicKey;
         address archAddress;
         // diggingFee archaeologist has agreed to receive on sarcophagus for its entire lifetime
@@ -143,9 +142,10 @@ contract EmbalmerFacet {
     function createSarcophagus(
         bytes32 sarcoId,
         SarcophagusParams calldata sarcophagusParams,
-        SelectedArchaeologistData[] calldata selectedArchaeologists,
+        CurseParams[] calldata selectedArchaeologists,
         string calldata arweaveTxId
     ) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         // Confirm that sarcophagus with supplied id doesn't already exist
         if (s.sarcophagi[sarcoId].resurrectionTime > 0) {
             revert SarcophagusAlreadyExists(sarcoId);
@@ -232,12 +232,9 @@ contract EmbalmerFacet {
                 selectedArchaeologists[i].publicKey,
                 sarcophagusParams.maximumRewrapInterval,
                 sarcophagusParams.creationTime,
-                selectedArchaeologists[i].diggingFee,
-                selectedArchaeologists[i].v,
-                selectedArchaeologists[i].r,
-                selectedArchaeologists[i].s,
-                selectedArchaeologists[i].archAddress
+                selectedArchaeologists[i]
             );
+
 
             totalDiggingFees += selectedArchaeologists[i].diggingFee;
 
@@ -297,6 +294,7 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     /// @param resurrectionTime the new resurrection time
     function rewrapSarcophagus(bytes32 sarcoId, uint256 resurrectionTime) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists
@@ -373,6 +371,7 @@ contract EmbalmerFacet {
     /// resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried.
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists

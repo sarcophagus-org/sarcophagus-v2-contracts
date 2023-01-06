@@ -8,11 +8,10 @@ import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
-import {AppStorage} from "../storage/LibAppStorage.sol";
+import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 
 contract ThirdPartyFacet {
-    AppStorage internal s;
 
     event AccuseArchaeologist(
         bytes32 indexed sarcoId,
@@ -74,6 +73,7 @@ contract ThirdPartyFacet {
     /// be able to claim remaining locked bond and diggingFees
     /// @param sarcoId The identifier of the sarcophagus to clean
     function clean(bytes32 sarcoId) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists
@@ -185,6 +185,7 @@ contract ThirdPartyFacet {
         LibTypes.Signature[] calldata signatures,
         address paymentAddress
     ) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm sarcophagus exists
@@ -217,15 +218,14 @@ contract ThirdPartyFacet {
         uint256 totalDiggingFees = 0;
         uint256 accusalCount = 0;
         for (uint256 i = 0; i < signatures.length; i++) {
-            bytes calldata publicKey = publicKeys[i];
             if (
-                !LibUtils.verifyAccusalSignature(sarcoId, paymentAddress, publicKey, signatures[i])
+                !LibUtils.verifyAccusalSignature(sarcoId, paymentAddress, publicKeys[i], signatures[i])
             ) {
-                revert InvalidAccusalSignature(sarcoId, paymentAddress, publicKey, signatures[i]);
+                revert InvalidAccusalSignature(sarcoId, paymentAddress, publicKeys[i], signatures[i]);
             }
 
             // look up the archaeologist responsible for the publicKey
-            address accusedArchaeologistAddress = s.publicKeyToArchaeologistAddress[publicKey];
+            address accusedArchaeologistAddress = s.publicKeyToArchaeologistAddress[publicKeys[i]];
             LibTypes.CursedArchaeologist storage accusedArchaeologist = sarcophagus
                 .cursedArchaeologists[accusedArchaeologistAddress];
 
@@ -328,6 +328,7 @@ contract ThirdPartyFacet {
         LibTypes.Sarcophagus storage sarc,
         uint256 totalDiggingFee
     ) private returns (uint256, uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         // split the sarcophagus's cursed bond into two halves
         uint256 halfToEmbalmer = totalDiggingFee / 2;
         uint256 halfToSender = totalDiggingFee - halfToEmbalmer;

@@ -9,6 +9,7 @@ import "../libraries/LibTypes.sol";
 * TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs
 */
 struct AppStorage {
+
     // SARCO token contract
     IERC20 sarcoToken;
 
@@ -63,12 +64,12 @@ struct AppStorage {
 }
 
 library LibAppStorage {
+    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("sarcophagus.storage.dev1");
+
     function getAppStorage() internal pure returns (AppStorage storage s) {
-        // Set the position of our struct in contract storage
-        // Since AppStorage s is the first and only state variable declared in
-        // facets its position in contract storage is 0
+        bytes32 position = DIAMOND_STORAGE_POSITION;
         assembly {
-            s.slot := 0
+            s.slot := position
         }
     }
 }
