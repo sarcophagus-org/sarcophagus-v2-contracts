@@ -10,7 +10,7 @@ import {
   setTimeToAfterEmbalmerClaimWindowEnd,
   setTimeToEmbalmerClaimWindowStart,
 } from "../helpers/clean";
-import { getDeployer, getFreshAccount } from "../helpers/accounts";
+import { accountGenerator, getDeployer } from "../helpers/accounts";
 import { ArchaeologistData } from "../helpers/archaeologistSignature";
 import { BigNumber } from "ethers";
 import {
@@ -27,7 +27,10 @@ const { deployments, ethers } = require("hardhat");
 
 describe("ThirdPartyFacet.clean", () => {
   // reset to directly after the diamond deployment before each test
-  beforeEach(async () => await deployments.fixture());
+  beforeEach(async () => {
+    await deployments.fixture();
+    accountGenerator.index = 0;
+  });
 
   describe("Validates parameters. Should revert if:", function () {
     it("no sarcophagus with the supplied id exists", async function () {
@@ -78,7 +81,7 @@ describe("ThirdPartyFacet.clean", () => {
       await setTimeToEmbalmerClaimWindowStart(
         sarcophagusData.resurrectionTimeSeconds
       );
-      const thirdParty = await getFreshAccount();
+      const thirdParty = await accountGenerator.newAccount();
       const tx = thirdPartyFacet
         .connect(thirdParty)
         .clean(sarcophagusData.sarcoId);
@@ -93,7 +96,7 @@ describe("ThirdPartyFacet.clean", () => {
       await setTimeToAfterEmbalmerClaimWindowEnd(
         sarcophagusData.resurrectionTimeSeconds
       );
-      const thirdParty = await getFreshAccount();
+      const thirdParty = await accountGenerator.newAccount();
       const tx = thirdPartyFacet
         .connect(thirdParty)
         .clean(sarcophagusData.sarcoId);

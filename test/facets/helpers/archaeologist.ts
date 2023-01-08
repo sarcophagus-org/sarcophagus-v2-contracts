@@ -1,5 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { getFreshAccount } from "./accounts";
+import { accountGenerator } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
 import { getContracts } from "./contracts";
 
@@ -37,7 +37,7 @@ export const registerArchaeologist = async (
   const archaeologistFreeBondSarquitos = ethers.utils.parseEther(
     archaeologistParams.freeBondSarco.toString()
   );
-  const archaeologistSigner = await getFreshAccount();
+  const archaeologistSigner = await accountGenerator.newAccount();
   const peerId = `peerId for ${archaeologistSigner.address}`;
 
   // transfer sarco to archaeologist signer and approve the diamond to spend on their behalf

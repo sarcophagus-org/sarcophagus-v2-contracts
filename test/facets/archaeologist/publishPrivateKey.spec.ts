@@ -11,12 +11,16 @@ import {
   getArchaeologistFreeBondSarquitos,
   getArchaeologistLockedBondSarquitos,
 } from "../helpers/bond";
+import { accountGenerator } from "../helpers/accounts";
 
 const { deployments, ethers } = require("hardhat");
 
 describe("ArchaeologistFacet.publishPrivateKey", () => {
   // reset to directly after the diamond deployment before each test
-  beforeEach(async () => await deployments.fixture());
+  beforeEach(async () => {
+    await deployments.fixture();
+    accountGenerator.index = 0;
+  });
 
   describe("Validates parameters. Should revert if:", function () {
     it("no sarcophagus with the supplied id exists", async function () {

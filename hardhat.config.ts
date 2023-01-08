@@ -87,7 +87,7 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       accounts: {
-        count: 700,
+        count: 25,
       },
     },
   },

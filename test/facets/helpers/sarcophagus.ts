@@ -1,5 +1,5 @@
 import time from "../../utils/time";
-import { getFreshAccount } from "./accounts";
+import { accountGenerator } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
 import { generateKeyshares } from "./shamirSecretSharing";
 import {
@@ -68,14 +68,14 @@ export const createSarcophagusData = async (params: {
   const embalmerAddress =
     params.embalmerAddress !== undefined
       ? params.embalmerAddress
-      : (await getFreshAccount()).address;
+      : (await accountGenerator.newAccount()).address;
   const embalmer = await ethers.getSigner(embalmerAddress);
   await fundAndApproveAccount(embalmer, params.embalmerFunds || 100_000);
 
   const recipientAddress =
     params.recipientAddress !== undefined
       ? params.recipientAddress
-      : (await getFreshAccount()).address;
+      : (await accountGenerator.newAccount()).address;
 
   // create a unique name for the sarcophagus and derive the id
   const name =

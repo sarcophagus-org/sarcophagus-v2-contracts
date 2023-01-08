@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { registerSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
 import time from "../../utils/time";
 import { getContracts } from "../helpers/contracts";
-import { getFreshAccount } from "../helpers/accounts";
+import { accountGenerator } from "../helpers/accounts";
 import { BigNumber } from "ethers";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
 import {
@@ -14,15 +14,17 @@ import {
 } from "../helpers/accuse";
 import { getTotalDiggingFeesSarquitos } from "../helpers/diggingFees";
 
-const { deployments, ethers } = require("hardhat");
+const { deployments, ethers, hre } = require("hardhat");
 
 describe("ThirdPartyFacet.accuse", () => {
-  // reset to directly after the diamond deployment before each test
-  beforeEach(async () => await deployments.fixture());
+  beforeEach(async () => {
+    await deployments.fixture();
+    accountGenerator.index = 0;
+  });
 
   describe("Validates parameters. Should revert if:", function () {
     it("no sarcophagus with the supplied id exists", async function () {
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
 
       // generate a nonexistent sarcoId
       const nonexistentId = ethers.utils.solidityKeccak256(
@@ -108,7 +110,7 @@ describe("ThirdPartyFacet.accuse", () => {
     });
     it("an unequal number of public keys and signatures have been supplied", async function () {
       const { thirdPartyFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       const accusedArchaeologist = archaeologists[0];
@@ -137,7 +139,7 @@ describe("ThirdPartyFacet.accuse", () => {
   describe("Rejects invalid accusal signatures", function () {
     it("Should revert if the accusal signature was made on the wrong payment address", async function () {
       const { thirdPartyFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       const accusedArchaeologist = archaeologists[0];
@@ -163,7 +165,7 @@ describe("ThirdPartyFacet.accuse", () => {
     });
     it("Should revert if the accusal signature was made with the wrong private key", async function () {
       const { thirdPartyFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       const accusedArchaeologist = archaeologists[0];
@@ -192,7 +194,7 @@ describe("ThirdPartyFacet.accuse", () => {
   describe("Supports accusal of fewer than k archaeologists", function () {
     it("On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       const accusedArchaeologist = archaeologists[0];
@@ -307,7 +309,7 @@ describe("ThirdPartyFacet.accuse", () => {
     });
     it("Should not pay out digging fees or cursed bond or emit an event on accusal of an archaeologist that has already been accused once", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
           totalArchaeologists: 5,
@@ -424,7 +426,7 @@ describe("ThirdPartyFacet.accuse", () => {
   describe("Supports accusal of k or more archaeologists", function () {
     it("On a successful accusal of 3 archaeologists on a 3 of 5 sarco, should split cursed bond for the 3 leaking archs between the embalmer and the accuser, refund digging fees for 3 archaeologists to the embalmer, slash the 3 leaking archaeologists' bonds, mark the archaeologists as accused, and emit an AccuseArchaeologist event", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
           totalArchaeologists: 5,
@@ -585,7 +587,7 @@ describe("ThirdPartyFacet.accuse", () => {
     });
 
     it("Should allow accusal of 2 archaeologists on a 3 of 5 sarcophagus without freeing all other archaeologists", async function () {
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { viewStateFacet } = await getContracts();
 
       const { sarcophagusData, archaeologists } =
@@ -630,7 +632,7 @@ describe("ThirdPartyFacet.accuse", () => {
 
     it("Should free all unaccused archaeologists upon successful accusal of 1 archaeologist on a 3 of 5 sarcophagus where 2 have been accused on a previous call and update state to accused", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
           totalArchaeologists: 5,

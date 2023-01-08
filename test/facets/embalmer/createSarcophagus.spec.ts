@@ -12,7 +12,7 @@ import {
   ArchaeologistData,
   createArchSignature,
 } from "../helpers/archaeologistSignature";
-import { getFreshAccount } from "../helpers/accounts";
+import { accountGenerator } from "../helpers/accounts";
 import {
   getArchaeologistFreeBondSarquitos,
   getArchaeologistLockedBondSarquitos,
@@ -26,7 +26,10 @@ const { deployments, ethers } = require("hardhat");
 
 describe("EmbalmerFacet.createSarcophagus", () => {
   // reset to directly after the diamond deployment before each test
-  beforeEach(async () => await deployments.fixture());
+  beforeEach(async () => {
+    await deployments.fixture();
+    accountGenerator.index = 0;
+  });
 
   describe("Validates parameters", function () {
     it("Should revert if supplied expired sarcophagus parameters", async function () {
@@ -161,7 +164,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
 
       const unregisteredArchaeologistData = await createArchSignature(
-        await getFreshAccount(),
+        await accountGenerator.newAccount(),
         {
           publicKey: sarcophagusData.publicKeys[0],
           privateKey: sarcophagusData.privateKeys[0],
