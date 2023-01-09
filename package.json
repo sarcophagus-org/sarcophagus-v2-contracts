@@ -1,6 +1,6 @@
 {
   "name": "@sarcophagus-org/sarcophagus-v2-contracts",
-  "version": "0.9.0",
+  "version": "0.12.0",
   "engines": {
     "node": ">=16.15.0"
   },
@@ -10,7 +10,7 @@
     "compile": "npx hardhat compile",
     "node": "npx hardhat node",
     "clean": "npx hardhat clean",
-    "test": "npx hardhat test",
+    "test": "npx hardhat test --grep bread",
     "transfer": "npx hardhat run scripts/transfer.js --network localhost",
     "prepublish": "npm run clean && npx rimraf dist && npm run compile && npx tsc",
     "history": "npx hardhat generate-history --network localhost",

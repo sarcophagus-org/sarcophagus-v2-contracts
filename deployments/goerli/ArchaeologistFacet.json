@@ -1,15 +1,31 @@
 {
-  "address": "0xc94500eE997aAdd5Adf6aB4e3e8E9924bE82608f",
+  "address": "0xF9B4d464B86774a0d311d54FA4D05cF16Ef39024",
   "abi": [
     {
       "inputs": [
         {
           "internalType": "address",
-          "name": "archaeologist",
+          "name": "archaeologistAddress",
           "type": "address"
         }
       ],
-      "name": "ArchaeologistAlreadyUnwrapped",
+      "name": "ArchaeologistAlreadyPublishedPrivateKey",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologistAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ArchaeologistHasBeenAccused",
       "type": "error"
     },
     {
@@ -37,6 +53,43 @@
         }
       ],
       "name": "ArchaeologistProfileExistsShouldBe",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "archaeologistAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "publicKey",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "privateKey",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ArchaeologistPublishedIncorrectPrivateKey",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "currentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "embalmerClaimWindowEnd",
+          "type": "uint256"
+        }
+      ],
+      "name": "EmbalmerClaimWindowPassed",
       "type": "error"
     },
     {
@@ -79,6 +132,17 @@
           "type": "bytes32"
         }
       ],
+      "name": "SarcophagusAlreadyCleaned",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "sarcoId",
+          "type": "bytes32"
+        }
+      ],
       "name": "SarcophagusCompromised",
       "type": "error"
     },
@@ -107,54 +171,76 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "resurrectionTime",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "currentTime",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "senderAddress",
+          "type": "address"
         }
       ],
-      "name": "TooEarlyToUnwrap",
+      "name": "SenderNotEmbalmerOrAdmin",
       "type": "error"
     },
     {
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "resurrectionTime",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "gracePeriod",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
           "name": "currentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "embalmerClaimWindowEnd",
           "type": "uint256"
         }
       ],
-      "name": "TooLateToUnwrap",
+      "name": "TooEarlyForAdminClean",
       "type": "error"
     },
     {
       "inputs": [
         {
-          "internalType": "bytes",
-          "name": "rawKeyShare",
-          "type": "bytes"
+          "internalType": "uint256",
+          "name": "currentTime",
+          "type": "uint256"
         },
         {
-          "internalType": "bytes32",
-          "name": "doubleHashedKeyShare",
-          "type": "bytes32"
+          "internalType": "uint256",
+          "name": "publishDeadline",
+          "type": "uint256"
         }
       ],
-      "name": "UnencryptedShardHashMismatch",
+      "name": "TooEarlyForClean",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "currentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "resurrectionTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "TooEarlyForPublish",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "currentTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "publishDeadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "TooLateForPublish",
       "type": "error"
     },
     {
@@ -187,12 +273,12 @@
         },
         {
           "indexed": false,
-          "internalType": "bytes",
-          "name": "rawKeyShare",
-          "type": "bytes"
+          "internalType": "bytes32",
+          "name": "privateKey",
+          "type": "bytes32"
         }
       ],
-      "name": "PublishKeyShare",
+      "name": "PublishPrivateKey",
       "type": "event"
     },
     {
@@ -328,12 +414,12 @@
           "type": "bytes32"
         },
         {
-          "internalType": "bytes",
-          "name": "rawKeyShare",
-          "type": "bytes"
+          "internalType": "bytes32",
+          "name": "privateKey",
+          "type": "bytes32"
         }
       ],
-      "name": "publishKeyShare",
+      "name": "publishPrivateKey",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -416,12 +502,76 @@
     }
   ],
   "args": [],
-  "numDeployments": 4,
-  "solcInputHash": "24da3a57fc1d823ed9295677fe86dbd6",
-  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"ArchaeologistAlreadyUnwrapped\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"ArchaeologistNotOnSarcophagus\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"ArchaeologistProfileExistsShouldBe\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"cursedBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"NotEnoughCursedBond\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"NotEnoughFreeBond\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusCompromised\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusDoesNotExist\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusInactive\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"}],\"name\":\"TooEarlyToUnwrap\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gracePeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"}],\"name\":\"TooLateToUnwrap\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"rawKeyShare\",\"type\":\"bytes\"},{\"internalType\":\"bytes32\",\"name\":\"doubleHashedKeyShare\",\"type\":\"bytes32\"}],\"name\":\"UnencryptedShardHashMismatch\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"depositedBond\",\"type\":\"uint256\"}],\"name\":\"DepositFreeBond\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"rawKeyShare\",\"type\":\"bytes\"}],\"name\":\"PublishKeyShare\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"}],\"name\":\"RegisterArchaeologist\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"}],\"name\":\"UpdateArchaeologist\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"withdrawnBond\",\"type\":\"uint256\"}],\"name\":\"WithdrawFreeBond\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"withdrawnReward\",\"type\":\"uint256\"}],\"name\":\"WithdrawReward\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"depositFreeBond\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"rawKeyShare\",\"type\":\"bytes\"}],\"name\":\"publishKeyShare\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"}],\"name\":\"registerArchaeologist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"}],\"name\":\"updateArchaeologist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"withdrawFreeBond\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawReward\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"depositFreeBond(uint256)\":{\"params\":{\"amount\":\"The amount to deposit\"}},\"publishKeyShare(bytes32,bytes)\":{\"params\":{\"rawKeyShare\":\"The keyshare the archaeologist is publishing\",\"sarcoId\":\"The identifier of the sarcophagus to unwrap\"}},\"registerArchaeologist(string,uint256,uint256,uint256)\":{\"params\":{\"freeBond\":\"How much bond the archaeologist wants to deposit during the register call (if any)\",\"maximumRewrapInterval\":\"The longest interval of time from a rewrap time the arch will accept for a resurrection\",\"minimumDiggingFee\":\"The archaeologist's minimum amount to accept for a digging fee\",\"peerId\":\"The libp2p identifier for the archaeologist\"}},\"updateArchaeologist(string,uint256,uint256,uint256)\":{\"params\":{\"maximumRewrapInterval\":\"The longest interval of time from a rewrap time the arch will accept for a resurrection freeBond How much bond the archaeologist wants to deposit during the update call (if any)\",\"minimumDiggingFee\":\"The archaeologist's minimum amount to accept for a digging fee\",\"peerId\":\"The libp2p identifier for the archaeologist\"}},\"withdrawFreeBond(uint256)\":{\"params\":{\"amount\":\"The amount to withdraw\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"depositFreeBond(uint256)\":{\"notice\":\"Deposits an archaeologist's free bond to the contract.\"},\"publishKeyShare(bytes32,bytes)\":{\"notice\":\"Publishes the raw key share for which the archaeologist is responsible during the sarcophagus resurrection window. Pays digging fees to the archaeologist and releases their locked bond. Cannot be called on a compromised or buried sarcophagus.\"},\"registerArchaeologist(string,uint256,uint256,uint256)\":{\"notice\":\"Registers the archaeologist profile\"},\"updateArchaeologist(string,uint256,uint256,uint256)\":{\"notice\":\"Updates the archaeologist profile\"},\"withdrawFreeBond(uint256)\":{\"notice\":\"Withdraws an archaeologist's free bond from the contract.\"},\"withdrawReward()\":{\"notice\":\"Withdraws all rewards from an archaeologist's reward pool\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/facets/ArchaeologistFacet.sol\":\"ArchaeologistFacet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) external returns (bool);\\n}\\n\",\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\"},\"contracts/facets/ArchaeologistFacet.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibUtils} from \\\"../libraries/LibUtils.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\nimport {LibBonds} from \\\"../libraries/LibBonds.sol\\\";\\nimport {AppStorage} from \\\"../storage/LibAppStorage.sol\\\";\\n\\ncontract ArchaeologistFacet {\\n    AppStorage internal s;\\n\\n    event PublishKeyShare(bytes32 indexed sarcoId, bytes rawKeyShare);\\n\\n    event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);\\n\\n    event RegisterArchaeologist(\\n        address indexed archaeologist,\\n        string peerId,\\n        uint256 minimumDiggingFee,\\n        uint256 maximumRewrapInterval,\\n        uint256 freeBond\\n    );\\n\\n    event UpdateArchaeologist(\\n        address indexed archaeologist,\\n        string peerId,\\n        uint256 minimumDiggingFee,\\n        uint256 maximumRewrapInterval,\\n        uint256 freeBond\\n    );\\n\\n    event WithdrawFreeBond(address indexed archaeologist, uint256 withdrawnBond);\\n\\n    event WithdrawReward(address indexed archaeologist, uint256 withdrawnReward);\\n\\n    /// @notice Registers the archaeologist profile\\n    /// @param peerId The libp2p identifier for the archaeologist\\n    /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee\\n    /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept\\n    /// for a resurrection\\n    /// @param freeBond How much bond the archaeologist wants to deposit during the register call (if any)\\n    function registerArchaeologist(\\n        string memory peerId,\\n        uint256 minimumDiggingFee,\\n        uint256 maximumRewrapInterval,\\n        uint256 freeBond\\n    ) external {\\n        // verify that the archaeologist does not already exist\\n        LibUtils.revertIfArchProfileExists(msg.sender);\\n\\n        // create a new archaeologist\\n        LibTypes.ArchaeologistProfile memory newArch = LibTypes.ArchaeologistProfile({\\n            exists: true,\\n            peerId: peerId,\\n            minimumDiggingFee: minimumDiggingFee,\\n            maximumRewrapInterval: maximumRewrapInterval,\\n            freeBond: freeBond,\\n            cursedBond: 0\\n        });\\n\\n        // transfer SARCO tokens from the archaeologist to this contract, to be\\n        // used as their free bond. can be 0.\\n        if (freeBond > 0) {\\n            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);\\n        }\\n\\n        // save the new archaeologist into relevant data structures\\n        s.archaeologistProfiles[msg.sender] = newArch;\\n        s.archaeologistProfileAddresses.push(msg.sender);\\n\\n        emit RegisterArchaeologist(\\n            msg.sender,\\n            newArch.peerId,\\n            newArch.minimumDiggingFee,\\n            newArch.maximumRewrapInterval,\\n            newArch.freeBond\\n        );\\n    }\\n\\n    /// @notice Updates the archaeologist profile\\n    /// @param peerId The libp2p identifier for the archaeologist\\n    /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee\\n    /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept\\n    /// for a resurrection\\n    /// freeBond How much bond the archaeologist wants to deposit during the update call (if any)\\n    function updateArchaeologist(\\n        string memory peerId,\\n        uint256 minimumDiggingFee,\\n        uint256 maximumRewrapInterval,\\n        uint256 freeBond\\n    ) external {\\n        // verify that the archaeologist exists\\n        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);\\n\\n        // create a new archaeologist\\n        LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];\\n        existingArch.peerId = peerId;\\n        existingArch.minimumDiggingFee = minimumDiggingFee;\\n        existingArch.maximumRewrapInterval = maximumRewrapInterval;\\n\\n        // transfer SARCO tokens from the archaeologist to this contract, to be\\n        // used as their free bond. can be 0.\\n        if (freeBond > 0) {\\n            LibBonds.increaseFreeBond(msg.sender, freeBond);\\n            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);\\n        }\\n\\n        emit UpdateArchaeologist(\\n            msg.sender,\\n            existingArch.peerId,\\n            existingArch.minimumDiggingFee,\\n            existingArch.maximumRewrapInterval,\\n            existingArch.freeBond\\n        );\\n    }\\n\\n    /// @notice Deposits an archaeologist's free bond to the contract.\\n    /// @param amount The amount to deposit\\n    function depositFreeBond(uint256 amount) external {\\n        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);\\n        // Increase the archaeologist's free bond in app storage\\n        LibBonds.increaseFreeBond(msg.sender, amount);\\n\\n        // Transfer the amount of sarcoToken from the archaeologist to the contract\\n        s.sarcoToken.transferFrom(msg.sender, address(this), amount);\\n        // Emit an event\\n        emit DepositFreeBond(msg.sender, amount);\\n    }\\n\\n    /// @notice Withdraws an archaeologist's free bond from the contract.\\n    /// @param amount The amount to withdraw\\n    function withdrawFreeBond(uint256 amount) external {\\n        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);\\n        // Decrease the archaeologist's free bond amount.\\n        // Reverts if there is not enough free bond on the contract.\\n        LibBonds.decreaseFreeBond(msg.sender, amount);\\n\\n        // Transfer the amount of sarcoToken to the archaeologist\\n        s.sarcoToken.transfer(msg.sender, amount);\\n\\n        // Emit an event\\n        emit WithdrawFreeBond(msg.sender, amount);\\n    }\\n\\n    /// @notice Withdraws all rewards from an archaeologist's reward pool\\n    function withdrawReward() external {\\n        uint256 amountToWithdraw = s.archaeologistRewards[msg.sender];\\n        s.archaeologistRewards[msg.sender] = 0;\\n\\n        // Transfer the amount of sarcoToken to the archaeologist\\n        s.sarcoToken.transfer(msg.sender, amountToWithdraw);\\n\\n        emit WithdrawReward(msg.sender, amountToWithdraw);\\n    }\\n\\n    /// @notice Publishes the raw key share for which the archaeologist is responsible during the\\n    /// sarcophagus resurrection window.\\n    /// Pays digging fees to the archaeologist and releases their locked bond.\\n    /// Cannot be called on a compromised or buried sarcophagus.\\n    /// @param sarcoId The identifier of the sarcophagus to unwrap\\n    /// @param rawKeyShare The keyshare the archaeologist is publishing\\n    function publishKeyShare(bytes32 sarcoId, bytes calldata rawKeyShare) external {\\n        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];\\n\\n        // Confirm sarcophagus exists\\n        if (sarcophagus.resurrectionTime == 0) {\\n            revert LibErrors.SarcophagusDoesNotExist(sarcoId);\\n        }\\n\\n        // Confirm sarcophagus has not been compromised\\n        if (sarcophagus.isCompromised) {\\n            revert LibErrors.SarcophagusCompromised(sarcoId);\\n        }\\n\\n        // Confirm sarcophagus is not buried\\n        if (sarcophagus.resurrectionTime == 2**256 - 1) {\\n            revert LibErrors.SarcophagusInactive(sarcoId);\\n        }\\n\\n        // Confirm current time is after resurrectionTime\\n        if (block.timestamp < sarcophagus.resurrectionTime) {\\n            revert LibErrors.TooEarlyToUnwrap(sarcophagus.resurrectionTime, block.timestamp);\\n        }\\n\\n        // Confirm current time is within gracePeriod\\n        if (block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod) {\\n            revert LibErrors.TooLateToUnwrap(\\n                sarcophagus.resurrectionTime,\\n                s.gracePeriod,\\n                block.timestamp\\n            );\\n        }\\n\\n        // Confirm tx sender is an archaeologist on the sarcophagus\\n        LibTypes.CursedArchaeologist storage cursedArchaeologist = s\\n            .sarcophagi[sarcoId]\\n            .cursedArchaeologists[msg.sender];\\n        if (cursedArchaeologist.doubleHashedKeyShare == 0) {\\n            revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);\\n        }\\n\\n        // Confirm archaeologist has not already published key share\\n        if (cursedArchaeologist.rawKeyShare.length != 0) {\\n            revert LibErrors.ArchaeologistAlreadyUnwrapped(msg.sender);\\n        }\\n\\n        // Confirm key share being published matches double hash on CursedArchaeologist\\n        if (\\n            keccak256(abi.encode(keccak256(rawKeyShare))) !=\\n            cursedArchaeologist.doubleHashedKeyShare\\n        ) {\\n            revert LibErrors.UnencryptedShardHashMismatch(\\n                rawKeyShare,\\n                cursedArchaeologist.doubleHashedKeyShare\\n            );\\n        }\\n\\n        // Store raw key share on cursed archaeologist\\n        cursedArchaeologist.rawKeyShare = rawKeyShare;\\n\\n        // Free archaeologist locked bond and transfer digging fees\\n        LibBonds.freeArchaeologist(sarcoId, msg.sender);\\n        s.archaeologistRewards[msg.sender] += cursedArchaeologist.diggingFee;\\n\\n        // Save the successful sarcophagus against the archaeologist\\n        s.archaeologistSuccesses[msg.sender].push(sarcoId);\\n\\n        emit PublishKeyShare(sarcoId, rawKeyShare);\\n    }\\n}\\n\",\"keccak256\":\"0x278fb08bc3ac87771fd34cdba2b1085bd0ed6d7512c87436024a44c4ec5ba578\",\"license\":\"Unlicense\"},\"contracts/libraries/LibBonds.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\n\\nlibrary LibBonds {\\n    /// @notice Decreases the amount stored in the freeBond mapping for an\\n    /// archaeologist. Reverts if the archaeologist's free bond is lower than\\n    /// the amount.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being decreased\\n    /// @param amount The amount to decrease the free bond by\\n    function decreaseFreeBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Revert if the amount is greater than the current free bond\\n        if (amount > s.archaeologistProfiles[archaeologist].freeBond) {\\n            revert LibErrors.NotEnoughFreeBond(\\n                s.archaeologistProfiles[archaeologist].freeBond,\\n                amount\\n            );\\n        }\\n\\n        // Decrease the free bond amount\\n        s.archaeologistProfiles[archaeologist].freeBond -= amount;\\n    }\\n\\n    /// @notice Increases the amount stored in the freeBond mapping for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being decreased\\n    /// @param amount The amount to decrease the free bond by\\n    function increaseFreeBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Increase the free bond amount\\n        s.archaeologistProfiles[archaeologist].freeBond += amount;\\n    }\\n\\n    /// @notice Decreases the amount stored in the cursedBond mapping for an\\n    /// archaeologist. Reverts if the archaeologist's cursed bond is lower than\\n    /// the amount.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being decreased\\n    /// @param amount The amount to decrease the cursed bond by\\n    function decreaseCursedBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Revert if the amount is greater than the current cursed bond\\n        if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {\\n            revert LibErrors.NotEnoughCursedBond(\\n                s.archaeologistProfiles[archaeologist].cursedBond,\\n                amount\\n            );\\n        }\\n\\n        // Decrease the cursed bond amount\\n        s.archaeologistProfiles[archaeologist].cursedBond -= amount;\\n    }\\n\\n    /// @notice Increases the amount stored in the cursedBond mapping for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being decreased\\n    /// @param amount The amount to decrease the cursed bond by\\n    function increaseCursedBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Increase the cursed bond amount\\n        s.archaeologistProfiles[archaeologist].cursedBond += amount;\\n    }\\n\\n    /// @notice Locks up the archaeologist's bond, decreasing the\\n    /// archaeologist's free bond by an amount and increasing the\\n    /// archaeologist's cursed bond by the same amount.\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param amount The amount to lock up\\n    function lockUpBond(address archaeologist, uint256 amount) internal {\\n        // Decrease the free bond amount\\n        decreaseFreeBond(archaeologist, amount);\\n\\n        // Increase the cursed bond amount\\n        increaseCursedBond(archaeologist, amount);\\n    }\\n\\n    /// @notice Unlocks the archaeologist's bond, increasing the\\n    /// archaeologist's free bond by an amount and decreasing the\\n    /// archaeologist's cursed bond by the same amount.\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param amount The amount to unlock\\n    function unlockBond(address archaeologist, uint256 amount) internal {\\n        // Decrease the cursed bond amount\\n        decreaseCursedBond(archaeologist, amount);\\n\\n        // Increase the free bond amount\\n        increaseFreeBond(archaeologist, amount);\\n    }\\n\\n\\n    /// @notice Calculates an archaeologist's cursed bond and frees them\\n    /// (unlocks the cursed bond).\\n    /// @param sarcoId the identifier of the sarcophagus to free the archaeologist from\\n    /// @param archaeologistAddress the address of the archaeologist to free\\n    function freeArchaeologist(bytes32 sarcoId, address archaeologistAddress) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        LibTypes.CursedArchaeologist storage cursedArchaeologist = s\\n            .sarcophagi[sarcoId]\\n            .cursedArchaeologists[archaeologistAddress];\\n\\n        // Free up the archaeologist's locked bond\\n        unlockBond(archaeologistAddress, cursedArchaeologist.diggingFee);\\n    }\\n}\\n\",\"keccak256\":\"0xc74cba3d575a7d40f467c7e0601e31c829a8b2b658c4234692c609e189637478\",\"license\":\"Unlicense\"},\"contracts/libraries/LibErrors.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title A collection of Errors\\n * @notice This library defines all of the Errors that the Sarcophagus system\\n * uses.\\n */\\nlibrary LibErrors {\\n    error AccuseNotEnoughProof(uint256 shardsProvided, uint8 minShards);\\n\\n    error AccuseIncorrectProof();\\n\\n    error ArchaeologistAlreadyUnwrapped(address archaeologist);\\n\\n    error ArchaeologistListNotUnique(address archaeologistAddress);\\n\\n    error ArchaeologistNotOnSarcophagus(address archaeologist);\\n\\n    error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);\\n\\n    error DiggingFeeTooLow(uint256 diggingFee, address archaeologist);\\n\\n    error MinShardsGreaterThanArchaeologists(uint8 minShards);\\n\\n    error MinShardsZero();\\n\\n    error MaxResurrectionIntervalIsZero();\\n\\n    error NewResurrectionTimeInPast(uint256 newResurrectionTime);\\n\\n    error NewResurrectionTimeTooLarge(uint256 newResurrectionTime);\\n\\n    error NoArchaeologistsProvided();\\n\\n    error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);\\n\\n    error NotEnoughFreeBond(uint256 freeBond, uint256 amount);\\n\\n    error NotEnoughReward(uint256 reward, uint256 amount);\\n\\n    error ResurrectionTimeInPast(uint256 resurrectionTime);\\n\\n    error ResurrectionTimeTooFarInFuture(\\n        uint256 resurrectionTime,\\n        uint256 sarcophagusMaximumRewrapInterval\\n    );\\n\\n    error SarcophagusAlreadyExists(bytes32 sarcoId);\\n\\n    error SarcophagusDoesNotExist(bytes32 sarcoId);\\n\\n    error SarcophagusInactive(bytes32 sarcoId);\\n\\n    error SarcophagusCompromised(bytes32 sarcoId);\\n\\n    error SenderNotEmbalmer(address sender, address embalmer);\\n\\n    error InvalidSignature(\\n        // address recovered from signature via ecrecover\\n        address recoveredAddress,\\n        // address we expected to have signed the data\\n        address expectedAddress\\n    );\\n\\n    error SignerNotArchaeologistOnSarcophagus(bytes32 sarcoId, address signer);\\n\\n    // Used when an attempt is made to accuse or rewrap after the resurrection time has already passed (so it's actually time to unwrap it)\\n    error SarcophagusIsUnwrappable();\\n\\n    // Used when an attempt is made to clean a sarcophagus before the grace period after the resurrection time has passed\\n    error SarcophagusNotCleanable();\\n\\n    error TooEarlyToUnwrap(uint256 resurrectionTime, uint256 currentTime);\\n\\n    error TooLateToUnwrap(uint256 resurrectionTime, uint256 gracePeriod, uint256 currentTime);\\n\\n    error UnencryptedShardHashMismatch(bytes rawKeyShare, bytes32 doubleHashedKeyShare);\\n\\n    error SarcophagusParametersExpired(uint256 timestamp);\\n}\\n\",\"keccak256\":\"0x6a14d37610938005085d1a3203c15a12d66303c063620bb9bc12172be9579eb5\",\"license\":\"Unlicense\"},\"contracts/libraries/LibTypes.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title Types shared across facets for the Sarcophagus diamond\\n */\\nlibrary LibTypes {\\n    struct Sarcophagus {\\n        // never zero - use for existence checks\\n        uint256 resurrectionTime;\\n        // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused\\n        bool isCompromised;\\n        string name;\\n        uint8 threshold;\\n        uint256 maximumRewrapInterval;\\n        string[2] arweaveTxIds;\\n        address embalmerAddress;\\n        address recipientAddress;\\n        address[] cursedArchaeologistAddresses;\\n        mapping(address => CursedArchaeologist) cursedArchaeologists;\\n    }\\n\\n    struct CursedArchaeologist {\\n        // never zero - use for existence checks\\n        bytes32 doubleHashedKeyShare;\\n        bool isAccused;\\n        uint256 diggingFee;\\n        bytes rawKeyShare;\\n    }\\n\\n    struct ArchaeologistProfile {\\n        bool exists; // todo: use peerid.length instead of exists\\n        string peerId;\\n        uint256 minimumDiggingFee;\\n        uint256 maximumRewrapInterval;\\n        uint256 freeBond;\\n        uint256 cursedBond;\\n    }\\n}\\n\",\"keccak256\":\"0x0866af873e8c0d3fc3e16100244326474be51159855c0958246fa3c443f61c60\",\"license\":\"Unlicense\"},\"contracts/libraries/LibUtils.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\n\\n/**\\n * @title Utility functions used within the Sarcophagus system\\n * @notice This library implements various functions that are used throughout\\n * Sarcophagus, mainly to DRY up the codebase\\n * @dev these functions are all stateless, public, pure/view\\n */\\nlibrary LibUtils {\\n    /**\\n     * @notice Reverts if the public key length is not exactly 64 bytes long\\n     * @param publicKey the key to check length of\\n     */\\n    function publicKeyLength(bytes memory publicKey) public pure {\\n        require(publicKey.length == 64, \\\"public key must be 64 bytes\\\");\\n    }\\n\\n    /**\\n     * @notice Reverts if the hash of singleHash does not equal doubleHash\\n     * @param doubleHash the hash to compare hash of singleHash to\\n     * @param singleHash the value to hash and compare against doubleHash\\n     */\\n    function hashCheck(bytes32 doubleHash, bytes memory singleHash) public pure {\\n        require(doubleHash == keccak256(singleHash), \\\"hashes do not match\\\");\\n    }\\n\\n    /**\\n     * @notice The archaeologist needs to sign off on two pieces of data\\n     * to guarantee their unrwap will be successful\\n     *\\n     * @param unencryptedShardDoubleHash the double hash of the unencrypted shard\\n     * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard\\n     * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus\\n     * @param timestamp that the archaeologist has agreed to for the sarcophagus\\n     * @param diggingFee that the archaeologist has agreed to for the sarcophagus\\n     * @param v signature element\\n     * @param r signature element\\n     * @param s signature element\\n     * @param account address to confirm signature of data came from\\n     */\\n    function verifyArchaeologistSignature(\\n        bytes32 unencryptedShardDoubleHash,\\n        string memory arweaveTxId,\\n        uint256 agreedMaximumRewrapInterval,\\n        uint256 timestamp,\\n        uint256 diggingFee,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s,\\n        address account\\n    ) internal pure {\\n        // Hash the hash of the data payload\\n        bytes32 messageHash = keccak256(\\n            abi.encodePacked(\\n                \\\"\\\\x19Ethereum Signed Message:\\\\n32\\\",\\n                keccak256(\\n                    abi.encode(\\n                        arweaveTxId,\\n                        unencryptedShardDoubleHash,\\n                        agreedMaximumRewrapInterval,\\n                        diggingFee,\\n                        timestamp\\n                    )\\n                )\\n            )\\n        );\\n\\n        // Generate the address from the signature.\\n        // ecrecover should always return a valid address.\\n        address recoveredAddress = ecrecover(messageHash, v, r, s);\\n\\n        if (recoveredAddress != account) {\\n            revert LibErrors.InvalidSignature(recoveredAddress, account);\\n        }\\n    }\\n\\n    /// @notice Returns the address that signed some data given the data and the\\n    /// signature.\\n    /// @param data the data to verify\\n    /// @param v signature element\\n    /// @param r signature element\\n    /// @param s signature element\\n    /// @return the address that signed the data\\n    function recoverAddress(\\n        bytes memory data,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s\\n    ) internal pure returns (address) {\\n        // Hash the hash of the data payload\\n        bytes32 messageHash = keccak256(\\n            abi.encodePacked(\\\"\\\\x19Ethereum Signed Message:\\\\n32\\\", keccak256(abi.encode(data)))\\n        );\\n\\n        // Genearate the address from the signature.\\n        // ecrecover should always return a valid address.\\n        // It's highly recommended that a hash be passed into ecrecover\\n        address account = ecrecover(messageHash, v, r, s);\\n\\n        return account;\\n    }\\n\\n    /**\\n     * @notice Reverts if the given resurrection time is not in the future\\n     * @param resurrectionTime the time to check against block.timestamp\\n     */\\n    function resurrectionInFuture(uint256 resurrectionTime) internal view {\\n        if (resurrectionTime <= block.timestamp) {\\n            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);\\n        }\\n    }\\n\\n    /**\\n     * @notice Reverts if the current block timestamp is not within the resurrection window\\n     * (window = [resurrection time, resurrection time + grace period] inclusive)\\n     * @param resurrectionTime the resurrection time of the sarcophagus\\n     * (absolute, i.e. a date time stamp)\\n     */\\n    function unwrapTime(uint256 resurrectionTime) internal view {\\n        // revert if too early\\n        if (resurrectionTime > block.timestamp) {\\n            revert LibErrors.TooEarlyToUnwrap(resurrectionTime, block.timestamp);\\n        }\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // revert if too late\\n        if (resurrectionTime + s.gracePeriod < block.timestamp) {\\n            revert LibErrors.TooLateToUnwrap(resurrectionTime, s.gracePeriod, block.timestamp);\\n        }\\n    }\\n\\n    /// @notice Checks if an archaeologist profile exists and\\n    /// reverts if so\\n    ///\\n    /// @param archaeologist the archaeologist address to check existence of\\n    function revertIfArchProfileExists(address archaeologist) internal view {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        if (s.archaeologistProfiles[archaeologist].exists) {\\n            revert LibErrors.ArchaeologistProfileExistsShouldBe(false, archaeologist);\\n        }\\n    }\\n\\n    /// @notice Checks if an archaeologist profile doesn't exist and\\n    /// reverts if so\\n    ///\\n    /// @param archaeologist the archaeologist address to check lack of existence of\\n    function revertIfArchProfileDoesNotExist(address archaeologist) internal view {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        if (!s.archaeologistProfiles[archaeologist].exists) {\\n            revert LibErrors.ArchaeologistProfileExistsShouldBe(true, archaeologist);\\n        }\\n    }\\n\\n    /// @notice Calculates the protocol fees to be taken from the embalmer.\\n    /// @return The protocol fees amount\\n    function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        return (totalDiggingFees * s.protocolFeeBasePercentage) / 100;\\n    }\\n}\\n\",\"keccak256\":\"0x2a7152681cf742ee68300169eadd627b567859c4cc9448790a5428b0fcaafc9d\",\"license\":\"Unlicense\"},\"contracts/storage/LibAppStorage.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\n\\n/**\\n* Global diamond storage struct to be shared across facets\\n* TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs\\n*/\\nstruct AppStorage {\\n    // SARCO token contract\\n    IERC20 sarcoToken;\\n\\n    // total protocol fees available to be withdrawn by the admin\\n    uint256 totalProtocolFees;\\n\\n    /**\\n    * Protocol level admin configurations\\n    */\\n    // % of total digging fees for sarcophagus to charge embalmer on create and rewrap\\n    uint256 protocolFeeBasePercentage;\\n    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time\\n    uint256 gracePeriod;\\n    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated\\n    uint256 expirationThreshold;\\n\\n    /**\\n    * Ownership mappings\\n    */\\n    // embalmer address => ids of sarcophagi they've created\\n    mapping(address => bytes32[]) embalmerSarcophagi;\\n    // archaeologist address =>  ids of sarcophagi they're protecting\\n    mapping(address => bytes32[]) archaeologistSarcophagi;\\n    // recipient address =>  ids of sarcophagi they're recipient on\\n    mapping(address => bytes32[]) recipientSarcophagi;\\n\\n    // double hashed keyshare => archaeologist address\\n    mapping(bytes32 => address) doubleHashedShardArchaeologists;\\n\\n    // sarcophagus ids\\n    bytes32[] sarcophagusIdentifiers;\\n    // sarcophagus id => sarcophagus object\\n    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;\\n\\n    // archaeologist addresses\\n    address[] archaeologistProfileAddresses;\\n    // archaeologist address => profile\\n    mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;\\n\\n\\n    // current balance of rewards available for the archaeologist to withdraw\\n    mapping(address => uint256) archaeologistRewards;\\n\\n\\n    /**\\n    * Archaeologist reputation statistics\\n    * todo: could these be organized differently?\\n    */\\n    mapping(address => bytes32[]) archaeologistSuccesses;\\n    mapping(address => bytes32[]) archaeologistAccusals;\\n    mapping(address => bytes32[]) archaeologistCleanups;\\n}\\n\\nlibrary LibAppStorage {\\n    function getAppStorage() internal pure returns (AppStorage storage s) {\\n        // Set the position of our struct in contract storage\\n        // Since AppStorage s is the first and only state variable declared in\\n        // facets its position in contract storage is 0\\n        assembly {\\n            s.slot := 0\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xaf74c670645b035ed8fa6f725ac44b559bda71977be9e593e6ce856d1029e6d3\",\"license\":\"Unlicense\"}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b50611c23806100206000396000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c80630c4c35f014610067578063364e080114610083578063449f11a61461009f5780636a5ac74c146100bb578063c885bc58146100d7578063d1c32147146100e1575b600080fd5b610081600480360381019061007c919061148f565b6100fd565b005b61009d60048036038101906100989190611512565b610299565b005b6100b960048036038101906100b4919061148f565b6103a0565b005b6100d560048036038101906100d09190611512565b610609565b005b6100df610712565b005b6100fb60048036038101906100f691906115d5565b610893565b005b61010633610d11565b600080600c0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050848160010190805190602001906101639291906111d6565b50838160020181905550828160030181905550600082111561022f576101893383610db7565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330856040518463ffffffff1660e01b81526004016101ea93929190611685565b6020604051808303816000875af1158015610209573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061022d91906116f4565b505b3373ffffffffffffffffffffffffffffffffffffffff167f4df9330dcb4af4b522d063da8a473d6711cdd390feef75f059a663a76c2701398260010183600201548460030154856004015460405161028a9493929190611827565b60405180910390a25050505050565b6102a233610d11565b6102ac3382610e23565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b815260040161030b929190611873565b6020604051808303816000875af115801561032a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061034e91906116f4565b503373ffffffffffffffffffffffffffffffffffffffff167fd91b1e491a880123721b161dbbf8249668b0c546077d7ba4d0016441ca9d8f4582604051610395919061189c565b60405180910390a250565b6103a933610f5e565b60006040518060c0016040528060011515815260200186815260200185815260200184815260200183815260200160008152509050600082111561048d576000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330856040518463ffffffff1660e01b815260040161044893929190611685565b6020604051808303816000875af1158015610467573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061048b91906116f4565b505b806000600c0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008201518160000160006101000a81548160ff021916908315150217905550602082015181600101908051906020019061050c9291906111d6565b5060408201518160020155606082015181600301556080820151816004015560a082015181600501559050506000600b01339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055503373ffffffffffffffffffffffffffffffffffffffff167fec728a18db560dc21e59ae36132eb1e1c1b00d056a88ee755e0940e471ad591e82602001518360400151846060015185608001516040516105fa949392919061192e565b60405180910390a25050505050565b61061233610d11565b61061c3382610db7565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330846040518463ffffffff1660e01b815260040161067d93929190611685565b6020604051808303816000875af115801561069c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106c091906116f4565b503373ffffffffffffffffffffffffffffffffffffffff167ff882a0847c57aefe6f6c7df2098dd0afd122eb0e886199e223651b8e45fda82382604051610707919061189c565b60405180910390a250565b600080600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050600080600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b81526004016107fe929190611873565b6020604051808303816000875af115801561081d573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061084191906116f4565b503373ffffffffffffffffffffffffffffffffffffffff167fbc84835063c693975166f00cffb19f01a94c2db55b1bf259238c5da3594e506682604051610888919061189c565b60405180910390a250565b600080600a016000858152602001908152602001600020905060008160000154036108f557836040517f018da6880000000000000000000000000000000000000000000000000000000081526004016108ec9190611989565b60405180910390fd5b8060010160009054906101000a900460ff161561094957836040517f9af72b860000000000000000000000000000000000000000000000000000000081526004016109409190611989565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8160000154036109b157836040517f7c6a6d700000000000000000000000000000000000000000000000000000000081526004016109a89190611989565b60405180910390fd5b8060000154421015610a00578060000154426040517f0674c5900000000000000000000000000000000000000000000000000000000081526004016109f79291906119a4565b60405180910390fd5b6000600301548160000154610a1591906119fc565b421115610a66578060000154600060030154426040517f4fd4cfc5000000000000000000000000000000000000000000000000000000008152600401610a5d93929190611a52565b60405180910390fd5b600080600a016000868152602001908152602001600020600a0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090506000801b816000015403610b0a57336040517f82881f03000000000000000000000000000000000000000000000000000000008152600401610b019190611a89565b60405180910390fd5b6000816003018054610b1b90611750565b905014610b5f57336040517f1b933fa0000000000000000000000000000000000000000000000000000000008152600401610b569190611a89565b60405180910390fd5b80600001548484604051610b74929190611ad4565b6040518091039020604051602001610b8c9190611989565b6040516020818303038152906040528051906020012014610bec57838382600001546040517fd6091bc2000000000000000000000000000000000000000000000000000000008152600401610be393929190611b2b565b60405180910390fd5b8383826003019190610bff92919061125c565b50610c0a8533611005565b80600201546000600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254610c6091906119fc565b925050819055506000600e0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020859080600181540180825580915050600190039060005260206000200160009091909190915055847f10b38d22beb9e6da8e778162151bf1e9f67ad2eb0c00f43d7e62806a7990ba6c8585604051610d02929190611b5d565b60405180910390a25050505050565b6000610d1b61107e565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff16610db3576001826040517f2eeb3571000000000000000000000000000000000000000000000000000000008152600401610daa929190611b90565b60405180910390fd5b5050565b6000610dc161107e565b90508181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254610e1791906119fc565b92505081905550505050565b6000610e2d61107e565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154821115610efe5780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154826040517fa4e3bead000000000000000000000000000000000000000000000000000000008152600401610ef59291906119a4565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254610f529190611bb9565b92505081905550505050565b6000610f6861107e565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff1615611001576000826040517f2eeb3571000000000000000000000000000000000000000000000000000000008152600401610ff8929190611b90565b60405180910390fd5b5050565b600061100f61107e565b9050600081600a016000858152602001908152602001600020600a0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050611078838260020154611083565b50505050565b600090565b61108d828261109b565b6110978282610db7565b5050565b60006110a561107e565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600501548211156111765780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050154826040517faf5a111b00000000000000000000000000000000000000000000000000000000815260040161116d9291906119a4565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050160008282546111ca9190611bb9565b92505081905550505050565b8280546111e290611750565b90600052602060002090601f016020900481019282611204576000855561124b565b82601f1061121d57805160ff191683800117855561124b565b8280016001018555821561124b579182015b8281111561124a57825182559160200191906001019061122f565b5b50905061125891906112e2565b5090565b82805461126890611750565b90600052602060002090601f01602090048101928261128a57600085556112d1565b82601f106112a357803560ff19168380011785556112d1565b828001600101855582156112d1579182015b828111156112d05782358255916020019190600101906112b5565b5b5090506112de91906112e2565b5090565b5b808211156112fb5760008160009055506001016112e3565b5090565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6113668261131d565b810181811067ffffffffffffffff821117156113855761138461132e565b5b80604052505050565b60006113986112ff565b90506113a4828261135d565b919050565b600067ffffffffffffffff8211156113c4576113c361132e565b5b6113cd8261131d565b9050602081019050919050565b82818337600083830152505050565b60006113fc6113f7846113a9565b61138e565b90508281526020810184848401111561141857611417611318565b5b6114238482856113da565b509392505050565b600082601f8301126114405761143f611313565b5b81356114508482602086016113e9565b91505092915050565b6000819050919050565b61146c81611459565b811461147757600080fd5b50565b60008135905061148981611463565b92915050565b600080600080608085870312156114a9576114a8611309565b5b600085013567ffffffffffffffff8111156114c7576114c661130e565b5b6114d38782880161142b565b94505060206114e48782880161147a565b93505060406114f58782880161147a565b92505060606115068782880161147a565b91505092959194509250565b60006020828403121561152857611527611309565b5b60006115368482850161147a565b91505092915050565b6000819050919050565b6115528161153f565b811461155d57600080fd5b50565b60008135905061156f81611549565b92915050565b600080fd5b600080fd5b60008083601f84011261159557611594611313565b5b8235905067ffffffffffffffff8111156115b2576115b1611575565b5b6020830191508360018202830111156115ce576115cd61157a565b5b9250929050565b6000806000604084860312156115ee576115ed611309565b5b60006115fc86828701611560565b935050602084013567ffffffffffffffff81111561161d5761161c61130e565b5b6116298682870161157f565b92509250509250925092565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600061166082611635565b9050919050565b61167081611655565b82525050565b61167f81611459565b82525050565b600060608201905061169a6000830186611667565b6116a76020830185611667565b6116b46040830184611676565b949350505050565b60008115159050919050565b6116d1816116bc565b81146116dc57600080fd5b50565b6000815190506116ee816116c8565b92915050565b60006020828403121561170a57611709611309565b5b6000611718848285016116df565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061176857607f821691505b60208210810361177b5761177a611721565b5b50919050565b600082825260208201905092915050565b60008190508160005260206000209050919050565b600081546117b481611750565b6117be8186611781565b945060018216600081146117d957600181146117eb5761181e565b60ff198316865260208601935061181e565b6117f485611792565b60005b83811015611816578154818901526001820191506020810190506117f7565b808801955050505b50505092915050565b6000608082019050818103600083015261184181876117a7565b90506118506020830186611676565b61185d6040830185611676565b61186a6060830184611676565b95945050505050565b60006040820190506118886000830185611667565b6118956020830184611676565b9392505050565b60006020820190506118b16000830184611676565b92915050565b600081519050919050565b60005b838110156118e05780820151818401526020810190506118c5565b838111156118ef576000848401525b50505050565b6000611900826118b7565b61190a8185611781565b935061191a8185602086016118c2565b6119238161131d565b840191505092915050565b6000608082019050818103600083015261194881876118f5565b90506119576020830186611676565b6119646040830185611676565b6119716060830184611676565b95945050505050565b6119838161153f565b82525050565b600060208201905061199e600083018461197a565b92915050565b60006040820190506119b96000830185611676565b6119c66020830184611676565b9392505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b6000611a0782611459565b9150611a1283611459565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115611a4757611a466119cd565b5b828201905092915050565b6000606082019050611a676000830186611676565b611a746020830185611676565b611a816040830184611676565b949350505050565b6000602082019050611a9e6000830184611667565b92915050565b600081905092915050565b6000611abb8385611aa4565b9350611ac88385846113da565b82840190509392505050565b6000611ae1828486611aaf565b91508190509392505050565b600082825260208201905092915050565b6000611b0a8385611aed565b9350611b178385846113da565b611b208361131d565b840190509392505050565b60006040820190508181036000830152611b46818587611afe565b9050611b55602083018461197a565b949350505050565b60006020820190508181036000830152611b78818486611afe565b90509392505050565b611b8a816116bc565b82525050565b6000604082019050611ba56000830185611b81565b611bb26020830184611667565b9392505050565b6000611bc482611459565b9150611bcf83611459565b925082821015611be257611be16119cd565b5b82820390509291505056fea2646970667358221220366f70978462dd7773f2bc7cd239b4c1a03ed2ac99d026b873eeb7edaf650cca64736f6c634300080d0033",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100625760003560e01c80630c4c35f014610067578063364e080114610083578063449f11a61461009f5780636a5ac74c146100bb578063c885bc58146100d7578063d1c32147146100e1575b600080fd5b610081600480360381019061007c919061148f565b6100fd565b005b61009d60048036038101906100989190611512565b610299565b005b6100b960048036038101906100b4919061148f565b6103a0565b005b6100d560048036038101906100d09190611512565b610609565b005b6100df610712565b005b6100fb60048036038101906100f691906115d5565b610893565b005b61010633610d11565b600080600c0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050848160010190805190602001906101639291906111d6565b50838160020181905550828160030181905550600082111561022f576101893383610db7565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330856040518463ffffffff1660e01b81526004016101ea93929190611685565b6020604051808303816000875af1158015610209573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061022d91906116f4565b505b3373ffffffffffffffffffffffffffffffffffffffff167f4df9330dcb4af4b522d063da8a473d6711cdd390feef75f059a663a76c2701398260010183600201548460030154856004015460405161028a9493929190611827565b60405180910390a25050505050565b6102a233610d11565b6102ac3382610e23565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b815260040161030b929190611873565b6020604051808303816000875af115801561032a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061034e91906116f4565b503373ffffffffffffffffffffffffffffffffffffffff167fd91b1e491a880123721b161dbbf8249668b0c546077d7ba4d0016441ca9d8f4582604051610395919061189c565b60405180910390a250565b6103a933610f5e565b60006040518060c0016040528060011515815260200186815260200185815260200184815260200183815260200160008152509050600082111561048d576000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330856040518463ffffffff1660e01b815260040161044893929190611685565b6020604051808303816000875af1158015610467573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061048b91906116f4565b505b806000600c0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008201518160000160006101000a81548160ff021916908315150217905550602082015181600101908051906020019061050c9291906111d6565b5060408201518160020155606082015181600301556080820151816004015560a082015181600501559050506000600b01339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055503373ffffffffffffffffffffffffffffffffffffffff167fec728a18db560dc21e59ae36132eb1e1c1b00d056a88ee755e0940e471ad591e82602001518360400151846060015185608001516040516105fa949392919061192e565b60405180910390a25050505050565b61061233610d11565b61061c3382610db7565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330846040518463ffffffff1660e01b815260040161067d93929190611685565b6020604051808303816000875af115801561069c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106c091906116f4565b503373ffffffffffffffffffffffffffffffffffffffff167ff882a0847c57aefe6f6c7df2098dd0afd122eb0e886199e223651b8e45fda82382604051610707919061189c565b60405180910390a250565b600080600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050600080600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b81526004016107fe929190611873565b6020604051808303816000875af115801561081d573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061084191906116f4565b503373ffffffffffffffffffffffffffffffffffffffff167fbc84835063c693975166f00cffb19f01a94c2db55b1bf259238c5da3594e506682604051610888919061189c565b60405180910390a250565b600080600a016000858152602001908152602001600020905060008160000154036108f557836040517f018da6880000000000000000000000000000000000000000000000000000000081526004016108ec9190611989565b60405180910390fd5b8060010160009054906101000a900460ff161561094957836040517f9af72b860000000000000000000000000000000000000000000000000000000081526004016109409190611989565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8160000154036109b157836040517f7c6a6d700000000000000000000000000000000000000000000000000000000081526004016109a89190611989565b60405180910390fd5b8060000154421015610a00578060000154426040517f0674c5900000000000000000000000000000000000000000000000000000000081526004016109f79291906119a4565b60405180910390fd5b6000600301548160000154610a1591906119fc565b421115610a66578060000154600060030154426040517f4fd4cfc5000000000000000000000000000000000000000000000000000000008152600401610a5d93929190611a52565b60405180910390fd5b600080600a016000868152602001908152602001600020600a0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090506000801b816000015403610b0a57336040517f82881f03000000000000000000000000000000000000000000000000000000008152600401610b019190611a89565b60405180910390fd5b6000816003018054610b1b90611750565b905014610b5f57336040517f1b933fa0000000000000000000000000000000000000000000000000000000008152600401610b569190611a89565b60405180910390fd5b80600001548484604051610b74929190611ad4565b6040518091039020604051602001610b8c9190611989565b6040516020818303038152906040528051906020012014610bec57838382600001546040517fd6091bc2000000000000000000000000000000000000000000000000000000008152600401610be393929190611b2b565b60405180910390fd5b8383826003019190610bff92919061125c565b50610c0a8533611005565b80600201546000600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254610c6091906119fc565b925050819055506000600e0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020859080600181540180825580915050600190039060005260206000200160009091909190915055847f10b38d22beb9e6da8e778162151bf1e9f67ad2eb0c00f43d7e62806a7990ba6c8585604051610d02929190611b5d565b60405180910390a25050505050565b6000610d1b61107e565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff16610db3576001826040517f2eeb3571000000000000000000000000000000000000000000000000000000008152600401610daa929190611b90565b60405180910390fd5b5050565b6000610dc161107e565b90508181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254610e1791906119fc565b92505081905550505050565b6000610e2d61107e565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154821115610efe5780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154826040517fa4e3bead000000000000000000000000000000000000000000000000000000008152600401610ef59291906119a4565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254610f529190611bb9565b92505081905550505050565b6000610f6861107e565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff1615611001576000826040517f2eeb3571000000000000000000000000000000000000000000000000000000008152600401610ff8929190611b90565b60405180910390fd5b5050565b600061100f61107e565b9050600081600a016000858152602001908152602001600020600a0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050611078838260020154611083565b50505050565b600090565b61108d828261109b565b6110978282610db7565b5050565b60006110a561107e565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600501548211156111765780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050154826040517faf5a111b00000000000000000000000000000000000000000000000000000000815260040161116d9291906119a4565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050160008282546111ca9190611bb9565b92505081905550505050565b8280546111e290611750565b90600052602060002090601f016020900481019282611204576000855561124b565b82601f1061121d57805160ff191683800117855561124b565b8280016001018555821561124b579182015b8281111561124a57825182559160200191906001019061122f565b5b50905061125891906112e2565b5090565b82805461126890611750565b90600052602060002090601f01602090048101928261128a57600085556112d1565b82601f106112a357803560ff19168380011785556112d1565b828001600101855582156112d1579182015b828111156112d05782358255916020019190600101906112b5565b5b5090506112de91906112e2565b5090565b5b808211156112fb5760008160009055506001016112e3565b5090565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6113668261131d565b810181811067ffffffffffffffff821117156113855761138461132e565b5b80604052505050565b60006113986112ff565b90506113a4828261135d565b919050565b600067ffffffffffffffff8211156113c4576113c361132e565b5b6113cd8261131d565b9050602081019050919050565b82818337600083830152505050565b60006113fc6113f7846113a9565b61138e565b90508281526020810184848401111561141857611417611318565b5b6114238482856113da565b509392505050565b600082601f8301126114405761143f611313565b5b81356114508482602086016113e9565b91505092915050565b6000819050919050565b61146c81611459565b811461147757600080fd5b50565b60008135905061148981611463565b92915050565b600080600080608085870312156114a9576114a8611309565b5b600085013567ffffffffffffffff8111156114c7576114c661130e565b5b6114d38782880161142b565b94505060206114e48782880161147a565b93505060406114f58782880161147a565b92505060606115068782880161147a565b91505092959194509250565b60006020828403121561152857611527611309565b5b60006115368482850161147a565b91505092915050565b6000819050919050565b6115528161153f565b811461155d57600080fd5b50565b60008135905061156f81611549565b92915050565b600080fd5b600080fd5b60008083601f84011261159557611594611313565b5b8235905067ffffffffffffffff8111156115b2576115b1611575565b5b6020830191508360018202830111156115ce576115cd61157a565b5b9250929050565b6000806000604084860312156115ee576115ed611309565b5b60006115fc86828701611560565b935050602084013567ffffffffffffffff81111561161d5761161c61130e565b5b6116298682870161157f565b92509250509250925092565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600061166082611635565b9050919050565b61167081611655565b82525050565b61167f81611459565b82525050565b600060608201905061169a6000830186611667565b6116a76020830185611667565b6116b46040830184611676565b949350505050565b60008115159050919050565b6116d1816116bc565b81146116dc57600080fd5b50565b6000815190506116ee816116c8565b92915050565b60006020828403121561170a57611709611309565b5b6000611718848285016116df565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061176857607f821691505b60208210810361177b5761177a611721565b5b50919050565b600082825260208201905092915050565b60008190508160005260206000209050919050565b600081546117b481611750565b6117be8186611781565b945060018216600081146117d957600181146117eb5761181e565b60ff198316865260208601935061181e565b6117f485611792565b60005b83811015611816578154818901526001820191506020810190506117f7565b808801955050505b50505092915050565b6000608082019050818103600083015261184181876117a7565b90506118506020830186611676565b61185d6040830185611676565b61186a6060830184611676565b95945050505050565b60006040820190506118886000830185611667565b6118956020830184611676565b9392505050565b60006020820190506118b16000830184611676565b92915050565b600081519050919050565b60005b838110156118e05780820151818401526020810190506118c5565b838111156118ef576000848401525b50505050565b6000611900826118b7565b61190a8185611781565b935061191a8185602086016118c2565b6119238161131d565b840191505092915050565b6000608082019050818103600083015261194881876118f5565b90506119576020830186611676565b6119646040830185611676565b6119716060830184611676565b95945050505050565b6119838161153f565b82525050565b600060208201905061199e600083018461197a565b92915050565b60006040820190506119b96000830185611676565b6119c66020830184611676565b9392505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b6000611a0782611459565b9150611a1283611459565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115611a4757611a466119cd565b5b828201905092915050565b6000606082019050611a676000830186611676565b611a746020830185611676565b611a816040830184611676565b949350505050565b6000602082019050611a9e6000830184611667565b92915050565b600081905092915050565b6000611abb8385611aa4565b9350611ac88385846113da565b82840190509392505050565b6000611ae1828486611aaf565b91508190509392505050565b600082825260208201905092915050565b6000611b0a8385611aed565b9350611b178385846113da565b611b208361131d565b840190509392505050565b60006040820190508181036000830152611b46818587611afe565b9050611b55602083018461197a565b949350505050565b60006020820190508181036000830152611b78818486611afe565b90509392505050565b611b8a816116bc565b82525050565b6000604082019050611ba56000830185611b81565b611bb26020830184611667565b9392505050565b6000611bc482611459565b9150611bcf83611459565b925082821015611be257611be16119cd565b5b82820390509291505056fea2646970667358221220366f70978462dd7773f2bc7cd239b4c1a03ed2ac99d026b873eeb7edaf650cca64736f6c634300080d0033",
+  "numDeployments": 1,
+  "solcInputHash": "aafac77779cdafaa19a837f40bbba7a9",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologistAddress\",\"type\":\"address\"}],\"name\":\"ArchaeologistAlreadyPublishedPrivateKey\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologistAddress\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"ArchaeologistHasBeenAccused\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"ArchaeologistNotOnSarcophagus\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"}],\"name\":\"ArchaeologistProfileExistsShouldBe\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"archaeologistAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"publicKey\",\"type\":\"bytes\"},{\"internalType\":\"bytes32\",\"name\":\"privateKey\",\"type\":\"bytes32\"}],\"name\":\"ArchaeologistPublishedIncorrectPrivateKey\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"embalmerClaimWindowEnd\",\"type\":\"uint256\"}],\"name\":\"EmbalmerClaimWindowPassed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"cursedBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"NotEnoughCursedBond\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"NotEnoughFreeBond\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusAlreadyCleaned\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusCompromised\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusDoesNotExist\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"}],\"name\":\"SarcophagusInactive\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"}],\"name\":\"SenderNotEmbalmerOrAdmin\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"embalmerClaimWindowEnd\",\"type\":\"uint256\"}],\"name\":\"TooEarlyForAdminClean\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"publishDeadline\",\"type\":\"uint256\"}],\"name\":\"TooEarlyForClean\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"resurrectionTime\",\"type\":\"uint256\"}],\"name\":\"TooEarlyForPublish\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"currentTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"publishDeadline\",\"type\":\"uint256\"}],\"name\":\"TooLateForPublish\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"depositedBond\",\"type\":\"uint256\"}],\"name\":\"DepositFreeBond\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"privateKey\",\"type\":\"bytes32\"}],\"name\":\"PublishPrivateKey\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"}],\"name\":\"RegisterArchaeologist\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"}],\"name\":\"UpdateArchaeologist\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"withdrawnBond\",\"type\":\"uint256\"}],\"name\":\"WithdrawFreeBond\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"archaeologist\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"withdrawnReward\",\"type\":\"uint256\"}],\"name\":\"WithdrawReward\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"depositFreeBond\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"sarcoId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"privateKey\",\"type\":\"bytes32\"}],\"name\":\"publishPrivateKey\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"}],\"name\":\"registerArchaeologist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"peerId\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"minimumDiggingFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"maximumRewrapInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"freeBond\",\"type\":\"uint256\"}],\"name\":\"updateArchaeologist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"withdrawFreeBond\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawReward\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"ArchaeologistHasBeenAccused(address,bytes32)\":[{\"params\":{\"archaeologistAddress\":\"Address of accused archaeologist\",\"sarcoId\":\"ID of sarcophagus archaeologist has attempted to publish a share on\"}}],\"EmbalmerClaimWindowPassed(uint256,uint256)\":[{\"params\":{\"currentTime\":\"Timestamp of the failed clean attempt\",\"embalmerClaimWindowEnd\":\"Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow\"}}],\"SarcophagusAlreadyCleaned(bytes32)\":[{\"params\":{\"sarcoId\":\"ID of sarcophagus archaeologist has attempted to publish a share on\"}}],\"SenderNotEmbalmerOrAdmin(address)\":[{\"params\":{\"senderAddress\":\"Address of sender\"}}],\"TooEarlyForAdminClean(uint256,uint256)\":[{\"params\":{\"currentTime\":\"Timestamp of the failed clean attempt\",\"embalmerClaimWindowEnd\":\"Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow\"}}],\"TooEarlyForClean(uint256,uint256)\":[{\"params\":{\"currentTime\":\"Timestamp of the failed clean attempt\",\"publishDeadline\":\"Latest time an archaeologist may publish a key share on a sarcophagus: esurrectionTime + gracePeriod\"}}],\"TooEarlyForPublish(uint256,uint256)\":[{\"params\":{\"currentTime\":\"Timestamp of the failed publish attempt\",\"resurrectionTime\":\"Time after which the sarcophagus can be resurrected\"}}],\"TooLateForPublish(uint256,uint256)\":[{\"params\":{\"currentTime\":\"Timestamp of the failed publish attempt\",\"publishDeadline\":\"Time after which the sarcophagus can no longer be resurrected  (resurrectionTime + gracePeriod)\"}}]},\"kind\":\"dev\",\"methods\":{\"depositFreeBond(uint256)\":{\"params\":{\"amount\":\"The amount to deposit\"}},\"publishPrivateKey(bytes32,bytes32)\":{\"params\":{\"privateKey\":\"The private key the archaeologist is publishing\",\"sarcoId\":\"The identifier of the sarcophagus to unwrap\"}},\"registerArchaeologist(string,uint256,uint256,uint256)\":{\"params\":{\"freeBond\":\"How much bond the archaeologist wants to deposit during the register call (if any)\",\"maximumRewrapInterval\":\"The longest interval of time from a rewrap time the arch will accept for a resurrection\",\"minimumDiggingFee\":\"The archaeologist's minimum amount to accept for a digging fee\",\"peerId\":\"The libp2p identifier for the archaeologist\"}},\"updateArchaeologist(string,uint256,uint256,uint256)\":{\"params\":{\"maximumRewrapInterval\":\"The longest interval of time from a rewrap time the arch will accept for a resurrection freeBond How much bond the archaeologist wants to deposit during the update call (if any)\",\"minimumDiggingFee\":\"The archaeologist's minimum amount to accept for a digging fee\",\"peerId\":\"The libp2p identifier for the archaeologist\"}},\"withdrawFreeBond(uint256)\":{\"params\":{\"amount\":\"The amount to withdraw\"}}},\"version\":1},\"userdoc\":{\"errors\":{\"ArchaeologistHasBeenAccused(address,bytes32)\":[{\"notice\":\"An archaeologist that has already been accused has attempted to publish a key share\"}],\"EmbalmerClaimWindowPassed(uint256,uint256)\":[{\"notice\":\"Embalmer has attempted to clean a sarcophagus after the embalmerClaimWindow has passed\"}],\"SarcophagusAlreadyCleaned(bytes32)\":[{\"notice\":\"Clean has been called on a sarcophagus that has already been cleaned\"}],\"SenderNotEmbalmerOrAdmin(address)\":[{\"notice\":\"Clean has been called by someone other than the admin or embalmer of the sarcophagus\"}],\"TooEarlyForAdminClean(uint256,uint256)\":[{\"notice\":\"Admin has attempted to clean a sarcophagus before the embalmerClaimWindow has passed\"}],\"TooEarlyForClean(uint256,uint256)\":[{\"notice\":\"Clean has been called before the deadline for archaeologists to publish key shares has passed\"}],\"TooEarlyForPublish(uint256,uint256)\":[{\"notice\":\"Archaeologist has attempted to publish a keyshare before the resurrection time\"}],\"TooLateForPublish(uint256,uint256)\":[{\"notice\":\"Archaeologist has attempted to publish a keyshare after the end of the resurrection window\"}]},\"kind\":\"user\",\"methods\":{\"depositFreeBond(uint256)\":{\"notice\":\"Deposits an archaeologist's free bond to the contract.\"},\"publishPrivateKey(bytes32,bytes32)\":{\"notice\":\"Publishes the private key for which the archaeologist is responsible during the sarcophagus resurrection window. Pays digging fees to the archaeologist and releases their locked bond. Cannot be called on a compromised or buried sarcophagus.\"},\"registerArchaeologist(string,uint256,uint256,uint256)\":{\"notice\":\"Registers the archaeologist profile\"},\"updateArchaeologist(string,uint256,uint256,uint256)\":{\"notice\":\"Updates the archaeologist profile\"},\"withdrawFreeBond(uint256)\":{\"notice\":\"Withdraws an archaeologist's free bond from the contract.\"},\"withdrawReward()\":{\"notice\":\"Withdraws all rewards from an archaeologist's reward pool\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/facets/ArchaeologistFacet.sol\":\"ArchaeologistFacet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) external returns (bool);\\n}\\n\",\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\"},\"contracts/facets/ArchaeologistFacet.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibUtils} from \\\"../libraries/LibUtils.sol\\\";\\nimport {LibPrivateKeys} from \\\"../libraries/LibPrivateKeys.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\nimport {LibBonds} from \\\"../libraries/LibBonds.sol\\\";\\nimport {AppStorage} from \\\"../storage/LibAppStorage.sol\\\";\\n\\ncontract ArchaeologistFacet {\\n    AppStorage internal s;\\n\\n    event PublishPrivateKey(bytes32 indexed sarcoId, bytes32 privateKey);\\n\\n    event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);\\n\\n    event RegisterArchaeologist(\\n        address indexed archaeologist,\\n        string peerId,\\n        uint256 minimumDiggingFee,\\n        uint256 maximumRewrapInterval,\\n        uint256 freeBond\\n    );\\n\\n    event UpdateArchaeologist(\\n        address indexed archaeologist,\\n        string peerId,\\n        uint256 minimumDiggingFee,\\n        uint256 maximumRewrapInterval,\\n        uint256 freeBond\\n    );\\n\\n    event WithdrawFreeBond(address indexed archaeologist, uint256 withdrawnBond);\\n\\n    event WithdrawReward(address indexed archaeologist, uint256 withdrawnReward);\\n\\n    /// @notice An archaeologist that has already been accused has attempted to publish a key share\\n    /// @param archaeologistAddress Address of accused archaeologist\\n    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on\\n    error ArchaeologistHasBeenAccused(address archaeologistAddress, bytes32 sarcoId);\\n\\n    /// @notice Clean has been called on a sarcophagus that has already been cleaned\\n    /// @param sarcoId ID of sarcophagus archaeologist has attempted to publish a share on\\n    error SarcophagusAlreadyCleaned(bytes32 sarcoId);\\n\\n    /// @notice Clean has been called before the deadline for archaeologists to publish key shares has passed\\n    /// @param currentTime Timestamp of the failed clean attempt\\n    /// @param publishDeadline Latest time an archaeologist may publish a key share on a sarcophagus: esurrectionTime + gracePeriod\\n    error TooEarlyForClean(uint256 currentTime, uint256 publishDeadline);\\n\\n    /// @notice Clean has been called by someone other than the admin or embalmer of the sarcophagus\\n    /// @param senderAddress Address of sender\\n    error SenderNotEmbalmerOrAdmin(address senderAddress);\\n\\n    /// @notice Embalmer has attempted to clean a sarcophagus after the embalmerClaimWindow has passed\\n    /// @param currentTime Timestamp of the failed clean attempt\\n    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow\\n    error EmbalmerClaimWindowPassed(uint256 currentTime, uint256 embalmerClaimWindowEnd);\\n\\n    /// @notice Admin has attempted to clean a sarcophagus before the embalmerClaimWindow has passed\\n    /// @param currentTime Timestamp of the failed clean attempt\\n    /// @param embalmerClaimWindowEnd Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow\\n    error TooEarlyForAdminClean(uint256 currentTime, uint256 embalmerClaimWindowEnd);\\n\\n    /// @notice Archaeologist has attempted to publish a keyshare before the resurrection time\\n    /// @param currentTime Timestamp of the failed publish attempt\\n    /// @param resurrectionTime Time after which the sarcophagus can be resurrected\\n    error TooEarlyForPublish(uint256 currentTime, uint256 resurrectionTime);\\n\\n    /// @notice Archaeologist has attempted to publish a keyshare after the end of the resurrection window\\n    /// @param currentTime Timestamp of the failed publish attempt\\n    /// @param publishDeadline Time after which the sarcophagus can no longer be resurrected  (resurrectionTime + gracePeriod)\\n    error TooLateForPublish(uint256 currentTime, uint256 publishDeadline);\\n\\n    error ArchaeologistAlreadyPublishedPrivateKey(address archaeologistAddress);\\n\\n    error ArchaeologistPublishedIncorrectPrivateKey(address archaeologistAddress, bytes publicKey, bytes32 privateKey);\\n\\n\\n    /// @notice Registers the archaeologist profile\\n    /// @param peerId The libp2p identifier for the archaeologist\\n    /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee\\n    /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept\\n    /// for a resurrection\\n    /// @param freeBond How much bond the archaeologist wants to deposit during the register call (if any)\\n    function registerArchaeologist(\\n        string memory peerId,\\n        uint256 minimumDiggingFee,\\n        uint256 maximumRewrapInterval,\\n        uint256 freeBond\\n    ) external {\\n        // verify that the archaeologist does not already exist\\n        LibUtils.revertIfArchProfileExists(msg.sender);\\n\\n        // create a new archaeologist\\n        LibTypes.ArchaeologistProfile memory newArch = LibTypes.ArchaeologistProfile({\\n            exists: true,\\n            peerId: peerId,\\n            minimumDiggingFee: minimumDiggingFee,\\n            maximumRewrapInterval: maximumRewrapInterval,\\n            freeBond: freeBond,\\n            cursedBond: 0\\n        });\\n\\n        // transfer SARCO tokens from the archaeologist to this contract, to be\\n        // used as their free bond. can be 0.\\n        if (freeBond > 0) {\\n            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);\\n        }\\n\\n        // save the new archaeologist into relevant data structures\\n        s.archaeologistProfiles[msg.sender] = newArch;\\n        s.archaeologistProfileAddresses.push(msg.sender);\\n\\n        emit RegisterArchaeologist(\\n            msg.sender,\\n            newArch.peerId,\\n            newArch.minimumDiggingFee,\\n            newArch.maximumRewrapInterval,\\n            newArch.freeBond\\n        );\\n    }\\n\\n    /// @notice Updates the archaeologist profile\\n    /// @param peerId The libp2p identifier for the archaeologist\\n    /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee\\n    /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept\\n    /// for a resurrection\\n    /// freeBond How much bond the archaeologist wants to deposit during the update call (if any)\\n    function updateArchaeologist(\\n        string memory peerId,\\n        uint256 minimumDiggingFee,\\n        uint256 maximumRewrapInterval,\\n        uint256 freeBond\\n    ) external {\\n        // verify that the archaeologist exists\\n        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);\\n\\n        // create a new archaeologist\\n        LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];\\n        existingArch.peerId = peerId;\\n        existingArch.minimumDiggingFee = minimumDiggingFee;\\n        existingArch.maximumRewrapInterval = maximumRewrapInterval;\\n\\n        // transfer SARCO tokens from the archaeologist to this contract, to be\\n        // used as their free bond. can be 0.\\n        if (freeBond > 0) {\\n            LibBonds.increaseFreeBond(msg.sender, freeBond);\\n            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);\\n        }\\n\\n        emit UpdateArchaeologist(\\n            msg.sender,\\n            existingArch.peerId,\\n            existingArch.minimumDiggingFee,\\n            existingArch.maximumRewrapInterval,\\n            existingArch.freeBond\\n        );\\n    }\\n\\n    /// @notice Deposits an archaeologist's free bond to the contract.\\n    /// @param amount The amount to deposit\\n    function depositFreeBond(uint256 amount) external {\\n        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);\\n        // Increase the archaeologist's free bond in app storage\\n        LibBonds.increaseFreeBond(msg.sender, amount);\\n\\n        // Transfer the amount of sarcoToken from the archaeologist to the contract\\n        s.sarcoToken.transferFrom(msg.sender, address(this), amount);\\n        // Emit an event\\n        emit DepositFreeBond(msg.sender, amount);\\n    }\\n\\n    /// @notice Withdraws an archaeologist's free bond from the contract.\\n    /// @param amount The amount to withdraw\\n    function withdrawFreeBond(uint256 amount) external {\\n        LibUtils.revertIfArchProfileDoesNotExist(msg.sender);\\n        // Decrease the archaeologist's free bond amount.\\n        // Reverts if there is not enough free bond on the contract.\\n        LibBonds.decreaseFreeBond(msg.sender, amount);\\n\\n        // Transfer the amount of sarcoToken to the archaeologist\\n        s.sarcoToken.transfer(msg.sender, amount);\\n\\n        // Emit an event\\n        emit WithdrawFreeBond(msg.sender, amount);\\n    }\\n\\n    /// @notice Withdraws all rewards from an archaeologist's reward pool\\n    function withdrawReward() external {\\n        uint256 amountToWithdraw = s.archaeologistRewards[msg.sender];\\n        s.archaeologistRewards[msg.sender] = 0;\\n\\n        // Transfer the amount of sarcoToken to the archaeologist\\n        s.sarcoToken.transfer(msg.sender, amountToWithdraw);\\n\\n        emit WithdrawReward(msg.sender, amountToWithdraw);\\n    }\\n\\n    /// @notice Publishes the private key for which the archaeologist is responsible during the\\n    /// sarcophagus resurrection window.\\n    /// Pays digging fees to the archaeologist and releases their locked bond.\\n    /// Cannot be called on a compromised or buried sarcophagus.\\n    /// @param sarcoId The identifier of the sarcophagus to unwrap\\n    /// @param privateKey The private key the archaeologist is publishing\\n    function publishPrivateKey(bytes32 sarcoId, bytes32 privateKey) external {\\n        LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];\\n\\n        // Confirm sarcophagus exists\\n        if (sarcophagus.resurrectionTime == 0) {\\n            revert LibErrors.SarcophagusDoesNotExist(sarcoId);\\n        }\\n\\n        // Confirm sarcophagus has not been compromised\\n        if (sarcophagus.isCompromised) {\\n            revert LibErrors.SarcophagusCompromised(sarcoId);\\n        }\\n\\n        // Confirm sarcophagus is not buried\\n        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {\\n            revert LibErrors.SarcophagusInactive(sarcoId);\\n        }\\n\\n        // Confirm current time is after resurrectionTime\\n        if (block.timestamp < sarcophagus.resurrectionTime) {\\n            revert TooEarlyForPublish(block.timestamp, sarcophagus.resurrectionTime);\\n        }\\n\\n        // Confirm current time is within gracePeriod\\n        if (block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod) {\\n            revert TooLateForPublish(block.timestamp, sarcophagus.resurrectionTime + s.gracePeriod);\\n        }\\n\\n        // Confirm tx sender is an archaeologist on the sarcophagus\\n        LibTypes.CursedArchaeologist storage cursedArchaeologist = s\\n            .sarcophagi[sarcoId]\\n            .cursedArchaeologists[msg.sender];\\n        if (cursedArchaeologist.publicKey.length == 0) {\\n            revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);\\n        }\\n\\n        // Confirm archaeologist has not already leaked their private key\\n        if (cursedArchaeologist.isAccused) {\\n            revert ArchaeologistHasBeenAccused(msg.sender, sarcoId);\\n        }\\n\\n        // Confirm archaeologist has not already published their private key\\n        if (cursedArchaeologist.privateKey != 0) {\\n            revert ArchaeologistAlreadyPublishedPrivateKey(msg.sender);\\n        }\\n\\n        // Confirm that the private key being submitted matches the public key stored on the\\n        // sarcophagus for this archaeologist\\n        if (!LibPrivateKeys.isPublicKeyFromPrivateKey(privateKey, cursedArchaeologist.publicKey)) {\\n            revert ArchaeologistPublishedIncorrectPrivateKey(\\n                msg.sender,\\n                cursedArchaeologist.publicKey,\\n                privateKey\\n            );\\n        }\\n\\n        // Store the private key on cursed archaeologist\\n        cursedArchaeologist.privateKey = privateKey;\\n\\n        // Free archaeologist locked bond and transfer digging fees\\n        LibBonds.freeArchaeologist(sarcoId, msg.sender);\\n        s.archaeologistRewards[msg.sender] += cursedArchaeologist.diggingFee;\\n\\n        // Save the successful sarcophagus against the archaeologist\\n        s.archaeologistSuccesses[msg.sender].push(sarcoId);\\n\\n        emit PublishPrivateKey(sarcoId, privateKey);\\n    }\\n}\\n\",\"keccak256\":\"0x676da0e1fc0cdda71111736ca60b20cd346f667d9ba668b2dbfacb04b382f262\",\"license\":\"Unlicense\"},\"contracts/libraries/LibBonds.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\n\\nlibrary LibBonds {\\n    /// @notice Decreases the amount stored in the freeBond mapping for an\\n    /// archaeologist. Reverts if the archaeologist's free bond is lower than\\n    /// the amount.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being decreased\\n    /// @param amount The amount to decrease the free bond by\\n    function decreaseFreeBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Revert if the amount is greater than the current free bond\\n        if (amount > s.archaeologistProfiles[archaeologist].freeBond) {\\n            revert LibErrors.NotEnoughFreeBond(\\n                s.archaeologistProfiles[archaeologist].freeBond,\\n                amount\\n            );\\n        }\\n\\n        // Decrease the free bond amount\\n        s.archaeologistProfiles[archaeologist].freeBond -= amount;\\n    }\\n\\n    /// @notice Increases the amount stored in the freeBond mapping for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// free bond is being decreased\\n    /// @param amount The amount to decrease the free bond by\\n    function increaseFreeBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Increase the free bond amount\\n        s.archaeologistProfiles[archaeologist].freeBond += amount;\\n    }\\n\\n    /// @notice Decreases the amount stored in the cursedBond mapping for an\\n    /// archaeologist. Reverts if the archaeologist's cursed bond is lower than\\n    /// the amount.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being decreased\\n    /// @param amount The amount to decrease the cursed bond by\\n    function decreaseCursedBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Revert if the amount is greater than the current cursed bond\\n        if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {\\n            revert LibErrors.NotEnoughCursedBond(\\n                s.archaeologistProfiles[archaeologist].cursedBond,\\n                amount\\n            );\\n        }\\n\\n        // Decrease the cursed bond amount\\n        s.archaeologistProfiles[archaeologist].cursedBond -= amount;\\n    }\\n\\n    /// @notice Increases the amount stored in the cursedBond mapping for an\\n    /// archaeologist.\\n    /// @param archaeologist The address of the archaeologist whose\\n    /// cursed bond is being decreased\\n    /// @param amount The amount to decrease the cursed bond by\\n    function increaseCursedBond(address archaeologist, uint256 amount) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        // Increase the cursed bond amount\\n        s.archaeologistProfiles[archaeologist].cursedBond += amount;\\n    }\\n\\n    /// @notice Locks up the archaeologist's bond, decreasing the\\n    /// archaeologist's free bond by an amount and increasing the\\n    /// archaeologist's cursed bond by the same amount.\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param amount The amount to lock up\\n    function lockUpBond(address archaeologist, uint256 amount) internal {\\n        // Decrease the free bond amount\\n        decreaseFreeBond(archaeologist, amount);\\n\\n        // Increase the cursed bond amount\\n        increaseCursedBond(archaeologist, amount);\\n    }\\n\\n    /// @notice Unlocks the archaeologist's bond, increasing the\\n    /// archaeologist's free bond by an amount and decreasing the\\n    /// archaeologist's cursed bond by the same amount.\\n    /// @param archaeologist The address of the archaeologist\\n    /// @param amount The amount to unlock\\n    function unlockBond(address archaeologist, uint256 amount) internal {\\n        // Decrease the cursed bond amount\\n        decreaseCursedBond(archaeologist, amount);\\n\\n        // Increase the free bond amount\\n        increaseFreeBond(archaeologist, amount);\\n    }\\n\\n\\n    /// @notice Calculates an archaeologist's cursed bond and frees them\\n    /// (unlocks the cursed bond).\\n    /// @param sarcoId the identifier of the sarcophagus to free the archaeologist from\\n    /// @param archaeologistAddress the address of the archaeologist to free\\n    function freeArchaeologist(bytes32 sarcoId, address archaeologistAddress) internal {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        LibTypes.CursedArchaeologist storage cursedArchaeologist = s\\n            .sarcophagi[sarcoId]\\n            .cursedArchaeologists[archaeologistAddress];\\n\\n        // Free up the archaeologist's locked bond\\n        unlockBond(archaeologistAddress, cursedArchaeologist.diggingFee);\\n    }\\n}\\n\",\"keccak256\":\"0xc74cba3d575a7d40f467c7e0601e31c829a8b2b658c4234692c609e189637478\",\"license\":\"Unlicense\"},\"contracts/libraries/LibErrors.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title A collection of Errors\\n * @notice This library defines all of the Errors that the Sarcophagus system\\n * uses.\\n */\\nlibrary LibErrors {\\n\\n    error ArchaeologistNotOnSarcophagus(address archaeologist);\\n\\n    error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);\\n\\n    error NotEnoughFreeBond(uint256 freeBond, uint256 amount);\\n\\n    error ArchaeologistProfileExistsShouldBe(bool exists, address archaeologist);\\n\\n    error SarcophagusDoesNotExist(bytes32 sarcoId);\\n\\n    error SarcophagusInactive(bytes32 sarcoId);\\n\\n    error SarcophagusCompromised(bytes32 sarcoId);\\n\\n    error SenderNotEmbalmer(address sender, address embalmer);\\n\\n    error InvalidSignature(\\n        // address recovered from signature via ecrecover\\n        address recoveredAddress,\\n        // address we expected to have signed the data\\n        address expectedAddress\\n    );\\n\\n}\\n\",\"keccak256\":\"0x049cbf7e26ce029bd8ad8a2909e7de13886c3f1bd8aa8eefdb480e3ebb178318\",\"license\":\"Unlicense\"},\"contracts/libraries/LibPrivateKeys.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.13;\\n\\n\\n/**\\n * @title Private key verification\\n * @notice Implements a private key -> public key checking function\\n * @dev modified from https://github.com/1Address/ecsol, removes extra code\\n * which isn't necessary for our Sarcophagus implementation\\n */\\nlibrary LibPrivateKeys {\\n    /**\\n     * @notice Given a private key and a public key, determines if that public\\n     * key was derived from the private key\\n     * @dev based on https://ethresear.ch/t/you-can-kinda-abuse-ecrecover-to-do-ecmul-in-secp256k1-today/2384/9\\n     * @param privKey an secp256k1 private key\\n     * @param pubKey an uncompressed 65 byte secp256k1 public key\\n     * @return bool indicating whether the public key is derived from the\\n     * private key\\n     */\\n    function isPublicKeyFromPrivateKey(bytes32 privKey, bytes memory pubKey) internal pure returns (bool) {\\n        // removes the 0x04 prefix from an uncompressed public key\\n        bytes memory truncatedPublicKey = new bytes(pubKey.length-1);\\n        for (uint256 i = 1; i < pubKey.length; i++) {\\n            truncatedPublicKey[i-1] = pubKey[i];\\n        }\\n\\n        // generator point coordinates and order of secp256k1\\n        uint256 gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798;\\n        uint256 gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8;\\n        uint256 m = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;\\n\\n        address signer = ecrecover(\\n            0,\\n            gy % 2 != 0 ? 28 : 27,\\n            bytes32(gx),\\n            bytes32(mulmod(uint256(privKey), gx, m))\\n        );\\n\\n        address xyAddress = address(\\n            uint160(uint256(keccak256(truncatedPublicKey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)\\n        );\\n        return xyAddress == signer;\\n    }\\n}\\n\",\"keccak256\":\"0xfa3c252e05a22f2ac0e17212b00394eaf9c48ac9482f6e8d6f391cb367b628c7\",\"license\":\"MIT\"},\"contracts/libraries/LibTypes.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title Types shared across facets for the Sarcophagus diamond\\n */\\nlibrary LibTypes {\\n    struct Sarcophagus {\\n        // never zero - use for existence checks\\n        uint256 resurrectionTime;\\n        // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused\\n        bool isCompromised;\\n        bool isCleaned;\\n        string name;\\n        uint8 threshold;\\n        uint256 maximumRewrapInterval;\\n        string arweaveTxId;\\n        address embalmerAddress;\\n        address recipientAddress;\\n        address[] cursedArchaeologistAddresses;\\n        mapping(address => CursedArchaeologist) cursedArchaeologists;\\n    }\\n\\n    struct CursedArchaeologist {\\n        // never empty - use for existence checks\\n        bytes publicKey;\\n        bytes32 privateKey;\\n        bool isAccused;\\n        uint256 diggingFee;\\n    }\\n\\n    struct ArchaeologistProfile {\\n        bool exists; // todo: use peerid.length instead of exists\\n        string peerId;\\n        uint256 minimumDiggingFee;\\n        uint256 maximumRewrapInterval;\\n        uint256 freeBond;\\n        uint256 cursedBond;\\n    }\\n}\\n\",\"keccak256\":\"0xcb5804518b0d3cdcb1ed9ad6128c0cb20640fc08d731f9acf58f826aa19b1379\",\"license\":\"Unlicense\"},\"contracts/libraries/LibUtils.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\nimport {LibErrors} from \\\"../libraries/LibErrors.sol\\\";\\n\\n/**\\n * @title Utility functions used within the Sarcophagus system\\n * @notice This library implements various functions that are used throughout\\n * Sarcophagus, mainly to DRY up the codebase\\n * @dev these functions are all stateless, public, pure/view\\n */\\nlibrary LibUtils {\\n    /**\\n     * @notice The archaeologist needs to sign off on two pieces of data\\n     * to guarantee their unrwap will be successful\\n     *\\n     * @param publicKey public key archaeologist is responsible for\\n     * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus\\n     * @param timestamp that the archaeologist has agreed to for the sarcophagus\\n     * @param diggingFee that the archaeologist has agreed to for the sarcophagus\\n     * @param v signature element\\n     * @param r signature element\\n     * @param s signature element\\n     * @param account address to confirm signature of data came from\\n     */\\n    function verifyArchaeologistSignature(\\n        bytes memory publicKey, // todo: data location?\\n        uint256 agreedMaximumRewrapInterval,\\n        uint256 timestamp,\\n        uint256 diggingFee,\\n        uint8 v,\\n        bytes32 r,\\n        bytes32 s,\\n        address account\\n    ) internal pure {\\n        // Hash the hash of the data payload\\n        bytes32 messageHash = keccak256(\\n            abi.encodePacked(\\n                \\\"\\\\x19Ethereum Signed Message:\\\\n32\\\",\\n                keccak256(\\n                    abi.encode(\\n                        publicKey,\\n                        agreedMaximumRewrapInterval,\\n                        diggingFee,\\n                        timestamp\\n                    )\\n                )\\n            )\\n        );\\n\\n        // Generate the address from the signature.\\n        // ecrecover should always return a valid address.\\n        address recoveredAddress = ecrecover(messageHash, v, r, s);\\n\\n        if (recoveredAddress != account) {\\n            revert LibErrors.InvalidSignature(recoveredAddress, account);\\n        }\\n    }\\n\\n    /// @notice Checks if an archaeologist profile exists and\\n    /// reverts if so\\n    ///\\n    /// @param archaeologist the archaeologist address to check existence of\\n    function revertIfArchProfileExists(address archaeologist) internal view {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        if (s.archaeologistProfiles[archaeologist].exists) {\\n            revert LibErrors.ArchaeologistProfileExistsShouldBe(false, archaeologist);\\n        }\\n    }\\n\\n    /// @notice Checks if an archaeologist profile doesn't exist and\\n    /// reverts if so\\n    ///\\n    /// @param archaeologist the archaeologist address to check lack of existence of\\n    function revertIfArchProfileDoesNotExist(address archaeologist) internal view {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        if (!s.archaeologistProfiles[archaeologist].exists) {\\n            revert LibErrors.ArchaeologistProfileExistsShouldBe(true, archaeologist);\\n        }\\n    }\\n\\n    /// @notice Calculates the protocol fees to be taken from the embalmer.\\n    /// @return The protocol fees amount\\n    function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        return (totalDiggingFees * s.protocolFeeBasePercentage) / 100;\\n    }\\n}\\n\",\"keccak256\":\"0xb64e29c11af874ae1f3dacef8d24eb3a8b581cec8a907cd059de419c33711c65\",\"license\":\"Unlicense\"},\"contracts/storage/LibAppStorage.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\n\\n/**\\n* Global diamond storage struct to be shared across facets\\n* TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs\\n*/\\nstruct AppStorage {\\n    // SARCO token contract\\n    IERC20 sarcoToken;\\n\\n    // total protocol fees available to be withdrawn by the admin\\n    uint256 totalProtocolFees;\\n\\n    /**\\n    * Protocol level admin configurations\\n    */\\n    // % of total digging fees for sarcophagus to charge embalmer on create and rewrap\\n    uint256 protocolFeeBasePercentage;\\n    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time\\n    uint256 gracePeriod;\\n    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated\\n    uint256 expirationThreshold;\\n    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys\\n    uint256 embalmerClaimWindow;\\n\\n    /**\\n    * Ownership mappings\\n    */\\n    // embalmer address => ids of sarcophagi they've created\\n    mapping(address => bytes32[]) embalmerSarcophagi;\\n    // archaeologist address =>  ids of sarcophagi they're protecting\\n    mapping(address => bytes32[]) archaeologistSarcophagi;\\n    // recipient address =>  ids of sarcophagi they're recipient on\\n    mapping(address => bytes32[]) recipientSarcophagi;\\n\\n    // public key => archaeologist address\\n    mapping(bytes => address) publicKeyToArchaeologistAddress;\\n\\n    // sarcophagus id => sarcophagus object\\n    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;\\n\\n    // archaeologist addresses\\n    address[] archaeologistProfileAddresses;\\n    // archaeologist address => profile\\n    mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;\\n\\n\\n    // current balance of rewards available for the archaeologist to withdraw\\n    mapping(address => uint256) archaeologistRewards;\\n\\n\\n    /**\\n    * Archaeologist reputation statistics\\n    * todo: could these be organized differently?\\n    */\\n    mapping(address => bytes32[]) archaeologistSuccesses;\\n    mapping(address => bytes32[]) archaeologistAccusals;\\n    mapping(address => bytes32[]) archaeologistCleanups;\\n}\\n\\nlibrary LibAppStorage {\\n    function getAppStorage() internal pure returns (AppStorage storage s) {\\n        // Set the position of our struct in contract storage\\n        // Since AppStorage s is the first and only state variable declared in\\n        // facets its position in contract storage is 0\\n        assembly {\\n            s.slot := 0\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x930c8b51585d3b62feb595057a35cf9c7a38e162d8f914b564cbb9168d6035c3\",\"license\":\"Unlicense\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50611f82806100206000396000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c80630c4c35f014610067578063364e080114610083578063449f11a61461009f5780636a5ac74c146100bb578063a4110dbe146100d7578063c885bc58146100f3575b600080fd5b610081600480360381019061007c91906116f5565b6100fd565b005b61009d60048036038101906100989190611778565b610299565b005b6100b960048036038101906100b491906116f5565b6103a0565b005b6100d560048036038101906100d09190611778565b610609565b005b6100f160048036038101906100ec91906117db565b610712565b005b6100fb610c32565b005b61010633610db3565b600080600c0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050848160010190805190602001906101639291906114c2565b50838160020181905550828160030181905550600082111561022f576101893383610e59565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330856040518463ffffffff1660e01b81526004016101ea9392919061186b565b6020604051808303816000875af1158015610209573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061022d91906118da565b505b3373ffffffffffffffffffffffffffffffffffffffff167f4df9330dcb4af4b522d063da8a473d6711cdd390feef75f059a663a76c2701398260010183600201548460030154856004015460405161028a9493929190611a0d565b60405180910390a25050505050565b6102a233610db3565b6102ac3382610ec5565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b815260040161030b929190611a59565b6020604051808303816000875af115801561032a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061034e91906118da565b503373ffffffffffffffffffffffffffffffffffffffff167fd91b1e491a880123721b161dbbf8249668b0c546077d7ba4d0016441ca9d8f45826040516103959190611a82565b60405180910390a250565b6103a933611000565b60006040518060c0016040528060011515815260200186815260200185815260200184815260200183815260200160008152509050600082111561048d576000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330856040518463ffffffff1660e01b81526004016104489392919061186b565b6020604051808303816000875af1158015610467573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061048b91906118da565b505b806000600c0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008201518160000160006101000a81548160ff021916908315150217905550602082015181600101908051906020019061050c9291906114c2565b5060408201518160020155606082015181600301556080820151816004015560a082015181600501559050506000600b01339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055503373ffffffffffffffffffffffffffffffffffffffff167fec728a18db560dc21e59ae36132eb1e1c1b00d056a88ee755e0940e471ad591e82602001518360400151846060015185608001516040516105fa9493929190611b14565b60405180910390a25050505050565b61061233610db3565b61061c3382610e59565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330846040518463ffffffff1660e01b815260040161067d9392919061186b565b6020604051808303816000875af115801561069c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106c091906118da565b503373ffffffffffffffffffffffffffffffffffffffff167ff882a0847c57aefe6f6c7df2098dd0afd122eb0e886199e223651b8e45fda823826040516107079190611a82565b60405180910390a250565b600080600a0160008481526020019081526020016000209050600081600001540361077457826040517f018da68800000000000000000000000000000000000000000000000000000000815260040161076b9190611b6f565b60405180910390fd5b8060010160009054906101000a900460ff16156107c857826040517f9af72b860000000000000000000000000000000000000000000000000000000081526004016107bf9190611b6f565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff81600001540361083057826040517f7c6a6d700000000000000000000000000000000000000000000000000000000081526004016108279190611b6f565b60405180910390fd5b806000015442101561087f574281600001546040517f48276809000000000000000000000000000000000000000000000000000000008152600401610876929190611b8a565b60405180910390fd5b60006003015481600001546108949190611be2565b4211156108ee574260006003015482600001546108b19190611be2565b6040517f4ccffab10000000000000000000000000000000000000000000000000000000081526004016108e5929190611b8a565b60405180910390fd5b600080600a01600085815260200190815260200160002060090160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050600081600001805461095890611936565b90500361099c57336040517f82881f030000000000000000000000000000000000000000000000000000000081526004016109939190611c38565b60405180910390fd5b8060020160009054906101000a900460ff16156109f25733846040517fa40b44230000000000000000000000000000000000000000000000000000000081526004016109e9929190611c53565b60405180910390fd5b6000801b816001015414610a3d57336040517f7b06b177000000000000000000000000000000000000000000000000000000008152600401610a349190611c38565b60405180910390fd5b610ad383826000018054610a5090611936565b80601f0160208091040260200160405190810160405280929190818152602001828054610a7c90611936565b8015610ac95780601f10610a9e57610100808354040283529160200191610ac9565b820191906000526020600020905b815481529060010190602001808311610aac57829003601f168201915b50505050506110a7565b610b1b573381600001846040517f5a95e91c000000000000000000000000000000000000000000000000000000008152600401610b1293929190611d22565b60405180910390fd5b828160010181905550610b2e84336112f1565b80600301546000600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254610b849190611be2565b925050819055506000600e0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020849080600181540180825580915050600190039060005260206000200160009091909190915055837f3e5a6fa1aea4d7b93ca7b96ea3b3a42e221934c707be2efa8c5678da3d345f2d84604051610c249190611b6f565b60405180910390a250505050565b600080600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050600080600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b8152600401610d1e929190611a59565b6020604051808303816000875af1158015610d3d573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610d6191906118da565b503373ffffffffffffffffffffffffffffffffffffffff167fbc84835063c693975166f00cffb19f01a94c2db55b1bf259238c5da3594e506682604051610da89190611a82565b60405180910390a250565b6000610dbd61136a565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff16610e55576001826040517f2eeb3571000000000000000000000000000000000000000000000000000000008152600401610e4c929190611d6f565b60405180910390fd5b5050565b6000610e6361136a565b90508181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254610eb99190611be2565b92505081905550505050565b6000610ecf61136a565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154821115610fa05780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154826040517fa4e3bead000000000000000000000000000000000000000000000000000000008152600401610f97929190611b8a565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254610ff49190611d98565b92505081905550505050565b600061100a61136a565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff16156110a3576000826040517f2eeb357100000000000000000000000000000000000000000000000000000000815260040161109a929190611d6f565b60405180910390fd5b5050565b600080600183516110b89190611d98565b67ffffffffffffffff8111156110d1576110d0611594565b5b6040519080825280601f01601f1916602001820160405280156111035781602001600182028036833780820191505090505b5090506000600190505b83518110156111955783818151811061112957611128611dcc565b5b602001015160f81c60f81b826001836111429190611d98565b8151811061115357611152611dcc565b5b60200101907effffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916908160001a905350808061118d90611dfb565b91505061110d565b5060007f79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798905060007f483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8905060007ffffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd03641419050600060016000806002866112199190611e72565b0361122557601b611228565b601c5b8660001b858061123b5761123a611e43565b5b888d60001c0960001b604051600081526020016040526040516112619493929190611f07565b6020604051602081039080840390855afa158015611283573d6000803e3d6000fd5b505050602060405103519050600073ffffffffffffffffffffffffffffffffffffffff868051906020012060001c1690508173ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1614965050505050505092915050565b60006112fb61136a565b9050600081600a01600085815260200190815260200160002060090160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020905061136483826003015461136f565b50505050565b600090565b6113798282611387565b6113838282610e59565b5050565b600061139161136a565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600501548211156114625780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050154826040517faf5a111b000000000000000000000000000000000000000000000000000000008152600401611459929190611b8a565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050160008282546114b69190611d98565b92505081905550505050565b8280546114ce90611936565b90600052602060002090601f0160209004810192826114f05760008555611537565b82601f1061150957805160ff1916838001178555611537565b82800160010185558215611537579182015b8281111561153657825182559160200191906001019061151b565b5b5090506115449190611548565b5090565b5b80821115611561576000816000905550600101611549565b5090565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6115cc82611583565b810181811067ffffffffffffffff821117156115eb576115ea611594565b5b80604052505050565b60006115fe611565565b905061160a82826115c3565b919050565b600067ffffffffffffffff82111561162a57611629611594565b5b61163382611583565b9050602081019050919050565b82818337600083830152505050565b600061166261165d8461160f565b6115f4565b90508281526020810184848401111561167e5761167d61157e565b5b611689848285611640565b509392505050565b600082601f8301126116a6576116a5611579565b5b81356116b684826020860161164f565b91505092915050565b6000819050919050565b6116d2816116bf565b81146116dd57600080fd5b50565b6000813590506116ef816116c9565b92915050565b6000806000806080858703121561170f5761170e61156f565b5b600085013567ffffffffffffffff81111561172d5761172c611574565b5b61173987828801611691565b945050602061174a878288016116e0565b935050604061175b878288016116e0565b925050606061176c878288016116e0565b91505092959194509250565b60006020828403121561178e5761178d61156f565b5b600061179c848285016116e0565b91505092915050565b6000819050919050565b6117b8816117a5565b81146117c357600080fd5b50565b6000813590506117d5816117af565b92915050565b600080604083850312156117f2576117f161156f565b5b6000611800858286016117c6565b9250506020611811858286016117c6565b9150509250929050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006118468261181b565b9050919050565b6118568161183b565b82525050565b611865816116bf565b82525050565b6000606082019050611880600083018661184d565b61188d602083018561184d565b61189a604083018461185c565b949350505050565b60008115159050919050565b6118b7816118a2565b81146118c257600080fd5b50565b6000815190506118d4816118ae565b92915050565b6000602082840312156118f0576118ef61156f565b5b60006118fe848285016118c5565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061194e57607f821691505b60208210810361196157611960611907565b5b50919050565b600082825260208201905092915050565b60008190508160005260206000209050919050565b6000815461199a81611936565b6119a48186611967565b945060018216600081146119bf57600181146119d157611a04565b60ff1983168652602086019350611a04565b6119da85611978565b60005b838110156119fc578154818901526001820191506020810190506119dd565b808801955050505b50505092915050565b60006080820190508181036000830152611a27818761198d565b9050611a36602083018661185c565b611a43604083018561185c565b611a50606083018461185c565b95945050505050565b6000604082019050611a6e600083018561184d565b611a7b602083018461185c565b9392505050565b6000602082019050611a97600083018461185c565b92915050565b600081519050919050565b60005b83811015611ac6578082015181840152602081019050611aab565b83811115611ad5576000848401525b50505050565b6000611ae682611a9d565b611af08185611967565b9350611b00818560208601611aa8565b611b0981611583565b840191505092915050565b60006080820190508181036000830152611b2e8187611adb565b9050611b3d602083018661185c565b611b4a604083018561185c565b611b57606083018461185c565b95945050505050565b611b69816117a5565b82525050565b6000602082019050611b846000830184611b60565b92915050565b6000604082019050611b9f600083018561185c565b611bac602083018461185c565b9392505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b6000611bed826116bf565b9150611bf8836116bf565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115611c2d57611c2c611bb3565b5b828201905092915050565b6000602082019050611c4d600083018461184d565b92915050565b6000604082019050611c68600083018561184d565b611c756020830184611b60565b9392505050565b600082825260208201905092915050565b60008190508160005260206000209050919050565b60008154611caf81611936565b611cb98186611c7c565b94506001821660008114611cd45760018114611ce657611d19565b60ff1983168652602086019350611d19565b611cef85611c8d565b60005b83811015611d1157815481890152600182019150602081019050611cf2565b808801955050505b50505092915050565b6000606082019050611d37600083018661184d565b8181036020830152611d498185611ca2565b9050611d586040830184611b60565b949350505050565b611d69816118a2565b82525050565b6000604082019050611d846000830185611d60565b611d91602083018461184d565b9392505050565b6000611da3826116bf565b9150611dae836116bf565b925082821015611dc157611dc0611bb3565b5b828203905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b6000611e06826116bf565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8203611e3857611e37611bb3565b5b600182019050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b6000611e7d826116bf565b9150611e88836116bf565b925082611e9857611e97611e43565b5b828206905092915050565b6000819050919050565b60008160001b9050919050565b6000611ed5611ed0611ecb84611ea3565b611ead565b6117a5565b9050919050565b611ee581611eba565b82525050565b600060ff82169050919050565b611f0181611eeb565b82525050565b6000608082019050611f1c6000830187611edc565b611f296020830186611ef8565b611f366040830185611b60565b611f436060830184611b60565b9594505050505056fea2646970667358221220dea0fe4ce213b10ddeb13874ff45bcd2763eced7382d3cab215d1e190e43f8c964736f6c634300080d0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100625760003560e01c80630c4c35f014610067578063364e080114610083578063449f11a61461009f5780636a5ac74c146100bb578063a4110dbe146100d7578063c885bc58146100f3575b600080fd5b610081600480360381019061007c91906116f5565b6100fd565b005b61009d60048036038101906100989190611778565b610299565b005b6100b960048036038101906100b491906116f5565b6103a0565b005b6100d560048036038101906100d09190611778565b610609565b005b6100f160048036038101906100ec91906117db565b610712565b005b6100fb610c32565b005b61010633610db3565b600080600c0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050848160010190805190602001906101639291906114c2565b50838160020181905550828160030181905550600082111561022f576101893383610e59565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330856040518463ffffffff1660e01b81526004016101ea9392919061186b565b6020604051808303816000875af1158015610209573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061022d91906118da565b505b3373ffffffffffffffffffffffffffffffffffffffff167f4df9330dcb4af4b522d063da8a473d6711cdd390feef75f059a663a76c2701398260010183600201548460030154856004015460405161028a9493929190611a0d565b60405180910390a25050505050565b6102a233610db3565b6102ac3382610ec5565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b815260040161030b929190611a59565b6020604051808303816000875af115801561032a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061034e91906118da565b503373ffffffffffffffffffffffffffffffffffffffff167fd91b1e491a880123721b161dbbf8249668b0c546077d7ba4d0016441ca9d8f45826040516103959190611a82565b60405180910390a250565b6103a933611000565b60006040518060c0016040528060011515815260200186815260200185815260200184815260200183815260200160008152509050600082111561048d576000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330856040518463ffffffff1660e01b81526004016104489392919061186b565b6020604051808303816000875af1158015610467573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061048b91906118da565b505b806000600c0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008201518160000160006101000a81548160ff021916908315150217905550602082015181600101908051906020019061050c9291906114c2565b5060408201518160020155606082015181600301556080820151816004015560a082015181600501559050506000600b01339080600181540180825580915050600190039060005260206000200160009091909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055503373ffffffffffffffffffffffffffffffffffffffff167fec728a18db560dc21e59ae36132eb1e1c1b00d056a88ee755e0940e471ad591e82602001518360400151846060015185608001516040516105fa9493929190611b14565b60405180910390a25050505050565b61061233610db3565b61061c3382610e59565b6000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd3330846040518463ffffffff1660e01b815260040161067d9392919061186b565b6020604051808303816000875af115801561069c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106c091906118da565b503373ffffffffffffffffffffffffffffffffffffffff167ff882a0847c57aefe6f6c7df2098dd0afd122eb0e886199e223651b8e45fda823826040516107079190611a82565b60405180910390a250565b600080600a0160008481526020019081526020016000209050600081600001540361077457826040517f018da68800000000000000000000000000000000000000000000000000000000815260040161076b9190611b6f565b60405180910390fd5b8060010160009054906101000a900460ff16156107c857826040517f9af72b860000000000000000000000000000000000000000000000000000000081526004016107bf9190611b6f565b60405180910390fd5b7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff81600001540361083057826040517f7c6a6d700000000000000000000000000000000000000000000000000000000081526004016108279190611b6f565b60405180910390fd5b806000015442101561087f574281600001546040517f48276809000000000000000000000000000000000000000000000000000000008152600401610876929190611b8a565b60405180910390fd5b60006003015481600001546108949190611be2565b4211156108ee574260006003015482600001546108b19190611be2565b6040517f4ccffab10000000000000000000000000000000000000000000000000000000081526004016108e5929190611b8a565b60405180910390fd5b600080600a01600085815260200190815260200160002060090160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209050600081600001805461095890611936565b90500361099c57336040517f82881f030000000000000000000000000000000000000000000000000000000081526004016109939190611c38565b60405180910390fd5b8060020160009054906101000a900460ff16156109f25733846040517fa40b44230000000000000000000000000000000000000000000000000000000081526004016109e9929190611c53565b60405180910390fd5b6000801b816001015414610a3d57336040517f7b06b177000000000000000000000000000000000000000000000000000000008152600401610a349190611c38565b60405180910390fd5b610ad383826000018054610a5090611936565b80601f0160208091040260200160405190810160405280929190818152602001828054610a7c90611936565b8015610ac95780601f10610a9e57610100808354040283529160200191610ac9565b820191906000526020600020905b815481529060010190602001808311610aac57829003601f168201915b50505050506110a7565b610b1b573381600001846040517f5a95e91c000000000000000000000000000000000000000000000000000000008152600401610b1293929190611d22565b60405180910390fd5b828160010181905550610b2e84336112f1565b80600301546000600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000828254610b849190611be2565b925050819055506000600e0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020849080600181540180825580915050600190039060005260206000200160009091909190915055837f3e5a6fa1aea4d7b93ca7b96ea3b3a42e221934c707be2efa8c5678da3d345f2d84604051610c249190611b6f565b60405180910390a250505050565b600080600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050600080600d0160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b8152600401610d1e929190611a59565b6020604051808303816000875af1158015610d3d573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610d6191906118da565b503373ffffffffffffffffffffffffffffffffffffffff167fbc84835063c693975166f00cffb19f01a94c2db55b1bf259238c5da3594e506682604051610da89190611a82565b60405180910390a250565b6000610dbd61136a565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff16610e55576001826040517f2eeb3571000000000000000000000000000000000000000000000000000000008152600401610e4c929190611d6f565b60405180910390fd5b5050565b6000610e6361136a565b90508181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254610eb99190611be2565b92505081905550505050565b6000610ecf61136a565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154821115610fa05780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060040154826040517fa4e3bead000000000000000000000000000000000000000000000000000000008152600401610f97929190611b8a565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206004016000828254610ff49190611d98565b92505081905550505050565b600061100a61136a565b905080600c0160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900460ff16156110a3576000826040517f2eeb357100000000000000000000000000000000000000000000000000000000815260040161109a929190611d6f565b60405180910390fd5b5050565b600080600183516110b89190611d98565b67ffffffffffffffff8111156110d1576110d0611594565b5b6040519080825280601f01601f1916602001820160405280156111035781602001600182028036833780820191505090505b5090506000600190505b83518110156111955783818151811061112957611128611dcc565b5b602001015160f81c60f81b826001836111429190611d98565b8151811061115357611152611dcc565b5b60200101907effffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916908160001a905350808061118d90611dfb565b91505061110d565b5060007f79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798905060007f483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8905060007ffffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd03641419050600060016000806002866112199190611e72565b0361122557601b611228565b601c5b8660001b858061123b5761123a611e43565b5b888d60001c0960001b604051600081526020016040526040516112619493929190611f07565b6020604051602081039080840390855afa158015611283573d6000803e3d6000fd5b505050602060405103519050600073ffffffffffffffffffffffffffffffffffffffff868051906020012060001c1690508173ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1614965050505050505092915050565b60006112fb61136a565b9050600081600a01600085815260200190815260200160002060090160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020905061136483826003015461136f565b50505050565b600090565b6113798282611387565b6113838282610e59565b5050565b600061139161136a565b905080600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600501548211156114625780600c0160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050154826040517faf5a111b000000000000000000000000000000000000000000000000000000008152600401611459929190611b8a565b60405180910390fd5b8181600c0160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060050160008282546114b69190611d98565b92505081905550505050565b8280546114ce90611936565b90600052602060002090601f0160209004810192826114f05760008555611537565b82601f1061150957805160ff1916838001178555611537565b82800160010185558215611537579182015b8281111561153657825182559160200191906001019061151b565b5b5090506115449190611548565b5090565b5b80821115611561576000816000905550600101611549565b5090565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6115cc82611583565b810181811067ffffffffffffffff821117156115eb576115ea611594565b5b80604052505050565b60006115fe611565565b905061160a82826115c3565b919050565b600067ffffffffffffffff82111561162a57611629611594565b5b61163382611583565b9050602081019050919050565b82818337600083830152505050565b600061166261165d8461160f565b6115f4565b90508281526020810184848401111561167e5761167d61157e565b5b611689848285611640565b509392505050565b600082601f8301126116a6576116a5611579565b5b81356116b684826020860161164f565b91505092915050565b6000819050919050565b6116d2816116bf565b81146116dd57600080fd5b50565b6000813590506116ef816116c9565b92915050565b6000806000806080858703121561170f5761170e61156f565b5b600085013567ffffffffffffffff81111561172d5761172c611574565b5b61173987828801611691565b945050602061174a878288016116e0565b935050604061175b878288016116e0565b925050606061176c878288016116e0565b91505092959194509250565b60006020828403121561178e5761178d61156f565b5b600061179c848285016116e0565b91505092915050565b6000819050919050565b6117b8816117a5565b81146117c357600080fd5b50565b6000813590506117d5816117af565b92915050565b600080604083850312156117f2576117f161156f565b5b6000611800858286016117c6565b9250506020611811858286016117c6565b9150509250929050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006118468261181b565b9050919050565b6118568161183b565b82525050565b611865816116bf565b82525050565b6000606082019050611880600083018661184d565b61188d602083018561184d565b61189a604083018461185c565b949350505050565b60008115159050919050565b6118b7816118a2565b81146118c257600080fd5b50565b6000815190506118d4816118ae565b92915050565b6000602082840312156118f0576118ef61156f565b5b60006118fe848285016118c5565b91505092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b6000600282049050600182168061194e57607f821691505b60208210810361196157611960611907565b5b50919050565b600082825260208201905092915050565b60008190508160005260206000209050919050565b6000815461199a81611936565b6119a48186611967565b945060018216600081146119bf57600181146119d157611a04565b60ff1983168652602086019350611a04565b6119da85611978565b60005b838110156119fc578154818901526001820191506020810190506119dd565b808801955050505b50505092915050565b60006080820190508181036000830152611a27818761198d565b9050611a36602083018661185c565b611a43604083018561185c565b611a50606083018461185c565b95945050505050565b6000604082019050611a6e600083018561184d565b611a7b602083018461185c565b9392505050565b6000602082019050611a97600083018461185c565b92915050565b600081519050919050565b60005b83811015611ac6578082015181840152602081019050611aab565b83811115611ad5576000848401525b50505050565b6000611ae682611a9d565b611af08185611967565b9350611b00818560208601611aa8565b611b0981611583565b840191505092915050565b60006080820190508181036000830152611b2e8187611adb565b9050611b3d602083018661185c565b611b4a604083018561185c565b611b57606083018461185c565b95945050505050565b611b69816117a5565b82525050565b6000602082019050611b846000830184611b60565b92915050565b6000604082019050611b9f600083018561185c565b611bac602083018461185c565b9392505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b6000611bed826116bf565b9150611bf8836116bf565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115611c2d57611c2c611bb3565b5b828201905092915050565b6000602082019050611c4d600083018461184d565b92915050565b6000604082019050611c68600083018561184d565b611c756020830184611b60565b9392505050565b600082825260208201905092915050565b60008190508160005260206000209050919050565b60008154611caf81611936565b611cb98186611c7c565b94506001821660008114611cd45760018114611ce657611d19565b60ff1983168652602086019350611d19565b611cef85611c8d565b60005b83811015611d1157815481890152600182019150602081019050611cf2565b808801955050505b50505092915050565b6000606082019050611d37600083018661184d565b8181036020830152611d498185611ca2565b9050611d586040830184611b60565b949350505050565b611d69816118a2565b82525050565b6000604082019050611d846000830185611d60565b611d91602083018461184d565b9392505050565b6000611da3826116bf565b9150611dae836116bf565b925082821015611dc157611dc0611bb3565b5b828203905092915050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b6000611e06826116bf565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8203611e3857611e37611bb3565b5b600182019050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601260045260246000fd5b6000611e7d826116bf565b9150611e88836116bf565b925082611e9857611e97611e43565b5b828206905092915050565b6000819050919050565b60008160001b9050919050565b6000611ed5611ed0611ecb84611ea3565b611ead565b6117a5565b9050919050565b611ee581611eba565b82525050565b600060ff82169050919050565b611f0181611eeb565b82525050565b6000608082019050611f1c6000830187611edc565b611f296020830186611ef8565b611f366040830185611b60565b611f436060830184611b60565b9594505050505056fea2646970667358221220dea0fe4ce213b10ddeb13874ff45bcd2763eced7382d3cab215d1e190e43f8c964736f6c634300080d0033",
   "devdoc": {
+    "errors": {
+      "ArchaeologistHasBeenAccused(address,bytes32)": [
+        {
+          "params": {
+            "archaeologistAddress": "Address of accused archaeologist",
+            "sarcoId": "ID of sarcophagus archaeologist has attempted to publish a share on"
+          }
+        }
+      ],
+      "EmbalmerClaimWindowPassed(uint256,uint256)": [
+        {
+          "params": {
+            "currentTime": "Timestamp of the failed clean attempt",
+            "embalmerClaimWindowEnd": "Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow"
+          }
+        }
+      ],
+      "SarcophagusAlreadyCleaned(bytes32)": [
+        {
+          "params": {
+            "sarcoId": "ID of sarcophagus archaeologist has attempted to publish a share on"
+          }
+        }
+      ],
+      "SenderNotEmbalmerOrAdmin(address)": [
+        {
+          "params": {
+            "senderAddress": "Address of sender"
+          }
+        }
+      ],
+      "TooEarlyForAdminClean(uint256,uint256)": [
+        {
+          "params": {
+            "currentTime": "Timestamp of the failed clean attempt",
+            "embalmerClaimWindowEnd": "Latest time an embalmer may claim residual locked bonds the sarcophagus: resurrectionTime + gracePeriod + embalmerClaimWindow"
+          }
+        }
+      ],
+      "TooEarlyForClean(uint256,uint256)": [
+        {
+          "params": {
+            "currentTime": "Timestamp of the failed clean attempt",
+            "publishDeadline": "Latest time an archaeologist may publish a key share on a sarcophagus: esurrectionTime + gracePeriod"
+          }
+        }
+      ],
+      "TooEarlyForPublish(uint256,uint256)": [
+        {
+          "params": {
+            "currentTime": "Timestamp of the failed publish attempt",
+            "resurrectionTime": "Time after which the sarcophagus can be resurrected"
+          }
+        }
+      ],
+      "TooLateForPublish(uint256,uint256)": [
+        {
+          "params": {
+            "currentTime": "Timestamp of the failed publish attempt",
+            "publishDeadline": "Time after which the sarcophagus can no longer be resurrected  (resurrectionTime + gracePeriod)"
+          }
+        }
+      ]
+    },
     "kind": "dev",
     "methods": {
       "depositFreeBond(uint256)": {
@@ -429,9 +579,9 @@
           "amount": "The amount to deposit"
         }
       },
-      "publishKeyShare(bytes32,bytes)": {
+      "publishPrivateKey(bytes32,bytes32)": {
         "params": {
-          "rawKeyShare": "The keyshare the archaeologist is publishing",
+          "privateKey": "The private key the archaeologist is publishing",
           "sarcoId": "The identifier of the sarcophagus to unwrap"
         }
       },
@@ -459,13 +609,55 @@
     "version": 1
   },
   "userdoc": {
+    "errors": {
+      "ArchaeologistHasBeenAccused(address,bytes32)": [
+        {
+          "notice": "An archaeologist that has already been accused has attempted to publish a key share"
+        }
+      ],
+      "EmbalmerClaimWindowPassed(uint256,uint256)": [
+        {
+          "notice": "Embalmer has attempted to clean a sarcophagus after the embalmerClaimWindow has passed"
+        }
+      ],
+      "SarcophagusAlreadyCleaned(bytes32)": [
+        {
+          "notice": "Clean has been called on a sarcophagus that has already been cleaned"
+        }
+      ],
+      "SenderNotEmbalmerOrAdmin(address)": [
+        {
+          "notice": "Clean has been called by someone other than the admin or embalmer of the sarcophagus"
+        }
+      ],
+      "TooEarlyForAdminClean(uint256,uint256)": [
+        {
+          "notice": "Admin has attempted to clean a sarcophagus before the embalmerClaimWindow has passed"
+        }
+      ],
+      "TooEarlyForClean(uint256,uint256)": [
+        {
+          "notice": "Clean has been called before the deadline for archaeologists to publish key shares has passed"
+        }
+      ],
+      "TooEarlyForPublish(uint256,uint256)": [
+        {
+          "notice": "Archaeologist has attempted to publish a keyshare before the resurrection time"
+        }
+      ],
+      "TooLateForPublish(uint256,uint256)": [
+        {
+          "notice": "Archaeologist has attempted to publish a keyshare after the end of the resurrection window"
+        }
+      ]
+    },
     "kind": "user",
     "methods": {
       "depositFreeBond(uint256)": {
         "notice": "Deposits an archaeologist's free bond to the contract."
       },
-      "publishKeyShare(bytes32,bytes)": {
-        "notice": "Publishes the raw key share for which the archaeologist is responsible during the sarcophagus resurrection window. Pays digging fees to the archaeologist and releases their locked bond. Cannot be called on a compromised or buried sarcophagus."
+      "publishPrivateKey(bytes32,bytes32)": {
+        "notice": "Publishes the private key for which the archaeologist is responsible during the sarcophagus resurrection window. Pays digging fees to the archaeologist and releases their locked bond. Cannot be called on a compromised or buried sarcophagus."
       },
       "registerArchaeologist(string,uint256,uint256,uint256)": {
         "notice": "Registers the archaeologist profile"
@@ -485,12 +677,12 @@
   "storageLayout": {
     "storage": [
       {
-        "astId": 1227,
+        "astId": 1134,
         "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
         "label": "s",
         "offset": 0,
         "slot": "0",
-        "type": "t_struct(AppStorage)4520_storage"
+        "type": "t_struct(AppStorage)4093_storage"
       }
     ],
     "types": {
@@ -511,12 +703,6 @@
         "label": "bytes32[]",
         "numberOfBytes": "32"
       },
-      "t_array(t_string_storage)2_storage": {
-        "base": "t_string_storage",
-        "encoding": "inplace",
-        "label": "string[2]",
-        "numberOfBytes": "64"
-      },
       "t_bool": {
         "encoding": "inplace",
         "label": "bool",
@@ -525,6 +711,11 @@
       "t_bytes32": {
         "encoding": "inplace",
         "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_bytes_memory_ptr": {
+        "encoding": "bytes",
+        "label": "bytes",
         "numberOfBytes": "32"
       },
       "t_bytes_storage": {
@@ -544,19 +735,19 @@
         "numberOfBytes": "32",
         "value": "t_array(t_bytes32)dyn_storage"
       },
-      "t_mapping(t_address,t_struct(ArchaeologistProfile)4104_storage)": {
+      "t_mapping(t_address,t_struct(ArchaeologistProfile)3871_storage)": {
         "encoding": "mapping",
         "key": "t_address",
         "label": "mapping(address => struct LibTypes.ArchaeologistProfile)",
         "numberOfBytes": "32",
-        "value": "t_struct(ArchaeologistProfile)4104_storage"
+        "value": "t_struct(ArchaeologistProfile)3871_storage"
       },
-      "t_mapping(t_address,t_struct(CursedArchaeologist)4091_storage)": {
+      "t_mapping(t_address,t_struct(CursedArchaeologist)3858_storage)": {
         "encoding": "mapping",
         "key": "t_address",
         "label": "mapping(address => struct LibTypes.CursedArchaeologist)",
         "numberOfBytes": "32",
-        "value": "t_struct(CursedArchaeologist)4091_storage"
+        "value": "t_struct(CursedArchaeologist)3858_storage"
       },
       "t_mapping(t_address,t_uint256)": {
         "encoding": "mapping",
@@ -565,31 +756,31 @@
         "numberOfBytes": "32",
         "value": "t_uint256"
       },
-      "t_mapping(t_bytes32,t_address)": {
-        "encoding": "mapping",
-        "key": "t_bytes32",
-        "label": "mapping(bytes32 => address)",
-        "numberOfBytes": "32",
-        "value": "t_address"
-      },
-      "t_mapping(t_bytes32,t_struct(Sarcophagus)4082_storage)": {
+      "t_mapping(t_bytes32,t_struct(Sarcophagus)3849_storage)": {
         "encoding": "mapping",
         "key": "t_bytes32",
         "label": "mapping(bytes32 => struct LibTypes.Sarcophagus)",
         "numberOfBytes": "32",
-        "value": "t_struct(Sarcophagus)4082_storage"
+        "value": "t_struct(Sarcophagus)3849_storage"
+      },
+      "t_mapping(t_bytes_memory_ptr,t_address)": {
+        "encoding": "mapping",
+        "key": "t_bytes_memory_ptr",
+        "label": "mapping(bytes => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
       },
       "t_string_storage": {
         "encoding": "bytes",
         "label": "string",
         "numberOfBytes": "32"
       },
-      "t_struct(AppStorage)4520_storage": {
+      "t_struct(AppStorage)4093_storage": {
         "encoding": "inplace",
         "label": "struct AppStorage",
         "members": [
           {
-            "astId": 4454,
+            "astId": 4028,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "sarcoToken",
             "offset": 0,
@@ -597,7 +788,7 @@
             "type": "t_contract(IERC20)77"
           },
           {
-            "astId": 4456,
+            "astId": 4030,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "totalProtocolFees",
             "offset": 0,
@@ -605,7 +796,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4459,
+            "astId": 4033,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "protocolFeeBasePercentage",
             "offset": 0,
@@ -613,7 +804,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4461,
+            "astId": 4035,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "gracePeriod",
             "offset": 0,
@@ -621,7 +812,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4463,
+            "astId": 4037,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "expirationThreshold",
             "offset": 0,
@@ -629,55 +820,55 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4469,
+            "astId": 4039,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "embalmerSarcophagi",
+            "label": "embalmerClaimWindow",
             "offset": 0,
             "slot": "5",
-            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
+            "type": "t_uint256"
           },
           {
-            "astId": 4474,
+            "astId": 4045,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "archaeologistSarcophagi",
+            "label": "embalmerSarcophagi",
             "offset": 0,
             "slot": "6",
             "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
           },
           {
-            "astId": 4479,
+            "astId": 4050,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "recipientSarcophagi",
+            "label": "archaeologistSarcophagi",
             "offset": 0,
             "slot": "7",
             "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
           },
           {
-            "astId": 4483,
+            "astId": 4055,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "doubleHashedShardArchaeologists",
+            "label": "recipientSarcophagi",
             "offset": 0,
             "slot": "8",
-            "type": "t_mapping(t_bytes32,t_address)"
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
           },
           {
-            "astId": 4486,
+            "astId": 4059,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "sarcophagusIdentifiers",
+            "label": "publicKeyToArchaeologistAddress",
             "offset": 0,
             "slot": "9",
-            "type": "t_array(t_bytes32)dyn_storage"
+            "type": "t_mapping(t_bytes_memory_ptr,t_address)"
           },
           {
-            "astId": 4491,
+            "astId": 4064,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "sarcophagi",
             "offset": 0,
             "slot": "10",
-            "type": "t_mapping(t_bytes32,t_struct(Sarcophagus)4082_storage)"
+            "type": "t_mapping(t_bytes32,t_struct(Sarcophagus)3849_storage)"
           },
           {
-            "astId": 4494,
+            "astId": 4067,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "archaeologistProfileAddresses",
             "offset": 0,
@@ -685,15 +876,15 @@
             "type": "t_array(t_address)dyn_storage"
           },
           {
-            "astId": 4499,
+            "astId": 4072,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "archaeologistProfiles",
             "offset": 0,
             "slot": "12",
-            "type": "t_mapping(t_address,t_struct(ArchaeologistProfile)4104_storage)"
+            "type": "t_mapping(t_address,t_struct(ArchaeologistProfile)3871_storage)"
           },
           {
-            "astId": 4503,
+            "astId": 4076,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "archaeologistRewards",
             "offset": 0,
@@ -701,7 +892,7 @@
             "type": "t_mapping(t_address,t_uint256)"
           },
           {
-            "astId": 4509,
+            "astId": 4082,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "archaeologistSuccesses",
             "offset": 0,
@@ -709,7 +900,7 @@
             "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
           },
           {
-            "astId": 4514,
+            "astId": 4087,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "archaeologistAccusals",
             "offset": 0,
@@ -717,7 +908,7 @@
             "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
           },
           {
-            "astId": 4519,
+            "astId": 4092,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "archaeologistCleanups",
             "offset": 0,
@@ -727,12 +918,12 @@
         ],
         "numberOfBytes": "544"
       },
-      "t_struct(ArchaeologistProfile)4104_storage": {
+      "t_struct(ArchaeologistProfile)3871_storage": {
         "encoding": "inplace",
         "label": "struct LibTypes.ArchaeologistProfile",
         "members": [
           {
-            "astId": 4093,
+            "astId": 3860,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "exists",
             "offset": 0,
@@ -740,7 +931,7 @@
             "type": "t_bool"
           },
           {
-            "astId": 4095,
+            "astId": 3862,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "peerId",
             "offset": 0,
@@ -748,7 +939,7 @@
             "type": "t_string_storage"
           },
           {
-            "astId": 4097,
+            "astId": 3864,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "minimumDiggingFee",
             "offset": 0,
@@ -756,7 +947,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4099,
+            "astId": 3866,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "maximumRewrapInterval",
             "offset": 0,
@@ -764,7 +955,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4101,
+            "astId": 3868,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "freeBond",
             "offset": 0,
@@ -772,7 +963,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4103,
+            "astId": 3870,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "cursedBond",
             "offset": 0,
@@ -782,51 +973,51 @@
         ],
         "numberOfBytes": "192"
       },
-      "t_struct(CursedArchaeologist)4091_storage": {
+      "t_struct(CursedArchaeologist)3858_storage": {
         "encoding": "inplace",
         "label": "struct LibTypes.CursedArchaeologist",
         "members": [
           {
-            "astId": 4084,
+            "astId": 3851,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "doubleHashedKeyShare",
+            "label": "publicKey",
             "offset": 0,
             "slot": "0",
+            "type": "t_bytes_storage"
+          },
+          {
+            "astId": 3853,
+            "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
+            "label": "privateKey",
+            "offset": 0,
+            "slot": "1",
             "type": "t_bytes32"
           },
           {
-            "astId": 4086,
+            "astId": 3855,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "isAccused",
             "offset": 0,
-            "slot": "1",
+            "slot": "2",
             "type": "t_bool"
           },
           {
-            "astId": 4088,
+            "astId": 3857,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "diggingFee",
             "offset": 0,
-            "slot": "2",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 4090,
-            "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "rawKeyShare",
-            "offset": 0,
             "slot": "3",
-            "type": "t_bytes_storage"
+            "type": "t_uint256"
           }
         ],
         "numberOfBytes": "128"
       },
-      "t_struct(Sarcophagus)4082_storage": {
+      "t_struct(Sarcophagus)3849_storage": {
         "encoding": "inplace",
         "label": "struct LibTypes.Sarcophagus",
         "members": [
           {
-            "astId": 4057,
+            "astId": 3824,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "resurrectionTime",
             "offset": 0,
@@ -834,7 +1025,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4059,
+            "astId": 3826,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "isCompromised",
             "offset": 0,
@@ -842,7 +1033,15 @@
             "type": "t_bool"
           },
           {
-            "astId": 4061,
+            "astId": 3828,
+            "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
+            "label": "isCleaned",
+            "offset": 1,
+            "slot": "1",
+            "type": "t_bool"
+          },
+          {
+            "astId": 3830,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "name",
             "offset": 0,
@@ -850,7 +1049,7 @@
             "type": "t_string_storage"
           },
           {
-            "astId": 4063,
+            "astId": 3832,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "threshold",
             "offset": 0,
@@ -858,7 +1057,7 @@
             "type": "t_uint8"
           },
           {
-            "astId": 4065,
+            "astId": 3834,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "maximumRewrapInterval",
             "offset": 0,
@@ -866,47 +1065,47 @@
             "type": "t_uint256"
           },
           {
-            "astId": 4069,
+            "astId": 3836,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "arweaveTxIds",
+            "label": "arweaveTxId",
             "offset": 0,
             "slot": "5",
-            "type": "t_array(t_string_storage)2_storage"
+            "type": "t_string_storage"
           },
           {
-            "astId": 4071,
+            "astId": 3838,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "embalmerAddress",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_address"
+          },
+          {
+            "astId": 3840,
+            "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
+            "label": "recipientAddress",
             "offset": 0,
             "slot": "7",
             "type": "t_address"
           },
           {
-            "astId": 4073,
-            "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
-            "label": "recipientAddress",
-            "offset": 0,
-            "slot": "8",
-            "type": "t_address"
-          },
-          {
-            "astId": 4076,
+            "astId": 3843,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "cursedArchaeologistAddresses",
             "offset": 0,
-            "slot": "9",
+            "slot": "8",
             "type": "t_array(t_address)dyn_storage"
           },
           {
-            "astId": 4081,
+            "astId": 3848,
             "contract": "contracts/facets/ArchaeologistFacet.sol:ArchaeologistFacet",
             "label": "cursedArchaeologists",
             "offset": 0,
-            "slot": "10",
-            "type": "t_mapping(t_address,t_struct(CursedArchaeologist)4091_storage)"
+            "slot": "9",
+            "type": "t_mapping(t_address,t_struct(CursedArchaeologist)3858_storage)"
           }
         ],
-        "numberOfBytes": "352"
+        "numberOfBytes": "320"
       },
       "t_uint256": {
         "encoding": "inplace",

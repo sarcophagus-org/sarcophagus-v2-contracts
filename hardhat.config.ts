@@ -78,9 +78,16 @@ const config: HardhatUserConfig = {
         ? [process.env.GOERLI_DEPLOYER_PRIVATE_KEY]
         : [],
     },
+    sepolia: {
+      chainId: 11155111,
+      url: process.env.SEPOLIA_PROVIDER || "",
+      accounts: process.env.SEPOLIA_DEPLOYER_PRIVATE_KEY
+        ? [process.env.SEPOLIA_DEPLOYER_PRIVATE_KEY]
+        : [],
+    },
     hardhat: {
       accounts: {
-        count: 600,
+        count: 25,
       },
     },
   },

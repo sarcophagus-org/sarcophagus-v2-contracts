@@ -3,25 +3,28 @@ import { expect } from "chai";
 import { registerSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
 import time from "../../utils/time";
 import { getContracts } from "../helpers/contracts";
-import { getFreshAccount } from "../helpers/accounts";
-import { hashShare } from "../helpers/shamirSecretSharing";
+import { accountGenerator } from "../helpers/accounts";
 import { BigNumber } from "ethers";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
 import {
+  accuseArchaeologistsOnSarcophagus,
   compromiseSarcophagus,
+  generateAccusalSignature,
   verifyAccusalStatusesForArchaeologists,
 } from "../helpers/accuse";
 import { getTotalDiggingFeesSarquitos } from "../helpers/diggingFees";
 
-const { deployments, ethers } = require("hardhat");
+const { deployments, ethers, hre } = require("hardhat");
 
 describe("ThirdPartyFacet.accuse", () => {
-  // reset to directly after the diamond deployment before each test
-  beforeEach(async () => await deployments.fixture());
+  beforeEach(async () => {
+    await deployments.fixture();
+    accountGenerator.index = 0;
+  });
 
   describe("Validates parameters. Should revert if:", function () {
     it("no sarcophagus with the supplied id exists", async function () {
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
 
       // generate a nonexistent sarcoId
       const nonexistentId = ethers.utils.solidityKeccak256(
@@ -32,7 +35,7 @@ describe("ThirdPartyFacet.accuse", () => {
       // run accuse on a nonexistent sarcophagus
       const tx = (await getContracts()).thirdPartyFacet
         .connect(accuser)
-        .accuse(nonexistentId, [], accuser.address);
+        .accuse(nonexistentId, [], [], accuser.address);
 
       await expect(tx).to.be.revertedWithCustomError(
         (
@@ -50,11 +53,16 @@ describe("ThirdPartyFacet.accuse", () => {
       // accuse an archaeologist of leaking a keyshare
       const tx = thirdPartyFacet
         .connect(sarcophagusData.embalmer)
-        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
+        .accuse(
+          sarcophagusData.sarcoId,
+          [],
+          [],
+          sarcophagusData.embalmer.address
+        );
 
       await expect(tx).to.be.revertedWithCustomError(
         thirdPartyFacet,
-        `SarcophagusIsUnwrappable`
+        `ResurrectionTimeInPast`
       );
     });
     it("the sarcophagus has been compromised", async function () {
@@ -66,7 +74,12 @@ describe("ThirdPartyFacet.accuse", () => {
 
       const tx = thirdPartyFacet
         .connect(sarcophagusData.embalmer)
-        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
+        .accuse(
+          sarcophagusData.sarcoId,
+          [],
+          [],
+          sarcophagusData.embalmer.address
+        );
 
       await expect(tx).to.be.revertedWithCustomError(
         thirdPartyFacet,
@@ -83,11 +96,97 @@ describe("ThirdPartyFacet.accuse", () => {
 
       const tx = thirdPartyFacet
         .connect(sarcophagusData.embalmer)
-        .accuse(sarcophagusData.sarcoId, [], sarcophagusData.embalmer.address);
+        .accuse(
+          sarcophagusData.sarcoId,
+          [],
+          [],
+          sarcophagusData.embalmer.address
+        );
 
       await expect(tx).to.be.revertedWithCustomError(
         thirdPartyFacet,
         `SarcophagusInactive`
+      );
+    });
+    it("an unequal number of public keys and signatures have been supplied", async function () {
+      const { thirdPartyFacet } = await getContracts();
+      const accuser = await accountGenerator.newAccount();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+      const accusedArchaeologist = archaeologists[0];
+
+      const tx = thirdPartyFacet
+        .connect(accuser)
+        .accuse(
+          sarcophagusData.sarcoId,
+          [accusedArchaeologist.publicKey, archaeologists[1].publicKey],
+          [
+            await generateAccusalSignature(
+              sarcophagusData.sarcoId,
+              accusedArchaeologist.privateKey,
+              accuser.address
+            ),
+          ],
+          accuser.address
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `DifferentNumberOfSignaturesAndPublicKeys`
+      );
+    });
+  });
+  describe("Rejects invalid accusal signatures", function () {
+    it("Should revert if the accusal signature was made on the wrong payment address", async function () {
+      const { thirdPartyFacet } = await getContracts();
+      const accuser = await accountGenerator.newAccount();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+      const accusedArchaeologist = archaeologists[0];
+
+      const tx = thirdPartyFacet.connect(accuser).accuse(
+        sarcophagusData.sarcoId,
+        [accusedArchaeologist.publicKey],
+        [
+          await generateAccusalSignature(
+            sarcophagusData.sarcoId,
+            accusedArchaeologist.privateKey,
+            // sign incorrect payment address
+            accusedArchaeologist.archAddress
+          ),
+        ],
+        accuser.address
+      );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `InvalidAccusalSignature`
+      );
+    });
+    it("Should revert if the accusal signature was made with the wrong private key", async function () {
+      const { thirdPartyFacet } = await getContracts();
+      const accuser = await accountGenerator.newAccount();
+      const { sarcophagusData, archaeologists } =
+        await registerSarcophagusWithArchaeologists();
+      const accusedArchaeologist = archaeologists[0];
+
+      const tx = thirdPartyFacet.connect(accuser).accuse(
+        sarcophagusData.sarcoId,
+        [accusedArchaeologist.publicKey],
+        [
+          await generateAccusalSignature(
+            sarcophagusData.sarcoId,
+            // sign with incorrect private key
+            archaeologists[1].privateKey,
+            accuser.address
+          ),
+        ],
+        accuser.address
+      );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        thirdPartyFacet,
+        `InvalidAccusalSignature`
       );
     });
   });
@@ -95,7 +194,7 @@ describe("ThirdPartyFacet.accuse", () => {
   describe("Supports accusal of fewer than k archaeologists", function () {
     it("On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       const accusedArchaeologist = archaeologists[0];
@@ -116,7 +215,14 @@ describe("ThirdPartyFacet.accuse", () => {
         .connect(accuser)
         .accuse(
           sarcophagusData.sarcoId,
-          [hashShare(accusedArchaeologist.rawKeyShare)],
+          [accusedArchaeologist.publicKey],
+          [
+            await generateAccusalSignature(
+              sarcophagusData.sarcoId,
+              accusedArchaeologist.privateKey,
+              accuser.address
+            ),
+          ],
           accuser.address
         );
 
@@ -173,29 +279,20 @@ describe("ThirdPartyFacet.accuse", () => {
     });
 
     it("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async function () {
-      const accuser = await getFreshAccount();
       const { viewStateFacet } = await getContracts();
 
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 5,
+          totalArchaeologists: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
         });
 
-      const accusedArchaeologist = archaeologists[0];
-      // hash the leaked keyshare
-      const hashedShare = hashShare(accusedArchaeologist.rawKeyShare);
-
-      // accuse an archaeologist of leaking a keyshare
-      await (await getContracts()).thirdPartyFacet
-        .connect(accuser)
-        .accuse(sarcophagusData.sarcoId, [hashedShare], accuser.address);
-
-      // verify the sarcophagus state is still active
-      // expect(
-      //   (await viewStateFacet.getSarcophagus(sarcophagus.sarcoId)).state
-      // ).to.equal(SarcophagusState.Active);
+      await accuseArchaeologistsOnSarcophagus(
+        1,
+        sarcophagusData.sarcoId,
+        archaeologists
+      );
 
       // verify the remaining 4 archaeologists still have their bonds locked
       await Promise.all(
@@ -212,10 +309,10 @@ describe("ThirdPartyFacet.accuse", () => {
     });
     it("Should not pay out digging fees or cursed bond or emit an event on accusal of an archaeologist that has already been accused once", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 5,
+          totalArchaeologists: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
         });
@@ -234,7 +331,14 @@ describe("ThirdPartyFacet.accuse", () => {
         .connect(accuser)
         .accuse(
           sarcophagusData.sarcoId,
-          [hashShare(accusedArchaeologist.rawKeyShare)],
+          [accusedArchaeologist.publicKey],
+          [
+            await generateAccusalSignature(
+              sarcophagusData.sarcoId,
+              accusedArchaeologist.privateKey,
+              accuser.address
+            ),
+          ],
           accuser.address
         );
 
@@ -268,7 +372,14 @@ describe("ThirdPartyFacet.accuse", () => {
         .connect(accuser)
         .accuse(
           sarcophagusData.sarcoId,
-          [hashShare(accusedArchaeologist.rawKeyShare)],
+          [accusedArchaeologist.publicKey],
+          [
+            await generateAccusalSignature(
+              sarcophagusData.sarcoId,
+              accusedArchaeologist.privateKey,
+              accuser.address
+            ),
+          ],
           accuser.address
         );
 
@@ -315,10 +426,10 @@ describe("ThirdPartyFacet.accuse", () => {
   describe("Supports accusal of k or more archaeologists", function () {
     it("On a successful accusal of 3 archaeologists on a 3 of 5 sarco, should split cursed bond for the 3 leaking archs between the embalmer and the accuser, refund digging fees for 3 archaeologists to the embalmer, slash the 3 leaking archaeologists' bonds, mark the archaeologists as accused, and emit an AccuseArchaeologist event", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 5,
+          totalArchaeologists: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
         });
@@ -349,8 +460,16 @@ describe("ThirdPartyFacet.accuse", () => {
       // accuse the archaeologist of leaking a keyshare
       const tx = thirdPartyFacet.connect(accuser).accuse(
         sarcophagusData.sarcoId,
-        accusedArchaeologists.map((accusedArchaeologist) =>
-          hashShare(accusedArchaeologist.rawKeyShare)
+        accusedArchaeologists.map((arch) => arch.publicKey),
+        await Promise.all(
+          accusedArchaeologists.map(
+            async (accusedArchaeologist) =>
+              await generateAccusalSignature(
+                sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              )
+          )
         ),
         accuser.address
       );
@@ -468,12 +587,12 @@ describe("ThirdPartyFacet.accuse", () => {
     });
 
     it("Should allow accusal of 2 archaeologists on a 3 of 5 sarcophagus without freeing all other archaeologists", async function () {
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { viewStateFacet } = await getContracts();
 
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 5,
+          totalArchaeologists: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
         });
@@ -483,16 +602,19 @@ describe("ThirdPartyFacet.accuse", () => {
       // accuse an archaeologist of leaking a keyshare
       await (await getContracts()).thirdPartyFacet.connect(accuser).accuse(
         sarcophagusData.sarcoId,
-        accusedArchaeologists.map((accusedArchaeologist) =>
-          hashShare(accusedArchaeologist.rawKeyShare)
+        accusedArchaeologists.map((arch) => arch.publicKey),
+        await Promise.all(
+          accusedArchaeologists.map(
+            async (accusedArchaeologist) =>
+              await generateAccusalSignature(
+                sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              )
+          )
         ),
         accuser.address
       );
-
-      // verify the sarcophagus state is still active
-      // expect(
-      //   (await viewStateFacet.getSarcophagus(sarcophagus.sarcoId)).state
-      // ).to.equal(SarcophagusState.Active);
 
       // verify the remaining 4 archaeologists still have their bonds locked
       await Promise.all(
@@ -510,10 +632,10 @@ describe("ThirdPartyFacet.accuse", () => {
 
     it("Should free all unaccused archaeologists upon successful accusal of 1 archaeologist on a 3 of 5 sarcophagus where 2 have been accused on a previous call and update state to accused", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await getFreshAccount();
+      const accuser = await accountGenerator.newAccount();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 5,
+          totalArchaeologists: 5,
           threshold: 3,
           maximumRewrapIntervalSeconds: time.duration.weeks(4),
         });
@@ -544,11 +666,19 @@ describe("ThirdPartyFacet.accuse", () => {
       // accuse two archaeologists of leaking a keyshare
       const tx1 = thirdPartyFacet.connect(accuser).accuse(
         sarcophagusData.sarcoId,
-        accusedArchaeologists
-          .slice(0, 2)
-          .map((accusedArchaeologist) =>
-            hashShare(accusedArchaeologist.rawKeyShare)
-          ),
+        accusedArchaeologists.slice(0, 2).map((arch) => arch.publicKey),
+        await Promise.all(
+          accusedArchaeologists
+            .slice(0, 2)
+            .map(
+              async (accusedArchaeologist) =>
+                await generateAccusalSignature(
+                  sarcophagusData.sarcoId,
+                  accusedArchaeologist.privateKey,
+                  accuser.address
+                )
+            )
+        ),
         accuser.address
       );
 
@@ -558,11 +688,19 @@ describe("ThirdPartyFacet.accuse", () => {
       // accuse one more archaeologist of leaking a keyshare
       const tx2 = thirdPartyFacet.connect(accuser).accuse(
         sarcophagusData.sarcoId,
-        accusedArchaeologists
-          .slice(2, 3)
-          .map((accusedArchaeologist) =>
-            hashShare(accusedArchaeologist.rawKeyShare)
-          ),
+        accusedArchaeologists.slice(2, 3).map((arch) => arch.publicKey),
+        await Promise.all(
+          accusedArchaeologists
+            .slice(2, 3)
+            .map(
+              async (accusedArchaeologist) =>
+                await generateAccusalSignature(
+                  sarcophagusData.sarcoId,
+                  accusedArchaeologist.privateKey,
+                  accuser.address
+                )
+            )
+        ),
         accuser.address
       );
 

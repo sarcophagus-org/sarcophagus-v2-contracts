@@ -2,23 +2,17 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const { ethers, getNamedAccounts, getUnnamedAccounts } = require("hardhat");
 
-/**
- * Returns a signer for an account that has never been used
- *
- * total number of accounts is set in hardhat config at networks.hardha.accounts.count
- * */
-export const getFreshAccount = (() => {
-  // track unused account index
-  let index = 0;
-  return async (): Promise<SignerWithAddress> => {
+export const accountGenerator = {
+  newAccount: async function (): Promise<SignerWithAddress> {
     const unnamedAccounts = await getUnnamedAccounts();
-    if (!unnamedAccounts[index])
+    if (!unnamedAccounts[this.index])
       throw Error(
         "Not enough test accounts. Increase value in hardhat config."
       );
-    return await ethers.getSigner(unnamedAccounts[index++]);
-  };
-})();
+    return await ethers.getSigner(unnamedAccounts[this.index++]);
+  },
+  index: 0,
+};
 
 /**
  * Returns the deployer account signer

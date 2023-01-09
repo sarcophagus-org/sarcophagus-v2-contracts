@@ -4,6 +4,9 @@ pragma solidity ^0.8.13;
 import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
+import "../facets/ThirdPartyFacet.sol";
+import "./LibTypes.sol";
+import "../facets/EmbalmerFacet.sol";
 
 /**
  * @title Utility functions used within the Sarcophagus system
@@ -13,46 +16,19 @@ import {LibErrors} from "../libraries/LibErrors.sol";
  */
 library LibUtils {
     /**
-     * @notice Reverts if the public key length is not exactly 64 bytes long
-     * @param publicKey the key to check length of
-     */
-    function publicKeyLength(bytes memory publicKey) public pure {
-        require(publicKey.length == 64, "public key must be 64 bytes");
-    }
-
-    /**
-     * @notice Reverts if the hash of singleHash does not equal doubleHash
-     * @param doubleHash the hash to compare hash of singleHash to
-     * @param singleHash the value to hash and compare against doubleHash
-     */
-    function hashCheck(bytes32 doubleHash, bytes memory singleHash) public pure {
-        require(doubleHash == keccak256(singleHash), "hashes do not match");
-    }
-
-    /**
      * @notice The archaeologist needs to sign off on two pieces of data
      * to guarantee their unrwap will be successful
      *
-     * @param unencryptedShardDoubleHash the double hash of the unencrypted shard
-     * @param arweaveTxId the arweave TX ID that contains the archs encrypted shard
+     * @param publicKey public key archaeologist is responsible for
      * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
      * @param timestamp that the archaeologist has agreed to for the sarcophagus
-     * @param diggingFee that the archaeologist has agreed to for the sarcophagus
-     * @param v signature element
-     * @param r signature element
-     * @param s signature element
-     * @param account address to confirm signature of data came from
+     * @param curseParams parameters of curse signed by archaeologist
      */
     function verifyArchaeologistSignature(
-        bytes32 unencryptedShardDoubleHash,
-        string memory arweaveTxId,
+        bytes calldata publicKey,
         uint256 agreedMaximumRewrapInterval,
         uint256 timestamp,
-        uint256 diggingFee,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        address account
+        EmbalmerFacet.CurseParams calldata curseParams
     ) internal pure {
         // Hash the hash of the data payload
         bytes32 messageHash = keccak256(
@@ -60,10 +36,9 @@ library LibUtils {
                 "\x19Ethereum Signed Message:\n32",
                 keccak256(
                     abi.encode(
-                        arweaveTxId,
-                        unencryptedShardDoubleHash,
+                        curseParams.publicKey,
                         agreedMaximumRewrapInterval,
-                        diggingFee,
+                        curseParams.diggingFee,
                         timestamp
                     )
                 )
@@ -72,66 +47,39 @@ library LibUtils {
 
         // Generate the address from the signature.
         // ecrecover should always return a valid address.
-        address recoveredAddress = ecrecover(messageHash, v, r, s);
+        address recoveredAddress = ecrecover(messageHash, curseParams.v, curseParams.r, curseParams.s);
 
-        if (recoveredAddress != account) {
-            revert LibErrors.InvalidSignature(recoveredAddress, account);
+        if (recoveredAddress != curseParams.archAddress) {
+            revert LibErrors.InvalidSignature(recoveredAddress, curseParams.archAddress);
         }
     }
 
-    /// @notice Returns the address that signed some data given the data and the
-    /// signature.
-    /// @param data the data to verify
-    /// @param v signature element
-    /// @param r signature element
-    /// @param s signature element
-    /// @return the address that signed the data
-    function recoverAddress(
-        bytes memory data,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) internal pure returns (address) {
-        // Hash the hash of the data payload
-        bytes32 messageHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(data)))
+    /// @notice Verifies that a signature and public key were created from the same private key
+    /// @param sarcoId the sarcoId that was signed
+    /// @param paymentAddress the payment address that was signed
+    /// @param publicKey an uncompressed 65 byte secp256k1 public key
+    /// @param signature signature on the sarco id and payment address
+    /// @return true if the signature was signed by the private key corresponding to the supplied public key
+    function verifyAccusalSignature(
+        bytes32 sarcoId,
+        address paymentAddress,
+        bytes calldata publicKey,
+        LibTypes.Signature calldata signature
+    ) internal pure returns (bool) {
+        // removes the 0x04 prefix from an uncompressed public key
+        bytes memory truncatedPublicKey = new bytes(publicKey.length - 1);
+        for (uint256 i = 1; i < publicKey.length; i++) {
+            truncatedPublicKey[i - 1] = publicKey[i];
+        }
+        bytes32 messageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(sarcoId, paymentAddress))));
+        // Use ecrecover to get the address that signed the message
+        address signingAddress = ecrecover(messageHash, signature.v, signature.r, signature.s);
+
+        address publicKeyAddress = address(
+            uint160(uint256(keccak256(truncatedPublicKey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
         );
 
-        // Genearate the address from the signature.
-        // ecrecover should always return a valid address.
-        // It's highly recommended that a hash be passed into ecrecover
-        address account = ecrecover(messageHash, v, r, s);
-
-        return account;
-    }
-
-    /**
-     * @notice Reverts if the given resurrection time is not in the future
-     * @param resurrectionTime the time to check against block.timestamp
-     */
-    function resurrectionInFuture(uint256 resurrectionTime) internal view {
-        if (resurrectionTime <= block.timestamp) {
-            revert LibErrors.ResurrectionTimeInPast(resurrectionTime);
-        }
-    }
-
-    /**
-     * @notice Reverts if the current block timestamp is not within the resurrection window
-     * (window = [resurrection time, resurrection time + grace period] inclusive)
-     * @param resurrectionTime the resurrection time of the sarcophagus
-     * (absolute, i.e. a date time stamp)
-     */
-    function unwrapTime(uint256 resurrectionTime) internal view {
-        // revert if too early
-        if (resurrectionTime > block.timestamp) {
-            revert LibErrors.TooEarlyToUnwrap(resurrectionTime, block.timestamp);
-        }
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        // revert if too late
-        if (resurrectionTime + s.gracePeriod < block.timestamp) {
-            revert LibErrors.TooLateToUnwrap(resurrectionTime, s.gracePeriod, block.timestamp);
-        }
+        return signingAddress == publicKeyAddress;
     }
 
     /// @notice Checks if an archaeologist profile exists and

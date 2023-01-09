@@ -6,7 +6,7 @@ import {
   accuseArchaeologistsOnSarcophagus,
   compromiseSarcophagus,
 } from "../helpers/accuse";
-import { getFreshAccount } from "../helpers/accounts";
+import { accountGenerator } from "../helpers/accounts";
 import time from "../../utils/time";
 import { ArchaeologistData } from "../helpers/archaeologistSignature";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
@@ -16,7 +16,10 @@ const { deployments, ethers } = require("hardhat");
 
 describe("EmbalmerFacet.rewrapSarcophagus", () => {
   // reset to directly after the diamond deployment before each test
-  beforeEach(async () => await deployments.fixture());
+  beforeEach(async () => {
+    await deployments.fixture();
+    accountGenerator.index = 0;
+  });
 
   describe("Validates parameters. Should revert if:", function () {
     it("no sarcophagus with the supplied id exists", async function () {
@@ -79,7 +82,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
 
       const tx = embalmerFacet
-        .connect(await getFreshAccount())
+        .connect(await accountGenerator.newAccount())
         .rewrapSarcophagus(
           sarcophagusData.sarcoId,
           sarcophagusData.resurrectionTimeSeconds
@@ -135,7 +138,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
 
       await expect(tx).to.be.revertedWithCustomError(
         embalmerFacet,
-        `NewResurrectionTimeTooLarge`
+        `NewResurrectionTimeTooFarInFuture`
       );
     });
   });

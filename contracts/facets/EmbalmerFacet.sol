@@ -4,15 +4,24 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../libraries/LibTypes.sol";
+import "../storage/LibAppStorage.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
-import {AppStorage} from "../storage/LibAppStorage.sol";
+import "hardhat/console.sol";
 
 contract EmbalmerFacet {
-    // IMPORTANT: AppStorage must be the first state variable in the facet.
-    AppStorage internal s;
 
+    /// @notice Emitted when a sarcophagus is created
+    /// @param sarcoId Id of the new sarcophagus
+    /// @param name Name of the new sarcophagus
+    /// @param resurrectionTime Resurrection time of the new sarcophagus
+    /// @param embalmer Address of embalmer
+    /// @param recipient Address of recipient
+    /// @param cursedArchaeologists Array of addresses of cursed archaeologists
+    /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus
+    /// @param createSarcophagusProtocolFees Total protocol fees charged to embalmer to create the sarcophagus
+    /// @param arweaveTxId arweave tx id for the sarcophagus
     event CreateSarcophagus(
         bytes32 indexed sarcoId,
         string name,
@@ -22,9 +31,14 @@ contract EmbalmerFacet {
         address[] cursedArchaeologists,
         uint256 totalDiggingFees,
         uint256 createSarcophagusProtocolFees,
-        string[2] arweaveTxIds
+        string arweaveTxId
     );
 
+    /// @notice Emitted when a sarcophagus is rewrapped
+    /// @param sarcoId Id of sarcophagus that was rewrapped
+    /// @param resurrectionTime New resurrection time for the sarcophagus
+    /// @param totalDiggingFees Total digging fees charged to the embalmer for the rewrap
+    /// @param rewrapSarcophagusProtocolFees Total protocol fees charged to the embalmer for the rewrap
     event RewrapSarcophagus(
         bytes32 indexed sarcoId,
         uint256 resurrectionTime,
@@ -32,11 +46,11 @@ contract EmbalmerFacet {
         uint256 rewrapSarcophagusProtocolFees
     );
 
+    /// @notice Emitted when a sarcophagus is buried
+    /// @param sarcoId Id of sarcophagus that was buried
     event BurySarcophagus(bytes32 indexed sarcoId);
 
-    /**
-     * Parameters for a sarcophagus, supplied during sarcophagus creation
-     */
+    /// @notice Parameters of a sarcophagus, supplied during sarcophagus creation
     struct SarcophagusParams {
         string name;
         // highest rewrap interval bonded archaeologists have agreed to accept for lifetime of sarcophagus
@@ -47,24 +61,76 @@ contract EmbalmerFacet {
         uint256 creationTime;
     }
 
-    /**
-     * Parameters for an archaeologist's curse, supplied during sarcophagus creation
-     */
-    struct SelectedArchaeologistData {
+    /// @notice Parameters of an archaeologist's curse, supplied during sarcophagus creation
+    struct CurseParams {
+        bytes publicKey;
         address archAddress;
         // diggingFee archaeologist has agreed to receive on sarcophagus for its entire lifetime
         uint256 diggingFee;
-        bytes32 doubleHashedKeyShare;
         uint8 v;
         bytes32 r;
         bytes32 s;
     }
 
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with an id that is already in use
+    /// @param sarcoId Id that is already in use
+    error SarcophagusAlreadyExists(bytes32 sarcoId);
+
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with expired parameters
+    /// @param currentTime Timestamp of the failed create attempt
+    /// @param creationTime Time when the sarcophagus parameters were created
+    /// @param creationDeadline Deadline for creation of a sarcophagus with the supplied parameters
+    error SarcophagusParametersExpired(
+        uint256 currentTime,
+        uint256 creationTime,
+        uint256 creationDeadline
+    );
+
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with no archaeologists
+    error NoArchaeologistsProvided();
+
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with a shamir secret sharing threshold of 0
+    error ThresholdCannotBeZero();
+
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with more required archaeologists than total archaeologists
+    error ThresholdGreaterThanTotalNumberOfArchaeologists(
+        uint8 threshold,
+        uint256 totalNumberOfArchaeologists
+    );
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with an archaeologist list that contains the same archaeologist more than once
+    error ArchaeologistListContainsDuplicate(address archaeologistAddress);
+
+    /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that has already passed
+    /// @param currentTime Timestamp of the failed rewrap attempt
+    /// @param resurrectionTime Resurrection timestamp which has already passed
+    error ResurrectionTimeInPast(uint256 currentTime, uint256 resurrectionTime);
+
+    /// @notice Emitted when an embalmer attempts to create a sarcophagus with a public key that has already been assigned to another sarcophagus
+    /// @param publicKey the duplicated public key
+    error DuplicatePublicKey(bytes publicKey);
+
+    /// @notice Emitted when an embalmer attempts to rewrap a sarcophagus with a resurrection time that exceeds the maximum rewrap interval
+    /// @param resurrectionTime Resurrection timestamp which is too far in the future
+    /// @param sarcophagusMaximumRewrapInterval Maximum rewrap interval set for the sarcophagus
+    /// @param maximumPermissibleResurrectionTime Resurrection timestamp which is too far in the future
+    error ResurrectionTimeTooFarInFuture(
+        uint256 resurrectionTime,
+        uint256 sarcophagusMaximumRewrapInterval,
+        uint256 maximumPermissibleResurrectionTime
+    );
+
+    error NewResurrectionTimeInPast(uint256 currentTime, uint256 newResurrectionTime);
+
+    error NewResurrectionTimeTooFarInFuture(
+        uint256 resurrectionTime,
+        uint256 sarcophagusMaximumRewrapInterval,
+        uint256 maximumPermissibleResurrectionTime
+    );
+
     /// @notice Creates a sarcophagus with the supplied parameters and locks
     /// a portion of each archaeologist's freeBond equal to the diggingFees for the sarcophagus.
     /// Verifies that all supplied archaeologists have signed off on the sarcophagus negotiation parameters:
-    ///    - doubleHashedKeyShare they are responsible for
-    ///    - arweaveTxId of the tx uploading the encrypted key shares
+    ///    - publicKey key they are responsible for
     ///    - maximumRewrapInterval to be enforced for the lifetime of the sarcophagus
     ///    - creationTime of sarcophagus
     ///    - diggingFee to be paid to that archaeologist on all rewraps for the lifetime of the sarcophagus
@@ -72,27 +138,31 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     /// @param sarcophagusParams params to set on sarcophagus being created
     /// @param selectedArchaeologists the archaeologists the embalmer has selected to curse
-    /// @param arweaveTxIds ordered pair of arweave tx ids: [sarcophagus payload tx, encrypted key share tx]
-    /// @return The index of the new sarcophagus in sarcophagusIdentifiers
+    /// @param arweaveTxId id of tx storing the sarcophagus payload on arweave
     function createSarcophagus(
         bytes32 sarcoId,
         SarcophagusParams calldata sarcophagusParams,
-        SelectedArchaeologistData[] calldata selectedArchaeologists,
-        string[2] memory arweaveTxIds
-    ) external returns (uint256) {
+        CurseParams[] calldata selectedArchaeologists,
+        string calldata arweaveTxId
+    ) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         // Confirm that sarcophagus with supplied id doesn't already exist
         if (s.sarcophagi[sarcoId].resurrectionTime > 0) {
-            revert LibErrors.SarcophagusAlreadyExists(sarcoId);
+            revert SarcophagusAlreadyExists(sarcoId);
         }
 
         // Confirm that agreed upon sarcophagus parameters have not expired
         if (block.timestamp > sarcophagusParams.creationTime + s.expirationThreshold) {
-            revert LibErrors.SarcophagusParametersExpired(sarcophagusParams.creationTime);
+            revert SarcophagusParametersExpired(
+                block.timestamp,
+                sarcophagusParams.creationTime,
+                sarcophagusParams.creationTime + s.expirationThreshold
+            );
         }
 
         // Confirm that resurrection time is in the future
         if (block.timestamp >= sarcophagusParams.resurrectionTime) {
-            revert LibErrors.ResurrectionTimeInPast(sarcophagusParams.resurrectionTime);
+            revert ResurrectionTimeInPast(block.timestamp, sarcophagusParams.resurrectionTime);
         }
 
         // Confirm that resurrection or rewrap will occur before the maximumRewrapInterval elapses
@@ -100,24 +170,28 @@ contract EmbalmerFacet {
             block.timestamp + sarcophagusParams.maximumRewrapInterval <
             sarcophagusParams.resurrectionTime
         ) {
-            revert LibErrors.ResurrectionTimeTooFarInFuture(
+            revert ResurrectionTimeTooFarInFuture(
                 sarcophagusParams.resurrectionTime,
-                sarcophagusParams.maximumRewrapInterval
+                sarcophagusParams.maximumRewrapInterval,
+                block.timestamp + sarcophagusParams.maximumRewrapInterval
             );
         }
 
         // Confirm that archaeologists are provided
         if (selectedArchaeologists.length == 0) {
-            revert LibErrors.NoArchaeologistsProvided();
+            revert NoArchaeologistsProvided();
         }
         // Confirm that threshold is greater than 0
         if (sarcophagusParams.threshold == 0) {
-            revert LibErrors.MinShardsZero();
+            revert ThresholdCannotBeZero();
         }
         // Confirm that threshold is less than or equal to the number of archaeologists
         // (k <= n in a shamir secret sharing scheme)
         if (sarcophagusParams.threshold > selectedArchaeologists.length) {
-            revert LibErrors.MinShardsGreaterThanArchaeologists(sarcophagusParams.threshold);
+            revert ThresholdGreaterThanTotalNumberOfArchaeologists(
+                sarcophagusParams.threshold,
+                selectedArchaeologists.length
+            );
         }
 
         // create the sarcophagus
@@ -126,7 +200,7 @@ contract EmbalmerFacet {
         sarcophagus.threshold = sarcophagusParams.threshold;
         sarcophagus.resurrectionTime = sarcophagusParams.resurrectionTime;
         sarcophagus.maximumRewrapInterval = sarcophagusParams.maximumRewrapInterval;
-        sarcophagus.arweaveTxIds = arweaveTxIds;
+        sarcophagus.arweaveTxId = arweaveTxId;
         sarcophagus.embalmerAddress = msg.sender;
         sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
         sarcophagus.cursedArchaeologistAddresses = new address[](selectedArchaeologists.length);
@@ -142,23 +216,25 @@ contract EmbalmerFacet {
             if (
                 sarcophagus
                     .cursedArchaeologists[selectedArchaeologists[i].archAddress]
-                    .doubleHashedKeyShare != 0
+                    .publicKey
+                    .length != 0
             ) {
-                revert LibErrors.ArchaeologistListNotUnique(selectedArchaeologists[i].archAddress);
+                revert ArchaeologistListContainsDuplicate(selectedArchaeologists[i].archAddress);
             }
 
-            // Validate the archaeologist has signed off on the sarcophagus parameters
+            if (
+                s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] != address(0)
+            ) {
+                revert DuplicatePublicKey(selectedArchaeologists[i].publicKey);
+            }
+
             LibUtils.verifyArchaeologistSignature(
-                selectedArchaeologists[i].doubleHashedKeyShare,
-                arweaveTxIds[1],
+                selectedArchaeologists[i].publicKey,
                 sarcophagusParams.maximumRewrapInterval,
                 sarcophagusParams.creationTime,
-                selectedArchaeologists[i].diggingFee,
-                selectedArchaeologists[i].v,
-                selectedArchaeologists[i].r,
-                selectedArchaeologists[i].s,
-                selectedArchaeologists[i].archAddress
+                selectedArchaeologists[i]
             );
+
 
             totalDiggingFees += selectedArchaeologists[i].diggingFee;
 
@@ -171,23 +247,27 @@ contract EmbalmerFacet {
             // save the cursedArchaeologist and cursedArchaeologistAddress to be stored on the new sarcophagus
             sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress] = LibTypes
                 .CursedArchaeologist({
+                    publicKey: selectedArchaeologists[i].publicKey,
+                    privateKey: 0,
                     isAccused: false,
-                    diggingFee: selectedArchaeologists[i].diggingFee,
-                    doubleHashedKeyShare: selectedArchaeologists[i].doubleHashedKeyShare,
-                    rawKeyShare: ""
+                    diggingFee: selectedArchaeologists[i].diggingFee
                 });
 
             sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
+            // add address to pub key mapping
+            s.publicKeyToArchaeologistAddress[
+                selectedArchaeologists[i].publicKey
+            ] = selectedArchaeologists[i].archAddress;
+
             // update archaeologist-specific convenience lookup structures
-            s.doubleHashedShardArchaeologists[
-                selectedArchaeologists[i].doubleHashedKeyShare
+            s.publicKeyToArchaeologistAddress[
+                selectedArchaeologists[i].publicKey
             ] = selectedArchaeologists[i].archAddress;
             s.archaeologistSarcophagi[selectedArchaeologists[i].archAddress].push(sarcoId);
         }
 
         // update sarcophagus-specific convenience lookup structures
-        s.sarcophagusIdentifiers.push(sarcoId);
         s.embalmerSarcophagi[msg.sender].push(sarcoId);
         s.recipientSarcophagi[sarcophagusParams.recipientAddress].push(sarcoId);
 
@@ -205,11 +285,8 @@ contract EmbalmerFacet {
             sarcophagus.cursedArchaeologistAddresses,
             totalDiggingFees,
             protocolFees,
-            arweaveTxIds
+            arweaveTxId
         );
-
-        // return index of sarcophagus in sarcophagusIdentifiers
-        return s.sarcophagusIdentifiers.length - 1;
     }
 
     /// @notice Updates the resurrectionTime on a sarcophagus. Callable by the embalmer of a sarcophagus if its
@@ -217,6 +294,7 @@ contract EmbalmerFacet {
     /// @param sarcoId the identifier of the sarcophagus
     /// @param resurrectionTime the new resurrection time
     function rewrapSarcophagus(bytes32 sarcoId, uint256 resurrectionTime) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists
@@ -241,17 +319,21 @@ contract EmbalmerFacet {
 
         // Confirm resurrection time has not yet passed
         if (block.timestamp >= sarcophagus.resurrectionTime) {
-            revert LibErrors.ResurrectionTimeInPast(sarcophagus.resurrectionTime);
+            revert ResurrectionTimeInPast(block.timestamp, sarcophagus.resurrectionTime);
         }
 
         // Confirm that new resurrection time is in future
         if (block.timestamp >= resurrectionTime) {
-            revert LibErrors.NewResurrectionTimeInPast(resurrectionTime);
+            revert NewResurrectionTimeInPast(block.timestamp, resurrectionTime);
         }
 
         // Confirm that new resurrection time doesn't exceed sarcophagus's maximumRewrapInterval
         if (block.timestamp + sarcophagus.maximumRewrapInterval < resurrectionTime) {
-            revert LibErrors.NewResurrectionTimeTooLarge(resurrectionTime);
+            revert NewResurrectionTimeTooFarInFuture(
+                resurrectionTime,
+                sarcophagus.maximumRewrapInterval,
+                block.timestamp + sarcophagus.maximumRewrapInterval
+            );
         }
 
         // track total digging fees across all archaeologists on the sarcophagus
@@ -289,6 +371,7 @@ contract EmbalmerFacet {
     /// resurrection time has not passed, it has not been compromised by k or more accusals, and it has not been buried.
     /// @param sarcoId the identifier of the sarcophagus
     function burySarcophagus(bytes32 sarcoId) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
         // Confirm the sarcophagus exists
@@ -312,7 +395,7 @@ contract EmbalmerFacet {
         }
         // Confirm that the current resurrection time is in the future
         if (block.timestamp >= sarcophagus.resurrectionTime) {
-            revert LibErrors.ResurrectionTimeInPast(sarcophagus.resurrectionTime);
+            revert ResurrectionTimeInPast(block.timestamp, sarcophagus.resurrectionTime);
         }
 
         // Set resurrection time to infinity

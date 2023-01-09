@@ -9,6 +9,7 @@ import "../libraries/LibTypes.sol";
 * TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs
 */
 struct AppStorage {
+
     // SARCO token contract
     IERC20 sarcoToken;
 
@@ -24,7 +25,7 @@ struct AppStorage {
     uint256 gracePeriod;
     // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated
     uint256 expirationThreshold;
-    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish key shares
+    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys
     uint256 embalmerClaimWindow;
 
     /**
@@ -37,12 +38,9 @@ struct AppStorage {
     // recipient address =>  ids of sarcophagi they're recipient on
     mapping(address => bytes32[]) recipientSarcophagi;
 
-    // double hashed keyshare => archaeologist address
-    mapping(bytes32 => address) doubleHashedShardArchaeologists;
+    // public key => archaeologist address
+    mapping(bytes => address) publicKeyToArchaeologistAddress;
 
-    // sarcophagus ids
-    // todo: is this used?
-    bytes32[] sarcophagusIdentifiers;
     // sarcophagus id => sarcophagus object
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
 
@@ -66,12 +64,12 @@ struct AppStorage {
 }
 
 library LibAppStorage {
+    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("sarcophagus.storage.dev1");
+
     function getAppStorage() internal pure returns (AppStorage storage s) {
-        // Set the position of our struct in contract storage
-        // Since AppStorage s is the first and only state variable declared in
-        // facets its position in contract storage is 0
+        bytes32 position = DIAMOND_STORAGE_POSITION;
         assembly {
-            s.slot := 0
+            s.slot := position
         }
     }
 }

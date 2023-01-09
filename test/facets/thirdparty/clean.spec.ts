@@ -10,7 +10,7 @@ import {
   setTimeToAfterEmbalmerClaimWindowEnd,
   setTimeToEmbalmerClaimWindowStart,
 } from "../helpers/clean";
-import { getDeployer, getFreshAccount } from "../helpers/accounts";
+import { accountGenerator, getDeployer } from "../helpers/accounts";
 import { ArchaeologistData } from "../helpers/archaeologistSignature";
 import { BigNumber } from "ethers";
 import {
@@ -21,13 +21,16 @@ import {
 } from "../helpers/bond";
 import { getTotalDiggingFeesSarquitos } from "../helpers/diggingFees";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
-import { publishKeySharesForArchaeologists } from "../helpers/publish";
+import { publishPrivateKeysForArchaeologists } from "../helpers/publish";
 
 const { deployments, ethers } = require("hardhat");
 
 describe("ThirdPartyFacet.clean", () => {
   // reset to directly after the diamond deployment before each test
-  beforeEach(async () => await deployments.fixture());
+  beforeEach(async () => {
+    await deployments.fixture();
+    accountGenerator.index = 0;
+  });
 
   describe("Validates parameters. Should revert if:", function () {
     it("no sarcophagus with the supplied id exists", async function () {
@@ -78,7 +81,7 @@ describe("ThirdPartyFacet.clean", () => {
       await setTimeToEmbalmerClaimWindowStart(
         sarcophagusData.resurrectionTimeSeconds
       );
-      const thirdParty = await getFreshAccount();
+      const thirdParty = await accountGenerator.newAccount();
       const tx = thirdPartyFacet
         .connect(thirdParty)
         .clean(sarcophagusData.sarcoId);
@@ -93,7 +96,7 @@ describe("ThirdPartyFacet.clean", () => {
       await setTimeToAfterEmbalmerClaimWindowEnd(
         sarcophagusData.resurrectionTimeSeconds
       );
-      const thirdParty = await getFreshAccount();
+      const thirdParty = await accountGenerator.newAccount();
       const tx = thirdPartyFacet
         .connect(thirdParty)
         .clean(sarcophagusData.sarcoId);
@@ -193,7 +196,7 @@ describe("ThirdPartyFacet.clean", () => {
       const { thirdPartyFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 7,
+          totalArchaeologists: 7,
           threshold: 4,
         });
 
@@ -205,7 +208,7 @@ describe("ThirdPartyFacet.clean", () => {
       );
 
       // have non accused archaeologists publish their keyshares
-      await publishKeySharesForArchaeologists(
+      await publishPrivateKeysForArchaeologists(
         sarcophagusData,
         archaeologists.slice(3, 7)
       );
@@ -267,7 +270,10 @@ describe("ThirdPartyFacet.clean", () => {
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
 
-      await publishKeySharesForArchaeologists(sarcophagusData, archaeologists);
+      await publishPrivateKeysForArchaeologists(
+        sarcophagusData,
+        archaeologists
+      );
 
       // save starting protocol fees before clean
       const startingProtocolFees = await viewStateFacet.getTotalProtocolFees();
@@ -315,17 +321,17 @@ describe("ThirdPartyFacet.clean", () => {
       );
     });
 
-    it("bread stores the sarcoId and archaeologist address in archaeologistCleanups", async function () {
+    it("stores the sarcoId and archaeologist address in archaeologistCleanups", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 7,
+          totalArchaeologists: 7,
           threshold: 4,
         });
 
       const nonPublishingArchaeologists = archaeologists.slice(0, 3);
       const publishingArchaeologists = archaeologists.slice(3, 7);
-      await publishKeySharesForArchaeologists(
+      await publishPrivateKeysForArchaeologists(
         sarcophagusData,
         publishingArchaeologists
       );
@@ -370,14 +376,14 @@ describe("ThirdPartyFacet.clean", () => {
       const { thirdPartyFacet } = await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 7,
+          totalArchaeologists: 7,
           threshold: 4,
         });
       const nonPublishingArchaeologists = archaeologists.slice(0, 3);
 
       // have publishing archaeologists publish their key shares
       const publishingArchaeologists = archaeologists.slice(3, 7);
-      await publishKeySharesForArchaeologists(
+      await publishPrivateKeysForArchaeologists(
         sarcophagusData,
         publishingArchaeologists
       );
@@ -431,7 +437,10 @@ describe("ThirdPartyFacet.clean", () => {
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       // have all archaeologists publish their key shares
-      await publishKeySharesForArchaeologists(sarcophagusData, archaeologists);
+      await publishPrivateKeysForArchaeologists(
+        sarcophagusData,
+        archaeologists
+      );
 
       // save starting embalmer balance before clean
       const embalmerPreCleanSarquitoBalance = await getSarquitoBalance(
@@ -459,14 +468,14 @@ describe("ThirdPartyFacet.clean", () => {
         await getContracts();
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists({
-          totalShares: 7,
+          totalArchaeologists: 7,
           threshold: 4,
         });
       const nonPublishingArchaeologists = archaeologists.slice(0, 3);
 
       // have publishing archaeologists publish their key shares
       const publishingArchaeologists = archaeologists.slice(3, 7);
-      await publishKeySharesForArchaeologists(
+      await publishPrivateKeysForArchaeologists(
         sarcophagusData,
         publishingArchaeologists
       );
@@ -517,7 +526,10 @@ describe("ThirdPartyFacet.clean", () => {
       const { sarcophagusData, archaeologists } =
         await registerSarcophagusWithArchaeologists();
       // have all archaeologists publish their key shares
-      await publishKeySharesForArchaeologists(sarcophagusData, archaeologists);
+      await publishPrivateKeysForArchaeologists(
+        sarcophagusData,
+        archaeologists
+      );
 
       // save starting protocol fees before clean
       const startingProtocolFees = await viewStateFacet.getTotalProtocolFees();

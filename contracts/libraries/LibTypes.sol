@@ -14,7 +14,7 @@ library LibTypes {
         string name;
         uint8 threshold;
         uint256 maximumRewrapInterval;
-        string[2] arweaveTxIds;
+        string arweaveTxId;
         address embalmerAddress;
         address recipientAddress;
         address[] cursedArchaeologistAddresses;
@@ -22,11 +22,11 @@ library LibTypes {
     }
 
     struct CursedArchaeologist {
-        // never zero - use for existence checks
-        bytes32 doubleHashedKeyShare;
+        // never empty - use for existence checks
+        bytes publicKey;
+        bytes32 privateKey;
         bool isAccused;
         uint256 diggingFee;
-        bytes rawKeyShare;
     }
 
     struct ArchaeologistProfile {
@@ -36,5 +36,11 @@ library LibTypes {
         uint256 maximumRewrapInterval;
         uint256 freeBond;
         uint256 cursedBond;
+    }
+
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
     }
 }

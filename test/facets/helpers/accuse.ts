@@ -1,11 +1,11 @@
 import { ArchaeologistData } from "./archaeologistSignature";
 import { expect } from "chai";
 import { getContracts } from "./contracts";
-import { Bytes } from "ethers";
-import { getFreshAccount } from "./accounts";
-import { hashShare } from "./shamirSecretSharing";
+import { Bytes, ethers, Signature } from "ethers";
+import { accountGenerator } from "./accounts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { SarcophagusData } from "./sarcophagus";
+import { sign } from "../../utils/helpers";
 
 /**
  * Compromises a sarcophagus by accusing the threshold of archaeologists
@@ -42,20 +42,38 @@ export const accuseArchaeologistsOnSarcophagus = async (
   accuser: SignerWithAddress;
 }> => {
   const { thirdPartyFacet } = await getContracts();
-  const accuser = await getFreshAccount();
+  const accuser = await accountGenerator.newAccount();
 
   const accusedArchaeologists = archaeologists.slice(0, count);
-
+  const signatures = await Promise.all(
+    accusedArchaeologists.map(
+      async (accusedArchaeologist: ArchaeologistData) =>
+        await sign(
+          new ethers.Wallet(accusedArchaeologist.privateKey),
+          [sarcoId.toString(), accuser.address],
+          ["bytes32", "address"]
+        )
+    )
+  );
   // accuse count archaeologists of leaking a keyshare
   await thirdPartyFacet.connect(accuser).accuse(
     sarcoId,
-    accusedArchaeologists.map((accusedArchaeologist) =>
-      hashShare(accusedArchaeologist.rawKeyShare)
-    ),
+    accusedArchaeologists.map((a: ArchaeologistData) => a.publicKey),
+    signatures,
     accuser.address
   );
   return { accusedArchaeologists, accuser };
 };
+export const generateAccusalSignature = async (
+  sarcoId: Bytes,
+  accusedArchaeologistPrivateKey: string,
+  accuserAddress: string
+): Promise<Signature> =>
+  await sign(
+    new ethers.Wallet(accusedArchaeologistPrivateKey),
+    [sarcoId.toString(), accuserAddress],
+    ["bytes32", "address"]
+  );
 
 /**
  * Given a set of archaeologists and sarcoId, asserts all have the expected accusal status

@@ -21,6 +21,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     sarcoTokenAddress = sarcoTokenMock.address;
   } else if (["goerli", "goerli-fork"].includes(hre.hardhatArguments.network)) {
     sarcoTokenAddress = process.env.SARCO_TOKEN_ADDRESS_GOERLI || "";
+  } else if (["sepolia"].includes(hre.hardhatArguments.network)) {
+    sarcoTokenAddress = process.env.SARCO_TOKEN_ADDRESS_SEPOLIA || "";
   } else if (
     ["mainnet", "mainnet-fork"].includes(hre.hardhatArguments.network)
   ) {

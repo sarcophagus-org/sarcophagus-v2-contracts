@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {AppStorage} from "../storage/LibAppStorage.sol";
-import { LibDiamond } from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol";
+import "../storage/LibAppStorage.sol";
+
+import {LibDiamond} from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol";
 
 contract AdminFacet {
-    AppStorage internal s;
 
     /// @notice Withdraws the total protocol fee amount from the contract.
     /// @dev Can only be called by the owner.
     function withdrawProtocolFees() external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
         LibDiamond.enforceIsContractOwner();
         // Get the total protocol fees from storage
         uint256 totalProtocolFees = s.totalProtocolFees;
@@ -25,6 +27,7 @@ contract AdminFacet {
     /// @param protocolFeeBasePercentage percentage to set
     /// @dev Can only be called by the owner.
     function setProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibDiamond.enforceIsContractOwner();
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
     }
@@ -33,6 +36,7 @@ contract AdminFacet {
     /// @param gracePeriod to set
     /// @dev Can only be called by the diamond owner.
     function setGracePeriod(uint256 gracePeriod) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibDiamond.enforceIsContractOwner();
         s.gracePeriod = gracePeriod;
     }
@@ -41,6 +45,7 @@ contract AdminFacet {
     /// @param embalmerClaimWindow to set
     /// @dev Can only be called by the diamond owner.
     function setEmbalmerClaimWindow(uint256 embalmerClaimWindow) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibDiamond.enforceIsContractOwner();
         s.embalmerClaimWindow = embalmerClaimWindow;
     }
@@ -49,6 +54,7 @@ contract AdminFacet {
     /// @param expirationThreshold to set
     /// @dev Can only be called by the diamond owner.
     function setExpirationThreshold(uint256 expirationThreshold) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         LibDiamond.enforceIsContractOwner();
         s.expirationThreshold = expirationThreshold;
     }

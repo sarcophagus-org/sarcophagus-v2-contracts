@@ -1,6 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { sign } from "../../utils/helpers";
-import { doubleHashShare } from "./shamirSecretSharing";
 
 const { ethers } = require("hardhat");
 
@@ -10,20 +9,20 @@ const { ethers } = require("hardhat");
  * */
 export interface ArchaeologistData {
   archAddress: string;
-  doubleHashedKeyShare: string;
+  publicKey: string;
+  privateKey: string;
   diggingFeeSarquitos: string;
   v: number;
   r: string;
   s: string;
-  rawKeyShare: Buffer;
 }
 
 /**
  * Parameters signed by an archaeologist during sarcophagus negotiation
  */
 export interface SarcophagusNegotiationParams {
-  arweaveTxId: string;
-  rawKeyShare: Buffer;
+  publicKey: string;
+  privateKey: string;
   maximumRewrapIntervalSeconds: number;
   creationTime: number;
   diggingFeeSarco: number;
@@ -45,25 +44,23 @@ export const createArchSignature = async (
     .parseEther(sarcophagusParams.diggingFeeSarco.toString())
     .toString();
 
-  const doubleHashedShare = doubleHashShare(sarcophagusParams.rawKeyShare);
   // sign sarcophagus negotiation parameters with archaeologist signer
   const { v, r, s } = await sign(
     archaeologistSigner,
     [
-      sarcophagusParams.arweaveTxId,
-      doubleHashedShare,
+      sarcophagusParams.publicKey,
       sarcophagusParams.maximumRewrapIntervalSeconds.toString(),
       sarcophagusDiggingFeeSarquitos,
       sarcophagusParams.creationTime.toString(),
     ],
-    ["string", "bytes32", "uint256", "uint256", "uint256"]
+    ["bytes", "uint256", "uint256", "uint256"]
   );
 
   return {
     archAddress: archaeologistSigner.address,
     diggingFeeSarquitos: sarcophagusDiggingFeeSarquitos,
-    rawKeyShare: sarcophagusParams.rawKeyShare,
-    doubleHashedKeyShare: doubleHashedShare,
+    publicKey: sarcophagusParams.publicKey,
+    privateKey: sarcophagusParams.privateKey,
     v,
     r,
     s,
