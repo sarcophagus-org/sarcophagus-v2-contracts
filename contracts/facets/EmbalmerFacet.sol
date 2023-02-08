@@ -11,7 +11,6 @@ import {LibUtils} from "../libraries/LibUtils.sol";
 import "hardhat/console.sol";
 
 contract EmbalmerFacet {
-
     /// @notice Emitted when a sarcophagus is created
     /// @param sarcoId Id of the new sarcophagus
     /// @param name Name of the new sarcophagus
@@ -121,6 +120,14 @@ contract EmbalmerFacet {
         uint256 maximumPermissibleResurrectionTime
     );
 
+    /// @notice Emitted when the resurrection time defined during sarcohpagus creation goes past the max resurrection time
+    /// @param resurrectionTime The resurrection time defined during the sarcophagus creation
+    /// @param maxResurrectionTime The maximum allowed resurrection time
+    error ResurrectionTimePastMaxResurrectionTime(
+        uint256 resurrectionTime,
+        uint256 maxResurrectionTime
+    );
+
     error NewResurrectionTimeInPast(uint256 currentTime, uint256 newResurrectionTime);
 
     error NewResurrectionTimeTooFarInFuture(
@@ -176,6 +183,14 @@ contract EmbalmerFacet {
                 sarcophagusParams.resurrectionTime,
                 sarcophagusParams.maximumRewrapInterval,
                 block.timestamp + sarcophagusParams.maximumRewrapInterval
+            );
+        }
+
+        // Confirm that the resurrection time is less than the max resurrection time
+        if (sarcophagusParams.resurrectionTime > sarcophagusParams.maximumResurrectionTime) {
+            revert ResurrectionTimePastMaxResurrectionTime(
+                sarcophagusParams.resurrectionTime,
+                sarcophagusParams.maximumResurrectionTime
             );
         }
 
@@ -236,7 +251,6 @@ contract EmbalmerFacet {
                 sarcophagusParams.creationTime,
                 selectedArchaeologists[i]
             );
-
 
             totalDiggingFees += selectedArchaeologists[i].diggingFee;
 
