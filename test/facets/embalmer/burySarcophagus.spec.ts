@@ -128,7 +128,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             expect(archaeologistPostRewrapRewards).to.equal(
               startingArchaeologistRewards[index].add(
-                archaeologist.diggingFeeSarquitos
+                archaeologist.diggingFeePerSecondSarquito
               )
             );
           }
@@ -171,13 +171,13 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             expect(archaeologistPostCurseFreeBond).to.equal(
               startingArchaeologistBonds[index].freeBond.add(
-                archaeologist.diggingFeeSarquitos
+                archaeologist.diggingFeePerSecondSarquito
               )
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
               startingArchaeologistBonds[index].lockedBond.sub(
-                archaeologist.diggingFeeSarquitos
+                archaeologist.diggingFeePerSecondSarquito
               )
             );
           }
@@ -240,7 +240,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
             } else {
               expect(archaeologistPostRewrapRewards).to.equal(
                 startingArchaeologistRewards[index].add(
-                  archaeologist.diggingFeeSarquitos
+                  archaeologist.diggingFeePerSecondSarquito
                 )
               );
             }
@@ -331,13 +331,13 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             expect(archaeologistPostBuryFreeBond).to.equal(
               startingInnocentArchaeologistBonds[index].freeBond.add(
-                archaeologist.diggingFeeSarquitos
+                archaeologist.diggingFeePerSecondSarquito
               )
             );
 
             expect(archaeologistPostBuryLockedBond).to.equal(
               startingInnocentArchaeologistBonds[index].lockedBond.sub(
-                archaeologist.diggingFeeSarquitos
+                archaeologist.diggingFeePerSecondSarquito
               )
             );
           }

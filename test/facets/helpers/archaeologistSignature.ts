@@ -1,4 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber } from "ethers";
 import { sign } from "../../utils/helpers";
 
 const { ethers } = require("hardhat");
@@ -11,7 +12,7 @@ export interface ArchaeologistData {
   archAddress: string;
   publicKey: string;
   privateKey: string;
-  diggingFeeSarquitos: string;
+  diggingFeePerSecondSarquito: BigNumber;
   v: number;
   r: string;
   s: string;
@@ -25,7 +26,7 @@ export interface SarcophagusNegotiationParams {
   privateKey: string;
   maximumRewrapIntervalSeconds: number;
   creationTime: number;
-  diggingFeeSarco: number;
+  diggingFeePerSecondSarquito: BigNumber;
 }
 
 /**
@@ -39,18 +40,13 @@ export const createArchSignature = async (
   archaeologistSigner: SignerWithAddress,
   sarcophagusParams: SarcophagusNegotiationParams
 ): Promise<ArchaeologistData> => {
-  // calculate sarcophagus' digging fees in sarquitos
-  const sarcophagusDiggingFeeSarquitos = ethers.utils
-    .parseEther(sarcophagusParams.diggingFeeSarco.toString())
-    .toString();
-
   // sign sarcophagus negotiation parameters with archaeologist signer
   const { v, r, s } = await sign(
     archaeologistSigner,
     [
       sarcophagusParams.publicKey,
       sarcophagusParams.maximumRewrapIntervalSeconds.toString(),
-      sarcophagusDiggingFeeSarquitos,
+      sarcophagusParams.diggingFeePerSecondSarquito.toString(),
       sarcophagusParams.creationTime.toString(),
     ],
     ["bytes", "uint256", "uint256", "uint256"]
@@ -58,7 +54,7 @@ export const createArchSignature = async (
 
   return {
     archAddress: archaeologistSigner.address,
-    diggingFeeSarquitos: sarcophagusDiggingFeeSarquitos,
+    diggingFeePerSecondSarquito: sarcophagusParams.diggingFeePerSecondSarquito,
     publicKey: sarcophagusParams.publicKey,
     privateKey: sarcophagusParams.privateKey,
     v,
