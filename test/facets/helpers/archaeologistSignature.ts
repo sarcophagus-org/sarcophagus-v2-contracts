@@ -24,6 +24,7 @@ export interface SarcophagusNegotiationParams {
   publicKey: string;
   privateKey: string;
   maximumRewrapIntervalSeconds: number;
+  maximumResurrectionTimeSeconds: number;
   creationTime: number;
   diggingFeeSarco: number;
 }
@@ -50,10 +51,11 @@ export const createArchSignature = async (
     [
       sarcophagusParams.publicKey,
       sarcophagusParams.maximumRewrapIntervalSeconds.toString(),
+      sarcophagusParams.maximumResurrectionTimeSeconds.toString(),
       sarcophagusDiggingFeeSarquitos,
       sarcophagusParams.creationTime.toString(),
     ],
-    ["bytes", "uint256", "uint256", "uint256"]
+    ["bytes", "uint256", "uint256", "uint256", "uint256"]
   );
 
   return {

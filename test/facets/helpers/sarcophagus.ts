@@ -30,6 +30,7 @@ export interface SarcophagusData {
   recipientAddress: string;
   resurrectionTimeSeconds: number;
   maximumRewrapIntervalSeconds: number;
+  maximumResurrectionTimeSeconds: number;
   creationTime: number;
   threshold: number;
   privateKeys: string[];
@@ -48,6 +49,7 @@ export const createSarcophagusData = async (params: {
   threshold?: number;
   totalArchaeologists?: number;
   maximumRewrapIntervalSeconds?: number;
+  maximumResurrectionTime?: number;
   resurrectionTime?: number;
   sarcoId?: string;
   name?: string;
@@ -62,7 +64,17 @@ export const createSarcophagusData = async (params: {
   const maximumRewrapIntervalSeconds =
     params.maximumRewrapIntervalSeconds !== undefined
       ? params.maximumRewrapIntervalSeconds
-      : await time.duration.weeks(4);
+      : time.duration.weeks(4);
+
+  // const maximumResurrectionTimeSeconds =
+  //   params.maximumResurrectionTime !== undefined
+  //     ? params.maximumResurrectionTime
+  //     : ethers.constants.MaxUint256;
+
+  const maximumResurrectionTimeSeconds =
+    params.maximumResurrectionTime !== undefined
+      ? params.maximumResurrectionTime
+      : Math.floor(new Date().getTime() / 1000) + time.duration.years(2);
 
   // generate new accounts for an embalmer and a recipient
   const embalmerAddress =
@@ -114,6 +126,7 @@ export const createSarcophagusData = async (params: {
     embalmer,
     resurrectionTimeSeconds,
     maximumRewrapIntervalSeconds,
+    maximumResurrectionTimeSeconds,
     threshold,
     creationTime,
     privateKeys,
@@ -146,6 +159,8 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
           privateKey,
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
+          maximumResurrectionTimeSeconds:
+            sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTime,
           diggingFeeSarco: 100,
         },
@@ -231,6 +246,7 @@ export const buildCreateSarcophagusArgs = (
     recipientAddress: string;
     resurrectionTime: BigNumberish;
     maximumRewrapInterval: BigNumberish;
+    maximumResurrectionTime: BigNumberish;
     threshold: BigNumberish;
     creationTime: BigNumberish;
   },
@@ -251,6 +267,7 @@ export const buildCreateSarcophagusArgs = (
       recipientAddress: sarcophagusData.recipientAddress,
       resurrectionTime: sarcophagusData.resurrectionTimeSeconds,
       maximumRewrapInterval: sarcophagusData.maximumRewrapIntervalSeconds,
+      maximumResurrectionTime: sarcophagusData.maximumResurrectionTimeSeconds,
       threshold: sarcophagusData.threshold,
       creationTime: sarcophagusData.creationTime,
     },

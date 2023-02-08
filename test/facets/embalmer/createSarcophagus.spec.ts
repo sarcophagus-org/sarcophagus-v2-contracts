@@ -170,6 +170,8 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           privateKey: sarcophagusData.privateKeys[0],
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
+          maximumResurrectionTimeSeconds:
+            sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTime,
           diggingFeeSarco: 100,
         }
@@ -200,6 +202,8 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           privateKey: sarcophagusData.privateKeys[1],
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
+          maximumResurrectionTimeSeconds:
+            sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTime,
           diggingFeeSarco: 100,
         }
