@@ -132,8 +132,8 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         .rewrapSarcophagus(
           sarcophagusData.sarcoId,
           (await time.latest()) +
-          sarcophagusData.maximumRewrapIntervalSeconds +
-          time.duration.minutes(1)
+            sarcophagusData.maximumRewrapIntervalSeconds +
+            time.duration.minutes(1)
         );
 
       await expect(tx).to.be.revertedWithCustomError(

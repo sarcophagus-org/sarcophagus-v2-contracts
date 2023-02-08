@@ -21,6 +21,7 @@ import {
 import { getSarquitoBalance } from "../helpers/sarcoToken";
 import { getDiggingFeesPlusProtocolFeesSarquitos } from "../helpers/diggingFees";
 import { ethers } from "hardhat";
+import { BigNumber } from "ethers";
 
 const crypto = require("crypto");
 const { deployments } = require("hardhat");
@@ -37,7 +38,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
       // set an expired creationTime
-      sarcophagusData.creationTime =
+      sarcophagusData.creationTimeSeconds =
         (await time.latest()) - time.duration.weeks(12);
 
       const archaeologists =
@@ -61,7 +62,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       // set current time to resurrectionTime
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       // update creationTime so sarcophagus parameters are not expired
-      sarcophagusData.creationTime = await time.latest();
+      sarcophagusData.creationTimeSeconds = await time.latest();
       const archaeologists =
         await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
 
@@ -176,7 +177,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           privateKey: sarcophagusData.privateKeys[0],
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
-          creationTime: sarcophagusData.creationTime,
+          creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         }
       );
@@ -207,7 +208,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           privateKey: sarcophagusData.privateKeys[1],
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
-          creationTime: sarcophagusData.creationTime,
+          creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         }
       );
@@ -310,7 +311,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       const archaeologists =
         await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
       // alter creationTime being supplied to the create call after signatures are generated using the original value
-      sarcophagusData.creationTime = (await time.latest()) - 10;
+      sarcophagusData.creationTimeSeconds = (await time.latest()) - 10;
 
       const tx = embalmerFacet
         .connect(sarcophagusData.embalmer)
@@ -348,7 +349,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
   });
 
   describe("Successfully creates a sarcophagus", function () {
-    it("Should lock bond equal to the supplied archaeologist's diggingFee property for the sarcophagus", async function () {
+    it("Should lock bond equal to the digging fee that will be paid to the archaeologist", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
 
@@ -386,16 +387,19 @@ describe("EmbalmerFacet.createSarcophagus", () => {
                 archaeologist.archAddress
               );
 
+            const diggingFeesDue = BigNumber.from(
+              archaeologist.diggingFeePerSecondSarquito
+            ).mul(
+              sarcophagusData.resurrectionTimeSeconds -
+                sarcophagusData.creationTimeSeconds
+            );
+
             expect(archaeologistPostCurseFreeBond).to.equal(
-              startingArchaeologistBonds[index].freeBond.sub(
-                archaeologist.diggingFeePerSecondSarquito
-              )
+              startingArchaeologistBonds[index].freeBond.sub(diggingFeesDue)
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
-              startingArchaeologistBonds[index].lockedBond.add(
-                archaeologist.diggingFeePerSecondSarquito
-              )
+              startingArchaeologistBonds[index].lockedBond.add(diggingFeesDue)
             );
           }
         )
@@ -425,7 +429,9 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       );
 
       const totalCostToEmbalmer = await getDiggingFeesPlusProtocolFeesSarquitos(
-        archaeologists
+        archaeologists,
+        sarcophagusData.resurrectionTimeSeconds -
+          sarcophagusData.creationTimeSeconds
       );
       expect(postCreationSarquitoBalance).to.equal(
         startingEmbalmerSarquitoBalance.sub(totalCostToEmbalmer)

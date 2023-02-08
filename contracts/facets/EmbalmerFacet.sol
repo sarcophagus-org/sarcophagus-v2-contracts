@@ -8,7 +8,6 @@ import "../storage/LibAppStorage.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
-import "hardhat/console.sol";
 
 contract EmbalmerFacet {
     /// @notice Emitted when a sarcophagus is created
@@ -240,7 +239,8 @@ contract EmbalmerFacet {
             // Curse the archaeologist on this sarcophagus
             uint256 diggingFeesDue = LibBonds.curseArchaeologist(
                 sarcoId,
-                selectedArchaeologists[i]
+                selectedArchaeologists[i],
+                i
             );
 
             totalDiggingFees += diggingFeesDue;

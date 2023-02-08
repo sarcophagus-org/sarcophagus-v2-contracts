@@ -71,7 +71,8 @@ library LibBonds {
     /// @return the amount of digging fees due the embalmer for this curse
     function curseArchaeologist(
         bytes32 sarcoId,
-        EmbalmerFacet.CurseParams calldata archaeologist
+        EmbalmerFacet.CurseParams calldata archaeologist,
+        uint256 index
     ) internal returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
@@ -82,7 +83,7 @@ library LibBonds {
             isAccused: false,
             diggingFeePerSecond: archaeologist.diggingFeePerSecond
         });
-        sarcophagus.cursedArchaeologistAddresses.push(archaeologist.archAddress);
+        sarcophagus.cursedArchaeologistAddresses[index] = archaeologist.archAddress;
 
         // Calculate digging fees due for this time period (creationTime/previousRewrapTime -> resurrectionTime)
         uint256 diggingFeesDue = archaeologist.diggingFeePerSecond *
