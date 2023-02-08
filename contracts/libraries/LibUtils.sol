@@ -27,6 +27,7 @@ library LibUtils {
     function verifyArchaeologistSignature(
         bytes calldata publicKey,
         uint256 agreedMaximumRewrapInterval,
+        uint256 maximumResurrectionTime,
         uint256 timestamp,
         EmbalmerFacet.CurseParams calldata curseParams
     ) internal pure {
@@ -38,6 +39,7 @@ library LibUtils {
                     abi.encode(
                         curseParams.publicKey,
                         agreedMaximumRewrapInterval,
+                        maximumResurrectionTime,
                         curseParams.diggingFee,
                         timestamp
                     )
@@ -47,7 +49,12 @@ library LibUtils {
 
         // Generate the address from the signature.
         // ecrecover should always return a valid address.
-        address recoveredAddress = ecrecover(messageHash, curseParams.v, curseParams.r, curseParams.s);
+        address recoveredAddress = ecrecover(
+            messageHash,
+            curseParams.v,
+            curseParams.r,
+            curseParams.s
+        );
 
         if (recoveredAddress != curseParams.archAddress) {
             revert LibErrors.InvalidSignature(recoveredAddress, curseParams.archAddress);
@@ -71,12 +78,20 @@ library LibUtils {
         for (uint256 i = 1; i < publicKey.length; i++) {
             truncatedPublicKey[i - 1] = publicKey[i];
         }
-        bytes32 messageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encode(sarcoId, paymentAddress))));
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32",
+                keccak256(abi.encode(sarcoId, paymentAddress))
+            )
+        );
         // Use ecrecover to get the address that signed the message
         address signingAddress = ecrecover(messageHash, signature.v, signature.r, signature.s);
 
         address publicKeyAddress = address(
-            uint160(uint256(keccak256(truncatedPublicKey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+            uint160(
+                uint256(keccak256(truncatedPublicKey)) &
+                    0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            )
         );
 
         return signingAddress == publicKeyAddress;
