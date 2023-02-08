@@ -8,7 +8,7 @@ import time from "../../utils/time";
  */
 export const setTimeToEmbalmerClaimWindowStart = async (
   resurrectionTimeSeconds: number
-) => {
+): Promise<void> => {
   const { viewStateFacet } = await getContracts();
   const publishDeadline =
     resurrectionTimeSeconds +
@@ -23,7 +23,7 @@ export const setTimeToEmbalmerClaimWindowStart = async (
  */
 export const setTimeToAfterEmbalmerClaimWindowEnd = async (
   resurrectionTimeSeconds: number
-) => {
+): Promise<void> => {
   const { viewStateFacet } = await getContracts();
   const embalmerClaimWindow = await viewStateFacet.getEmbalmerClaimWindow();
   const publishDeadline =
