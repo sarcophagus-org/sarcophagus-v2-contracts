@@ -55,6 +55,8 @@ contract EmbalmerFacet {
         string name;
         // highest rewrap interval bonded archaeologists have agreed to accept for lifetime of sarcophagus
         uint256 maximumRewrapInterval;
+        // The timestamp which the sarcophagus can no longer be rewrapped
+        uint256 maximumResurrectionTime;
         address recipientAddress;
         uint256 resurrectionTime;
         uint8 threshold;
