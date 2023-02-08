@@ -217,6 +217,7 @@ contract EmbalmerFacet {
         sarcophagus.threshold = sarcophagusParams.threshold;
         sarcophagus.resurrectionTime = sarcophagusParams.resurrectionTime;
         sarcophagus.maximumRewrapInterval = sarcophagusParams.maximumRewrapInterval;
+        sarcophagus.maximumResurrectionTime = sarcophagusParams.maximumResurrectionTime;
         sarcophagus.arweaveTxId = arweaveTxId;
         sarcophagus.embalmerAddress = msg.sender;
         sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
@@ -248,6 +249,7 @@ contract EmbalmerFacet {
             LibUtils.verifyArchaeologistSignature(
                 selectedArchaeologists[i].publicKey,
                 sarcophagusParams.maximumRewrapInterval,
+                sarcophagusParams.maximumResurrectionTime,
                 sarcophagusParams.creationTime,
                 selectedArchaeologists[i]
             );
