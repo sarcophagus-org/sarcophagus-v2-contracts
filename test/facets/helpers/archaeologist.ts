@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { accountGenerator } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
 import { getContracts } from "./contracts";
-import { BigNumber } from "ethers";
+import { BigNumberish } from "ethers";
 
 const { ethers } = require("hardhat");
 
@@ -13,7 +13,7 @@ const { ethers } = require("hardhat");
  * freeBondSarco - amount of SARCO to deduct from sarcoBalance and register as free bond
  */
 export interface ArchaeologistParameters {
-  profileMinDiggingFeePerSecondSarquito: BigNumber;
+  profileMinDiggingFeePerSecondSarquito: BigNumberish;
   profileMaxRewrapIntervalSeconds: number;
   sarcoBalance: number;
   freeBondSarco: number;

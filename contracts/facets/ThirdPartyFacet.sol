@@ -144,7 +144,7 @@ contract ThirdPartyFacet {
                 totalDiggingFeesAndLockedBonds += diggingFeesDue * 2;
 
                 // slash the archaeologist's locked bond for the sarcophagus
-                LibBonds.slashArchaeologistLockedBond(
+                LibBonds.decreaseArchaeologistLockedBond(
                     sarcophagus.cursedArchaeologistAddresses[i],
                     diggingFeesDue
                 );
@@ -262,7 +262,7 @@ contract ThirdPartyFacet {
 
             totalDiggingFees += diggingFeesDue;
 
-            LibBonds.slashArchaeologistLockedBond(accusedArchaeologistAddress, diggingFeesDue);
+            LibBonds.decreaseArchaeologistLockedBond(accusedArchaeologistAddress, diggingFeesDue);
 
             // Save this accusal against the archaeologist
             s.archaeologistAccusals[accusedArchaeologistAddress].push(sarcoId);

@@ -7,6 +7,7 @@ import {
   createSarcophagusData,
   registerDefaultArchaeologistsAndCreateSignatures,
   createSarcophagusWithRegisteredCursedArchaeologists,
+  diggingFeesPerSecond_10_000_SarcoMonthly,
 } from "../helpers/sarcophagus";
 import {
   ArchaeologistData,
@@ -176,7 +177,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
           creationTime: sarcophagusData.creationTime,
-          diggingFeePerSecondSarquito: ethers.utils.parseEther("1000"),
+          diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         }
       );
       archaeologists[0] = unregisteredArchaeologistData;
@@ -207,7 +208,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
           creationTime: sarcophagusData.creationTime,
-          diggingFeePerSecondSarquito: ethers.utils.parseEther("1000"),
+          diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         }
       );
       archaeologists[1] = duplicateArchaeologist;

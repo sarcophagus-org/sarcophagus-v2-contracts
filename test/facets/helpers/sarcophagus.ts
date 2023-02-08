@@ -19,6 +19,8 @@ import { ethers } from "hardhat";
 
 const crypto = require("crypto");
 
+export const diggingFeesPerSecond_10_000_SarcoMonthly = "4000000000000000";
+
 /**
  * Contains information on a test sarcophagus
  * used to generate archaeologists and signatures and register a sarcophagus
@@ -133,11 +135,11 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
           creationTime: sarcophagusData.creationTime,
-          diggingFeePerSecondSarquito: ethers.utils.parseEther("1000"),
+          diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         },
         {
           profileMinDiggingFeePerSecondSarquito:
-            ethers.utils.parseEther("1000"),
+            diggingFeesPerSecond_10_000_SarcoMonthly,
           profileMaxRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
           sarcoBalance: 10_000,

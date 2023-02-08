@@ -1,5 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumber } from "ethers";
+import { BigNumberish } from "ethers";
 import { sign } from "../../utils/helpers";
 
 const { ethers } = require("hardhat");
@@ -12,7 +12,7 @@ export interface ArchaeologistData {
   archAddress: string;
   publicKey: string;
   privateKey: string;
-  diggingFeePerSecondSarquito: BigNumber;
+  diggingFeePerSecondSarquito: BigNumberish;
   v: number;
   r: string;
   s: string;
@@ -26,7 +26,7 @@ export interface SarcophagusNegotiationParams {
   privateKey: string;
   maximumRewrapIntervalSeconds: number;
   creationTime: number;
-  diggingFeePerSecondSarquito: BigNumber;
+  diggingFeePerSecondSarquito: BigNumberish;
 }
 
 /**

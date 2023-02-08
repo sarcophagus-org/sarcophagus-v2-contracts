@@ -45,16 +45,16 @@ library LibBonds {
     /// archaeologist, without respectively increasing their free bond.
     /// @param archaeologist The address of the archaeologist
     /// @param amount The amount to slash
-    function slashArchaeologistLockedBond(address archaeologist, uint256 amount) internal {
+    function decreaseArchaeologistLockedBond(address archaeologist, uint256 amount) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // TDOD: Revert if the amount is greater than the current cursed bond (is this really needed?)
-        // if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {
-        //     revert LibErrors.NotEnoughCursedBond(
-        //         s.archaeologistProfiles[archaeologist].cursedBond,
-        //         amount
-        //     );
-        // }
+        // TDOD: Revert if the amount is greater than the current cursed bond
+        if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {
+            revert LibErrors.NotEnoughCursedBond(
+                s.archaeologistProfiles[archaeologist].cursedBond,
+                amount
+            );
+        }
 
         s.archaeologistProfiles[archaeologist].cursedBond -= amount;
     }
@@ -88,7 +88,7 @@ library LibBonds {
         uint256 diggingFeesDue = archaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-        s.archaeologistProfiles[archaeologist.archAddress].freeBond -= diggingFeesDue;
+        decreaseFreeBond(archaeologist.archAddress, diggingFeesDue);
         s.archaeologistProfiles[archaeologist.archAddress].cursedBond += diggingFeesDue;
 
         s.archaeologistSarcophagi[archaeologist.archAddress].push(sarcoId);
@@ -111,7 +111,7 @@ library LibBonds {
         uint256 amount = cursedArchaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-        s.archaeologistProfiles[archaeologistAddress].cursedBond -= amount;
+        decreaseArchaeologistLockedBond(archaeologistAddress, amount);
         s.archaeologistProfiles[archaeologistAddress].freeBond += amount;
         s.archaeologistRewards[archaeologistAddress] += amount;
     }
