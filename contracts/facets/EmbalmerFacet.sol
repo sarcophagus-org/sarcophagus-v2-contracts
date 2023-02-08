@@ -232,39 +232,23 @@ contract EmbalmerFacet {
             }
 
             LibUtils.verifyArchaeologistSignature(
-                selectedArchaeologists[i].publicKey,
                 sarcophagusParams.maximumRewrapInterval,
                 sarcophagusParams.creationTime,
                 selectedArchaeologists[i]
             );
 
-            // Calculate digging fees due for this time period (creationTime -> resurrectionTime)
-            uint256 diggingFeesDue = selectedArchaeologists[i].diggingFeePerSecond *
-                (sarcophagusParams.resurrectionTime - sarcophagusParams.creationTime);
+            // Curse the archaeologist on this sarcophagus
+            uint256 diggingFeesDue = LibBonds.curseArchaeologist(
+                sarcoId,
+                selectedArchaeologists[i]
+            );
 
             totalDiggingFees += diggingFeesDue;
-
-            // Lock the archaeologist's free bond
-            LibBonds.lockUpBond(selectedArchaeologists[i].archAddress, diggingFeesDue);
-
-            // attach the cursedArchaeologist and cursedArchaeologistAddress to the new sarcophagus
-            sarcophagus.cursedArchaeologists[selectedArchaeologists[i].archAddress] = LibTypes
-                .CursedArchaeologist({
-                    publicKey: selectedArchaeologists[i].publicKey,
-                    privateKey: 0,
-                    isAccused: false,
-                    diggingFeePerSecond: selectedArchaeologists[i].diggingFeePerSecond
-                });
-
-            sarcophagus.cursedArchaeologistAddresses[i] = selectedArchaeologists[i].archAddress;
 
             // "Consume" this public key so it cannot be reused in the future
             s.publicKeyToArchaeologistAddress[
                 selectedArchaeologists[i].publicKey
             ] = selectedArchaeologists[i].archAddress;
-
-            // Add this sarcophagus id to the archaeologist's record
-            s.archaeologistSarcophagi[selectedArchaeologists[i].archAddress].push(sarcoId);
         }
 
         // Add this sarcophagus id to the embalmer's record
@@ -415,9 +399,9 @@ contract EmbalmerFacet {
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[archaeologistAddresses[i]];
+
             // if the archaeologist hasn't been accused transfer them their digging fees and return their locked bond
             if (!cursedArchaeologist.isAccused) {
-                s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.diggingFee;
                 LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
             }
         }

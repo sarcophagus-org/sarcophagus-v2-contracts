@@ -12,7 +12,6 @@ import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 
 contract ThirdPartyFacet {
-
     event AccuseArchaeologist(
         bytes32 indexed sarcoId,
         address indexed accuser,
@@ -76,6 +75,11 @@ contract ThirdPartyFacet {
         AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
+        // Confirm tx sender is embalmer or admin
+        if (msg.sender != sarcophagus.embalmerAddress && msg.sender != LibDiamond.contractOwner()) {
+            revert SenderNotEmbalmerOrAdmin(msg.sender);
+        }
+
         // Confirm the sarcophagus exists
         if (sarcophagus.resurrectionTime == 0) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
@@ -99,11 +103,6 @@ contract ThirdPartyFacet {
         // Confirm that the resurrectionTime + gracePeriod have passed
         if (block.timestamp <= sarcophagus.resurrectionTime + s.gracePeriod) {
             revert TooEarlyForClean(block.timestamp, sarcophagus.resurrectionTime + s.gracePeriod);
-        }
-
-        // Confirm tx sender is embalmer or admin
-        if (msg.sender != sarcophagus.embalmerAddress && msg.sender != LibDiamond.contractOwner()) {
-            revert SenderNotEmbalmerOrAdmin(msg.sender);
         }
 
         // if sender is embalmer, confirm current time is within embalmerClaimWindow
@@ -130,19 +129,24 @@ contract ThirdPartyFacet {
 
         // sum of locked bonds and digging fees for all archaeologists that have failed to publish private keys before publish deadline and have not been accused
         uint256 totalDiggingFeesAndLockedBonds = 0;
+
         for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]];
+
+            // Punish archaeologists that failed to publish their private key in time
             if (!cursedArchaeologist.isAccused && cursedArchaeologist.privateKey == 0) {
-                totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee;
-                // add digging fee for cursedArchaeologist
-                totalDiggingFeesAndLockedBonds += cursedArchaeologist.diggingFee;
-                // add locked bond for cursedArchaeologist
+                uint256 diggingFeesDue = cursedArchaeologist.diggingFeePerSecond *
+                    (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
+
+                // There's a 1-to-1 ratio of locked bond to digging fees paid by embalmer
+                // that would have been rewarded to arch. Both are refunded.
+                totalDiggingFeesAndLockedBonds += diggingFeesDue * 2;
 
                 // slash the archaeologist's locked bond for the sarcophagus
-                LibBonds.decreaseCursedBond(
+                LibBonds.slashArchaeologistLockedBond(
                     sarcophagus.cursedArchaeologistAddresses[i],
-                    cursedArchaeologist.diggingFee
+                    diggingFeesDue
                 );
 
                 // track that the archaeologist has had a clean on this sarcophagus
@@ -150,13 +154,11 @@ contract ThirdPartyFacet {
             }
         }
 
-        // if caller is embalmer, transfer them the total locked bonds and digging fees
+        // Transfer total slashed locked bonds plus digging fees to the embalmer if they are the caller, otherwise add
+        // this to the contract's protocol fees
         if (msg.sender == sarcophagus.embalmerAddress) {
             s.sarcoToken.transfer(sarcophagus.embalmerAddress, totalDiggingFeesAndLockedBonds);
-        }
-
-        // if caller is admin, add total locked bonds and digging fees into protocolFees
-        if (msg.sender == LibDiamond.contractOwner()) {
+        } else {
             s.totalProtocolFees += totalDiggingFeesAndLockedBonds;
         }
 
@@ -207,10 +209,11 @@ contract ThirdPartyFacet {
         if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
+
         if (signatures.length != publicKeys.length) {
             revert DifferentNumberOfSignaturesAndPublicKeys(signatures.length, publicKeys.length);
         }
-        // build an array of the addresses of the archaeologists currently being accused
+
         address[] memory accusedArchAddresses = new address[](signatures.length);
 
         // track the combined locked bond across all archaeologists being accused in this call
@@ -219,9 +222,19 @@ contract ThirdPartyFacet {
         uint256 accusalCount = 0;
         for (uint256 i = 0; i < signatures.length; i++) {
             if (
-                !LibUtils.verifyAccusalSignature(sarcoId, paymentAddress, publicKeys[i], signatures[i])
+                !LibUtils.verifyAccusalSignature(
+                    sarcoId,
+                    paymentAddress,
+                    publicKeys[i],
+                    signatures[i]
+                )
             ) {
-                revert InvalidAccusalSignature(sarcoId, paymentAddress, publicKeys[i], signatures[i]);
+                revert InvalidAccusalSignature(
+                    sarcoId,
+                    paymentAddress,
+                    publicKeys[i],
+                    signatures[i]
+                );
             }
 
             // look up the archaeologist responsible for the publicKey
@@ -244,15 +257,14 @@ contract ThirdPartyFacet {
             accusedArchAddresses[accusalCount++] = accusedArchaeologistAddress;
 
             // track the sum of all digging fees for all accused archaeologists
-            totalDiggingFees += accusedArchaeologist.diggingFee;
+            uint256 diggingFeesDue = accusedArchaeologist.diggingFeePerSecond *
+                (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-            // slash the accused archaeologist's bond
-            LibBonds.decreaseCursedBond(
-                accusedArchaeologistAddress,
-                accusedArchaeologist.diggingFee
-            );
+            totalDiggingFees += diggingFeesDue;
 
-            // Save the accusal against the archaeologist
+            LibBonds.slashArchaeologistLockedBond(accusedArchaeologistAddress, diggingFeesDue);
+
+            // Save this accusal against the archaeologist
             s.archaeologistAccusals[accusedArchaeologistAddress].push(sarcoId);
         }
 
@@ -302,8 +314,7 @@ contract ThirdPartyFacet {
             }
         }
 
-        // refund the diggingFees allocated by the embalmer to the accused archaeologists
-        // split the total bond being slashed between the embalmer and the payment address
+        // Reward caller, and reimburse embalmer
         (uint256 accuserBondReward, uint256 embalmerBondReward) = _distributeLoot(
             paymentAddress,
             sarcophagus,
@@ -314,36 +325,38 @@ contract ThirdPartyFacet {
     }
 
     /**
-     * @notice Takes a sarcophagus's digging fee, splits it in half, and sends
-     * to paymentAddress and embalmer
-     * @param paymentAddress payment address for the transaction caller
-     * @param sarc the sarcophagus to operate on
-     * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties
-     * @return halfToSender the amount of SARCO token going to transaction
-     * sender
-     * @return halfToEmbalmer the amount of SARCO token going to embalmer
+     * @notice Takes the total digging fees due on a sarcophagus, splits it in half, and sends
+     * to paymentAddress and embalmer. Also reimburses the digging fees paid by the embalmer.
+     *
+     * @param paymentAddress to which funds will be sent
+     * @param sarcophagus the sarcophagus whose cursed bonds is to be distributed
+     * @param totalDiggingFee the sum of digging fees of all archs that failed to fulfil their duties. Also represents their locked/cursed bond.
+     *
+     * @return halfCursedBondToSender the amount of SARCO going to transaction sender
+     * @return halfCursedBondToEmbalmer the amount of SARCO going to embalmer. does not include reimbursed digging fees
      */
     function _distributeLoot(
         address paymentAddress,
-        LibTypes.Sarcophagus storage sarc,
+        LibTypes.Sarcophagus storage sarcophagus,
         uint256 totalDiggingFee
     ) private returns (uint256, uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
         // split the sarcophagus's cursed bond into two halves
-        uint256 halfToEmbalmer = totalDiggingFee / 2;
-        uint256 halfToSender = totalDiggingFee - halfToEmbalmer;
+        // (As digging fee is 1-to-1 equivalent to locked bond, the numerical value of
+        //  `totalDiggingFee` can be treated as cursed bond)
+        uint256 halfCursedBondToEmbalmer = totalDiggingFee / 2;
+        uint256 halfCursedBondToSender = totalDiggingFee - halfCursedBondToEmbalmer;
 
-        // transfer the cursed half, plus digging fee to the
-        // embalmer
-        s.sarcoToken.transfer(sarc.embalmerAddress, totalDiggingFee + halfToEmbalmer);
+        // transfer the cursed half, plus the original digging fees paid, to the embalmer
+        s.sarcoToken.transfer(
+            sarcophagus.embalmerAddress,
+            totalDiggingFee + halfCursedBondToEmbalmer
+        );
 
         // transfer the other half of the cursed bond to the transaction caller
-        s.sarcoToken.transfer(paymentAddress, halfToSender);
+        s.sarcoToken.transfer(paymentAddress, halfCursedBondToSender);
 
-        return (halfToSender, halfToEmbalmer);
-    }
-
-    function _hashHelper(bytes memory data) private pure returns (bytes32) {
-        return keccak256(data);
+        // TODO: should halfCursedBondToEmbalmer instead be `halfCursedBondToEmbalmer + totalDiggingFee`?
+        return (halfCursedBondToSender, halfCursedBondToEmbalmer);
     }
 }
