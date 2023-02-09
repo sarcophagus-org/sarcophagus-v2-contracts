@@ -2,6 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { accountGenerator } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
 import { getContracts } from "./contracts";
+import { BigNumberish } from "ethers";
 
 const { ethers } = require("hardhat");
 
@@ -12,7 +13,7 @@ const { ethers } = require("hardhat");
  * freeBondSarco - amount of SARCO to deduct from sarcoBalance and register as free bond
  */
 export interface ArchaeologistParameters {
-  profileMinDiggingFeeSarco: number;
+  profileMinDiggingFeePerSecondSarquito: BigNumberish;
   profileMaxRewrapIntervalSeconds: number;
   sarcoBalance: number;
   freeBondSarco: number;
@@ -21,8 +22,9 @@ export interface ArchaeologistParameters {
 /**
  * Registers an archaeologist with the supplied ArchaeologistParameters
  *
- * transfers the archaeologist the specified SARCO balance and approves diamond spending on their behalf
- * registers the archaeologist on the ArchaeologistFacet with the specified freeBond amount (deducted from their balance)
+ * Transfers the archaeologist the specified SARCO balance and approves diamond spending on their behalf
+ *
+ * Registers the archaeologist on the ArchaeologistFacet with the specified freeBond amount (deducted from their balance)
  *
  * @param archaeologistParams
  * @returns the archaeologist's signer
@@ -30,10 +32,6 @@ export interface ArchaeologistParameters {
 export const registerArchaeologist = async (
   archaeologistParams: ArchaeologistParameters
 ): Promise<SignerWithAddress> => {
-  // calculate archaeologist's minimum digging fee and free bond in sarquitos
-  const archMinDiggingFeeSarquitos = ethers.utils
-    .parseEther(archaeologistParams.profileMinDiggingFeeSarco.toString())
-    .toString();
   const archaeologistFreeBondSarquitos = ethers.utils.parseEther(
     archaeologistParams.freeBondSarco.toString()
   );
@@ -51,7 +49,7 @@ export const registerArchaeologist = async (
     .connect(archaeologistSigner)
     .registerArchaeologist(
       peerId,
-      archMinDiggingFeeSarquitos,
+      archaeologistParams.profileMinDiggingFeePerSecondSarquito,
       archaeologistParams.profileMaxRewrapIntervalSeconds,
       archaeologistFreeBondSarquitos
     );

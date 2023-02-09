@@ -1,4 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumberish } from "ethers";
 import { sign } from "../../utils/helpers";
 
 const { ethers } = require("hardhat");
@@ -11,7 +12,7 @@ export interface ArchaeologistData {
   archAddress: string;
   publicKey: string;
   privateKey: string;
-  diggingFeeSarquitos: string;
+  diggingFeePerSecondSarquito: BigNumberish;
   v: number;
   r: string;
   s: string;
@@ -26,7 +27,7 @@ export interface SarcophagusNegotiationParams {
   maximumRewrapIntervalSeconds: number;
   maximumResurrectionTimeSeconds: number;
   creationTime: number;
-  diggingFeeSarco: number;
+  diggingFeePerSecondSarquito: BigNumberish;
 }
 
 /**
@@ -40,11 +41,6 @@ export const createArchSignature = async (
   archaeologistSigner: SignerWithAddress,
   sarcophagusParams: SarcophagusNegotiationParams
 ): Promise<ArchaeologistData> => {
-  // calculate sarcophagus' digging fees in sarquitos
-  const sarcophagusDiggingFeeSarquitos = ethers.utils
-    .parseEther(sarcophagusParams.diggingFeeSarco.toString())
-    .toString();
-
   // sign sarcophagus negotiation parameters with archaeologist signer
   const { v, r, s } = await sign(
     archaeologistSigner,
@@ -52,7 +48,7 @@ export const createArchSignature = async (
       sarcophagusParams.publicKey,
       sarcophagusParams.maximumRewrapIntervalSeconds.toString(),
       sarcophagusParams.maximumResurrectionTimeSeconds.toString(),
-      sarcophagusDiggingFeeSarquitos,
+      sarcophagusParams.diggingFeePerSecondSarquito.toString(),
       sarcophagusParams.creationTime.toString(),
     ],
     ["bytes", "uint256", "uint256", "uint256", "uint256"]
@@ -60,7 +56,7 @@ export const createArchSignature = async (
 
   return {
     archAddress: archaeologistSigner.address,
-    diggingFeeSarquitos: sarcophagusDiggingFeeSarquitos,
+    diggingFeePerSecondSarquito: sarcophagusParams.diggingFeePerSecondSarquito,
     publicKey: sarcophagusParams.publicKey,
     privateKey: sarcophagusParams.privateKey,
     v,

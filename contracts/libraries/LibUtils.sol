@@ -19,13 +19,11 @@ library LibUtils {
      * @notice The archaeologist needs to sign off on two pieces of data
      * to guarantee their unrwap will be successful
      *
-     * @param publicKey public key archaeologist is responsible for
      * @param agreedMaximumRewrapInterval that the archaeologist has agreed to for the sarcophagus
      * @param timestamp that the archaeologist has agreed to for the sarcophagus
      * @param curseParams parameters of curse signed by archaeologist
      */
     function verifyArchaeologistSignature(
-        bytes calldata publicKey,
         uint256 agreedMaximumRewrapInterval,
         uint256 maximumResurrectionTime,
         uint256 timestamp,
@@ -40,7 +38,7 @@ library LibUtils {
                         curseParams.publicKey,
                         agreedMaximumRewrapInterval,
                         maximumResurrectionTime,
-                        curseParams.diggingFee,
+                        curseParams.diggingFeePerSecond,
                         timestamp
                     )
                 )
@@ -109,8 +107,7 @@ library LibUtils {
         }
     }
 
-    /// @notice Checks if an archaeologist profile doesn't exist and
-    /// reverts if so
+    /// @notice Checks if an archaeologist profile doesn't exist and reverts if so
     ///
     /// @param archaeologist the archaeologist address to check lack of existence of
     function revertIfArchProfileDoesNotExist(address archaeologist) internal view {
@@ -122,6 +119,7 @@ library LibUtils {
     }
 
     /// @notice Calculates the protocol fees to be taken from the embalmer.
+    /// @param totalDiggingFees to be paid. Protocol fee is a percentage of this
     /// @return The protocol fees amount
     function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();

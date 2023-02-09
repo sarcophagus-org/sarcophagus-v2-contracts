@@ -2,11 +2,9 @@
 pragma solidity ^0.8.13;
 
 import "../libraries/LibTypes.sol";
-import "hardhat/console.sol";
 import "../storage/LibAppStorage.sol";
 
 contract ViewStateFacet {
-
     /// @notice Gets the total protocol fees from the contract.
     /// @return The total protocol fees
     function getTotalProtocolFees() external view returns (uint256) {

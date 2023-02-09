@@ -1,6 +1,9 @@
 import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai";
-import { registerSarcophagusWithArchaeologists } from "../helpers/sarcophagus";
+import {
+  createSarcophagusWithRegisteredCursedArchaeologists,
+  SarcophagusData,
+} from "../helpers/sarcophagus";
 import time from "../../utils/time";
 import { getContracts } from "../helpers/contracts";
 import { accountGenerator } from "../helpers/accounts";
@@ -13,8 +16,11 @@ import {
   verifyAccusalStatusesForArchaeologists,
 } from "../helpers/accuse";
 import { getTotalDiggingFeesSarquitos } from "../helpers/diggingFees";
+import { ArchaeologistData } from "../helpers/archaeologistSignature";
+import { ThirdPartyFacet, ViewStateFacet } from "../../../typechain";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-const { deployments, ethers, hre } = require("hardhat");
+const { deployments, ethers } = require("hardhat");
 
 describe("ThirdPartyFacet.accuse", () => {
   beforeEach(async () => {
@@ -47,7 +53,8 @@ describe("ThirdPartyFacet.accuse", () => {
 
     it("the current time is past the resurrectionTime", async function () {
       const { thirdPartyFacet } = await getContracts();
-      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+      const { createdSarcophagusData: sarcophagusData } =
+        await createSarcophagusWithRegisteredCursedArchaeologists();
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
 
       // accuse an archaeologist of leaking a keyshare
@@ -65,10 +72,13 @@ describe("ThirdPartyFacet.accuse", () => {
         `ResurrectionTimeInPast`
       );
     });
+
     it("the sarcophagus has been compromised", async function () {
       const { thirdPartyFacet } = await getContracts();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists();
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists();
 
       await compromiseSarcophagus(sarcophagusData, archaeologists);
 
@@ -86,9 +96,11 @@ describe("ThirdPartyFacet.accuse", () => {
         `SarcophagusCompromised`
       );
     });
+
     it("the sarcophagus has been buried", async function () {
       const { embalmerFacet, thirdPartyFacet } = await getContracts();
-      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+      const { createdSarcophagusData: sarcophagusData } =
+        await createSarcophagusWithRegisteredCursedArchaeologists();
 
       await embalmerFacet
         .connect(sarcophagusData.embalmer)
@@ -108,11 +120,14 @@ describe("ThirdPartyFacet.accuse", () => {
         `SarcophagusInactive`
       );
     });
+
     it("an unequal number of public keys and signatures have been supplied", async function () {
       const { thirdPartyFacet } = await getContracts();
       const accuser = await accountGenerator.newAccount();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists();
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists();
       const accusedArchaeologist = archaeologists[0];
 
       const tx = thirdPartyFacet
@@ -136,12 +151,15 @@ describe("ThirdPartyFacet.accuse", () => {
       );
     });
   });
+
   describe("Rejects invalid accusal signatures", function () {
     it("Should revert if the accusal signature was made on the wrong payment address", async function () {
       const { thirdPartyFacet } = await getContracts();
       const accuser = await accountGenerator.newAccount();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists();
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists();
       const accusedArchaeologist = archaeologists[0];
 
       const tx = thirdPartyFacet.connect(accuser).accuse(
@@ -163,11 +181,14 @@ describe("ThirdPartyFacet.accuse", () => {
         `InvalidAccusalSignature`
       );
     });
+
     it("Should revert if the accusal signature was made with the wrong private key", async function () {
       const { thirdPartyFacet } = await getContracts();
       const accuser = await accountGenerator.newAccount();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists();
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists();
       const accusedArchaeologist = archaeologists[0];
 
       const tx = thirdPartyFacet.connect(accuser).accuse(
@@ -192,101 +213,194 @@ describe("ThirdPartyFacet.accuse", () => {
   });
 
   describe("Supports accusal of fewer than k archaeologists", function () {
-    it("On a successful accusal of an archaeologist, should transfer the correct amount of funds to embalmer and accuser, slash the archaeologist's bond, mark the arch as accused, and emit an AccuseArchaeologist event", async function () {
-      const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const accuser = await accountGenerator.newAccount();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists();
-      const accusedArchaeologist = archaeologists[0];
+    describe("On successful accusal, it should:", () => {
+      let _thirdPartyFacet: ThirdPartyFacet;
+      let _viewStateFacet: ViewStateFacet;
+      let _sarcophagusData: SarcophagusData;
+      let accusedArchaeologist: ArchaeologistData;
+      let accuser: SignerWithAddress;
 
-      // save the sarquito balance of the embalmer prior to the accusal
-      const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
-        sarcophagusData.embalmer.address
-      );
-      // save accused archaeologist initial free bond
-      const accusedArchaeologistInitialFreeBondSarquitos = (
-        await viewStateFacet.getArchaeologistProfile(
-          accusedArchaeologist.archAddress
-        )
-      ).freeBond;
+      beforeEach(async () => {
+        const { thirdPartyFacet, viewStateFacet } = await getContracts();
+        _thirdPartyFacet = thirdPartyFacet;
+        _viewStateFacet = viewStateFacet;
 
-      // accuse the archaeologist of leaking a keyshare
-      const tx = thirdPartyFacet
-        .connect(accuser)
-        .accuse(
-          sarcophagusData.sarcoId,
-          [accusedArchaeologist.publicKey],
-          [
-            await generateAccusalSignature(
-              sarcophagusData.sarcoId,
-              accusedArchaeologist.privateKey,
-              accuser.address
-            ),
-          ],
-          accuser.address
+        accuser = await accountGenerator.newAccount();
+        const { createdSarcophagusData, cursedArchaeologists: archaeologists } =
+          await createSarcophagusWithRegisteredCursedArchaeologists();
+
+        _sarcophagusData = createdSarcophagusData;
+        accusedArchaeologist = archaeologists[0];
+      });
+
+      it("transfer the correct amount of funds to embalmer and accuser", async function () {
+        // save the sarquito balance of the embalmer prior to the accusal
+        const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
+          _sarcophagusData.embalmer.address
         );
 
-      // verify that AccuseArchaeologist is emitted
-      await expect(tx).to.emit(thirdPartyFacet, `AccuseArchaeologist`);
+        // accuse the archaeologist of leaking a keyshare
+        await _thirdPartyFacet
+          .connect(accuser)
+          .accuse(
+            _sarcophagusData.sarcoId,
+            [accusedArchaeologist.publicKey],
+            [
+              await generateAccusalSignature(
+                _sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              ),
+            ],
+            accuser.address
+          );
 
-      // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
-      expect(await getSarquitoBalance(accuser.address)).to.equal(
-        BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)
-          .div(2)
-          .toString()
-      );
-
-      const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
-        sarcophagusData.embalmer.address
-      );
-      // verify embalmer receives half of archaeologist cursed bond plus full digging fee
-      expect(
-        embalmerPostAccuseSarquitoBalance
-          .sub(embalmerPreAccuseSarquitoBalance)
-          .toString()
-      ).to.equal(
-        BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)
-          .div(2)
-          .add(BigNumber.from(accusedArchaeologist.diggingFeeSarquitos))
-          .toString()
-      );
-
-      const accusedArchaeologistProfile =
-        await viewStateFacet.getArchaeologistProfile(
-          accusedArchaeologist.archAddress
+        // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
+        const diggingFeesDue = BigNumber.from(
+          accusedArchaeologist.diggingFeePerSecondSarquito
+        ).mul(
+          _sarcophagusData.resurrectionTimeSeconds -
+            _sarcophagusData.creationTimeSeconds
         );
 
-      // verify accused archaeologist cursed bond has been set to 0
-      expect(accusedArchaeologistProfile.cursedBond.toString()).to.equal("0");
-      expect(accusedArchaeologistProfile.freeBond.toString()).to.equal(
-        accusedArchaeologistInitialFreeBondSarquitos.toString()
-      );
-
-      // verify accused archaeologist has been marked as accused
-      const accusedArchaeologistStorage =
-        await viewStateFacet.getSarcophagusArchaeologist(
-          sarcophagusData.sarcoId,
-          accusedArchaeologist.archAddress
+        expect(await getSarquitoBalance(accuser.address)).to.equal(
+          diggingFeesDue.div(2).toString()
         );
-      expect(accusedArchaeologistStorage.isAccused).to.be.true;
 
-      // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
-      const accusedArchaeologistAccusalsCount =
-        await viewStateFacet.getArchaeologistAccusalsCount(
-          accusedArchaeologist.archAddress
+        const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
+          _sarcophagusData.embalmer.address
         );
-      expect(accusedArchaeologistAccusalsCount.toString()).to.equal("1");
+        // verify embalmer receives half of archaeologist cursed bond plus full digging fee
+        expect(
+          embalmerPostAccuseSarquitoBalance
+            .sub(embalmerPreAccuseSarquitoBalance)
+            .toString()
+        ).to.equal(diggingFeesDue.div(2).add(diggingFeesDue).toString());
+      });
+
+      it("slash the archaeologist's bond", async function () {
+        // save the sarquito balance of the embalmer prior to the accusal
+        const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
+          _sarcophagusData.embalmer.address
+        );
+        // save accused archaeologist initial free bond
+        const accusedArchaeologistInitialFreeBondSarquitos = (
+          await _viewStateFacet.getArchaeologistProfile(
+            accusedArchaeologist.archAddress
+          )
+        ).freeBond;
+
+        // accuse the archaeologist of leaking a keyshare
+        await _thirdPartyFacet
+          .connect(accuser)
+          .accuse(
+            _sarcophagusData.sarcoId,
+            [accusedArchaeologist.publicKey],
+            [
+              await generateAccusalSignature(
+                _sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              ),
+            ],
+            accuser.address
+          );
+
+        const accusedArchaeologistProfile =
+          await _viewStateFacet.getArchaeologistProfile(
+            accusedArchaeologist.archAddress
+          );
+
+        // verify accused archaeologist cursed bond has been set to 0
+        expect(accusedArchaeologistProfile.cursedBond.toString()).to.equal("0");
+        expect(accusedArchaeologistProfile.freeBond.toString()).to.equal(
+          accusedArchaeologistInitialFreeBondSarquitos.toString()
+        );
+      });
+
+      it("add the sarcoId to the accused archaeologist's archaeologistAccusals", async function () {
+        // accuse the archaeologist of leaking a keyshare
+        await _thirdPartyFacet
+          .connect(accuser)
+          .accuse(
+            _sarcophagusData.sarcoId,
+            [accusedArchaeologist.publicKey],
+            [
+              await generateAccusalSignature(
+                _sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              ),
+            ],
+            accuser.address
+          );
+
+        // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
+        const accusedArchaeologistAccusalsCount =
+          await _viewStateFacet.getArchaeologistAccusalsCount(
+            accusedArchaeologist.archAddress
+          );
+        expect(accusedArchaeologistAccusalsCount.toString()).to.equal("1");
+      });
+
+      it("mark the archaeologist as accused", async function () {
+        // accuse the archaeologist of leaking a keyshare
+        await _thirdPartyFacet
+          .connect(accuser)
+          .accuse(
+            _sarcophagusData.sarcoId,
+            [accusedArchaeologist.publicKey],
+            [
+              await generateAccusalSignature(
+                _sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              ),
+            ],
+            accuser.address
+          );
+
+        // verify accused archaeologist has been marked as accused
+        const accusedArchaeologistStorage =
+          await _viewStateFacet.getSarcophagusArchaeologist(
+            _sarcophagusData.sarcoId,
+            accusedArchaeologist.archAddress
+          );
+        expect(accusedArchaeologistStorage.isAccused).to.be.true;
+      });
+
+      it("emit an AccuseArchaeologist event", async function () {
+        // accuse the archaeologist of leaking a keyshare
+        const tx = _thirdPartyFacet
+          .connect(accuser)
+          .accuse(
+            _sarcophagusData.sarcoId,
+            [accusedArchaeologist.publicKey],
+            [
+              await generateAccusalSignature(
+                _sarcophagusData.sarcoId,
+                accusedArchaeologist.privateKey,
+                accuser.address
+              ),
+            ],
+            accuser.address
+          );
+
+        await expect(tx).to.emit(_thirdPartyFacet, `AccuseArchaeologist`);
+      });
     });
 
     it("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async function () {
       const { viewStateFacet } = await getContracts();
 
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists({
-          totalArchaeologists: 5,
-          threshold: 3,
-          maximumRewrapIntervalSeconds: time.duration.weeks(4),
-        });
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists({
+        totalArchaeologists: 5,
+        threshold: 3,
+        maximumRewrapIntervalSeconds: time.duration.weeks(4),
+      });
 
       await accuseArchaeologistsOnSarcophagus(
         1,
@@ -301,21 +415,32 @@ describe("ThirdPartyFacet.accuse", () => {
             await viewStateFacet.getArchaeologistProfile(
               innocentArchaeologist.archAddress
             );
+
+          const diggingFeesDue = BigNumber.from(
+            innocentArchaeologist.diggingFeePerSecondSarquito
+          ).mul(
+            sarcophagusData.resurrectionTimeSeconds -
+              sarcophagusData.creationTimeSeconds
+          );
+
           expect(innocentArchaeologistProfile.cursedBond.toString()).to.equal(
-            innocentArchaeologist.diggingFeeSarquitos
+            diggingFeesDue
           );
         })
       );
     });
+
     it("Should not pay out digging fees or cursed bond or emit an event on accusal of an archaeologist that has already been accused once", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await accountGenerator.newAccount();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists({
-          totalArchaeologists: 5,
-          threshold: 3,
-          maximumRewrapIntervalSeconds: time.duration.weeks(4),
-        });
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists({
+        totalArchaeologists: 5,
+        threshold: 3,
+        maximumRewrapIntervalSeconds: time.duration.weeks(4),
+      });
       const accusedArchaeologist = archaeologists[0];
       const embalmerPreAccuseSarquitoBalance = await getSarquitoBalance(
         sarcophagusData.embalmer.address
@@ -342,19 +467,24 @@ describe("ThirdPartyFacet.accuse", () => {
           accuser.address
         );
 
+      const diggingFeesDue = BigNumber.from(
+        accusedArchaeologist.diggingFeePerSecondSarquito
+      ).mul(
+        sarcophagusData.resurrectionTimeSeconds -
+          sarcophagusData.creationTimeSeconds
+      );
+
       // verify accuser and embalmer have received the expected funds
       expect(await getSarquitoBalance(accuser.address)).to.equal(
-        BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)
-          .div(2)
-          .toString()
+        diggingFeesDue.div(2).toString()
       );
 
       expect(
         await getSarquitoBalance(sarcophagusData.embalmer.address)
       ).to.equal(
-        BigNumber.from(accusedArchaeologist.diggingFeeSarquitos)
+        diggingFeesDue
           .div(2)
-          .add(BigNumber.from(accusedArchaeologist.diggingFeeSarquitos))
+          .add(diggingFeesDue)
           .add(embalmerPreAccuseSarquitoBalance)
           .toString()
       );
@@ -427,12 +557,14 @@ describe("ThirdPartyFacet.accuse", () => {
     it("On a successful accusal of 3 archaeologists on a 3 of 5 sarco, should split cursed bond for the 3 leaking archs between the embalmer and the accuser, refund digging fees for 3 archaeologists to the embalmer, slash the 3 leaking archaeologists' bonds, mark the archaeologists as accused, and emit an AccuseArchaeologist event", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await accountGenerator.newAccount();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists({
-          totalArchaeologists: 5,
-          threshold: 3,
-          maximumRewrapIntervalSeconds: time.duration.weeks(4),
-        });
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists({
+        totalArchaeologists: 5,
+        threshold: 3,
+        maximumRewrapIntervalSeconds: time.duration.weeks(4),
+      });
       const accusedArchaeologists = archaeologists.slice(0, 3);
       const innocentArchaeologists = archaeologists.slice(3, 5);
 
@@ -477,12 +609,19 @@ describe("ThirdPartyFacet.accuse", () => {
       // verify that AccuseArchaeologist is emitted
       await expect(tx).to.emit(thirdPartyFacet, `AccuseArchaeologist`);
 
+      const resurrectionInterval =
+        sarcophagusData.resurrectionTimeSeconds -
+        sarcophagusData.creationTimeSeconds;
+
       const combinedDiggingFeesSarquito: BigNumber =
-        getTotalDiggingFeesSarquitos(accusedArchaeologists);
+        getTotalDiggingFeesSarquitos(
+          accusedArchaeologists,
+          resurrectionInterval
+        );
 
       // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
       expect(await getSarquitoBalance(accuser.address)).to.equal(
-        BigNumber.from(combinedDiggingFeesSarquito).div(2).toString()
+        combinedDiggingFeesSarquito.div(2).toString()
       );
 
       const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
@@ -494,7 +633,7 @@ describe("ThirdPartyFacet.accuse", () => {
           .sub(embalmerPreAccuseSarquitoBalance)
           .toString()
       ).to.equal(
-        BigNumber.from(combinedDiggingFeesSarquito)
+        combinedDiggingFeesSarquito
           .div(2)
           // todo: refund digging fees for freed archaeologists too?
           .add(combinedDiggingFeesSarquito)
@@ -541,10 +680,15 @@ describe("ThirdPartyFacet.accuse", () => {
             archaeologistAddressesToInitialFreeBondsSarquitos.get(
               innocentArchaeologists[index].archAddress
             );
+          const diggingFeesDue = BigNumber.from(
+            innocentArchaeologists[index].diggingFeePerSecondSarquito
+          ).mul(
+            sarcophagusData.resurrectionTimeSeconds -
+              sarcophagusData.creationTimeSeconds
+          );
+
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
-            initialFreeBond?.add(
-              innocentArchaeologists[index].diggingFeeSarquitos
-            )
+            initialFreeBond?.add(diggingFeesDue)
           );
         }
       );
@@ -590,12 +734,14 @@ describe("ThirdPartyFacet.accuse", () => {
       const accuser = await accountGenerator.newAccount();
       const { viewStateFacet } = await getContracts();
 
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists({
-          totalArchaeologists: 5,
-          threshold: 3,
-          maximumRewrapIntervalSeconds: time.duration.weeks(4),
-        });
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists({
+        totalArchaeologists: 5,
+        threshold: 3,
+        maximumRewrapIntervalSeconds: time.duration.weeks(4),
+      });
 
       const accusedArchaeologists = archaeologists.splice(0, 2);
 
@@ -623,8 +769,16 @@ describe("ThirdPartyFacet.accuse", () => {
             await viewStateFacet.getArchaeologistProfile(
               innocentArchaeologist.archAddress
             );
+
+          const diggingFeesDue = BigNumber.from(
+            innocentArchaeologist.diggingFeePerSecondSarquito
+          ).mul(
+            sarcophagusData.resurrectionTimeSeconds -
+              sarcophagusData.creationTimeSeconds
+          );
+
           expect(innocentArchaeologistProfile.cursedBond.toString()).to.equal(
-            innocentArchaeologist.diggingFeeSarquitos
+            diggingFeesDue
           );
         })
       );
@@ -633,12 +787,14 @@ describe("ThirdPartyFacet.accuse", () => {
     it("Should free all unaccused archaeologists upon successful accusal of 1 archaeologist on a 3 of 5 sarcophagus where 2 have been accused on a previous call and update state to accused", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await accountGenerator.newAccount();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists({
-          totalArchaeologists: 5,
-          threshold: 3,
-          maximumRewrapIntervalSeconds: time.duration.weeks(4),
-        });
+      const {
+        createdSarcophagusData: sarcophagusData,
+        cursedArchaeologists: archaeologists,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists({
+        totalArchaeologists: 5,
+        threshold: 3,
+        maximumRewrapIntervalSeconds: time.duration.weeks(4),
+      });
       const accusedArchaeologists = archaeologists.slice(0, 3);
       const innocentArchaeologists = archaeologists.slice(3, 5);
 
@@ -707,23 +863,31 @@ describe("ThirdPartyFacet.accuse", () => {
       // verify that AccuseArchaeologist is emitted
       await expect(tx2).to.emit(thirdPartyFacet, `AccuseArchaeologist`);
 
+      const resurrectionInterval =
+        sarcophagusData.resurrectionTimeSeconds -
+        sarcophagusData.creationTimeSeconds;
+
       const combinedDiggingFeesSarquito: BigNumber =
-        getTotalDiggingFeesSarquitos(accusedArchaeologists);
+        getTotalDiggingFeesSarquitos(
+          accusedArchaeologists,
+          resurrectionInterval
+        );
       // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
       expect(await getSarquitoBalance(accuser.address)).to.equal(
-        BigNumber.from(combinedDiggingFeesSarquito).div(2).toString()
+        combinedDiggingFeesSarquito.div(2).toString()
       );
 
       const embalmerPostAccuseSarquitoBalance = await getSarquitoBalance(
         sarcophagusData.embalmer.address
       );
+
       // verify embalmer receives half of archaeologist cursed bond plus full digging fee
       expect(
         embalmerPostAccuseSarquitoBalance
           .sub(embalmerPreAccuseSarquitoBalance)
           .toString()
       ).to.equal(
-        BigNumber.from(combinedDiggingFeesSarquito)
+        combinedDiggingFeesSarquito
           .div(2)
           // todo: refund digging fees for freed archaeologists too?
           .add(combinedDiggingFeesSarquito)
@@ -770,10 +934,15 @@ describe("ThirdPartyFacet.accuse", () => {
             archaeologistAddressesToInitialFreeBondsSarquitos.get(
               innocentArchaeologists[index].archAddress
             );
+          const diggingFeesDue = BigNumber.from(
+            innocentArchaeologists[index].diggingFeePerSecondSarquito
+          ).mul(
+            sarcophagusData.resurrectionTimeSeconds -
+              sarcophagusData.creationTimeSeconds
+          );
+
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
-            initialFreeBond?.add(
-              innocentArchaeologists[index].diggingFeeSarquitos
-            )
+            initialFreeBond?.add(diggingFeesDue)
           );
         }
       );

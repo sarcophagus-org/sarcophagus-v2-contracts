@@ -8,6 +8,7 @@ library LibTypes {
     struct Sarcophagus {
         // never zero - use for existence checks
         uint256 resurrectionTime;
+        uint256 previousRewrapTime;
         // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused
         bool isCompromised;
         bool isCleaned;
@@ -27,13 +28,13 @@ library LibTypes {
         bytes publicKey;
         bytes32 privateKey;
         bool isAccused;
-        uint256 diggingFee;
+        uint256 diggingFeePerSecond;
     }
 
     struct ArchaeologistProfile {
         bool exists; // todo: use peerid.length instead of exists
         string peerId;
-        uint256 minimumDiggingFee;
+        uint256 minimumDiggingFeePerSecond;
         uint256 maximumRewrapInterval;
         uint256 freeBond;
         uint256 cursedBond;

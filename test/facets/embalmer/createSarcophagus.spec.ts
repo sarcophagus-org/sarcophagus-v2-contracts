@@ -6,7 +6,8 @@ import {
   buildCreateSarcophagusArgs,
   createSarcophagusData,
   registerDefaultArchaeologistsAndCreateSignatures,
-  registerSarcophagusWithArchaeologists,
+  createSarcophagusWithRegisteredCursedArchaeologists,
+  diggingFeesPerSecond_10_000_SarcoMonthly,
 } from "../helpers/sarcophagus";
 import {
   ArchaeologistData,
@@ -19,10 +20,11 @@ import {
 } from "../helpers/bond";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
 import { getDiggingFeesPlusProtocolFeesSarquitos } from "../helpers/diggingFees";
+import { ethers } from "hardhat";
+import { BigNumber } from "ethers";
 
 const crypto = require("crypto");
-
-const { deployments, ethers } = require("hardhat");
+const { deployments } = require("hardhat");
 
 describe("EmbalmerFacet.createSarcophagus", () => {
   // reset to directly after the diamond deployment before each test
@@ -36,7 +38,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
       // set an expired creationTime
-      sarcophagusData.creationTime =
+      sarcophagusData.creationTimeSeconds =
         (await time.latest()) - time.duration.weeks(12);
 
       const archaeologists =
@@ -60,7 +62,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       // set current time to resurrectionTime
       await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
       // update creationTime so sarcophagus parameters are not expired
-      sarcophagusData.creationTime = await time.latest();
+      sarcophagusData.creationTimeSeconds = await time.latest();
       const archaeologists =
         await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
 
@@ -75,6 +77,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `ResurrectionTimeInPast`
       );
     });
+
     it("Should revert if supplied resurrection time is after maximumRewrapInterval", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
@@ -97,6 +100,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `ResurrectionTimeTooFarInFuture`
       );
     });
+
     it("should revert if supplied resurrection time is greater than max resurrection time", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
@@ -119,6 +123,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `ResurrectionTimePastMaxResurrectionTime`
       );
     });
+
     it("Should revert if no archaeologists are supplied", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({
@@ -136,6 +141,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `NoArchaeologistsProvided`
       );
     });
+
     it("Should revert if supplied threshold is zero", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({
@@ -158,6 +164,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `ThresholdCannotBeZero`
       );
     });
+
     it("Should revert if supplied threshold is greater than total number of archaeologists", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({
@@ -179,6 +186,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `ThresholdGreaterThanTotalNumberOfArchaeologists`
       );
     });
+
     it("Should revert if one of the supplied archaeologists doesn't have a registered profile", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
@@ -194,8 +202,8 @@ describe("EmbalmerFacet.createSarcophagus", () => {
             sarcophagusData.maximumRewrapIntervalSeconds,
           maximumResurrectionTimeSeconds:
             sarcophagusData.maximumResurrectionTimeSeconds,
-          creationTime: sarcophagusData.creationTime,
-          diggingFeeSarco: 100,
+          creationTime: sarcophagusData.creationTimeSeconds,
+          diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         }
       );
       archaeologists[0] = unregisteredArchaeologistData;
@@ -210,6 +218,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `ArchaeologistProfileExistsShouldBe`
       );
     });
+
     it("Should revert if the archaeologist list contains duplicates", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
@@ -226,8 +235,8 @@ describe("EmbalmerFacet.createSarcophagus", () => {
             sarcophagusData.maximumRewrapIntervalSeconds,
           maximumResurrectionTimeSeconds:
             sarcophagusData.maximumResurrectionTimeSeconds,
-          creationTime: sarcophagusData.creationTime,
-          diggingFeeSarco: 100,
+          creationTime: sarcophagusData.creationTimeSeconds,
+          diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         }
       );
       archaeologists[1] = duplicateArchaeologist;
@@ -245,19 +254,30 @@ describe("EmbalmerFacet.createSarcophagus", () => {
 
     it("Should revert if one of the supplied public keys has already been used", async function () {
       const { embalmerFacet } = await getContracts();
-      const { sarcophagusData, archaeologists } =
-        await registerSarcophagusWithArchaeologists();
 
-      const sarcophagusData2 = await createSarcophagusData({});
+      // Go through a full sarcophagus creation first
+      const { createdSarcophagusData } =
+        await createSarcophagusWithRegisteredCursedArchaeologists();
 
-      const archaeologists2 =
-        await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
+      // Prepare a new sarcophagus to be created
+      const newSarcophagusData = await createSarcophagusData({});
+
+      // Register new archaologists and have them sign off on previously created sarcophagus data
+      // (effectively reusing its public keys)
+      const archaeologistsOnOldSarco =
+        await registerDefaultArchaeologistsAndCreateSignatures(
+          createdSarcophagusData
+        );
 
       const tx = embalmerFacet
-        .connect(sarcophagusData.embalmer)
+        .connect(createdSarcophagusData.embalmer)
         .createSarcophagus(
-          ...buildCreateSarcophagusArgs(sarcophagusData2, archaeologists2)
+          ...buildCreateSarcophagusArgs(
+            newSarcophagusData,
+            archaeologistsOnOldSarco
+          )
         );
+
       await expect(tx).to.be.revertedWithCustomError(
         embalmerFacet,
         `DuplicatePublicKey`
@@ -287,14 +307,17 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `InvalidSignature`
       );
     });
+
     it("Should revert if an archaeologist has not signed off on their assigned diggingFee", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
 
       const archaeologists =
         await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
+
       // alter diggingFeeSarquitos being supplied to the create call after signatures are generated using the original value
-      archaeologists[0].diggingFeeSarquitos = "8";
+      archaeologists[0].diggingFeePerSecondSarquito =
+        ethers.utils.parseEther("800");
 
       const tx = embalmerFacet
         .connect(sarcophagusData.embalmer)
@@ -307,6 +330,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `InvalidSignature`
       );
     });
+
     it("Should revert if an archaeologist has not signed off on the sarcophagus creationTime", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
@@ -314,7 +338,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       const archaeologists =
         await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
       // alter creationTime being supplied to the create call after signatures are generated using the original value
-      sarcophagusData.creationTime = (await time.latest()) - 10;
+      sarcophagusData.creationTimeSeconds = (await time.latest()) - 10;
 
       const tx = embalmerFacet
         .connect(sarcophagusData.embalmer)
@@ -327,6 +351,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         `InvalidSignature`
       );
     });
+
     it("Should revert if an archaeologist has not signed off on the sarcophagus maximumRewrapIntervalSeconds", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
@@ -372,7 +397,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
   });
 
   describe("Successfully creates a sarcophagus", function () {
-    it("Should lock bond equal to the supplied archaeologist's diggingFee property for the sarcophagus", async function () {
+    it("Should lock bond equal to the digging fee that will be paid to the archaeologist", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
 
@@ -410,21 +435,25 @@ describe("EmbalmerFacet.createSarcophagus", () => {
                 archaeologist.archAddress
               );
 
+            const diggingFeesDue = BigNumber.from(
+              archaeologist.diggingFeePerSecondSarquito
+            ).mul(
+              sarcophagusData.resurrectionTimeSeconds -
+                sarcophagusData.creationTimeSeconds
+            );
+
             expect(archaeologistPostCurseFreeBond).to.equal(
-              startingArchaeologistBonds[index].freeBond.sub(
-                archaeologist.diggingFeeSarquitos
-              )
+              startingArchaeologistBonds[index].freeBond.sub(diggingFeesDue)
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
-              startingArchaeologistBonds[index].lockedBond.add(
-                archaeologist.diggingFeeSarquitos
-              )
+              startingArchaeologistBonds[index].lockedBond.add(diggingFeesDue)
             );
           }
         )
       );
     });
+
     it("Should charge the embalmer the total of all locked bonds plus the protocol fees", async function () {
       const { embalmerFacet, viewStateFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
@@ -448,16 +477,21 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       );
 
       const totalCostToEmbalmer = await getDiggingFeesPlusProtocolFeesSarquitos(
-        archaeologists
+        archaeologists,
+        sarcophagusData.resurrectionTimeSeconds -
+          sarcophagusData.creationTimeSeconds
       );
       expect(postCreationSarquitoBalance).to.equal(
         startingEmbalmerSarquitoBalance.sub(totalCostToEmbalmer)
       );
     });
+
     it("Should store all selected archaeologists on the newly created sarcophagus", async function () {
       const { viewStateFacet } = await getContracts();
-      const { archaeologists, sarcophagusData } =
-        await registerSarcophagusWithArchaeologists();
+      const {
+        cursedArchaeologists: archaeologists,
+        createdSarcophagusData: sarcophagusData,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists();
 
       const sarcophagusResult = await viewStateFacet.getSarcophagus(
         sarcophagusData.sarcoId
@@ -466,9 +500,11 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         archaeologists.map((a) => a.archAddress)
       );
     });
+
     it("Should store all supplied sarcophagus parameters on the newly created sarcophagus", async function () {
       const { viewStateFacet } = await getContracts();
-      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+      const { createdSarcophagusData: sarcophagusData } =
+        await createSarcophagusWithRegisteredCursedArchaeologists();
 
       const sarcophagusResult = await viewStateFacet.getSarcophagus(
         sarcophagusData.sarcoId
@@ -492,10 +528,13 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       expect(sarcophagusResult.publishedPrivateKeyCount).to.equal(0);
       expect(sarcophagusResult.hasLockedBond).to.equal(true);
     });
+
     it("Should update convenience lookup data structures with the new sarcophagus", async function () {
       const { viewStateFacet } = await getContracts();
-      const { archaeologists, sarcophagusData } =
-        await registerSarcophagusWithArchaeologists();
+      const {
+        cursedArchaeologists: archaeologists,
+        createdSarcophagusData: sarcophagusData,
+      } = await createSarcophagusWithRegisteredCursedArchaeologists();
 
       const archaeologistSarcophagi =
         await viewStateFacet.getArchaeologistSarcophagi(
