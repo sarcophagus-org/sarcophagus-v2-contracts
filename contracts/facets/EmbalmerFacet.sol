@@ -136,15 +136,6 @@ contract EmbalmerFacet {
         uint256 maximumPermissibleResurrectionTime
     );
 
-    /// @notice Emitted when the new resurrection time during rewrap exceeds the maximum allowed
-    /// resurrection time
-    /// @param resurrectionTime The new resurrection time submitted during rewrap
-    /// @param maxResurrectionTime The maximum allowed resurrection time stored on the sarcophagus
-    error NewResurrectionTimeExceedsMaxResurrectionTime(
-        uint256 resurrectionTime,
-        uint256 maxResurrectionTime
-    );
-
     /// @notice Creates a sarcophagus with the supplied parameters and locks
     /// a portion of each archaeologist's freeBond equal to the diggingFees for the sarcophagus.
     /// Verifies that all supplied archaeologists have signed off on the sarcophagus negotiation parameters:
@@ -365,7 +356,7 @@ contract EmbalmerFacet {
 
         // Confirm that the new resurrection time doesn't exceed the maximumResurrectionTime
         if (sarcophagus.maximumResurrectionTime < resurrectionTime) {
-            revert NewResurrectionTimeExceedsMaxResurrectionTime(
+            revert ResurrectionTimePastMaxResurrectionTime(
                 resurrectionTime,
                 sarcophagus.maximumResurrectionTime
             );

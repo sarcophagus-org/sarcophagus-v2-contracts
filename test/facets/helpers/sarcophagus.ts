@@ -66,11 +66,6 @@ export const createSarcophagusData = async (params: {
       ? params.maximumRewrapIntervalSeconds
       : time.duration.weeks(4);
 
-  // const maximumResurrectionTimeSeconds =
-  //   params.maximumResurrectionTime !== undefined
-  //     ? params.maximumResurrectionTime
-  //     : ethers.constants.MaxUint256;
-
   const maximumResurrectionTimeSeconds =
     params.maximumResurrectionTime !== undefined
       ? params.maximumResurrectionTime
