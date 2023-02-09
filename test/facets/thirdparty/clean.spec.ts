@@ -50,6 +50,7 @@ describe("ThirdPartyFacet.clean", () => {
         `SarcophagusDoesNotExist`
       );
     });
+
     it("called by embalmer after the embalmerCleanWindow has passed", async function () {
       const { thirdPartyFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
@@ -66,6 +67,7 @@ describe("ThirdPartyFacet.clean", () => {
         `EmbalmerClaimWindowPassed`
       );
     });
+
     it("called by admin before the embalmerCleanWindow has passed but after the resurrectionTime + gracePeriod have passed", async function () {
       const { thirdPartyFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
@@ -81,6 +83,7 @@ describe("ThirdPartyFacet.clean", () => {
         `TooEarlyForAdminClean`
       );
     });
+
     it("called by third party during embalmerClaimWindow", async function () {
       const { thirdPartyFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
@@ -98,6 +101,7 @@ describe("ThirdPartyFacet.clean", () => {
         `SenderNotEmbalmerOrAdmin`
       );
     });
+
     it("called by third party after embalmerClaimWindow", async function () {
       const { thirdPartyFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
@@ -136,6 +140,7 @@ describe("ThirdPartyFacet.clean", () => {
         `SarcophagusCompromised`
       );
     });
+
     it("sarcophagus is cleaned", async function () {
       const { thirdPartyFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
@@ -156,6 +161,7 @@ describe("ThirdPartyFacet.clean", () => {
         `SarcophagusAlreadyCleaned`
       );
     });
+
     it("sarcophagus is buried", async function () {
       const { embalmerFacet, thirdPartyFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
@@ -193,6 +199,7 @@ describe("ThirdPartyFacet.clean", () => {
 
       await expect(tx).to.emit(thirdPartyFacet, `Clean`);
     });
+
     it("sets isCleaned to true on the sarcophagus", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
@@ -286,6 +293,7 @@ describe("ThirdPartyFacet.clean", () => {
         await getSarquitoBalance(sarcophagusData.embalmer.address)
       ).to.equal(embalmerPreCleanSarquitoBalance);
     });
+
     it("does not transfer bonds or digging fees for archaeologists that have published their key shares", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const {
@@ -440,10 +448,17 @@ describe("ThirdPartyFacet.clean", () => {
             const balanceAfterClean = await getArchaeologistLockedBondSarquitos(
               nonPublishingArchaeologist.archAddress
             );
+            const diggingFeesDue = BigNumber.from(
+              nonPublishingArchaeologist.diggingFeePerSecondSarquito
+            ).mul(
+              sarcophagusData.resurrectionTimeSeconds -
+                sarcophagusData.creationTimeSeconds
+            );
+
             expect(balanceAfterClean).to.equal(
               nonPublishingArchaeologistAddressesToInitialLockedBondsSarquitos
                 .get(nonPublishingArchaeologist.archAddress)
-                ?.sub(nonPublishingArchaeologist.diggingFeePerSecondSarquito)
+                ?.sub(diggingFeesDue)
             );
           }
         )
@@ -463,6 +478,7 @@ describe("ThirdPartyFacet.clean", () => {
         embalmerPreCleanSarquitoBalance.add(combinedDiggingFeesSarquito.mul(2))
       );
     });
+
     it("does not transfer any funds to the embalmer if all archaeologists have supplied keyshares", async function () {
       const { thirdPartyFacet } = await getContracts();
       const {
@@ -539,10 +555,18 @@ describe("ThirdPartyFacet.clean", () => {
             const balanceAfterClean = await getArchaeologistLockedBondSarquitos(
               nonPublishingArchaeologist.archAddress
             );
+
+            const diggingFeesDue = BigNumber.from(
+              nonPublishingArchaeologist.diggingFeePerSecondSarquito
+            ).mul(
+              sarcophagusData.resurrectionTimeSeconds -
+                sarcophagusData.creationTimeSeconds
+            );
+
             expect(balanceAfterClean).to.equal(
               nonPublishingArchaeologistAddressesToInitialLockedBondsSarquitos
                 .get(nonPublishingArchaeologist.archAddress)
-                ?.sub(nonPublishingArchaeologist.diggingFeePerSecondSarquito)
+                ?.sub(diggingFeesDue)
             );
           }
         )
@@ -561,6 +585,7 @@ describe("ThirdPartyFacet.clean", () => {
         startingProtocolFees.add(combinedDiggingFeesSarquito.mul(2))
       );
     });
+
     it("does not transfer any funds to protocol fees if all archaeologists have supplied keyshares", async function () {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const {

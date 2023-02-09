@@ -75,14 +75,14 @@ contract ThirdPartyFacet {
         AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
 
-        // Confirm tx sender is embalmer or admin
-        if (msg.sender != sarcophagus.embalmerAddress && msg.sender != LibDiamond.contractOwner()) {
-            revert SenderNotEmbalmerOrAdmin(msg.sender);
-        }
-
         // Confirm the sarcophagus exists
         if (sarcophagus.resurrectionTime == 0) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
+        }
+
+        // Confirm tx sender is embalmer or admin
+        if (msg.sender != sarcophagus.embalmerAddress && msg.sender != LibDiamond.contractOwner()) {
+            revert SenderNotEmbalmerOrAdmin(msg.sender);
         }
 
         // Confirm the sarcophagus has not been compromised
