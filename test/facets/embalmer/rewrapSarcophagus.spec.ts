@@ -150,9 +150,11 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `NewResurrectionTimeTooFarInFuture`
       );
     });
+
     it("the new resurrection time exceeds sarcophagus maximumResurrectionTime", async function () {
       const { embalmerFacet } = await getContracts();
-      const { sarcophagusData } = await registerSarcophagusWithArchaeologists();
+      const { createdSarcophagusData: sarcophagusData } =
+        await createSarcophagusWithRegisteredCursedArchaeologists();
 
       const tx = embalmerFacet
         .connect(sarcophagusData.embalmer)
