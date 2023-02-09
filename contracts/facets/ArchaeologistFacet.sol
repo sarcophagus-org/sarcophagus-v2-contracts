@@ -135,7 +135,7 @@ contract ArchaeologistFacet {
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
         if (freeBond > 0) {
-            LibBonds.increaseFreeBond(msg.sender, freeBond);
+            s.archaeologistProfiles[msg.sender].freeBond += freeBond;
             s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
         }
 
@@ -154,7 +154,7 @@ contract ArchaeologistFacet {
         AppStorage storage s = LibAppStorage.getAppStorage();
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
         // Increase the archaeologist's free bond in app storage
-        LibBonds.increaseFreeBond(msg.sender, amount);
+        s.archaeologistProfiles[msg.sender].freeBond += amount;
 
         // Transfer the amount of sarcoToken from the archaeologist to the contract
         s.sarcoToken.transferFrom(msg.sender, address(this), amount);

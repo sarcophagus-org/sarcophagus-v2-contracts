@@ -187,7 +187,8 @@ contract EmbalmerFacet {
             revert ThresholdCannotBeZero();
         }
 
-        // ie, k <= n in a k-of-n shamir secret sharing scheme
+        // Ensure that k <= n in the effective k-of-n shamir secret sharing scheme
+        // used to distribute keyshares among archaeologists
         if (sarcophagusParams.threshold > selectedArchaeologists.length) {
             revert ThresholdGreaterThanTotalNumberOfArchaeologists(
                 sarcophagusParams.threshold,
@@ -322,7 +323,7 @@ contract EmbalmerFacet {
             );
         }
 
-        // track total digging fees to be paid by embalmber across all archaeologists on the sarcophagus
+        // track total digging fees to be paid by embalmer across all archaeologists on the sarcophagus
         uint256 totalDiggingFees = 0;
 
         // pay digging fee to each cursed archaeologist on the sarcophagus that has not been accused
