@@ -391,9 +391,6 @@ contract EmbalmerFacet {
             revert ResurrectionTimeInPast(block.timestamp, sarcophagus.resurrectionTime);
         }
 
-        // Set resurrection time to infinity
-        sarcophagus.resurrectionTime = 2 ** 256 - 1;
-
         // for each archaeologist on the sarcophagus, unlock bond and pay digging fees
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
@@ -405,6 +402,10 @@ contract EmbalmerFacet {
                 LibBonds.freeArchaeologist(sarcoId, archaeologistAddresses[i]);
             }
         }
+
+        // TODO: Evaluate security cost of this setter being after calls to `freeArchaeologist` which unlocks bond and rewards archaeologists
+        // Set resurrection time to infinity
+        sarcophagus.resurrectionTime = 2 ** 256 - 1;
 
         emit BurySarcophagus(sarcoId);
     }

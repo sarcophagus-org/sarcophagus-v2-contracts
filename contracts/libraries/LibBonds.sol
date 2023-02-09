@@ -97,8 +97,7 @@ library LibBonds {
         return diggingFeesDue;
     }
 
-    /// @notice Calculates an archaeologist's cursed bond and frees them
-    /// (unlocks the cursed bond).
+    /// @notice Calculates and unlocks an archaeologist's cursed bond. Pays due digging fees to the archaeologist.
     /// @param sarcoId the identifier of the sarcophagus to free the archaeologist from
     /// @param archaeologistAddress the address of the archaeologist to free
     function freeArchaeologist(bytes32 sarcoId, address archaeologistAddress) internal {
