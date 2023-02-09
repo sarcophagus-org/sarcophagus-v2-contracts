@@ -29,18 +29,6 @@ library LibBonds {
         s.archaeologistProfiles[archaeologist].freeBond -= amount;
     }
 
-    /// @notice Increases the amount stored in the freeBond mapping for an
-    /// archaeologist.
-    /// @param archaeologist The address of the archaeologist whose
-    /// free bond is being decreased
-    /// @param amount The amount to decrease the free bond by
-    function increaseFreeBond(address archaeologist, uint256 amount) internal {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        // Increase the free bond amount
-        s.archaeologistProfiles[archaeologist].freeBond += amount;
-    }
-
     /// @notice Decreases the amount stored in the cursedBond mapping for an
     /// archaeologist, without respectively increasing their free bond.
     /// @param archaeologist The address of the archaeologist
@@ -48,7 +36,7 @@ library LibBonds {
     function decreaseArchaeologistLockedBond(address archaeologist, uint256 amount) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // TDOD: Revert if the amount is greater than the current cursed bond
+        // Revert if the amount is greater than the current cursed bond
         if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {
             revert LibErrors.NotEnoughCursedBond(
                 s.archaeologistProfiles[archaeologist].cursedBond,
