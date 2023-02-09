@@ -65,13 +65,13 @@ export const accuseArchaeologistsOnSarcophagus = async (
   return { accusedArchaeologists, accuser };
 };
 export const generateAccusalSignature = async (
-  sarcoId: Bytes,
+  sarcoId: string,
   accusedArchaeologistPrivateKey: string,
   accuserAddress: string
 ): Promise<Signature> =>
   await sign(
     new ethers.Wallet(accusedArchaeologistPrivateKey),
-    [sarcoId.toString(), accuserAddress],
+    [sarcoId, accuserAddress],
     ["bytes32", "address"]
   );
 
@@ -79,7 +79,7 @@ export const generateAccusalSignature = async (
  * Given a set of archaeologists and sarcoId, asserts all have the expected accusal status
  * */
 export const verifyAccusalStatusesForArchaeologists = async (
-  sarcoId: Bytes,
+  sarcoId: string,
   archaeologists: ArchaeologistData[],
   isAccused: boolean
 ): Promise<void> => {
