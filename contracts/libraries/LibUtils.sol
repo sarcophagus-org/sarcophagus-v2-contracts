@@ -25,6 +25,7 @@ library LibUtils {
      */
     function verifyArchaeologistSignature(
         uint256 agreedMaximumRewrapInterval,
+        uint256 maximumResurrectionTime,
         uint256 timestamp,
         EmbalmerFacet.CurseParams calldata curseParams
     ) internal pure {
@@ -36,6 +37,7 @@ library LibUtils {
                     abi.encode(
                         curseParams.publicKey,
                         agreedMaximumRewrapInterval,
+                        maximumResurrectionTime,
                         curseParams.diggingFeePerSecond,
                         timestamp
                     )

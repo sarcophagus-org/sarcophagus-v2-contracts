@@ -101,6 +101,29 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       );
     });
 
+    it("should revert if supplied resurrection time is greater than max resurrection time", async function () {
+      const { embalmerFacet } = await getContracts();
+      const sarcophagusData = await createSarcophagusData({});
+
+      // set max resurrection time to a value less than resurrection time
+      sarcophagusData.maximumResurrectionTimeSeconds =
+        (await time.latest()) + time.duration.minutes(1);
+
+      const archaeologists =
+        await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .createSarcophagus(
+          ...buildCreateSarcophagusArgs(sarcophagusData, archaeologists)
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `ResurrectionTimePastMaxResurrectionTime`
+      );
+    });
+
     it("Should revert if no archaeologists are supplied", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({
@@ -177,6 +200,8 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           privateKey: sarcophagusData.privateKeys[0],
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
+          maximumResurrectionTimeSeconds:
+            sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         }
@@ -208,6 +233,8 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           privateKey: sarcophagusData.privateKeys[1],
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
+          maximumResurrectionTimeSeconds:
+            sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         }
@@ -334,6 +361,27 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       // alter maximumRewrapInterval being supplied to the create call after signatures are generated using the original value
       sarcophagusData.maximumRewrapIntervalSeconds =
         sarcophagusData.maximumRewrapIntervalSeconds + 1;
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .createSarcophagus(
+          ...buildCreateSarcophagusArgs(sarcophagusData, archaeologists)
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `InvalidSignature`
+      );
+    });
+    it("Should revert if an archaeologist has not signed off on the sarcophagus maximumResurectionTime", async function () {
+      const { embalmerFacet } = await getContracts();
+      const sarcophagusData = await createSarcophagusData({});
+
+      const archaeologists =
+        await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
+      // alter maximumRewrapInterval being supplied to the create call after signatures are generated using the original value
+      sarcophagusData.maximumResurrectionTimeSeconds =
+        sarcophagusData.maximumResurrectionTimeSeconds - 1;
 
       const tx = embalmerFacet
         .connect(sarcophagusData.embalmer)

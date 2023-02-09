@@ -53,6 +53,8 @@ contract EmbalmerFacet {
         string name;
         // highest rewrap interval cursed archaeologists have agreed to accept for lifetime of sarcophagus
         uint256 maximumRewrapInterval;
+        // The timestamp beyond which the sarcophagus can no longer be rewrapped
+        uint256 maximumResurrectionTime;
         address recipientAddress;
         uint256 resurrectionTime;
         uint8 threshold;
@@ -114,6 +116,14 @@ contract EmbalmerFacet {
         uint256 resurrectionTime,
         uint256 sarcophagusMaximumRewrapInterval,
         uint256 maximumPermissibleResurrectionTime
+    );
+
+    /// @notice Emitted when the resurrection time defined during sarcohpagus creation or rewrap goes past the max resurrection time
+    /// @param resurrectionTime The resurrection time defined during the sarcophagus creation or rewrap
+    /// @param maxResurrectionTime The maximum allowed resurrection time
+    error ResurrectionTimePastMaxResurrectionTime(
+        uint256 resurrectionTime,
+        uint256 maxResurrectionTime
     );
 
     error NewResurrectionTimeInPast(uint256 currentTime, uint256 newResurrectionTime);
@@ -178,6 +188,14 @@ contract EmbalmerFacet {
             );
         }
 
+        // Confirm that the resurrection time is less than the max resurrection time
+        if (sarcophagusParams.resurrectionTime > sarcophagusParams.maximumResurrectionTime) {
+            revert ResurrectionTimePastMaxResurrectionTime(
+                sarcophagusParams.resurrectionTime,
+                sarcophagusParams.maximumResurrectionTime
+            );
+        }
+
         // Validate archaeologist and threshold lengths
         if (selectedArchaeologists.length == 0) {
             revert NoArchaeologistsProvided();
@@ -187,7 +205,8 @@ contract EmbalmerFacet {
             revert ThresholdCannotBeZero();
         }
 
-        // ie, k <= n in a k-of-n shamir secret sharing scheme
+        // Ensure that k <= n in the effective k-of-n shamir secret sharing scheme
+        // used to distribute keyshares among archaeologists
         if (sarcophagusParams.threshold > selectedArchaeologists.length) {
             revert ThresholdGreaterThanTotalNumberOfArchaeologists(
                 sarcophagusParams.threshold,
@@ -202,6 +221,7 @@ contract EmbalmerFacet {
         sarcophagus.resurrectionTime = sarcophagusParams.resurrectionTime;
         sarcophagus.previousRewrapTime = sarcophagusParams.creationTime;
         sarcophagus.maximumRewrapInterval = sarcophagusParams.maximumRewrapInterval;
+        sarcophagus.maximumResurrectionTime = sarcophagusParams.maximumResurrectionTime;
         sarcophagus.arweaveTxId = arweaveTxId;
         sarcophagus.embalmerAddress = msg.sender;
         sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
@@ -232,6 +252,7 @@ contract EmbalmerFacet {
 
             LibUtils.verifyArchaeologistSignature(
                 sarcophagusParams.maximumRewrapInterval,
+                sarcophagusParams.maximumResurrectionTime,
                 sarcophagusParams.creationTime,
                 selectedArchaeologists[i]
             );
@@ -322,7 +343,15 @@ contract EmbalmerFacet {
             );
         }
 
-        // track total digging fees to be paid by embalmber across all archaeologists on the sarcophagus
+        // Confirm that the new resurrection time doesn't exceed the maximumResurrectionTime
+        if (sarcophagus.maximumResurrectionTime < resurrectionTime) {
+            revert ResurrectionTimePastMaxResurrectionTime(
+                resurrectionTime,
+                sarcophagus.maximumResurrectionTime
+            );
+        }
+
+        // track total digging fees to be paid by embalmer across all archaeologists on the sarcophagus
         uint256 totalDiggingFees = 0;
 
         // pay digging fee to each cursed archaeologist on the sarcophagus that has not been accused

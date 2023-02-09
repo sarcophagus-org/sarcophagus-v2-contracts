@@ -27,12 +27,12 @@ export const diggingFeesPerSecond_10_000_SarcoMonthly = "4000000000000000";
  */
 export interface SarcophagusData {
   sarcoId: string;
-  // sarcoId: Bytes;
   name: string;
   embalmer: SignerWithAddress;
   recipientAddress: string;
   resurrectionTimeSeconds: number;
   maximumRewrapIntervalSeconds: number;
+  maximumResurrectionTimeSeconds: number;
   creationTimeSeconds: number;
   threshold: number;
   privateKeys: string[];
@@ -51,6 +51,7 @@ export const createSarcophagusData = async (params: {
   threshold?: number;
   totalArchaeologists?: number;
   maximumRewrapIntervalSeconds?: number;
+  maximumResurrectionTime?: number;
   resurrectionTime?: number;
   sarcoId?: string;
   name?: string;
@@ -63,6 +64,10 @@ export const createSarcophagusData = async (params: {
   const totalShares = params.totalArchaeologists ?? 5;
   const maximumRewrapIntervalSeconds =
     params.maximumRewrapIntervalSeconds ?? time.duration.weeks(4);
+
+  const maximumResurrectionTimeSeconds =
+    params.maximumResurrectionTime ??
+    Math.floor(new Date().getTime() / 1000) + time.duration.years(2);
 
   // generate new accounts for an embalmer and a recipient
   const embalmerAddress =
@@ -104,6 +109,7 @@ export const createSarcophagusData = async (params: {
     embalmer,
     resurrectionTimeSeconds,
     maximumRewrapIntervalSeconds,
+    maximumResurrectionTimeSeconds,
     threshold,
     creationTimeSeconds,
     privateKeys,
@@ -116,12 +122,12 @@ export const createSarcophagusData = async (params: {
  * Creates archaeologist signatures on the key shares and sarcophagus negotiation parameters
  *
  * Sets default values on the archaeologists:
- *  profileMinDiggingFeePerSecondSarquito: 1000
+ *  profileMinDiggingFeePerSecondSarquito: 10000 / month
  *  profileMaxRewrapIntervalSeconds: uses max rewrap interval set on the sarcophagus
  *  sarcoBalance: 10_000
  *  freeBondSarco: 10_000
  * and on the sarcophagus/archaeologist agreement:
- *  diggingFeePerSecondSarco: 100
+ *  diggingFeePerSecondSarco: 10000 / month
  *
  * @param sarcophagusData
  */
@@ -136,6 +142,8 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
           privateKey,
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
+          maximumResurrectionTimeSeconds:
+            sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         },
@@ -220,6 +228,7 @@ export const buildCreateSarcophagusArgs = (
     recipientAddress: string;
     resurrectionTime: BigNumberish;
     maximumRewrapInterval: BigNumberish;
+    maximumResurrectionTime: BigNumberish;
     threshold: BigNumberish;
     creationTime: BigNumberish;
   },
@@ -240,6 +249,7 @@ export const buildCreateSarcophagusArgs = (
       recipientAddress: sarcophagusData.recipientAddress,
       resurrectionTime: sarcophagusData.resurrectionTimeSeconds,
       maximumRewrapInterval: sarcophagusData.maximumRewrapIntervalSeconds,
+      maximumResurrectionTime: sarcophagusData.maximumResurrectionTimeSeconds,
       threshold: sarcophagusData.threshold,
       creationTime: sarcophagusData.creationTimeSeconds,
     },

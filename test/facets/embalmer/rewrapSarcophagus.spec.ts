@@ -150,6 +150,26 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `NewResurrectionTimeTooFarInFuture`
       );
     });
+
+    it("the new resurrection time exceeds sarcophagus maximumResurrectionTime", async function () {
+      const { embalmerFacet } = await getContracts();
+      const { createdSarcophagusData: sarcophagusData } =
+        await createSarcophagusWithRegisteredCursedArchaeologists();
+
+      const tx = embalmerFacet
+        .connect(sarcophagusData.embalmer)
+        .rewrapSarcophagus(
+          sarcophagusData.sarcoId,
+          (await time.latest()) +
+            sarcophagusData.maximumResurrectionTimeSeconds +
+            time.duration.minutes(1)
+        );
+
+      await expect(tx).to.be.revertedWithCustomError(
+        embalmerFacet,
+        `NewResurrectionTimeTooFarInFuture`
+      );
+    });
   });
 
   describe("Successfully rewraps a sarcophagus with no accusals", function () {
