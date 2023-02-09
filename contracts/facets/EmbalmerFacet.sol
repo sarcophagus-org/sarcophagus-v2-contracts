@@ -53,7 +53,7 @@ contract EmbalmerFacet {
         string name;
         // highest rewrap interval cursed archaeologists have agreed to accept for lifetime of sarcophagus
         uint256 maximumRewrapInterval;
-        // The timestamp which the sarcophagus can no longer be rewrapped
+        // The timestamp beyond which the sarcophagus can no longer be rewrapped
         uint256 maximumResurrectionTime;
         address recipientAddress;
         uint256 resurrectionTime;
@@ -118,8 +118,8 @@ contract EmbalmerFacet {
         uint256 maximumPermissibleResurrectionTime
     );
 
-    /// @notice Emitted when the resurrection time defined during sarcohpagus creation goes past the max resurrection time
-    /// @param resurrectionTime The resurrection time defined during the sarcophagus creation
+    /// @notice Emitted when the resurrection time defined during sarcohpagus creation or rewrap goes past the max resurrection time
+    /// @param resurrectionTime The resurrection time defined during the sarcophagus creation or rewrap
     /// @param maxResurrectionTime The maximum allowed resurrection time
     error ResurrectionTimePastMaxResurrectionTime(
         uint256 resurrectionTime,
