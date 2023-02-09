@@ -23,8 +23,8 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
     accountGenerator.index = 0;
   });
 
-  describe("Validates parameters", function () {
-    it("Reverts if no sarcophagus with the supplied id exists", async function () {
+  describe("Validates parameters. Should revert if:", function () {
+    it("no sarcophagus with the supplied id exists", async function () {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -44,7 +44,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("Reverts if the sarcophagus has been compromised", async function () {
+    it("the sarcophagus has been compromised", async function () {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -67,7 +67,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("Reverts if the sarcophagus has been buried", async function () {
+    it("the sarcophagus has been buried", async function () {
       const { archaeologistFacet, embalmerFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -92,7 +92,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("Reverts if the resurrection time has not passed", async function () {
+    it("the resurrection time has not passed", async function () {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -112,7 +112,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("Reverts if the grace period has passed", async function () {
+    it("the grace period has passed", async function () {
       const { archaeologistFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -137,7 +137,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("Reverts if the sender is not an archaeologist on the sarcophagus", async function () {
+    it("the sender is not an archaeologist on the sarcophagus", async function () {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -158,7 +158,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("Reverts if the archaeologist has been accused", async function () {
+    it("the archaeologist has been accused", async function () {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -185,7 +185,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("Reverts if the archaeologist has already published their key", async function () {
+    it("the archaeologist has already published their key", async function () {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -210,7 +210,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("Reverts if the private key being published does not match the public key on the cursedArchaeologist", async function () {
+    it("the private key being published does not match the public key on the cursedArchaeologist", async function () {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
