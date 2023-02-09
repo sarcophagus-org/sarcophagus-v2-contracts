@@ -10,7 +10,6 @@ import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 
 contract ArchaeologistFacet {
-
     /// @notice Emitted when an archaeologist successfully publishes their private key for a sarcophagus
     /// @param sarcoId ID of sarcophagus archaeologist has published the private key on
     /// @param privateKey private key that has been published
@@ -69,13 +68,13 @@ contract ArchaeologistFacet {
 
     /// @notice Registers the archaeologist profile
     /// @param peerId The libp2p identifier for the archaeologist
-    /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee
+    /// @param minimumDiggingFeePerSecond The archaeologist's minimum amount to earn per second for being cursed
     /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept
     /// for a resurrection
     /// @param freeBond How much bond the archaeologist wants to deposit during the register call (if any)
     function registerArchaeologist(
         string memory peerId,
-        uint256 minimumDiggingFee,
+        uint256 minimumDiggingFeePerSecond,
         uint256 maximumRewrapInterval,
         uint256 freeBond
     ) external {
@@ -87,7 +86,7 @@ contract ArchaeologistFacet {
         LibTypes.ArchaeologistProfile memory newArch = LibTypes.ArchaeologistProfile({
             exists: true,
             peerId: peerId,
-            minimumDiggingFee: minimumDiggingFee,
+            minimumDiggingFeePerSecond: minimumDiggingFeePerSecond,
             maximumRewrapInterval: maximumRewrapInterval,
             freeBond: freeBond,
             cursedBond: 0
@@ -106,7 +105,7 @@ contract ArchaeologistFacet {
         emit RegisterArchaeologist(
             msg.sender,
             newArch.peerId,
-            newArch.minimumDiggingFee,
+            newArch.minimumDiggingFeePerSecond,
             newArch.maximumRewrapInterval,
             newArch.freeBond
         );
@@ -114,13 +113,13 @@ contract ArchaeologistFacet {
 
     /// @notice Updates the archaeologist profile
     /// @param peerId The libp2p identifier for the archaeologist
-    /// @param minimumDiggingFee The archaeologist's minimum amount to accept for a digging fee
+    /// @param minimumDiggingFeePerSecond The archaeologist's minimum amount to earn per second for being cursed
     /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept
     /// for a resurrection
     /// freeBond How much bond the archaeologist wants to deposit during the update call (if any)
     function updateArchaeologist(
         string memory peerId,
-        uint256 minimumDiggingFee,
+        uint256 minimumDiggingFeePerSecond,
         uint256 maximumRewrapInterval,
         uint256 freeBond
     ) external {
@@ -128,10 +127,9 @@ contract ArchaeologistFacet {
         // verify that the archaeologist exists
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
 
-        // create a new archaeologist
         LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];
         existingArch.peerId = peerId;
-        existingArch.minimumDiggingFee = minimumDiggingFee;
+        existingArch.minimumDiggingFeePerSecond = minimumDiggingFeePerSecond;
         existingArch.maximumRewrapInterval = maximumRewrapInterval;
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
@@ -144,7 +142,7 @@ contract ArchaeologistFacet {
         emit UpdateArchaeologist(
             msg.sender,
             existingArch.peerId,
-            existingArch.minimumDiggingFee,
+            existingArch.minimumDiggingFeePerSecond,
             existingArch.maximumRewrapInterval,
             existingArch.freeBond
         );
@@ -260,7 +258,6 @@ contract ArchaeologistFacet {
 
         // Free archaeologist locked bond and transfer digging fees
         LibBonds.freeArchaeologist(sarcoId, msg.sender);
-        s.archaeologistRewards[msg.sender] += cursedArchaeologist.diggingFee;
 
         // Save the successful sarcophagus against the archaeologist
         s.archaeologistSuccesses[msg.sender].push(sarcoId);

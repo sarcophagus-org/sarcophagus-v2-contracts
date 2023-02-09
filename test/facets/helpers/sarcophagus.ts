@@ -13,24 +13,27 @@ import {
 } from "./archaeologistSignature";
 import { getContracts } from "./contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumber, BigNumberish, Bytes } from "ethers";
+import { BigNumberish } from "ethers";
 import { BytesLike } from "ethers/lib/utils";
-const crypto = require("crypto");
 
 const { ethers } = require("hardhat");
+const crypto = require("crypto");
+
+export const diggingFeesPerSecond_10_000_SarcoMonthly = "4000000000000000";
 
 /**
  * Contains information on a test sarcophagus
  * used to generate archaeologists and signatures and register a sarcophagus
  */
 export interface SarcophagusData {
-  sarcoId: Bytes;
+  sarcoId: string;
+  // sarcoId: Bytes;
   name: string;
   embalmer: SignerWithAddress;
   recipientAddress: string;
   resurrectionTimeSeconds: number;
   maximumRewrapIntervalSeconds: number;
-  creationTime: number;
+  creationTimeSeconds: number;
   threshold: number;
   privateKeys: string[];
   publicKeys: string[];
@@ -51,52 +54,39 @@ export const createSarcophagusData = async (params: {
   resurrectionTime?: number;
   sarcoId?: string;
   name?: string;
-  creationTime?: number;
+  creationTimeSeconds?: number;
   recipientAddress?: string;
   embalmerAddress?: string;
   embalmerFunds?: number;
 }): Promise<SarcophagusData> => {
-  const threshold = params.threshold !== undefined ? params.threshold : 3;
-  const totalShares =
-    params.totalArchaeologists !== undefined ? params.totalArchaeologists : 5;
+  const threshold = params.threshold ?? 3;
+  const totalShares = params.totalArchaeologists ?? 5;
   const maximumRewrapIntervalSeconds =
-    params.maximumRewrapIntervalSeconds !== undefined
-      ? params.maximumRewrapIntervalSeconds
-      : await time.duration.weeks(4);
+    params.maximumRewrapIntervalSeconds ?? time.duration.weeks(4);
 
   // generate new accounts for an embalmer and a recipient
   const embalmerAddress =
-    params.embalmerAddress !== undefined
-      ? params.embalmerAddress
-      : (await accountGenerator.newAccount()).address;
+    params.embalmerAddress ?? (await accountGenerator.newAccount()).address;
   const embalmer = await ethers.getSigner(embalmerAddress);
+
   await fundAndApproveAccount(embalmer, params.embalmerFunds || 100_000);
 
   const recipientAddress =
-    params.recipientAddress !== undefined
-      ? params.recipientAddress
-      : (await accountGenerator.newAccount()).address;
+    params.recipientAddress ?? (await accountGenerator.newAccount()).address;
 
   // create a unique name for the sarcophagus and derive the id
   const name =
-    params.name !== undefined
-      ? params.name
-      : `Sarcophagus by ${embalmerAddress} for ${recipientAddress}`;
+    params.name ?? `Sarcophagus by ${embalmerAddress} for ${recipientAddress}`;
   const sarcoId =
-    params.sarcoId !== undefined
-      ? params.sarcoId
-      : ethers.utils.solidityKeccak256(["string"], [name]);
+    params.sarcoId ?? ethers.utils.solidityKeccak256(["string"], [name]);
 
   // get the current time which will be signed off on by archaeologists as the negotiation timestamp
-  const creationTime =
-    params.creationTime !== undefined
-      ? params.creationTime
-      : await time.latest();
+  const creationTimeSeconds =
+    params.creationTimeSeconds ?? (await time.latest());
 
   const resurrectionTimeSeconds =
-    params.resurrectionTime !== undefined
-      ? params.resurrectionTime
-      : creationTime + maximumRewrapIntervalSeconds;
+    params.resurrectionTime ??
+    creationTimeSeconds + maximumRewrapIntervalSeconds;
 
   // generate the key pairs for the sarcophagus
   const privateKeys = Array.from(
@@ -115,7 +105,7 @@ export const createSarcophagusData = async (params: {
     resurrectionTimeSeconds,
     maximumRewrapIntervalSeconds,
     threshold,
-    creationTime,
+    creationTimeSeconds,
     privateKeys,
     publicKeys,
   };
@@ -126,12 +116,12 @@ export const createSarcophagusData = async (params: {
  * Creates archaeologist signatures on the key shares and sarcophagus negotiation parameters
  *
  * Sets default values on the archaeologists:
- *  profileMinDiggingFee: 100
+ *  profileMinDiggingFeePerSecondSarquito: 1000
  *  profileMaxRewrapIntervalSeconds: uses max rewrap interval set on the sarcophagus
  *  sarcoBalance: 10_000
  *  freeBondSarco: 10_000
  * and on the sarcophagus/archaeologist agreement:
- *  diggingFeeSarco: 100
+ *  diggingFeePerSecondSarco: 100
  *
  * @param sarcophagusData
  */
@@ -146,11 +136,12 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
           privateKey,
           maximumRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
-          creationTime: sarcophagusData.creationTime,
-          diggingFeeSarco: 100,
+          creationTime: sarcophagusData.creationTimeSeconds,
+          diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
         },
         {
-          profileMinDiggingFeeSarco: 100,
+          profileMinDiggingFeePerSecondSarquito:
+            diggingFeesPerSecond_10_000_SarcoMonthly,
           profileMaxRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
           sarcoBalance: 10_000,
@@ -180,40 +171,38 @@ export const registerArchaeologistAndCreateSignature = async (
 
 /**
  * Creates a sarcophagus with the supplied parameters
- * funds the embalmer account
- * generates and registers a default archaeologist responsible for each keyshare
- * @param params
+ *
+ * Funds the embalmer account.
+ *
+ * Generates and registers a default archaeologist responsible for each keyshare
+ * @param params Basic Sarco creation params
  */
-export const registerSarcophagusWithArchaeologists = async (params?: {
-  totalArchaeologists?: number;
-  threshold?: number;
-  maximumRewrapIntervalSeconds?: number;
-}): Promise<{
-  archaeologists: ArchaeologistData[];
-  sarcophagusData: SarcophagusData;
-}> => {
-  const sarcophagusData = await createSarcophagusData({
-    threshold: params?.threshold,
-    totalArchaeologists: params?.totalArchaeologists,
-    maximumRewrapIntervalSeconds: params?.maximumRewrapIntervalSeconds,
-  });
+export const createSarcophagusWithRegisteredCursedArchaeologists =
+  async (params?: {
+    totalArchaeologists?: number;
+    threshold?: number;
+    maximumRewrapIntervalSeconds?: number;
+  }): Promise<{
+    cursedArchaeologists: ArchaeologistData[];
+    createdSarcophagusData: SarcophagusData;
+  }> => {
+    const sarcophagusData = await createSarcophagusData({ ...params });
 
-  // register archaeologist profiles for each key and create a signature from each archaeologist
-  const archaeologists = await registerDefaultArchaeologistsAndCreateSignatures(
-    sarcophagusData
-  );
+    // register archaeologist profiles for each key and create a signature from each archaeologist
+    const archaeologists =
+      await registerDefaultArchaeologistsAndCreateSignatures(sarcophagusData);
 
-  await (await getContracts()).embalmerFacet
-    .connect(sarcophagusData.embalmer)
-    .createSarcophagus(
-      ...buildCreateSarcophagusArgs(sarcophagusData, archaeologists)
-    );
+    await (await getContracts()).embalmerFacet
+      .connect(sarcophagusData.embalmer)
+      .createSarcophagus(
+        ...buildCreateSarcophagusArgs(sarcophagusData, archaeologists)
+      );
 
-  return {
-    sarcophagusData,
-    archaeologists,
+    return {
+      createdSarcophagusData: sarcophagusData,
+      cursedArchaeologists: archaeologists,
+    };
   };
-};
 
 /**
  * Formats a sarcophagusData object and set of archaeologists to be passed into createSarcophagus contract call
@@ -236,7 +225,7 @@ export const buildCreateSarcophagusArgs = (
   },
   selectedArchaeologists: {
     archAddress: string;
-    diggingFee: BigNumberish;
+    diggingFeePerSecond: BigNumberish;
     publicKey: BytesLike;
     v: BigNumberish;
     r: BytesLike;
@@ -252,12 +241,12 @@ export const buildCreateSarcophagusArgs = (
       resurrectionTime: sarcophagusData.resurrectionTimeSeconds,
       maximumRewrapInterval: sarcophagusData.maximumRewrapIntervalSeconds,
       threshold: sarcophagusData.threshold,
-      creationTime: sarcophagusData.creationTime,
+      creationTime: sarcophagusData.creationTimeSeconds,
     },
     archaeologists.map((archaeologist: ArchaeologistData) => ({
       archAddress: archaeologist.archAddress,
       publicKey: archaeologist.publicKey,
-      diggingFee: BigNumber.from(archaeologist.diggingFeeSarquitos),
+      diggingFeePerSecond: archaeologist.diggingFeePerSecondSarquito,
       v: archaeologist.v,
       r: archaeologist.r,
       s: archaeologist.s,
