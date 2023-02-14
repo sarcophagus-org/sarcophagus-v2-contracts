@@ -6,14 +6,14 @@ pragma solidity ^0.8.13;
  */
 library LibTypes {
     struct Sarcophagus {
-        // never zero - use for existence checks
+        // Also used for existence checks -- does not exist if 0
         uint256 resurrectionTime;
         uint256 previousRewrapTime;
         // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused
         bool isCompromised;
         bool isCleaned;
-        string name;
         uint8 threshold;
+        string name;
         uint256 maximumRewrapInterval;
         uint256 maximumResurrectionTime;
         string arweaveTxId;
@@ -24,25 +24,26 @@ library LibTypes {
     }
 
     struct CursedArchaeologist {
-        // never empty - use for existence checks
-        bytes publicKey;
-        bytes32 privateKey;
-        bool isAccused;
         uint256 diggingFeePerSecond;
-    }
-
-    struct ArchaeologistProfile {
-        bool exists; // todo: use peerid.length instead of exists
-        string peerId;
-        uint256 minimumDiggingFeePerSecond;
-        uint256 maximumRewrapInterval;
-        uint256 freeBond;
-        uint256 cursedBond;
+        // Also used for unwrap checks -- has not unwrapped if 0
+        bytes32 privateKey;
+        // Also used for curse checks -- is not bonded if length is 0
+        bytes publicKey;
+        bool isAccused;
     }
 
     struct Signature {
         uint8 v;
         bytes32 r;
         bytes32 s;
+    }
+
+    struct ArchaeologistProfile {
+        // Also used for existence checks -- does not exist if 0
+        uint256 maximumRewrapInterval;
+        string peerId;
+        uint256 minimumDiggingFeePerSecond;
+        uint256 freeBond;
+        uint256 cursedBond;
     }
 }

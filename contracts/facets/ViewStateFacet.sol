@@ -33,7 +33,7 @@ contract ViewStateFacet {
 
         for (uint256 i = 0; i < addresses.length; i++) {
             // Check that the archaeologist profile exists
-            if (!s.archaeologistProfiles[addresses[i]].exists) {
+            if (s.archaeologistProfiles[addresses[i]].maximumRewrapInterval == 0) {
                 continue;
             }
             profiles[i] = s.archaeologistProfiles[addresses[i]];

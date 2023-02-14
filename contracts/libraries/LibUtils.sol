@@ -102,7 +102,7 @@ library LibUtils {
     function revertIfArchProfileExists(address archaeologist) internal view {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        if (s.archaeologistProfiles[archaeologist].exists) {
+        if (s.archaeologistProfiles[archaeologist].maximumRewrapInterval != 0) {
             revert LibErrors.ArchaeologistProfileExistsShouldBe(false, archaeologist);
         }
     }
@@ -113,7 +113,7 @@ library LibUtils {
     function revertIfArchProfileDoesNotExist(address archaeologist) internal view {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        if (!s.archaeologistProfiles[archaeologist].exists) {
+        if (s.archaeologistProfiles[archaeologist].maximumRewrapInterval == 0) {
             revert LibErrors.ArchaeologistProfileExistsShouldBe(true, archaeologist);
         }
     }

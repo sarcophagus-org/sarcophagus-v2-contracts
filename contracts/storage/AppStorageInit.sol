@@ -16,7 +16,6 @@ contract AppStorageInit {
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        // Add the ERC20 token to app storage (Sarco)
         s.sarcoToken = sarcoToken;
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
         s.gracePeriod = gracePeriod;
