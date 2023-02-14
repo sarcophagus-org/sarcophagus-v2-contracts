@@ -204,7 +204,7 @@ contract ArchaeologistFacet {
     /// sarcophagus resurrection window.
     /// Pays digging fees to the archaeologist and releases their locked bond.
     /// Cannot be called on a compromised or buried sarcophagus.
-    /// @param sarcoId The identifier of the sarcophagus to unwrap
+    /// @param sarcoId The identifier of the sarcophagus for which the archaeologist is responsible
     /// @param privateKey The private key the archaeologist is publishing
     function publishPrivateKey(bytes32 sarcoId, bytes32 privateKey) external {
         AppStorage storage s = LibAppStorage.getAppStorage();

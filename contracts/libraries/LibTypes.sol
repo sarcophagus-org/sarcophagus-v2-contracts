@@ -25,7 +25,7 @@ library LibTypes {
 
     struct CursedArchaeologist {
         uint256 diggingFeePerSecond;
-        // Also used for unwrap checks -- has not unwrapped if 0
+        // Also used for publish checks -- has not published if 0
         bytes32 privateKey;
         // Also used for curse checks -- is not bonded if length is 0
         bytes publicKey;
