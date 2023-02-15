@@ -190,7 +190,6 @@ export const createSarcophagusWithRegisteredCursedArchaeologists =
     totalArchaeologists?: number;
     threshold?: number;
     maximumRewrapIntervalSeconds?: number;
-    resurrectionTime?: number;
   }): Promise<{
     cursedArchaeologists: ArchaeologistData[];
     createdSarcophagusData: SarcophagusData;
