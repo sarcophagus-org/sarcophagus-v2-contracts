@@ -21,6 +21,7 @@ library LibTypes {
         address recipientAddress;
         address[] cursedArchaeologistAddresses;
         mapping(address => CursedArchaeologist) cursedArchaeologists;
+        uint256 cursedBondPercentage;
     }
 
     struct CursedArchaeologist {

@@ -33,7 +33,7 @@ library LibBonds {
     /// archaeologist, without respectively increasing their free bond.
     /// @param archaeologist The address of the archaeologist
     /// @param amount The amount to slash
-    function decreaseArchaeologistLockedBond(address archaeologist, uint256 amount) internal {
+    function decreaseCursedBond(address archaeologist, uint256 amount) internal {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Revert if the amount is greater than the current cursed bond
@@ -77,8 +77,11 @@ library LibBonds {
         uint256 diggingFeesDue = archaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-        decreaseFreeBond(archaeologist.archAddress, diggingFeesDue);
-        s.archaeologistProfiles[archaeologist.archAddress].cursedBond += diggingFeesDue;
+        // Use cursed bond percentage to determine how much bond to lock up
+        uint256 bondToCurse = (diggingFeesDue * s.cursedBondPercentage) / 100;
+
+        decreaseFreeBond(archaeologist.archAddress, bondToCurse);
+        s.archaeologistProfiles[archaeologist.archAddress].cursedBond += bondToCurse;
 
         s.archaeologistSarcophagi[archaeologist.archAddress].push(sarcoId);
 
@@ -96,11 +99,22 @@ library LibBonds {
             .sarcophagi[sarcoId]
             .cursedArchaeologists[archaeologistAddress];
 
-        uint256 amount = cursedArchaeologist.diggingFeePerSecond *
+        uint256 diggingFeeAmount = cursedArchaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-        decreaseArchaeologistLockedBond(archaeologistAddress, amount);
-        s.archaeologistProfiles[archaeologistAddress].freeBond += amount;
-        s.archaeologistRewards[archaeologistAddress] += amount;
+        uint256 cursedBondAmount = diggingFeeAmount * sarcophagus.cursedBondPercentage / 100;
+
+        decreaseCursedBond(archaeologistAddress, cursedBondAmount);
+        s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
+        s.archaeologistRewards[archaeologistAddress] += diggingFeeAmount;
+    }
+
+    /// @notice Calculates the protocol fees to be taken from the embalmer.
+    /// @param totalDiggingFees to be paid. Protocol fee is a percentage of this
+    /// @return The protocol fees amount
+    function calculateCursedBond(uint256 diggingFees) internal view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+
+        return (diggingFees * s.cursedBondPercentage) / 100;
     }
 }

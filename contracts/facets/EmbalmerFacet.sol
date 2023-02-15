@@ -231,6 +231,7 @@ contract EmbalmerFacet {
         sarcophagus.embalmerAddress = msg.sender;
         sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
         sarcophagus.cursedArchaeologistAddresses = new address[](selectedArchaeologists.length);
+        sarcophagus.cursedBondPercentage = s.cursedBondPercentage;
 
         // track total digging fees due upon creation of sarcophagus
         uint256 totalDiggingFees = 0;
@@ -361,6 +362,8 @@ contract EmbalmerFacet {
 
         // pay digging fee to each cursed archaeologist on the sarcophagus that has not been accused
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
+        uint256 cursedBondPercentage = sarcophagus.cursedBondPercentage;
+
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[archaeologistAddresses[i]];
@@ -374,36 +377,35 @@ contract EmbalmerFacet {
                 // If the new digging fees are greater than the previous digging fees, we need to
                 // increase the archaeologist's locked bond
                 if (newDiggingFees > prevDiggingFees) {
-                    // TODO: The 2x check assumes a 1:1 ratio between diggingFees-lockedBond, this ratio may change
-                    if (newDiggingFees > prevDiggingFees * 2) {
+                    uint256 diggingFeeDifference = newDiggingFees - prevDiggingFees;
+                    uint256 cursedBondIncrease = diggingFeeDifference * cursedBondPercentage / 100;
+
+                    // If the previous cycle's rewards can't cover the cursed bond increase, revert
+                    if (cursedBondIncrease > prevDiggingFees) {
                         revert ResurrectionTimeTooFarPastPreviousResurrectionTime(
                             resurrectionTime,
                             sarcophagus.resurrectionTime
                         );
                     }
 
-                    uint256 diggingFeeDifference = newDiggingFees - prevDiggingFees;
-
-                    // Increase the archaeologist's cursed bond by the difference between the new
-                    // digging fees and the previous digging fees
+                    // Increase the archaeologist's cursed bond
                     s
                         .archaeologistProfiles[archaeologistAddresses[i]]
-                        .cursedBond += diggingFeeDifference;
+                        .cursedBond += cursedBondIncrease;
 
                     // Rewards are now previous digging fees - difference
                     s.archaeologistRewards[archaeologistAddresses[i]] +=
                         prevDiggingFees -
-                        diggingFeeDifference;
+                        cursedBondIncrease;
                 } else if (newDiggingFees < prevDiggingFees) {
+                    uint256 diggingFeeDifference = prevDiggingFees - newDiggingFees;
+                    uint256 cursedBondDecrease = diggingFeeDifference * cursedBondPercentage / 100;
+
                     // Decrease archaeologist's cursed bond by the difference
-                    s.archaeologistProfiles[archaeologistAddresses[i]].cursedBond -=
-                        prevDiggingFees -
-                        newDiggingFees;
+                    s.archaeologistProfiles[archaeologistAddresses[i]].cursedBond -= cursedBondDecrease;
 
                     // Increase archaeologist's free bond by the difference
-                    s.archaeologistProfiles[archaeologistAddresses[i]].freeBond +=
-                        prevDiggingFees -
-                        newDiggingFees;
+                    s.archaeologistProfiles[archaeologistAddresses[i]].freeBond += cursedBondDecrease;
 
                     // Rewards are equal to the previous digging fees
                     s.archaeologistRewards[archaeologistAddresses[i]] += prevDiggingFees;
