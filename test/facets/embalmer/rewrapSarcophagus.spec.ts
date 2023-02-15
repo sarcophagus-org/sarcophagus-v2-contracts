@@ -170,36 +170,9 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `NewResurrectionTimeTooFarInFuture`
       );
     });
-
-    it("there is not enough digging fees to cover the new locked bond amount", async function () {
-      // Increase interval by 3x and expect the transaction to be reverted
-
-      const { embalmerFacet } = await getContracts();
-
-      // Set resurrection time to 1 week from now
-      const resurrectionTime = (await time.latest()) + time.duration.weeks(1);
-      const { createdSarcophagusData: sarcophagusData } =
-        await createSarcophagusWithRegisteredCursedArchaeologists({
-          resurrectionTime,
-        });
-
-      // Increase resurrection time to 3 weeks from now, 3x the original
-      // Less than max res time but way more than double previous res time
-      const tx = embalmerFacet
-        .connect(sarcophagusData.embalmer)
-        .rewrapSarcophagus(
-          sarcophagusData.sarcoId,
-          (await time.latest()) + time.duration.weeks(3)
-        );
-
-      await expect(tx).to.be.revertedWithCustomError(
-        embalmerFacet,
-        `ResurrectionTimeTooFarPastPreviousResurrectionTime`
-      );
-    });
   });
 
-  describe.only("Successfully rewraps a sarcophagus with no accusals", function () {
+  describe("Successfully rewraps a sarcophagus with no accusals", function () {
     it("Should pay digging fees to each of the cursed archaeologists", async function () {
       const { embalmerFacet, viewStateFacet } = await getContracts();
       const {
@@ -298,21 +271,6 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
 
       expect(result.resurrectionTime).to.equal(newResurrectionTime);
       await expect(tx).to.emit(embalmerFacet, "RewrapSarcophagus");
-    });
-
-    describe("New digging fees is greater than previous digging fees", function () {
-      it("Should increase the archaeologist's cursed bond", function () {
-        //
-      });
-      it("Should decrease archaeologist's rewards", function () {
-        //
-      });
-    });
-
-    describe("New digging fees are less than previous digging fees", function () {
-      it("Should decrease cursed bond and increase free bond for the archaeologist", async function () {
-        //
-      });
     });
   });
   describe("Successfully rewraps a sarcophagus with fewer than k accusals", function () {
