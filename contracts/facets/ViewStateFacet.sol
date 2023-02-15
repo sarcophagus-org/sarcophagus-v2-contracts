@@ -19,6 +19,13 @@ contract ViewStateFacet {
         return s.protocolFeeBasePercentage;
     }
 
+    /// @notice Get the cursed bond percentage from the contract.
+    /// @return The cursed bond percentage - cursedBondPercentage
+    function getCursedBondPercentage() external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+        return s.cursedBondPercentage;
+    }
+
     /// @notice Gets archaeologist profiles given a list of archaeologist addresses.
     /// If an invalid address is included, simply leaves it out of the list.
     /// @param addresses The list of archaeologist addresses

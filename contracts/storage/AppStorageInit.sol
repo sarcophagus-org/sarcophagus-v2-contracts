@@ -19,6 +19,8 @@ contract AppStorageInit {
         // Add the ERC20 token to app storage (Sarco)
         s.sarcoToken = sarcoToken;
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
+        // Init digging fees / cursed bond ratio to 1
+        s.cursedBondPercentage = 100;
         s.gracePeriod = gracePeriod;
         s.embalmerClaimWindow = embalmerClaimWindow;
         s.expirationThreshold = expirationThreshold;

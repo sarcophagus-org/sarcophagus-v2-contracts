@@ -21,6 +21,8 @@ struct AppStorage {
     */
     // % of total digging fees for sarcophagus to charge embalmer on create and rewrap
     uint256 protocolFeeBasePercentage;
+    // % of digging fees archaeologists must have locked up per curse in cursed bond
+    uint256 cursedBondPercentage;
     // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time
     uint256 gracePeriod;
     // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated
