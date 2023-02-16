@@ -330,36 +330,4 @@ contract ThirdPartyFacet {
 
         emit AccuseArchaeologist(sarcoId, msg.sender, totalCursedBond, totalDiggingFees);
     }
-
-    /**
-     * @notice Takes the total cursed bond being slashed on a sarcophagus, splits it in half, and sends
-     * to paymentAddress and embalmer. Also reimburses the digging fees paid by the embalmer.
-     *
-     * @param paymentAddress to which funds will be sent
-     * @param sarcophagus the sarcophagus whose cursed bonds is to be distributed
-     * @param totalCursedBond the sum of cursed bond of all archs that failed to fulfill their duties.
-     * @param totalDiggingFees the sum of digging fees of all archs that failed to fulfill their duties.
-     *
-     * @return halfCursedBondToSender the amount of SARCO going to transaction sender
-     * @return halfCursedBondToEmbalmer the amount of SARCO going to embalmer. does not include reimbursed digging fees
-     */
-    function _distributeLoot(
-        address paymentAddress,
-        LibTypes.Sarcophagus storage sarcophagus,
-        uint256 totalCursedBond,
-        uint256 totalDiggingFees
-    ) private {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        // split the sarcophagus's cursed bond into two halves
-        uint256 halfCursedBond = totalCursedBond / 2;
-
-        // transfer the cursed half, plus the original digging fees paid, to the embalmer
-        s.sarcoToken.transfer(
-            sarcophagus.embalmerAddress,
-            totalDiggingFees + halfCursedBond
-        );
-
-        // transfer the other half of the cursed bond to the transaction caller
-        s.sarcoToken.transfer(paymentAddress, halfCursedBond);
-    }
 }

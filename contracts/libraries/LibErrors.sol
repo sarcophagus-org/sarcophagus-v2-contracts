@@ -7,7 +7,6 @@ pragma solidity ^0.8.13;
  * uses.
  */
 library LibErrors {
-
     error ArchaeologistNotOnSarcophagus(address archaeologist);
 
     error NotEnoughCursedBond(uint256 cursedBond, uint256 amount);
@@ -30,5 +29,4 @@ library LibErrors {
         // address we expected to have signed the data
         address expectedAddress
     );
-
 }

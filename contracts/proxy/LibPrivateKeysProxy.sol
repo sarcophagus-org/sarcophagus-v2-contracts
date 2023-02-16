@@ -11,7 +11,7 @@ contract LibPrivateKeysTest {
 
     function keyVerification(bytes32 privKey, bytes calldata pubKey) public {
         storedPublicKey = pubKey;
-        if (LibPrivateKeys.isPublicKeyFromPrivateKey(privKey, storedPublicKey)) {
+        if (LibPrivateKeys.isPublicKeyOfPrivateKey(privKey, storedPublicKey)) {
             emit True();
         } else {
             emit False();
