@@ -108,13 +108,4 @@ library LibBonds {
         s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
         s.archaeologistRewards[archaeologistAddress] += diggingFeeAmount;
     }
-
-    /// @notice Calculates the protocol fees to be taken from the embalmer.
-    /// @param totalDiggingFees to be paid. Protocol fee is a percentage of this
-    /// @return The protocol fees amount
-    function calculateCursedBond(uint256 diggingFees) internal view returns (uint256) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        return (diggingFees * s.cursedBondPercentage) / 100;
-    }
 }
