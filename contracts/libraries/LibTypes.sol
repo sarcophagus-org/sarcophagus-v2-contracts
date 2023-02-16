@@ -41,6 +41,7 @@ library LibTypes {
     struct ArchaeologistProfile {
         // Also used for existence checks -- does not exist if 0
         uint256 maximumRewrapInterval;
+        uint256 maximumResurrectionTime;
         string peerId;
         uint256 minimumDiggingFeePerSecond;
         uint256 freeBond;
