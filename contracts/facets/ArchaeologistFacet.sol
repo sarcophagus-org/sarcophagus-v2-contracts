@@ -56,6 +56,9 @@ contract ArchaeologistFacet {
     /// @param archaeologistAddress address of publishing archaeologist
     error ArchaeologistAlreadyPublishedPrivateKey(address archaeologistAddress);
 
+    /// @notice Archaeologist has attempted to set a zero minimumDiggingFeePerSecond or maximumRewrapInterval
+    error CannotSetZeroProfileValue();
+
     /// @notice Archaeologist has attempted to publish the incorrect private key for a sarcophagus
     /// @param archaeologistAddress address of publishing archaeologist
     /// @param publicKey publicKey stored for archaeologist on the sarcophagus
@@ -82,9 +85,12 @@ contract ArchaeologistFacet {
         // verify that the archaeologist does not already exist
         LibUtils.revertIfArchProfileExists(msg.sender);
 
+        if (maximumRewrapInterval == 0 || minimumDiggingFeePerSecond == 0) {
+            revert CannotSetZeroProfileValue();
+        }
+
         // create a new archaeologist
         LibTypes.ArchaeologistProfile memory newArch = LibTypes.ArchaeologistProfile({
-            exists: true,
             peerId: peerId,
             minimumDiggingFeePerSecond: minimumDiggingFeePerSecond,
             maximumRewrapInterval: maximumRewrapInterval,
@@ -126,6 +132,10 @@ contract ArchaeologistFacet {
         AppStorage storage s = LibAppStorage.getAppStorage();
         // verify that the archaeologist exists
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
+
+        if (maximumRewrapInterval == 0 || minimumDiggingFeePerSecond == 0) {
+            revert CannotSetZeroProfileValue();
+        }
 
         LibTypes.ArchaeologistProfile storage existingArch = s.archaeologistProfiles[msg.sender];
         existingArch.peerId = peerId;
@@ -194,7 +204,7 @@ contract ArchaeologistFacet {
     /// sarcophagus resurrection window.
     /// Pays digging fees to the archaeologist and releases their locked bond.
     /// Cannot be called on a compromised or buried sarcophagus.
-    /// @param sarcoId The identifier of the sarcophagus to unwrap
+    /// @param sarcoId The identifier of the sarcophagus for which the archaeologist is responsible
     /// @param privateKey The private key the archaeologist is publishing
     function publishPrivateKey(bytes32 sarcoId, bytes32 privateKey) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
@@ -245,7 +255,7 @@ contract ArchaeologistFacet {
 
         // Confirm that the private key being submitted matches the public key stored on the
         // sarcophagus for this archaeologist
-        if (!LibPrivateKeys.isPublicKeyFromPrivateKey(privateKey, cursedArchaeologist.publicKey)) {
+        if (!LibPrivateKeys.isPublicKeyOfPrivateKey(privateKey, cursedArchaeologist.publicKey)) {
             revert ArchaeologistPublishedIncorrectPrivateKey(
                 msg.sender,
                 cursedArchaeologist.publicKey,

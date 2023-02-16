@@ -5,20 +5,17 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
 
 /**
-* Global diamond storage struct to be shared across facets
-* TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs
-*/
+ * Global diamond storage struct to be shared across facets
+ * TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs
+ */
 struct AppStorage {
-
     // SARCO token contract
     IERC20 sarcoToken;
-
     // total protocol fees available to be withdrawn by the admin
     uint256 totalProtocolFees;
-
     /**
-    * Protocol level admin configurations
-    */
+     * Protocol level admin configurations
+     */
     // % of total digging fees for sarcophagus to charge embalmer on create and rewrap
     uint256 protocolFeeBasePercentage;
     // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time
@@ -28,43 +25,37 @@ struct AppStorage {
     // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys
     uint256 embalmerClaimWindow;
 
+    // registered archaeologist addresses
+    address[] archaeologistProfileAddresses;
+
     /**
-    * Ownership mappings
-    */
+     * Ownership mappings
+     */
     // embalmer address => ids of sarcophagi they've created
     mapping(address => bytes32[]) embalmerSarcophagi;
     // archaeologist address =>  ids of sarcophagi they're protecting
     mapping(address => bytes32[]) archaeologistSarcophagi;
     // recipient address =>  ids of sarcophagi they're recipient on
     mapping(address => bytes32[]) recipientSarcophagi;
-
     // public key => archaeologist address
     mapping(bytes => address) publicKeyToArchaeologistAddress;
-
     // sarcophagus id => sarcophagus object
     mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;
-
-    // archaeologist addresses
-    address[] archaeologistProfileAddresses;
     // archaeologist address => profile
     mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;
-
-
     // current balance of rewards available for the archaeologist to withdraw
     mapping(address => uint256) archaeologistRewards;
-
-
     /**
-    * Archaeologist reputation statistics
-    * todo: could these be organized differently?
-    */
+     * Archaeologist reputation statistics: address => sarcoIds
+     * todo: could these be organized differently?
+     */
     mapping(address => bytes32[]) archaeologistSuccesses;
     mapping(address => bytes32[]) archaeologistAccusals;
     mapping(address => bytes32[]) archaeologistCleanups;
 }
 
 library LibAppStorage {
-    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("sarcophagus.storage.dev1");
+    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("sarcophagus.storage.dev2");
 
     function getAppStorage() internal pure returns (AppStorage storage s) {
         bytes32 position = DIAMOND_STORAGE_POSITION;
