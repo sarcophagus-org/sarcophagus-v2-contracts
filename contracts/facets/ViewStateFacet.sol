@@ -40,7 +40,7 @@ contract ViewStateFacet {
 
         for (uint256 i = 0; i < addresses.length; i++) {
             // Check that the archaeologist profile exists
-            if (!s.archaeologistProfiles[addresses[i]].exists) {
+            if (s.archaeologistProfiles[addresses[i]].maximumRewrapInterval == 0) {
                 continue;
             }
             profiles[i] = s.archaeologistProfiles[addresses[i]];
@@ -256,6 +256,7 @@ contract ViewStateFacet {
 
     struct SarcophagusResponse {
         uint256 resurrectionTime;
+        uint256 previousRewrapTime;
         bool isCompromised;
         bool isCleaned;
         string name;
@@ -305,6 +306,7 @@ contract ViewStateFacet {
         return
             SarcophagusResponse({
                 resurrectionTime: sarcophagus.resurrectionTime,
+                previousRewrapTime: sarcophagus.previousRewrapTime,
                 isCompromised: sarcophagus.isCompromised,
                 isCleaned: sarcophagus.isCleaned,
                 name: sarcophagus.name,

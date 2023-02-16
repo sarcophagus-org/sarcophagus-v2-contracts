@@ -128,6 +128,8 @@ contract EmbalmerFacet {
 
     error NewResurrectionTimeInPast(uint256 currentTime, uint256 newResurrectionTime);
 
+    error NewResurrectionTimeIsZero();
+
     error NewResurrectionTimeTooFarInFuture(
         uint256 resurrectionTime,
         uint256 sarcophagusMaximumRewrapInterval,
@@ -315,6 +317,10 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
+        if (resurrectionTime == 0) {
+            revert NewResurrectionTimeIsZero();
+        }
+
         // Confirm the sarcophagus has not been compromised
         if (sarcophagus.isCompromised) {
             revert LibErrors.SarcophagusCompromised(sarcoId);
@@ -478,7 +484,6 @@ contract EmbalmerFacet {
             }
         }
 
-        // TODO: Evaluate security cost of this setter being after calls to `freeArchaeologist` which unlocks bond and rewards archaeologists
         // Set resurrection time to infinity
         sarcophagus.resurrectionTime = 2 ** 256 - 1;
 
