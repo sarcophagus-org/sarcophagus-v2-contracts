@@ -249,6 +249,7 @@ contract ViewStateFacet {
 
     struct SarcophagusResponse {
         uint256 resurrectionTime;
+        uint256 previousRewrapTime;
         bool isCompromised;
         bool isCleaned;
         string name;
@@ -298,6 +299,7 @@ contract ViewStateFacet {
         return
             SarcophagusResponse({
                 resurrectionTime: sarcophagus.resurrectionTime,
+                previousRewrapTime: sarcophagus.previousRewrapTime,
                 isCompromised: sarcophagus.isCompromised,
                 isCleaned: sarcophagus.isCleaned,
                 name: sarcophagus.name,
