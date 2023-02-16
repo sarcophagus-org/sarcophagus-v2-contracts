@@ -216,7 +216,6 @@ contract ThirdPartyFacet {
 
         // track the combined locked bond across all archaeologists being accused in this call
         uint256 totalCursedBond = 0;
-        uint256 totalDiggingFees = 0;
         uint256 accusalCount = 0;
         for (uint256 i = 0; i < signatures.length; i++) {
             if (
@@ -254,13 +253,8 @@ contract ThirdPartyFacet {
             accusedArchaeologist.isAccused = true;
             accusedArchAddresses[accusalCount++] = accusedArchaeologistAddress;
 
-            // track the sum of all digging fees for all accused archaeologists
-            uint256 diggingFeesDue = accusedArchaeologist.diggingFeePerSecond *
-                (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
-
-            totalDiggingFees += diggingFeesDue;
-
-            uint256 cursedBondDue = diggingFeesDue * sarcophagus.cursedBondPercentage / 100;
+            uint256 cursedBondDue = (accusedArchaeologist.diggingFeePerSecond *
+            (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime)) * sarcophagus.cursedBondPercentage / 100;
 
             totalCursedBond += cursedBondDue;
 
@@ -318,7 +312,7 @@ contract ThirdPartyFacet {
         }
 
         uint256 halfTotalCursedBond = totalCursedBond / 2;
-
+        uint256 totalDiggingFees = totalCursedBond / (sarcophagus.cursedBondPercentage / 100);
         // transfer the cursed half, plus the current digging fees, to the embalmer
         s.sarcoToken.transfer(
             sarcophagus.embalmerAddress,
