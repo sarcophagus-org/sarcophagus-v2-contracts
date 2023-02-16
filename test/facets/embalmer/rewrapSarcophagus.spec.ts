@@ -370,7 +370,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
     });
 
-    it.only("Should decrease cursed bond and increase free bond if new digging fee < previous digging fee ", async function () {
+    it("Should decrease cursed bond and increase free bond if new digging fee < previous digging fee ", async function () {
       const { embalmerFacet, viewStateFacet } = await getContracts();
 
       // Set resurrection time for creation to 1 week from now
