@@ -24,9 +24,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
   it("sets the cursed bond percentage if caller is owner", async () => {
     const { adminFacet, viewStateFacet } = await getContracts();
     const deployer = await ethers.getNamedSigner("deployer");
-    await adminFacet
-      .connect(deployer)
-      .setCursedBondPercentage(200);
+    await adminFacet.connect(deployer).setCursedBondPercentage(200);
 
     const cursedBondPercentage = await viewStateFacet
       .connect(deployer)
@@ -37,9 +35,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
   it("reverts when a non-owner is the caller", async () => {
     const { adminFacet, viewStateFacet } = await getContracts();
     const signers = await ethers.getSigners();
-    const tx = adminFacet
-      .connect(signers[1])
-      .setCursedBondPercentage(200);
+    const tx = adminFacet.connect(signers[1]).setCursedBondPercentage(200);
 
     await expect(tx).to.be.reverted;
   });
