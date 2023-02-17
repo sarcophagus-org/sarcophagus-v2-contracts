@@ -1,7 +1,6 @@
 import time from "../../utils/time";
 import { accountGenerator } from "./accounts";
 import { fundAndApproveAccount } from "./sarcoToken";
-import { generateKeyshares } from "./shamirSecretSharing";
 import {
   ArchaeologistParameters,
   registerArchaeologist,
