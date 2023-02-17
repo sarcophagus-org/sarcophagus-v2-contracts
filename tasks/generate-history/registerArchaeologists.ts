@@ -40,6 +40,7 @@ export async function registerArchaeologists(
 
     // Be sure to provide plenty of free bond for the archaeologist
     const freeBond = 10000;
+    const maxResurrectionTime = 1739643155; // 2 years
 
     // Register the archaeologist
     try {
@@ -53,7 +54,8 @@ export async function registerArchaeologists(
           "some-peer-id",
           BigNumber.from(minimumDiggingFee),
           BigNumber.from(maximumRewrapInterval),
-          BigNumber.from(freeBond)
+          BigNumber.from(freeBond),
+          BigNumber.from(maxResurrectionTime)
         );
       console.log(
         `(${i + 1}/${count}) Registered archaeologist ${account.address}`

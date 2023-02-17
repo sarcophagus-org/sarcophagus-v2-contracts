@@ -22,7 +22,8 @@ contract ArchaeologistFacet {
         string peerId,
         uint256 minimumDiggingFee,
         uint256 maximumRewrapInterval,
-        uint256 freeBond
+        uint256 freeBond,
+        uint256 maximumResurrectionTime
     );
 
     event UpdateArchaeologist(
@@ -30,7 +31,8 @@ contract ArchaeologistFacet {
         string peerId,
         uint256 minimumDiggingFee,
         uint256 maximumRewrapInterval,
-        uint256 freeBond
+        uint256 freeBond,
+        uint256 maximumResurrectionTime
     );
 
     event WithdrawFreeBond(address indexed archaeologist, uint256 withdrawnBond);
@@ -75,11 +77,13 @@ contract ArchaeologistFacet {
     /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept
     /// for a resurrection
     /// @param freeBond How much bond the archaeologist wants to deposit during the register call (if any)
+    /// @param maximumResurrectionTime The time beyond which the archaeologist is not willing to accept new curses or rewraps
     function registerArchaeologist(
         string memory peerId,
         uint256 minimumDiggingFeePerSecond,
         uint256 maximumRewrapInterval,
-        uint256 freeBond
+        uint256 freeBond,
+        uint256 maximumResurrectionTime
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
         // verify that the archaeologist does not already exist
@@ -93,6 +97,7 @@ contract ArchaeologistFacet {
         LibTypes.ArchaeologistProfile memory newArch = LibTypes.ArchaeologistProfile({
             peerId: peerId,
             minimumDiggingFeePerSecond: minimumDiggingFeePerSecond,
+            maximumResurrectionTime: maximumResurrectionTime,
             maximumRewrapInterval: maximumRewrapInterval,
             freeBond: freeBond,
             cursedBond: 0
@@ -113,7 +118,8 @@ contract ArchaeologistFacet {
             newArch.peerId,
             newArch.minimumDiggingFeePerSecond,
             newArch.maximumRewrapInterval,
-            newArch.freeBond
+            newArch.freeBond,
+            newArch.maximumResurrectionTime
         );
     }
 
@@ -127,7 +133,8 @@ contract ArchaeologistFacet {
         string memory peerId,
         uint256 minimumDiggingFeePerSecond,
         uint256 maximumRewrapInterval,
-        uint256 freeBond
+        uint256 freeBond,
+        uint256 maximumResurrectionTime
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
         // verify that the archaeologist exists
@@ -141,6 +148,7 @@ contract ArchaeologistFacet {
         existingArch.peerId = peerId;
         existingArch.minimumDiggingFeePerSecond = minimumDiggingFeePerSecond;
         existingArch.maximumRewrapInterval = maximumRewrapInterval;
+        existingArch.maximumResurrectionTime = maximumResurrectionTime;
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
@@ -154,7 +162,8 @@ contract ArchaeologistFacet {
             existingArch.peerId,
             existingArch.minimumDiggingFeePerSecond,
             existingArch.maximumRewrapInterval,
-            existingArch.freeBond
+            existingArch.freeBond,
+            existingArch.maximumResurrectionTime
         );
     }
 

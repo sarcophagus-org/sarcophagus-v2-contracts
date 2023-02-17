@@ -153,6 +153,7 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
             sarcophagusData.maximumRewrapIntervalSeconds,
           sarcoBalance: 10_000,
           freeBondSarco: 10_000,
+          maxResurrectionTime: 1739643155,
         }
       )
     )

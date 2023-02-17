@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "../libraries/LibTypes.sol";
+import "../libraries/LibUtils.sol";
 import "../storage/LibAppStorage.sol";
 
 contract ViewStateFacet {
@@ -39,7 +40,7 @@ contract ViewStateFacet {
         );
 
         for (uint256 i = 0; i < addresses.length; i++) {
-            // Check that the archaeologist profile exists
+            // Skip unregistered archaeologists
             if (s.archaeologistProfiles[addresses[i]].maximumRewrapInterval == 0) {
                 continue;
             }
@@ -78,6 +79,7 @@ contract ViewStateFacet {
         address archaeologist
     ) external view returns (LibTypes.ArchaeologistProfile memory) {
         AppStorage storage s = LibAppStorage.getAppStorage();
+        LibUtils.revertIfArchProfileDoesNotExist(archaeologist);
         return s.archaeologistProfiles[archaeologist];
     }
 
@@ -278,6 +280,11 @@ contract ViewStateFacet {
     function getSarcophagus(bytes32 sarcoId) external view returns (SarcophagusResponse memory) {
         AppStorage storage s = LibAppStorage.getAppStorage();
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
+
+        // Confirm sarcophagus exists
+        if (sarcophagus.resurrectionTime == 0) {
+            revert LibErrors.SarcophagusDoesNotExist(sarcoId);
+        }
 
         uint8 publishedPrivateKeyCount = 0;
         bool hasLockedBond = false;
