@@ -383,8 +383,7 @@ contract EmbalmerFacet {
                 // If the new digging fees are greater than the previous digging fees, we need to
                 // increase the archaeologist's locked bond
                 if (newDiggingFees > prevDiggingFees) {
-                    uint256 diggingFeeDifference = newDiggingFees - prevDiggingFees;
-                    uint256 cursedBondIncrease = diggingFeeDifference * cursedBondPercentage / 100;
+                    uint256 cursedBondIncrease = (newDiggingFees - prevDiggingFees) * cursedBondPercentage / 100;
 
                     // If the previous cycle's rewards can't cover the cursed bond increase, revert
                     if (cursedBondIncrease > prevDiggingFees) {
@@ -404,8 +403,7 @@ contract EmbalmerFacet {
                         prevDiggingFees -
                         cursedBondIncrease;
                 } else if (newDiggingFees < prevDiggingFees) {
-                    uint256 diggingFeeDifference = prevDiggingFees - newDiggingFees;
-                    uint256 cursedBondDecrease = diggingFeeDifference * cursedBondPercentage / 100;
+                    uint256 cursedBondDecrease = (prevDiggingFees - newDiggingFees) * cursedBondPercentage / 100;
 
                     // Decrease archaeologist's cursed bond by the difference
                     s.archaeologistProfiles[archaeologistAddresses[i]].cursedBond -= cursedBondDecrease;

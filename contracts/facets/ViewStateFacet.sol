@@ -264,6 +264,8 @@ contract ViewStateFacet {
         string name;
         uint8 threshold;
         uint256 maximumRewrapInterval;
+        uint256 maximumResurrectionTime;
+        uint256 cursedBondPercentage;
         string arweaveTxId;
         address embalmerAddress;
         address recipientAddress;
@@ -319,6 +321,8 @@ contract ViewStateFacet {
                 name: sarcophagus.name,
                 threshold: sarcophagus.threshold,
                 maximumRewrapInterval: sarcophagus.maximumRewrapInterval,
+                maximumResurrectionTime: sarcophagus.maximumResurrectionTime,
+                cursedBondPercentage: sarcophagus.cursedBondPercentage,
                 arweaveTxId: sarcophagus.arweaveTxId,
                 embalmerAddress: sarcophagus.embalmerAddress,
                 recipientAddress: sarcophagus.recipientAddress,

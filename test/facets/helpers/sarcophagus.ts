@@ -123,8 +123,8 @@ export const createSarcophagusData = async (params: {
  * Sets default values on the archaeologists:
  *  profileMinDiggingFeePerSecondSarquito: 10000 / month
  *  profileMaxRewrapIntervalSeconds: uses max rewrap interval set on the sarcophagus
- *  sarcoBalance: 10_000
- *  freeBondSarco: 10_000
+ *  sarcoBalance: 40_000
+ *  freeBondSarco: 40_000
  * and on the sarcophagus/archaeologist agreement:
  *  diggingFeePerSecondSarco: 10000 / month
  *
@@ -151,8 +151,8 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
             diggingFeesPerSecond_10_000_SarcoMonthly,
           profileMaxRewrapIntervalSeconds:
             sarcophagusData.maximumRewrapIntervalSeconds,
-          sarcoBalance: 10_000,
-          freeBondSarco: 10_000,
+          sarcoBalance: 40_000,
+          freeBondSarco: 40_000,
           maxResurrectionTime: 1739643155,
         }
       )
