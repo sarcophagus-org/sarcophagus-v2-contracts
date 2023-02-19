@@ -3,8 +3,9 @@ import { getContracts } from "../helpers/contracts";
 import { expect } from "chai";
 import {
   buildCreateSarcophagusArgs,
-  createSarcophagusData, createSarcophagusWithRegisteredCursedArchaeologists,
-  registerDefaultArchaeologistsAndCreateSignatures
+  createSarcophagusData,
+  createSarcophagusWithRegisteredCursedArchaeologists,
+  registerDefaultArchaeologistsAndCreateSignatures,
 } from "../helpers/sarcophagus";
 import { BigNumber } from "ethers";
 import time from "../../utils/time";
@@ -74,7 +75,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
         const diggingFeeAmount = BigNumber.from(
           sarcophagusData.resurrectionTimeSeconds -
-          sarcophagusData.creationTimeSeconds
+            sarcophagusData.creationTimeSeconds
         ).mul(archaeologist.minimumDiggingFeePerSecond);
 
         // Cursed bond should be 1.5x the digging fee
@@ -134,11 +135,9 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
       it("reverts b/c new resurrection interval is more than 1.666x old interval", async () => {
         const { embalmerFacet } = await getContracts();
-        const sarcophagusData = await createSarcophagusData(
-          {
-            resurrectionTime: await time.latest() + 10000
-          }
-        );
+        const sarcophagusData = await createSarcophagusData({
+          resurrectionTime: (await time.latest()) + 10000,
+        });
         const archaeologists =
           await registerDefaultArchaeologistsAndCreateSignatures(
             sarcophagusData
@@ -163,11 +162,9 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
       it("locks up the correct amount of bond from the digging fees", async () => {
         const { embalmerFacet, viewStateFacet } = await getContracts();
-        const sarcophagusData = await createSarcophagusData(
-          {
-            resurrectionTime: await time.latest() + 10000
-          }
-        );
+        const sarcophagusData = await createSarcophagusData({
+          resurrectionTime: (await time.latest()) + 10000,
+        });
         const archaeologists =
           await registerDefaultArchaeologistsAndCreateSignatures(
             sarcophagusData
@@ -188,7 +185,9 @@ describe("AdminFacet.setCursedBondPercentage", () => {
           sarcophagusData.resurrectionTimeSeconds -
           sarcophagusData.creationTimeSeconds;
 
-        const diggingFeeAmount = BigNumber.from(initialResurrectionInterval).mul(minDiggingFeePerSecond);
+        const diggingFeeAmount = BigNumber.from(
+          initialResurrectionInterval
+        ).mul(minDiggingFeePerSecond);
         const originalCursedBond = diggingFeeAmount.mul(150).div(100);
 
         await embalmerFacet
@@ -202,17 +201,25 @@ describe("AdminFacet.setCursedBondPercentage", () => {
           archaeologists[0].archAddress
         );
 
-        const sarco = await viewStateFacet.getSarcophagus(sarcophagusData.sarcoId);
+        const sarco = await viewStateFacet.getSarcophagus(
+          sarcophagusData.sarcoId
+        );
 
-        const newResurrectionInterval = sarco.resurrectionTime.sub(sarco.previousRewrapTime);
+        const newResurrectionInterval = sarco.resurrectionTime.sub(
+          sarco.previousRewrapTime
+        );
 
-        const newCursedBond = newResurrectionInterval.mul(minDiggingFeePerSecond).mul(150).div(100);
+        const newCursedBond = newResurrectionInterval
+          .mul(minDiggingFeePerSecond)
+          .mul(150)
+          .div(100);
 
         const rewards = await viewStateFacet
           .connect(archaeologists[0].archAddress)
           .getRewards(archaeologists[0].archAddress);
 
-        const diggingFeesPaidToCursedBond = newCursedBond.sub(originalCursedBond);
+        const diggingFeesPaidToCursedBond =
+          newCursedBond.sub(originalCursedBond);
         const newRewards = diggingFeeAmount.sub(diggingFeesPaidToCursedBond);
 
         expect(updatedArch.cursedBond).to.eq(newCursedBond);
@@ -233,7 +240,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
         const { archaeologistFacet, viewStateFacet } = await getContracts();
         const {
           createdSarcophagusData: sarcophagusData,
-          cursedArchaeologists: archaeologists
+          cursedArchaeologists: archaeologists,
         } = await createSarcophagusWithRegisteredCursedArchaeologists();
 
         const archaeologist = await viewStateFacet.getArchaeologistProfile(
@@ -242,7 +249,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
         const diggingFeeAmount = BigNumber.from(
           sarcophagusData.resurrectionTimeSeconds -
-          sarcophagusData.creationTimeSeconds
+            sarcophagusData.creationTimeSeconds
         ).mul(archaeologist.minimumDiggingFeePerSecond);
 
         await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
@@ -257,9 +264,10 @@ describe("AdminFacet.setCursedBondPercentage", () => {
           .connect(archaeologists[0].archAddress)
           .getRewards(archaeologists[0].archAddress);
 
-        const updatedArchaeologist = await viewStateFacet.getArchaeologistProfile(
-          archaeologists[0].archAddress
-        );
+        const updatedArchaeologist =
+          await viewStateFacet.getArchaeologistProfile(
+            archaeologists[0].archAddress
+          );
 
         expect(rewards).to.eq(diggingFeeAmount);
         expect(updatedArchaeologist.freeBond).to.eq(
