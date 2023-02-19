@@ -20,6 +20,13 @@ contract ViewStateFacet {
         return s.protocolFeeBasePercentage;
     }
 
+    /// @notice Get the cursed bond percentage from the contract.
+    /// @return The cursed bond percentage - cursedBondPercentage
+    function getCursedBondPercentage() external view returns (uint256) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+        return s.cursedBondPercentage;
+    }
+
     /// @notice Gets archaeologist profiles given a list of archaeologist addresses.
     /// If an invalid address is included, simply leaves it out of the list.
     /// @param addresses The list of archaeologist addresses
@@ -257,6 +264,8 @@ contract ViewStateFacet {
         string name;
         uint8 threshold;
         uint256 maximumRewrapInterval;
+        uint256 maximumResurrectionTime;
+        uint256 cursedBondPercentage;
         string arweaveTxId;
         address embalmerAddress;
         address recipientAddress;
@@ -312,6 +321,8 @@ contract ViewStateFacet {
                 name: sarcophagus.name,
                 threshold: sarcophagus.threshold,
                 maximumRewrapInterval: sarcophagus.maximumRewrapInterval,
+                maximumResurrectionTime: sarcophagus.maximumResurrectionTime,
+                cursedBondPercentage: sarcophagus.cursedBondPercentage,
                 arweaveTxId: sarcophagus.arweaveTxId,
                 embalmerAddress: sarcophagus.embalmerAddress,
                 recipientAddress: sarcophagus.recipientAddress,

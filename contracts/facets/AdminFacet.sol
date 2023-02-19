@@ -32,6 +32,16 @@ contract AdminFacet {
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
     }
 
+    /// @notice Sets the digging fee / cursed bond ratio
+    /// used to calculate how much bond archaeologists must lock per curse.
+    /// @param cursedBondPercentage ratio to set.
+    /// @dev Can only be called by the owner.
+    function setCursedBondPercentage(uint256 cursedBondPercentage) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+        LibDiamond.enforceIsContractOwner();
+        s.cursedBondPercentage = cursedBondPercentage;
+    }
+
     /// @notice Updates the resurrection grace period
     /// @param gracePeriod to set
     /// @dev Can only be called by the diamond owner.
