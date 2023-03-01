@@ -1,6 +1,19 @@
 {
-  "address": "0x0CEc53D65FF73C65c5731903471Fe927288b9F27",
+  "address": "0x7910094ebA694852c8664F135B7330ecE38b3d70",
   "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "cursedBondPercentage",
+          "type": "uint256"
+        }
+      ],
+      "name": "setCursedBondPercentage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
     {
       "inputs": [
         {
@@ -61,15 +74,37 @@
       "type": "function"
     }
   ],
+  "transactionHash": "0xd8f07054b98ad82c272997c057985a4324847a731645ec1b711e68515469f48b",
+  "receipt": {
+    "to": "0x4e59b44847b379578588920cA78FbF26c0B4956C",
+    "from": "0x026820C8F89B0Ea06a28fe67D690EEb9caF8329D",
+    "contractAddress": null,
+    "transactionIndex": 54,
+    "gasUsed": "358009",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xa3d4bf5172d37715f550e4f48b14034ae107b704d5819de1ff2fb70fea713af4",
+    "transactionHash": "0xd8f07054b98ad82c272997c057985a4324847a731645ec1b711e68515469f48b",
+    "logs": [],
+    "blockNumber": 8525585,
+    "cumulativeGasUsed": "7171765",
+    "status": 1,
+    "byzantium": true
+  },
   "args": [],
-  "numDeployments": 1,
-  "solcInputHash": "c7d604b319dcb7a10f8812f92e9977d9",
-  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"embalmerClaimWindow\",\"type\":\"uint256\"}],\"name\":\"setEmbalmerClaimWindow\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"expirationThreshold\",\"type\":\"uint256\"}],\"name\":\"setExpirationThreshold\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"gracePeriod\",\"type\":\"uint256\"}],\"name\":\"setGracePeriod\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"protocolFeeBasePercentage\",\"type\":\"uint256\"}],\"name\":\"setProtocolFeeBasePercentage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawProtocolFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"setEmbalmerClaimWindow(uint256)\":{\"details\":\"Can only be called by the diamond owner.\",\"params\":{\"embalmerClaimWindow\":\"to set\"}},\"setExpirationThreshold(uint256)\":{\"details\":\"Can only be called by the diamond owner.\",\"params\":{\"expirationThreshold\":\"to set\"}},\"setGracePeriod(uint256)\":{\"details\":\"Can only be called by the diamond owner.\",\"params\":{\"gracePeriod\":\"to set\"}},\"setProtocolFeeBasePercentage(uint256)\":{\"details\":\"Can only be called by the owner.\",\"params\":{\"protocolFeeBasePercentage\":\"percentage to set\"}},\"withdrawProtocolFees()\":{\"details\":\"Can only be called by the owner.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"setEmbalmerClaimWindow(uint256)\":{\"notice\":\"Updates the embalmerClaimWindow\"},\"setExpirationThreshold(uint256)\":{\"notice\":\"Updates the expirationThreshold used during sarcophagus creation\"},\"setGracePeriod(uint256)\":{\"notice\":\"Updates the resurrection grace period\"},\"setProtocolFeeBasePercentage(uint256)\":{\"notice\":\"Sets the protocol fee base percentage, used to calculate protocol fees\"},\"withdrawProtocolFees()\":{\"notice\":\"Withdraws the total protocol fee amount from the contract.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/facets/AdminFacet.sol\":\"AdminFacet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) external returns (bool);\\n}\\n\",\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\"},\"contracts/facets/AdminFacet.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport {AppStorage} from \\\"../storage/LibAppStorage.sol\\\";\\nimport {LibDiamond} from \\\"hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol\\\";\\n\\ncontract AdminFacet {\\n    AppStorage internal s;\\n\\n    /// @notice Withdraws the total protocol fee amount from the contract.\\n    /// @dev Can only be called by the owner.\\n    function withdrawProtocolFees() external {\\n        LibDiamond.enforceIsContractOwner();\\n        // Get the total protocol fees from storage\\n        uint256 totalProtocolFees = s.totalProtocolFees;\\n\\n        // Set the total protocol fees to 0 before the transfer to avoid reentrancy\\n        s.totalProtocolFees = 0;\\n\\n        // Transfer the protocol fee amount to the sender after setting state\\n        s.sarcoToken.transfer(msg.sender, totalProtocolFees);\\n    }\\n\\n    /// @notice Sets the protocol fee base percentage, used to calculate protocol fees\\n    /// @param protocolFeeBasePercentage percentage to set\\n    /// @dev Can only be called by the owner.\\n    function setProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage) external {\\n        LibDiamond.enforceIsContractOwner();\\n        s.protocolFeeBasePercentage = protocolFeeBasePercentage;\\n    }\\n\\n    /// @notice Updates the resurrection grace period\\n    /// @param gracePeriod to set\\n    /// @dev Can only be called by the diamond owner.\\n    function setGracePeriod(uint256 gracePeriod) external {\\n        LibDiamond.enforceIsContractOwner();\\n        s.gracePeriod = gracePeriod;\\n    }\\n\\n    /// @notice Updates the embalmerClaimWindow\\n    /// @param embalmerClaimWindow to set\\n    /// @dev Can only be called by the diamond owner.\\n    function setEmbalmerClaimWindow(uint256 embalmerClaimWindow) external {\\n        LibDiamond.enforceIsContractOwner();\\n        s.embalmerClaimWindow = embalmerClaimWindow;\\n    }\\n\\n    /// @notice Updates the expirationThreshold used during sarcophagus creation\\n    /// @param expirationThreshold to set\\n    /// @dev Can only be called by the diamond owner.\\n    function setExpirationThreshold(uint256 expirationThreshold) external {\\n        LibDiamond.enforceIsContractOwner();\\n        s.expirationThreshold = expirationThreshold;\\n    }\\n}\\n\",\"keccak256\":\"0xfb57a0d09c81a6a59b469870c47f9a07e08d01070ce65df848c8b4629b490244\",\"license\":\"Unlicense\"},\"contracts/libraries/LibTypes.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title Types shared across facets for the Sarcophagus diamond\\n */\\nlibrary LibTypes {\\n    struct Sarcophagus {\\n        // never zero - use for existence checks\\n        uint256 resurrectionTime;\\n        // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused\\n        bool isCompromised;\\n        bool isCleaned;\\n        string name;\\n        uint8 threshold;\\n        uint256 maximumRewrapInterval;\\n        string arweaveTxId;\\n        address embalmerAddress;\\n        address recipientAddress;\\n        address[] cursedArchaeologistAddresses;\\n        mapping(address => CursedArchaeologist) cursedArchaeologists;\\n    }\\n\\n    struct CursedArchaeologist {\\n        // never empty - use for existence checks\\n        bytes publicKey;\\n        bytes32 privateKey;\\n        bool isAccused;\\n        uint256 diggingFee;\\n    }\\n\\n    struct ArchaeologistProfile {\\n        bool exists; // todo: use peerid.length instead of exists\\n        string peerId;\\n        uint256 minimumDiggingFee;\\n        uint256 maximumRewrapInterval;\\n        uint256 freeBond;\\n        uint256 cursedBond;\\n    }\\n}\\n\",\"keccak256\":\"0xcb5804518b0d3cdcb1ed9ad6128c0cb20640fc08d731f9acf58f826aa19b1379\",\"license\":\"Unlicense\"},\"contracts/storage/LibAppStorage.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\n\\n/**\\n* Global diamond storage struct to be shared across facets\\n* TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs\\n*/\\nstruct AppStorage {\\n    // SARCO token contract\\n    IERC20 sarcoToken;\\n\\n    // total protocol fees available to be withdrawn by the admin\\n    uint256 totalProtocolFees;\\n\\n    /**\\n    * Protocol level admin configurations\\n    */\\n    // % of total digging fees for sarcophagus to charge embalmer on create and rewrap\\n    uint256 protocolFeeBasePercentage;\\n    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time\\n    uint256 gracePeriod;\\n    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated\\n    uint256 expirationThreshold;\\n    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys\\n    uint256 embalmerClaimWindow;\\n\\n    /**\\n    * Ownership mappings\\n    */\\n    // embalmer address => ids of sarcophagi they've created\\n    mapping(address => bytes32[]) embalmerSarcophagi;\\n    // archaeologist address =>  ids of sarcophagi they're protecting\\n    mapping(address => bytes32[]) archaeologistSarcophagi;\\n    // recipient address =>  ids of sarcophagi they're recipient on\\n    mapping(address => bytes32[]) recipientSarcophagi;\\n\\n    // public key => archaeologist address\\n    mapping(bytes => address) publicKeyToArchaeologistAddress;\\n\\n    // sarcophagus id => sarcophagus object\\n    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;\\n\\n    // archaeologist addresses\\n    address[] archaeologistProfileAddresses;\\n    // archaeologist address => profile\\n    mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;\\n\\n\\n    // current balance of rewards available for the archaeologist to withdraw\\n    mapping(address => uint256) archaeologistRewards;\\n\\n\\n    /**\\n    * Archaeologist reputation statistics\\n    * todo: could these be organized differently?\\n    */\\n    mapping(address => bytes32[]) archaeologistSuccesses;\\n    mapping(address => bytes32[]) archaeologistAccusals;\\n    mapping(address => bytes32[]) archaeologistCleanups;\\n}\\n\\nlibrary LibAppStorage {\\n    function getAppStorage() internal pure returns (AppStorage storage s) {\\n        // Set the position of our struct in contract storage\\n        // Since AppStorage s is the first and only state variable declared in\\n        // facets its position in contract storage is 0\\n        assembly {\\n            s.slot := 0\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x930c8b51585d3b62feb595057a35cf9c7a38e162d8f914b564cbb9168d6035c3\",\"license\":\"Unlicense\"},\"hardhat-deploy/solc_0.8/diamond/interfaces/IDiamondCut.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\n\\ninterface IDiamondCut {\\n    enum FacetCutAction {Add, Replace, Remove}\\n    // Add=0, Replace=1, Remove=2\\n\\n    struct FacetCut {\\n        address facetAddress;\\n        FacetCutAction action;\\n        bytes4[] functionSelectors;\\n    }\\n\\n    /// @notice Add/replace/remove any number of functions and optionally execute\\n    ///         a function with delegatecall\\n    /// @param _diamondCut Contains the facet addresses and function selectors\\n    /// @param _init The address of the contract or facet to execute _calldata\\n    /// @param _calldata A function call, including function selector and arguments\\n    ///                  _calldata is executed with delegatecall on _init\\n    function diamondCut(\\n        FacetCut[] calldata _diamondCut,\\n        address _init,\\n        bytes calldata _calldata\\n    ) external;\\n\\n    event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);\\n}\\n\",\"keccak256\":\"0xc00c16bfa30a3fa5f3dc684f7f8ba62c259962b25f647d9588739458989717fc\",\"license\":\"MIT\"},\"hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\nimport { IDiamondCut } from \\\"../interfaces/IDiamondCut.sol\\\";\\n\\nlibrary LibDiamond {\\n    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256(\\\"diamond.standard.diamond.storage\\\");\\n\\n    struct FacetAddressAndPosition {\\n        address facetAddress;\\n        uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array\\n    }\\n\\n    struct FacetFunctionSelectors {\\n        bytes4[] functionSelectors;\\n        uint256 facetAddressPosition; // position of facetAddress in facetAddresses array\\n    }\\n\\n    struct DiamondStorage {\\n        // maps function selector to the facet address and\\n        // the position of the selector in the facetFunctionSelectors.selectors array\\n        mapping(bytes4 => FacetAddressAndPosition) selectorToFacetAndPosition;\\n        // maps facet addresses to function selectors\\n        mapping(address => FacetFunctionSelectors) facetFunctionSelectors;\\n        // facet addresses\\n        address[] facetAddresses;\\n        // Used to query if a contract implements an interface.\\n        // Used to implement ERC-165.\\n        mapping(bytes4 => bool) supportedInterfaces;\\n        // owner of the contract\\n        address contractOwner;\\n    }\\n\\n    function diamondStorage() internal pure returns (DiamondStorage storage ds) {\\n        bytes32 position = DIAMOND_STORAGE_POSITION;\\n        assembly {\\n            ds.slot := position\\n        }\\n    }\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    function setContractOwner(address _newOwner) internal {\\n        DiamondStorage storage ds = diamondStorage();\\n        address previousOwner = ds.contractOwner;\\n        ds.contractOwner = _newOwner;\\n        emit OwnershipTransferred(previousOwner, _newOwner);\\n    }\\n\\n    function contractOwner() internal view returns (address contractOwner_) {\\n        contractOwner_ = diamondStorage().contractOwner;\\n    }\\n\\n    function enforceIsContractOwner() internal view {\\n        require(msg.sender == diamondStorage().contractOwner, \\\"LibDiamond: Must be contract owner\\\");\\n    }\\n\\n    event DiamondCut(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);\\n\\n    // Internal function version of diamondCut\\n    function diamondCut(\\n        IDiamondCut.FacetCut[] memory _diamondCut,\\n        address _init,\\n        bytes memory _calldata\\n    ) internal {\\n        for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {\\n            IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;\\n            if (action == IDiamondCut.FacetCutAction.Add) {\\n                addFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else if (action == IDiamondCut.FacetCutAction.Replace) {\\n                replaceFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else if (action == IDiamondCut.FacetCutAction.Remove) {\\n                removeFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else {\\n                revert(\\\"LibDiamondCut: Incorrect FacetCutAction\\\");\\n            }\\n        }\\n        emit DiamondCut(_diamondCut, _init, _calldata);\\n        initializeDiamondCut(_init, _calldata);\\n    }\\n\\n    function addFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();        \\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Add facet can't be address(0)\\\");\\n        uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);\\n        // add new facet address if it does not exist\\n        if (selectorPosition == 0) {\\n            addFacet(ds, _facetAddress);            \\n        }\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            require(oldFacetAddress == address(0), \\\"LibDiamondCut: Can't add function that already exists\\\");\\n            addFunction(ds, selector, selectorPosition, _facetAddress);\\n            selectorPosition++;\\n        }\\n    }\\n\\n    function replaceFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();\\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Add facet can't be address(0)\\\");\\n        uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);\\n        // add new facet address if it does not exist\\n        if (selectorPosition == 0) {\\n            addFacet(ds, _facetAddress);\\n        }\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            require(oldFacetAddress != _facetAddress, \\\"LibDiamondCut: Can't replace function with same function\\\");\\n            removeFunction(ds, oldFacetAddress, selector);\\n            addFunction(ds, selector, selectorPosition, _facetAddress);\\n            selectorPosition++;\\n        }\\n    }\\n\\n    function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();\\n        // if function does not exist then do nothing and return\\n        require(_facetAddress == address(0), \\\"LibDiamondCut: Remove facet address must be address(0)\\\");\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            removeFunction(ds, oldFacetAddress, selector);\\n        }\\n    }\\n\\n    function addFacet(DiamondStorage storage ds, address _facetAddress) internal {\\n        enforceHasContractCode(_facetAddress, \\\"LibDiamondCut: New facet has no code\\\");\\n        ds.facetFunctionSelectors[_facetAddress].facetAddressPosition = ds.facetAddresses.length;\\n        ds.facetAddresses.push(_facetAddress);\\n    }    \\n\\n\\n    function addFunction(DiamondStorage storage ds, bytes4 _selector, uint96 _selectorPosition, address _facetAddress) internal {\\n        ds.selectorToFacetAndPosition[_selector].functionSelectorPosition = _selectorPosition;\\n        ds.facetFunctionSelectors[_facetAddress].functionSelectors.push(_selector);\\n        ds.selectorToFacetAndPosition[_selector].facetAddress = _facetAddress;\\n    }\\n\\n    function removeFunction(DiamondStorage storage ds, address _facetAddress, bytes4 _selector) internal {        \\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Can't remove function that doesn't exist\\\");\\n        // an immutable function is a function defined directly in a diamond\\n        require(_facetAddress != address(this), \\\"LibDiamondCut: Can't remove immutable function\\\");\\n        // replace selector with last selector, then delete last selector\\n        uint256 selectorPosition = ds.selectorToFacetAndPosition[_selector].functionSelectorPosition;\\n        uint256 lastSelectorPosition = ds.facetFunctionSelectors[_facetAddress].functionSelectors.length - 1;\\n        // if not the same then replace _selector with lastSelector\\n        if (selectorPosition != lastSelectorPosition) {\\n            bytes4 lastSelector = ds.facetFunctionSelectors[_facetAddress].functionSelectors[lastSelectorPosition];\\n            ds.facetFunctionSelectors[_facetAddress].functionSelectors[selectorPosition] = lastSelector;\\n            ds.selectorToFacetAndPosition[lastSelector].functionSelectorPosition = uint96(selectorPosition);\\n        }\\n        // delete the last selector\\n        ds.facetFunctionSelectors[_facetAddress].functionSelectors.pop();\\n        delete ds.selectorToFacetAndPosition[_selector];\\n\\n        // if no more selectors for facet address then delete the facet address\\n        if (lastSelectorPosition == 0) {\\n            // replace facet address with last facet address and delete last facet address\\n            uint256 lastFacetAddressPosition = ds.facetAddresses.length - 1;\\n            uint256 facetAddressPosition = ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;\\n            if (facetAddressPosition != lastFacetAddressPosition) {\\n                address lastFacetAddress = ds.facetAddresses[lastFacetAddressPosition];\\n                ds.facetAddresses[facetAddressPosition] = lastFacetAddress;\\n                ds.facetFunctionSelectors[lastFacetAddress].facetAddressPosition = facetAddressPosition;\\n            }\\n            ds.facetAddresses.pop();\\n            delete ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;\\n        }\\n    }\\n\\n    function initializeDiamondCut(address _init, bytes memory _calldata) internal {\\n        if (_init == address(0)) {\\n            require(_calldata.length == 0, \\\"LibDiamondCut: _init is address(0) but_calldata is not empty\\\");\\n        } else {\\n            require(_calldata.length > 0, \\\"LibDiamondCut: _calldata is empty but _init is not address(0)\\\");\\n            if (_init != address(this)) {\\n                enforceHasContractCode(_init, \\\"LibDiamondCut: _init address has no code\\\");\\n            }\\n            (bool success, bytes memory error) = _init.delegatecall(_calldata);\\n            if (!success) {\\n                if (error.length > 0) {\\n                    // bubble up the error\\n                    revert(string(error));\\n                } else {\\n                    revert(\\\"LibDiamondCut: _init function reverted\\\");\\n                }\\n            }\\n        }\\n    }\\n\\n    function enforceHasContractCode(address _contract, string memory _errorMessage) internal view {\\n        uint256 contractSize;\\n        assembly {\\n            contractSize := extcodesize(_contract)\\n        }\\n        require(contractSize > 0, _errorMessage);\\n    }\\n}\\n\",\"keccak256\":\"0x2205345e83eb86f5281f159a9215a096cb6d404782619f9b8e9d7a4a46c32a37\",\"license\":\"MIT\"}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b506104d2806100206000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c8063274f255e1461005c5780638795cccb146100785780638a5b569014610082578063a828c4791461009e578063f2f65960146100ba575b600080fd5b610076600480360381019061007191906102ee565b6100d6565b005b6100806100eb565b005b61009c600480360381019061009791906102ee565b6101ac565b005b6100b860048036038101906100b391906102ee565b6101c1565b005b6100d460048036038101906100cf91906102ee565b6101d6565b005b6100de6101eb565b8060006005018190555050565b6100f36101eb565b600080600101549050600080600101819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b815260040161016592919061036b565b6020604051808303816000875af1158015610184573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101a891906103cc565b5050565b6101b46101eb565b8060006002018190555050565b6101c96101eb565b8060006004018190555050565b6101de6101eb565b8060006003018190555050565b6101f3610286565b60040160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614610284576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161027b9061047c565b60405180910390fd5b565b6000807fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c90508091505090565b600080fd5b6000819050919050565b6102cb816102b8565b81146102d657600080fd5b50565b6000813590506102e8816102c2565b92915050565b600060208284031215610304576103036102b3565b5b6000610312848285016102d9565b91505092915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006103468261031b565b9050919050565b6103568161033b565b82525050565b610365816102b8565b82525050565b6000604082019050610380600083018561034d565b61038d602083018461035c565b9392505050565b60008115159050919050565b6103a981610394565b81146103b457600080fd5b50565b6000815190506103c6816103a0565b92915050565b6000602082840312156103e2576103e16102b3565b5b60006103f0848285016103b7565b91505092915050565b600082825260208201905092915050565b7f4c69624469616d6f6e643a204d75737420626520636f6e7472616374206f776e60008201527f6572000000000000000000000000000000000000000000000000000000000000602082015250565b60006104666022836103f9565b91506104718261040a565b604082019050919050565b6000602082019050818103600083015261049581610459565b905091905056fea2646970667358221220ea54a9907146bd6914cf41cc253d9f4c3749257e16aee2ae246300a20bdd685964736f6c634300080d0033",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c8063274f255e1461005c5780638795cccb146100785780638a5b569014610082578063a828c4791461009e578063f2f65960146100ba575b600080fd5b610076600480360381019061007191906102ee565b6100d6565b005b6100806100eb565b005b61009c600480360381019061009791906102ee565b6101ac565b005b6100b860048036038101906100b391906102ee565b6101c1565b005b6100d460048036038101906100cf91906102ee565b6101d6565b005b6100de6101eb565b8060006005018190555050565b6100f36101eb565b600080600101549050600080600101819055506000800160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b815260040161016592919061036b565b6020604051808303816000875af1158015610184573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101a891906103cc565b5050565b6101b46101eb565b8060006002018190555050565b6101c96101eb565b8060006004018190555050565b6101de6101eb565b8060006003018190555050565b6101f3610286565b60040160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614610284576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161027b9061047c565b60405180910390fd5b565b6000807fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c90508091505090565b600080fd5b6000819050919050565b6102cb816102b8565b81146102d657600080fd5b50565b6000813590506102e8816102c2565b92915050565b600060208284031215610304576103036102b3565b5b6000610312848285016102d9565b91505092915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006103468261031b565b9050919050565b6103568161033b565b82525050565b610365816102b8565b82525050565b6000604082019050610380600083018561034d565b61038d602083018461035c565b9392505050565b60008115159050919050565b6103a981610394565b81146103b457600080fd5b50565b6000815190506103c6816103a0565b92915050565b6000602082840312156103e2576103e16102b3565b5b60006103f0848285016103b7565b91505092915050565b600082825260208201905092915050565b7f4c69624469616d6f6e643a204d75737420626520636f6e7472616374206f776e60008201527f6572000000000000000000000000000000000000000000000000000000000000602082015250565b60006104666022836103f9565b91506104718261040a565b604082019050919050565b6000602082019050818103600083015261049581610459565b905091905056fea2646970667358221220ea54a9907146bd6914cf41cc253d9f4c3749257e16aee2ae246300a20bdd685964736f6c634300080d0033",
+  "numDeployments": 2,
+  "solcInputHash": "90388b3f73084528aeb22ed25c7f07ee",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"cursedBondPercentage\",\"type\":\"uint256\"}],\"name\":\"setCursedBondPercentage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"embalmerClaimWindow\",\"type\":\"uint256\"}],\"name\":\"setEmbalmerClaimWindow\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"expirationThreshold\",\"type\":\"uint256\"}],\"name\":\"setExpirationThreshold\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"gracePeriod\",\"type\":\"uint256\"}],\"name\":\"setGracePeriod\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"protocolFeeBasePercentage\",\"type\":\"uint256\"}],\"name\":\"setProtocolFeeBasePercentage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawProtocolFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"setCursedBondPercentage(uint256)\":{\"details\":\"Can only be called by the owner.\",\"params\":{\"cursedBondPercentage\":\"ratio to set.\"}},\"setEmbalmerClaimWindow(uint256)\":{\"details\":\"Can only be called by the diamond owner.\",\"params\":{\"embalmerClaimWindow\":\"to set\"}},\"setExpirationThreshold(uint256)\":{\"details\":\"Can only be called by the diamond owner.\",\"params\":{\"expirationThreshold\":\"to set\"}},\"setGracePeriod(uint256)\":{\"details\":\"Can only be called by the diamond owner.\",\"params\":{\"gracePeriod\":\"to set\"}},\"setProtocolFeeBasePercentage(uint256)\":{\"details\":\"Can only be called by the owner.\",\"params\":{\"protocolFeeBasePercentage\":\"percentage to set\"}},\"withdrawProtocolFees()\":{\"details\":\"Can only be called by the owner.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"setCursedBondPercentage(uint256)\":{\"notice\":\"Sets the digging fee / cursed bond ratio used to calculate how much bond archaeologists must lock per curse.\"},\"setEmbalmerClaimWindow(uint256)\":{\"notice\":\"Updates the embalmerClaimWindow\"},\"setExpirationThreshold(uint256)\":{\"notice\":\"Updates the expirationThreshold used during sarcophagus creation\"},\"setGracePeriod(uint256)\":{\"notice\":\"Updates the resurrection grace period\"},\"setProtocolFeeBasePercentage(uint256)\":{\"notice\":\"Sets the protocol fee base percentage, used to calculate protocol fees\"},\"withdrawProtocolFees()\":{\"notice\":\"Withdraws the total protocol fee amount from the contract.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/facets/AdminFacet.sol\":\"AdminFacet\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) external returns (bool);\\n}\\n\",\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\"},\"contracts/facets/AdminFacet.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"../storage/LibAppStorage.sol\\\";\\n\\nimport {LibDiamond} from \\\"hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol\\\";\\n\\ncontract AdminFacet {\\n\\n    /// @notice Withdraws the total protocol fee amount from the contract.\\n    /// @dev Can only be called by the owner.\\n    function withdrawProtocolFees() external {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n\\n        LibDiamond.enforceIsContractOwner();\\n        // Get the total protocol fees from storage\\n        uint256 totalProtocolFees = s.totalProtocolFees;\\n\\n        // Set the total protocol fees to 0 before the transfer to avoid reentrancy\\n        s.totalProtocolFees = 0;\\n\\n        // Transfer the protocol fee amount to the sender after setting state\\n        s.sarcoToken.transfer(msg.sender, totalProtocolFees);\\n    }\\n\\n    /// @notice Sets the protocol fee base percentage, used to calculate protocol fees\\n    /// @param protocolFeeBasePercentage percentage to set\\n    /// @dev Can only be called by the owner.\\n    function setProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage) external {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n        LibDiamond.enforceIsContractOwner();\\n        s.protocolFeeBasePercentage = protocolFeeBasePercentage;\\n    }\\n\\n    /// @notice Sets the digging fee / cursed bond ratio\\n    /// used to calculate how much bond archaeologists must lock per curse.\\n    /// @param cursedBondPercentage ratio to set.\\n    /// @dev Can only be called by the owner.\\n    function setCursedBondPercentage(uint256 cursedBondPercentage) external {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n        LibDiamond.enforceIsContractOwner();\\n        s.cursedBondPercentage = cursedBondPercentage;\\n    }\\n\\n    /// @notice Updates the resurrection grace period\\n    /// @param gracePeriod to set\\n    /// @dev Can only be called by the diamond owner.\\n    function setGracePeriod(uint256 gracePeriod) external {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n        LibDiamond.enforceIsContractOwner();\\n        s.gracePeriod = gracePeriod;\\n    }\\n\\n    /// @notice Updates the embalmerClaimWindow\\n    /// @param embalmerClaimWindow to set\\n    /// @dev Can only be called by the diamond owner.\\n    function setEmbalmerClaimWindow(uint256 embalmerClaimWindow) external {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n        LibDiamond.enforceIsContractOwner();\\n        s.embalmerClaimWindow = embalmerClaimWindow;\\n    }\\n\\n    /// @notice Updates the expirationThreshold used during sarcophagus creation\\n    /// @param expirationThreshold to set\\n    /// @dev Can only be called by the diamond owner.\\n    function setExpirationThreshold(uint256 expirationThreshold) external {\\n        AppStorage storage s = LibAppStorage.getAppStorage();\\n        LibDiamond.enforceIsContractOwner();\\n        s.expirationThreshold = expirationThreshold;\\n    }\\n}\\n\",\"keccak256\":\"0xcfe0ce5aa1ca530245e7738e2af596f7a7482ace3a779d4d8d6e36a6d02b70fa\",\"license\":\"Unlicense\"},\"contracts/libraries/LibTypes.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\n/**\\n * @title Types shared across facets for the Sarcophagus diamond\\n */\\nlibrary LibTypes {\\n    struct Sarcophagus {\\n        // Also used for existence checks -- does not exist if 0\\n        uint256 resurrectionTime;\\n        uint256 previousRewrapTime;\\n        // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused\\n        bool isCompromised;\\n        bool isCleaned;\\n        uint8 threshold;\\n        string name;\\n        uint256 maximumRewrapInterval;\\n        uint256 maximumResurrectionTime;\\n        string arweaveTxId;\\n        address embalmerAddress;\\n        address recipientAddress;\\n        address[] cursedArchaeologistAddresses;\\n        mapping(address => CursedArchaeologist) cursedArchaeologists;\\n        uint256 cursedBondPercentage;\\n    }\\n\\n    struct CursedArchaeologist {\\n        uint256 diggingFeePerSecond;\\n        // Also used for publish checks -- has not published if 0\\n        bytes32 privateKey;\\n        // Also used for curse checks -- is not bonded if length is 0\\n        bytes publicKey;\\n        bool isAccused;\\n    }\\n\\n    struct Signature {\\n        uint8 v;\\n        bytes32 r;\\n        bytes32 s;\\n    }\\n\\n    struct ArchaeologistProfile {\\n        // Also used for existence checks -- does not exist if 0\\n        uint256 maximumRewrapInterval;\\n        uint256 maximumResurrectionTime;\\n        string peerId;\\n        uint256 minimumDiggingFeePerSecond;\\n        uint256 freeBond;\\n        uint256 cursedBond;\\n    }\\n}\\n\",\"keccak256\":\"0xb6ded0e9a252560ab14a589c47df996bcf1f0b9cd4910aa1bf0da6fd01c99232\",\"license\":\"Unlicense\"},\"contracts/storage/LibAppStorage.sol\":{\"content\":\"// SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.13;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"../libraries/LibTypes.sol\\\";\\n\\n/**\\n * Global diamond storage struct to be shared across facets\\n * TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs\\n */\\nstruct AppStorage {\\n    // SARCO token contract\\n    IERC20 sarcoToken;\\n    // total protocol fees available to be withdrawn by the admin\\n    uint256 totalProtocolFees;\\n    /**\\n     * Protocol level admin configurations\\n     */\\n    // % of total digging fees for sarcophagus to charge embalmer on create and rewrap\\n    uint256 protocolFeeBasePercentage;\\n    // % of digging fees archaeologists must have locked up per curse in cursed bond\\n    uint256 cursedBondPercentage;\\n    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time\\n    uint256 gracePeriod;\\n    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated\\n    uint256 expirationThreshold;\\n    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys\\n    uint256 embalmerClaimWindow;\\n\\n    // registered archaeologist addresses\\n    address[] archaeologistProfileAddresses;\\n\\n    /**\\n     * Ownership mappings\\n     */\\n    // embalmer address => ids of sarcophagi they've created\\n    mapping(address => bytes32[]) embalmerSarcophagi;\\n    // archaeologist address =>  ids of sarcophagi they're protecting\\n    mapping(address => bytes32[]) archaeologistSarcophagi;\\n    // recipient address =>  ids of sarcophagi they're recipient on\\n    mapping(address => bytes32[]) recipientSarcophagi;\\n    // public key => archaeologist address\\n    mapping(bytes => address) publicKeyToArchaeologistAddress;\\n    // sarcophagus id => sarcophagus object\\n    mapping(bytes32 => LibTypes.Sarcophagus) sarcophagi;\\n    // archaeologist address => profile\\n    mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;\\n    // current balance of rewards available for the archaeologist to withdraw\\n    mapping(address => uint256) archaeologistRewards;\\n    /**\\n     * Archaeologist reputation statistics: address => sarcoIds\\n     * todo: could these be organized differently?\\n     */\\n    mapping(address => bytes32[]) archaeologistSuccesses;\\n    mapping(address => bytes32[]) archaeologistAccusals;\\n    mapping(address => bytes32[]) archaeologistCleanups;\\n}\\n\\nlibrary LibAppStorage {\\n    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256(\\\"sarcophagus.storage.dev2\\\");\\n\\n    function getAppStorage() internal pure returns (AppStorage storage s) {\\n        bytes32 position = DIAMOND_STORAGE_POSITION;\\n        assembly {\\n            s.slot := position\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xded21cf0fb81963d474fb0a2f4aaf1d2855c374b9a26b478559cc7fcd3c59c5f\",\"license\":\"Unlicense\"},\"hardhat-deploy/solc_0.8/diamond/interfaces/IDiamondCut.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\n\\ninterface IDiamondCut {\\n    enum FacetCutAction {Add, Replace, Remove}\\n    // Add=0, Replace=1, Remove=2\\n\\n    struct FacetCut {\\n        address facetAddress;\\n        FacetCutAction action;\\n        bytes4[] functionSelectors;\\n    }\\n\\n    /// @notice Add/replace/remove any number of functions and optionally execute\\n    ///         a function with delegatecall\\n    /// @param _diamondCut Contains the facet addresses and function selectors\\n    /// @param _init The address of the contract or facet to execute _calldata\\n    /// @param _calldata A function call, including function selector and arguments\\n    ///                  _calldata is executed with delegatecall on _init\\n    function diamondCut(\\n        FacetCut[] calldata _diamondCut,\\n        address _init,\\n        bytes calldata _calldata\\n    ) external;\\n\\n    event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);\\n}\\n\",\"keccak256\":\"0xc00c16bfa30a3fa5f3dc684f7f8ba62c259962b25f647d9588739458989717fc\",\"license\":\"MIT\"},\"hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\nimport { IDiamondCut } from \\\"../interfaces/IDiamondCut.sol\\\";\\n\\nlibrary LibDiamond {\\n    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256(\\\"diamond.standard.diamond.storage\\\");\\n\\n    struct FacetAddressAndPosition {\\n        address facetAddress;\\n        uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array\\n    }\\n\\n    struct FacetFunctionSelectors {\\n        bytes4[] functionSelectors;\\n        uint256 facetAddressPosition; // position of facetAddress in facetAddresses array\\n    }\\n\\n    struct DiamondStorage {\\n        // maps function selector to the facet address and\\n        // the position of the selector in the facetFunctionSelectors.selectors array\\n        mapping(bytes4 => FacetAddressAndPosition) selectorToFacetAndPosition;\\n        // maps facet addresses to function selectors\\n        mapping(address => FacetFunctionSelectors) facetFunctionSelectors;\\n        // facet addresses\\n        address[] facetAddresses;\\n        // Used to query if a contract implements an interface.\\n        // Used to implement ERC-165.\\n        mapping(bytes4 => bool) supportedInterfaces;\\n        // owner of the contract\\n        address contractOwner;\\n    }\\n\\n    function diamondStorage() internal pure returns (DiamondStorage storage ds) {\\n        bytes32 position = DIAMOND_STORAGE_POSITION;\\n        assembly {\\n            ds.slot := position\\n        }\\n    }\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    function setContractOwner(address _newOwner) internal {\\n        DiamondStorage storage ds = diamondStorage();\\n        address previousOwner = ds.contractOwner;\\n        ds.contractOwner = _newOwner;\\n        emit OwnershipTransferred(previousOwner, _newOwner);\\n    }\\n\\n    function contractOwner() internal view returns (address contractOwner_) {\\n        contractOwner_ = diamondStorage().contractOwner;\\n    }\\n\\n    function enforceIsContractOwner() internal view {\\n        require(msg.sender == diamondStorage().contractOwner, \\\"LibDiamond: Must be contract owner\\\");\\n    }\\n\\n    event DiamondCut(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);\\n\\n    // Internal function version of diamondCut\\n    function diamondCut(\\n        IDiamondCut.FacetCut[] memory _diamondCut,\\n        address _init,\\n        bytes memory _calldata\\n    ) internal {\\n        for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {\\n            IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;\\n            if (action == IDiamondCut.FacetCutAction.Add) {\\n                addFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else if (action == IDiamondCut.FacetCutAction.Replace) {\\n                replaceFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else if (action == IDiamondCut.FacetCutAction.Remove) {\\n                removeFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else {\\n                revert(\\\"LibDiamondCut: Incorrect FacetCutAction\\\");\\n            }\\n        }\\n        emit DiamondCut(_diamondCut, _init, _calldata);\\n        initializeDiamondCut(_init, _calldata);\\n    }\\n\\n    function addFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();        \\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Add facet can't be address(0)\\\");\\n        uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);\\n        // add new facet address if it does not exist\\n        if (selectorPosition == 0) {\\n            addFacet(ds, _facetAddress);            \\n        }\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            require(oldFacetAddress == address(0), \\\"LibDiamondCut: Can't add function that already exists\\\");\\n            addFunction(ds, selector, selectorPosition, _facetAddress);\\n            selectorPosition++;\\n        }\\n    }\\n\\n    function replaceFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();\\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Add facet can't be address(0)\\\");\\n        uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);\\n        // add new facet address if it does not exist\\n        if (selectorPosition == 0) {\\n            addFacet(ds, _facetAddress);\\n        }\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            require(oldFacetAddress != _facetAddress, \\\"LibDiamondCut: Can't replace function with same function\\\");\\n            removeFunction(ds, oldFacetAddress, selector);\\n            addFunction(ds, selector, selectorPosition, _facetAddress);\\n            selectorPosition++;\\n        }\\n    }\\n\\n    function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();\\n        // if function does not exist then do nothing and return\\n        require(_facetAddress == address(0), \\\"LibDiamondCut: Remove facet address must be address(0)\\\");\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            removeFunction(ds, oldFacetAddress, selector);\\n        }\\n    }\\n\\n    function addFacet(DiamondStorage storage ds, address _facetAddress) internal {\\n        enforceHasContractCode(_facetAddress, \\\"LibDiamondCut: New facet has no code\\\");\\n        ds.facetFunctionSelectors[_facetAddress].facetAddressPosition = ds.facetAddresses.length;\\n        ds.facetAddresses.push(_facetAddress);\\n    }    \\n\\n\\n    function addFunction(DiamondStorage storage ds, bytes4 _selector, uint96 _selectorPosition, address _facetAddress) internal {\\n        ds.selectorToFacetAndPosition[_selector].functionSelectorPosition = _selectorPosition;\\n        ds.facetFunctionSelectors[_facetAddress].functionSelectors.push(_selector);\\n        ds.selectorToFacetAndPosition[_selector].facetAddress = _facetAddress;\\n    }\\n\\n    function removeFunction(DiamondStorage storage ds, address _facetAddress, bytes4 _selector) internal {        \\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Can't remove function that doesn't exist\\\");\\n        // an immutable function is a function defined directly in a diamond\\n        require(_facetAddress != address(this), \\\"LibDiamondCut: Can't remove immutable function\\\");\\n        // replace selector with last selector, then delete last selector\\n        uint256 selectorPosition = ds.selectorToFacetAndPosition[_selector].functionSelectorPosition;\\n        uint256 lastSelectorPosition = ds.facetFunctionSelectors[_facetAddress].functionSelectors.length - 1;\\n        // if not the same then replace _selector with lastSelector\\n        if (selectorPosition != lastSelectorPosition) {\\n            bytes4 lastSelector = ds.facetFunctionSelectors[_facetAddress].functionSelectors[lastSelectorPosition];\\n            ds.facetFunctionSelectors[_facetAddress].functionSelectors[selectorPosition] = lastSelector;\\n            ds.selectorToFacetAndPosition[lastSelector].functionSelectorPosition = uint96(selectorPosition);\\n        }\\n        // delete the last selector\\n        ds.facetFunctionSelectors[_facetAddress].functionSelectors.pop();\\n        delete ds.selectorToFacetAndPosition[_selector];\\n\\n        // if no more selectors for facet address then delete the facet address\\n        if (lastSelectorPosition == 0) {\\n            // replace facet address with last facet address and delete last facet address\\n            uint256 lastFacetAddressPosition = ds.facetAddresses.length - 1;\\n            uint256 facetAddressPosition = ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;\\n            if (facetAddressPosition != lastFacetAddressPosition) {\\n                address lastFacetAddress = ds.facetAddresses[lastFacetAddressPosition];\\n                ds.facetAddresses[facetAddressPosition] = lastFacetAddress;\\n                ds.facetFunctionSelectors[lastFacetAddress].facetAddressPosition = facetAddressPosition;\\n            }\\n            ds.facetAddresses.pop();\\n            delete ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;\\n        }\\n    }\\n\\n    function initializeDiamondCut(address _init, bytes memory _calldata) internal {\\n        if (_init == address(0)) {\\n            require(_calldata.length == 0, \\\"LibDiamondCut: _init is address(0) but_calldata is not empty\\\");\\n        } else {\\n            require(_calldata.length > 0, \\\"LibDiamondCut: _calldata is empty but _init is not address(0)\\\");\\n            if (_init != address(this)) {\\n                enforceHasContractCode(_init, \\\"LibDiamondCut: _init address has no code\\\");\\n            }\\n            (bool success, bytes memory error) = _init.delegatecall(_calldata);\\n            if (!success) {\\n                if (error.length > 0) {\\n                    // bubble up the error\\n                    revert(string(error));\\n                } else {\\n                    revert(\\\"LibDiamondCut: _init function reverted\\\");\\n                }\\n            }\\n        }\\n    }\\n\\n    function enforceHasContractCode(address _contract, string memory _errorMessage) internal view {\\n        uint256 contractSize;\\n        assembly {\\n            contractSize := extcodesize(_contract)\\n        }\\n        require(contractSize > 0, _errorMessage);\\n    }\\n}\\n\",\"keccak256\":\"0x2205345e83eb86f5281f159a9215a096cb6d404782619f9b8e9d7a4a46c32a37\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610584806100206000396000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c8063274f255e146100675780636430ae6a146100835780638795cccb1461009f5780638a5b5690146100a9578063a828c479146100c5578063f2f65960146100e1575b600080fd5b610081600480360381019061007c91906103a0565b6100fd565b005b61009d600480360381019061009891906103a0565b61011e565b005b6100a761013f565b005b6100c360048036038101906100be91906103a0565b61020d565b005b6100df60048036038101906100da91906103a0565b61022e565b005b6100fb60048036038101906100f691906103a0565b61024f565b005b6000610107610270565b905061011161029d565b8181600601819055505050565b6000610128610270565b905061013261029d565b8181600301819055505050565b6000610149610270565b905061015361029d565b600081600101549050600082600101819055508160000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b81526004016101c592919061041d565b6020604051808303816000875af11580156101e4573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610208919061047e565b505050565b6000610217610270565b905061022161029d565b8181600201819055505050565b6000610238610270565b905061024261029d565b8181600501819055505050565b6000610259610270565b905061026361029d565b8181600401819055505050565b6000807f2319d9fa277d38834e73ba5e2482efd90323373359a32bb0c96b78353987994190508091505090565b6102a5610338565b60040160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614610336576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161032d9061052e565b60405180910390fd5b565b6000807fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c90508091505090565b600080fd5b6000819050919050565b61037d8161036a565b811461038857600080fd5b50565b60008135905061039a81610374565b92915050565b6000602082840312156103b6576103b5610365565b5b60006103c48482850161038b565b91505092915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006103f8826103cd565b9050919050565b610408816103ed565b82525050565b6104178161036a565b82525050565b600060408201905061043260008301856103ff565b61043f602083018461040e565b9392505050565b60008115159050919050565b61045b81610446565b811461046657600080fd5b50565b60008151905061047881610452565b92915050565b60006020828403121561049457610493610365565b5b60006104a284828501610469565b91505092915050565b600082825260208201905092915050565b7f4c69624469616d6f6e643a204d75737420626520636f6e7472616374206f776e60008201527f6572000000000000000000000000000000000000000000000000000000000000602082015250565b60006105186022836104ab565b9150610523826104bc565b604082019050919050565b600060208201905081810360008301526105478161050b565b905091905056fea264697066735822122037c05b32196d6ff75c2199866a36b601d5afc8cb7c6a0c35422d44e58b54061b64736f6c634300080d0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100625760003560e01c8063274f255e146100675780636430ae6a146100835780638795cccb1461009f5780638a5b5690146100a9578063a828c479146100c5578063f2f65960146100e1575b600080fd5b610081600480360381019061007c91906103a0565b6100fd565b005b61009d600480360381019061009891906103a0565b61011e565b005b6100a761013f565b005b6100c360048036038101906100be91906103a0565b61020d565b005b6100df60048036038101906100da91906103a0565b61022e565b005b6100fb60048036038101906100f691906103a0565b61024f565b005b6000610107610270565b905061011161029d565b8181600601819055505050565b6000610128610270565b905061013261029d565b8181600301819055505050565b6000610149610270565b905061015361029d565b600081600101549050600082600101819055508160000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33836040518363ffffffff1660e01b81526004016101c592919061041d565b6020604051808303816000875af11580156101e4573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610208919061047e565b505050565b6000610217610270565b905061022161029d565b8181600201819055505050565b6000610238610270565b905061024261029d565b8181600501819055505050565b6000610259610270565b905061026361029d565b8181600401819055505050565b6000807f2319d9fa277d38834e73ba5e2482efd90323373359a32bb0c96b78353987994190508091505090565b6102a5610338565b60040160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614610336576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161032d9061052e565b60405180910390fd5b565b6000807fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c90508091505090565b600080fd5b6000819050919050565b61037d8161036a565b811461038857600080fd5b50565b60008135905061039a81610374565b92915050565b6000602082840312156103b6576103b5610365565b5b60006103c48482850161038b565b91505092915050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b60006103f8826103cd565b9050919050565b610408816103ed565b82525050565b6104178161036a565b82525050565b600060408201905061043260008301856103ff565b61043f602083018461040e565b9392505050565b60008115159050919050565b61045b81610446565b811461046657600080fd5b50565b60008151905061047881610452565b92915050565b60006020828403121561049457610493610365565b5b60006104a284828501610469565b91505092915050565b600082825260208201905092915050565b7f4c69624469616d6f6e643a204d75737420626520636f6e7472616374206f776e60008201527f6572000000000000000000000000000000000000000000000000000000000000602082015250565b60006105186022836104ab565b9150610523826104bc565b604082019050919050565b600060208201905081810360008301526105478161050b565b905091905056fea264697066735822122037c05b32196d6ff75c2199866a36b601d5afc8cb7c6a0c35422d44e58b54061b64736f6c634300080d0033",
   "devdoc": {
     "kind": "dev",
     "methods": {
+      "setCursedBondPercentage(uint256)": {
+        "details": "Can only be called by the owner.",
+        "params": {
+          "cursedBondPercentage": "ratio to set."
+        }
+      },
       "setEmbalmerClaimWindow(uint256)": {
         "details": "Can only be called by the diamond owner.",
         "params": {
@@ -103,6 +138,9 @@
   "userdoc": {
     "kind": "user",
     "methods": {
+      "setCursedBondPercentage(uint256)": {
+        "notice": "Sets the digging fee / cursed bond ratio used to calculate how much bond archaeologists must lock per curse."
+      },
       "setEmbalmerClaimWindow(uint256)": {
         "notice": "Updates the embalmerClaimWindow"
       },
@@ -122,448 +160,7 @@
     "version": 1
   },
   "storageLayout": {
-    "storage": [
-      {
-        "astId": 1760,
-        "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-        "label": "s",
-        "offset": 0,
-        "slot": "0",
-        "type": "t_struct(AppStorage)5609_storage"
-      }
-    ],
-    "types": {
-      "t_address": {
-        "encoding": "inplace",
-        "label": "address",
-        "numberOfBytes": "20"
-      },
-      "t_array(t_address)dyn_storage": {
-        "base": "t_address",
-        "encoding": "dynamic_array",
-        "label": "address[]",
-        "numberOfBytes": "32"
-      },
-      "t_array(t_bytes32)dyn_storage": {
-        "base": "t_bytes32",
-        "encoding": "dynamic_array",
-        "label": "bytes32[]",
-        "numberOfBytes": "32"
-      },
-      "t_bool": {
-        "encoding": "inplace",
-        "label": "bool",
-        "numberOfBytes": "1"
-      },
-      "t_bytes32": {
-        "encoding": "inplace",
-        "label": "bytes32",
-        "numberOfBytes": "32"
-      },
-      "t_bytes_memory_ptr": {
-        "encoding": "bytes",
-        "label": "bytes",
-        "numberOfBytes": "32"
-      },
-      "t_bytes_storage": {
-        "encoding": "bytes",
-        "label": "bytes",
-        "numberOfBytes": "32"
-      },
-      "t_contract(IERC20)664": {
-        "encoding": "inplace",
-        "label": "contract IERC20",
-        "numberOfBytes": "20"
-      },
-      "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
-        "encoding": "mapping",
-        "key": "t_address",
-        "label": "mapping(address => bytes32[])",
-        "numberOfBytes": "32",
-        "value": "t_array(t_bytes32)dyn_storage"
-      },
-      "t_mapping(t_address,t_struct(ArchaeologistProfile)5301_storage)": {
-        "encoding": "mapping",
-        "key": "t_address",
-        "label": "mapping(address => struct LibTypes.ArchaeologistProfile)",
-        "numberOfBytes": "32",
-        "value": "t_struct(ArchaeologistProfile)5301_storage"
-      },
-      "t_mapping(t_address,t_struct(CursedArchaeologist)5288_storage)": {
-        "encoding": "mapping",
-        "key": "t_address",
-        "label": "mapping(address => struct LibTypes.CursedArchaeologist)",
-        "numberOfBytes": "32",
-        "value": "t_struct(CursedArchaeologist)5288_storage"
-      },
-      "t_mapping(t_address,t_uint256)": {
-        "encoding": "mapping",
-        "key": "t_address",
-        "label": "mapping(address => uint256)",
-        "numberOfBytes": "32",
-        "value": "t_uint256"
-      },
-      "t_mapping(t_bytes32,t_struct(Sarcophagus)5279_storage)": {
-        "encoding": "mapping",
-        "key": "t_bytes32",
-        "label": "mapping(bytes32 => struct LibTypes.Sarcophagus)",
-        "numberOfBytes": "32",
-        "value": "t_struct(Sarcophagus)5279_storage"
-      },
-      "t_mapping(t_bytes_memory_ptr,t_address)": {
-        "encoding": "mapping",
-        "key": "t_bytes_memory_ptr",
-        "label": "mapping(bytes => address)",
-        "numberOfBytes": "32",
-        "value": "t_address"
-      },
-      "t_string_storage": {
-        "encoding": "bytes",
-        "label": "string",
-        "numberOfBytes": "32"
-      },
-      "t_struct(AppStorage)5609_storage": {
-        "encoding": "inplace",
-        "label": "struct AppStorage",
-        "members": [
-          {
-            "astId": 5544,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "sarcoToken",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_contract(IERC20)664"
-          },
-          {
-            "astId": 5546,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "totalProtocolFees",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5549,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "protocolFeeBasePercentage",
-            "offset": 0,
-            "slot": "2",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5551,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "gracePeriod",
-            "offset": 0,
-            "slot": "3",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5553,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "expirationThreshold",
-            "offset": 0,
-            "slot": "4",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5555,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "embalmerClaimWindow",
-            "offset": 0,
-            "slot": "5",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5561,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "embalmerSarcophagi",
-            "offset": 0,
-            "slot": "6",
-            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
-          },
-          {
-            "astId": 5566,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "archaeologistSarcophagi",
-            "offset": 0,
-            "slot": "7",
-            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
-          },
-          {
-            "astId": 5571,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "recipientSarcophagi",
-            "offset": 0,
-            "slot": "8",
-            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
-          },
-          {
-            "astId": 5575,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "publicKeyToArchaeologistAddress",
-            "offset": 0,
-            "slot": "9",
-            "type": "t_mapping(t_bytes_memory_ptr,t_address)"
-          },
-          {
-            "astId": 5580,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "sarcophagi",
-            "offset": 0,
-            "slot": "10",
-            "type": "t_mapping(t_bytes32,t_struct(Sarcophagus)5279_storage)"
-          },
-          {
-            "astId": 5583,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "archaeologistProfileAddresses",
-            "offset": 0,
-            "slot": "11",
-            "type": "t_array(t_address)dyn_storage"
-          },
-          {
-            "astId": 5588,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "archaeologistProfiles",
-            "offset": 0,
-            "slot": "12",
-            "type": "t_mapping(t_address,t_struct(ArchaeologistProfile)5301_storage)"
-          },
-          {
-            "astId": 5592,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "archaeologistRewards",
-            "offset": 0,
-            "slot": "13",
-            "type": "t_mapping(t_address,t_uint256)"
-          },
-          {
-            "astId": 5598,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "archaeologistSuccesses",
-            "offset": 0,
-            "slot": "14",
-            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
-          },
-          {
-            "astId": 5603,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "archaeologistAccusals",
-            "offset": 0,
-            "slot": "15",
-            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
-          },
-          {
-            "astId": 5608,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "archaeologistCleanups",
-            "offset": 0,
-            "slot": "16",
-            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)"
-          }
-        ],
-        "numberOfBytes": "544"
-      },
-      "t_struct(ArchaeologistProfile)5301_storage": {
-        "encoding": "inplace",
-        "label": "struct LibTypes.ArchaeologistProfile",
-        "members": [
-          {
-            "astId": 5290,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "exists",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_bool"
-          },
-          {
-            "astId": 5292,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "peerId",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_string_storage"
-          },
-          {
-            "astId": 5294,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "minimumDiggingFee",
-            "offset": 0,
-            "slot": "2",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5296,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "maximumRewrapInterval",
-            "offset": 0,
-            "slot": "3",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5298,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "freeBond",
-            "offset": 0,
-            "slot": "4",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5300,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "cursedBond",
-            "offset": 0,
-            "slot": "5",
-            "type": "t_uint256"
-          }
-        ],
-        "numberOfBytes": "192"
-      },
-      "t_struct(CursedArchaeologist)5288_storage": {
-        "encoding": "inplace",
-        "label": "struct LibTypes.CursedArchaeologist",
-        "members": [
-          {
-            "astId": 5281,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "publicKey",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_bytes_storage"
-          },
-          {
-            "astId": 5283,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "privateKey",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_bytes32"
-          },
-          {
-            "astId": 5285,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "isAccused",
-            "offset": 0,
-            "slot": "2",
-            "type": "t_bool"
-          },
-          {
-            "astId": 5287,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "diggingFee",
-            "offset": 0,
-            "slot": "3",
-            "type": "t_uint256"
-          }
-        ],
-        "numberOfBytes": "128"
-      },
-      "t_struct(Sarcophagus)5279_storage": {
-        "encoding": "inplace",
-        "label": "struct LibTypes.Sarcophagus",
-        "members": [
-          {
-            "astId": 5254,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "resurrectionTime",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5256,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "isCompromised",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_bool"
-          },
-          {
-            "astId": 5258,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "isCleaned",
-            "offset": 1,
-            "slot": "1",
-            "type": "t_bool"
-          },
-          {
-            "astId": 5260,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "name",
-            "offset": 0,
-            "slot": "2",
-            "type": "t_string_storage"
-          },
-          {
-            "astId": 5262,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "threshold",
-            "offset": 0,
-            "slot": "3",
-            "type": "t_uint8"
-          },
-          {
-            "astId": 5264,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "maximumRewrapInterval",
-            "offset": 0,
-            "slot": "4",
-            "type": "t_uint256"
-          },
-          {
-            "astId": 5266,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "arweaveTxId",
-            "offset": 0,
-            "slot": "5",
-            "type": "t_string_storage"
-          },
-          {
-            "astId": 5268,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "embalmerAddress",
-            "offset": 0,
-            "slot": "6",
-            "type": "t_address"
-          },
-          {
-            "astId": 5270,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "recipientAddress",
-            "offset": 0,
-            "slot": "7",
-            "type": "t_address"
-          },
-          {
-            "astId": 5273,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "cursedArchaeologistAddresses",
-            "offset": 0,
-            "slot": "8",
-            "type": "t_array(t_address)dyn_storage"
-          },
-          {
-            "astId": 5278,
-            "contract": "contracts/facets/AdminFacet.sol:AdminFacet",
-            "label": "cursedArchaeologists",
-            "offset": 0,
-            "slot": "9",
-            "type": "t_mapping(t_address,t_struct(CursedArchaeologist)5288_storage)"
-          }
-        ],
-        "numberOfBytes": "320"
-      },
-      "t_uint256": {
-        "encoding": "inplace",
-        "label": "uint256",
-        "numberOfBytes": "32"
-      },
-      "t_uint8": {
-        "encoding": "inplace",
-        "label": "uint8",
-        "numberOfBytes": "1"
-      }
-    }
+    "storage": [],
+    "types": null
   }
 }
