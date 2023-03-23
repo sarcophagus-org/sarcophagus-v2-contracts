@@ -18,7 +18,9 @@ export async function unwrapSarcophagi(
 ): Promise<void> {
   const archaeologistUnwrapChance =
     generateHistoryConfig.archaeologistUnwrapChance;
-  const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
+  const diamond = await hre.ethers.getContract(
+    "SarcophagusGoerliV1_DiamondProxy"
+  );
   const archaeologistFacet = await hre.ethers.getContractAt(
     "ArchaeologistFacet",
     diamond.address
