@@ -22,7 +22,7 @@ export async function registerArchaeologists(
   }
 
   // Get the contract
-  const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
+  const diamond = await hre.ethers.getContract("SarcophagusGoerliV1_Diamond_Proxy");
   const archaeologistFacet = await hre.ethers.getContractAt(
     "ArchaeologistFacet",
     diamond.address
