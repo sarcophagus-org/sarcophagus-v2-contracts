@@ -23,7 +23,7 @@ export async function registerArchaeologists(
 
   // Get the contract
   const diamond = await hre.ethers.getContract(
-    "SarcophagusGoerliV1_Diamond_Proxy"
+    "SarcophagusGoerliV1_DiamondProxy"
   );
   const archaeologistFacet = await hre.ethers.getContractAt(
     "ArchaeologistFacet",

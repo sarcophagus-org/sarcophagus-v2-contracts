@@ -16,7 +16,7 @@ export async function accuseSarcophagus(
 
   // Get the contracts
   const diamond = await hre.ethers.getContract(
-    "SarcophagusGoerliV1_Diamond_Proxy"
+    "SarcophagusGoerliV1_DiamondProxy"
   );
   const thirdPartyFacet = await hre.ethers.getContractAt(
     "ThirdPartyFacet",

@@ -43,7 +43,7 @@ export async function createSarcophagi(
 
   // Get the contracts
   const diamond = await hre.ethers.getContract(
-    "SarcophagusGoerliV1_Diamond_Proxy"
+    "SarcophagusGoerliV1_DiamondProxy"
   );
   const embalmerFacet = await hre.ethers.getContractAt(
     "EmbalmerFacet",
