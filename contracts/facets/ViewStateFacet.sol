@@ -126,90 +126,12 @@ contract ViewStateFacet {
         return s.archaeologistProfiles[archaeologist].cursedBond;
     }
 
-    /// @notice Returns whether an archaeologist completed an unwrap for a sarcophagus
-    /// @param archaeologist The address of the archaeologist
-    /// @param sarcoId the sarcophagus to check if unwrapping occured
-    function getArchaeologistSuccessOnSarcophagus(
-        address archaeologist,
-        bytes32 sarcoId
-    ) external view returns (bool) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.sarcophagi[sarcoId].cursedArchaeologists[archaeologist].privateKey != 0;
-    }
-
-    /// @notice Returns the number of successful unwraps for an archaeologist.
-    /// @param archaeologist The address of the archaeologist whose success
-    //  count is being returned
-    function getArchaeologistSuccessesCount(address archaeologist) external view returns (uint256) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.archaeologistSuccesses[archaeologist].length;
-    }
-
-    /// @notice Returns the sarcophagus unique identifier for a given
-    /// archaeologist and index of the successfully unwrapped sarcophagi
-    /// @param archaeologist The address of an archaeologist
-    /// @param index The index of the archaeologist's unwrapped sarcophagi
-    /// @return the identifier associated with the index of the archaeologist's
-    /// unwrapped sarcophagi
-    function archaeologistSuccessesIdentifier(
-        address archaeologist,
-        uint256 index
-    ) external view returns (bytes32) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.archaeologistSuccesses[archaeologist][index];
-    }
-
-    /// @notice Returns the number of accusations for an archaeologist.
-    /// @param archaeologist The address of the archaeologist whose accusations
-    /// count is being returned
-    function getArchaeologistAccusalsCount(address archaeologist) external view returns (uint256) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.archaeologistAccusals[archaeologist].length;
-    }
-
-    /// @notice Returns the sarcophagus unique identifier for a given
-    /// archaeologist and index of the accused sarcophagi
-    /// @param archaeologist The address of an archaeologist
-    /// @param index The index of the archaeologist's accused sarcophagi
-    /// @return the identifier associated with the index of the archaeologist's
-    /// accused sarcophagi
-    function archaeologistAccusalsIdentifier(
-        address archaeologist,
-        uint256 index
-    ) external view returns (bytes32) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.archaeologistAccusals[archaeologist][index];
-    }
-
-    /// @notice Returns the number of cleanups for an archaeologist.
-    /// @param archaeologist The address of the archaeologist whose cleanups
-    /// count is being returned
-    function getArchaeologistCleanupsCount(address archaeologist) external view returns (uint256) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.archaeologistCleanups[archaeologist].length;
-    }
-
-    /// @notice Returns the sarcophagus unique identifier for a given
-    /// archaeologist and index of the cleaned-up sarcophagi
-    /// @param archaeologist The address of an archaeologist
-    /// @param index The index of the archaeologist's cleaned-up sarcophagi
-    /// @return the identifier associated with the index of the archaeologist's
-    /// cleaned-up sarcophagi
-    function archaeologistCleanupsIdentifier(
-        address archaeologist,
-        uint256 index
-    ) external view returns (bytes32) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.archaeologistCleanups[archaeologist][index];
-    }
-
     // Only used in the ViewStateFacet to return statistics data.
     // Contains a list of sarcoIds for each category. We could simply return the counts of the
     // arrays but we are already storing the lists of sarcoIds so we may as well use them.
     struct ArchaeologistStatistics {
         uint256 successes;
         uint256 accusals;
-        uint256 cleanups;
         uint256 failures;
     }
 
@@ -237,7 +159,7 @@ contract ViewStateFacet {
             for (uint j = 0; j < sarcoIds.length; j++) {
                 LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoIds[j]];
                 if (
-                    !this.getArchaeologistSuccessOnSarcophagus(addresses[i], sarcoIds[j]) &&
+                    sarco.cursedArchaeologists[addresses[i]].privateKey == 0 &&
                     sarco.resurrectionTime != 2 ** 256 - 1 &&
                     block.timestamp > sarco.resurrectionTime + s.gracePeriod
                 ) {
@@ -246,9 +168,8 @@ contract ViewStateFacet {
             }
 
             statsList[i] = ArchaeologistStatistics(
-                this.getArchaeologistSuccessesCount(addresses[i]),
-                this.getArchaeologistAccusalsCount(addresses[i]),
-                this.getArchaeologistCleanupsCount(addresses[i]),
+                s.archaeologistSuccesses[addresses[i]].length,
+                s.archaeologistAccusals[addresses[i]].length,
                 failures
             );
         }

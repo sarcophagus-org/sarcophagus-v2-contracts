@@ -148,9 +148,6 @@ contract ThirdPartyFacet {
                     sarcophagus.cursedArchaeologistAddresses[i],
                     cursedBondDue
                 );
-
-                // track that the archaeologist has had a clean on this sarcophagus
-                s.archaeologistCleanups[sarcophagus.cursedArchaeologistAddresses[i]].push(sarcoId);
             }
         }
 

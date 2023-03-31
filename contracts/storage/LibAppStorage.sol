@@ -26,10 +26,8 @@ struct AppStorage {
     uint256 expirationThreshold;
     // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys
     uint256 embalmerClaimWindow;
-
     // registered archaeologist addresses
     address[] archaeologistProfileAddresses;
-
     /**
      * Ownership mappings
      */
@@ -53,7 +51,6 @@ struct AppStorage {
      */
     mapping(address => bytes32[]) archaeologistSuccesses;
     mapping(address => bytes32[]) archaeologistAccusals;
-    mapping(address => bytes32[]) archaeologistCleanups;
 }
 
 library LibAppStorage {

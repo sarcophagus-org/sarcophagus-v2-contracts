@@ -351,57 +351,6 @@ describe("ThirdPartyFacet.clean", () => {
         startingProtocolFees
       );
     });
-
-    it("stores the sarcoId and archaeologist address in archaeologistCleanups", async function () {
-      const { thirdPartyFacet, viewStateFacet } = await getContracts();
-      const {
-        createdSarcophagusData: sarcophagusData,
-        cursedArchaeologists: archaeologists,
-      } = await createSarcophagusWithRegisteredCursedArchaeologists({
-        totalArchaeologists: 7,
-        threshold: 4,
-      });
-
-      const nonPublishingArchaeologists = archaeologists.slice(0, 3);
-      const publishingArchaeologists = archaeologists.slice(3, 7);
-      await publishPrivateKeysForArchaeologists(
-        sarcophagusData,
-        publishingArchaeologists
-      );
-
-      await setTimeToEmbalmerClaimWindowStart(
-        sarcophagusData.resurrectionTimeSeconds
-      );
-      await thirdPartyFacet
-        .connect(sarcophagusData.embalmer)
-        .clean(sarcophagusData.sarcoId);
-
-      // verify that all archaeologists that have published their key shares have not had a clean counted against them
-      await Promise.all(
-        publishingArchaeologists.map(
-          async (archaeologist: ArchaeologistData) => {
-            const cleanUpCount =
-              await viewStateFacet.getArchaeologistCleanupsCount(
-                archaeologist.archAddress
-              );
-            expect(cleanUpCount).to.equal(0);
-          }
-        )
-      );
-
-      // verify that all archaeologists that have failed to publish their key shares have had a clean counted
-      await Promise.all(
-        nonPublishingArchaeologists.map(
-          async (archaeologist: ArchaeologistData) => {
-            const cleanUpCount =
-              await viewStateFacet.getArchaeologistCleanupsCount(
-                archaeologist.archAddress
-              );
-            expect(cleanUpCount).to.equal(1);
-          }
-        )
-      );
-    });
   });
 
   describe("Handles payout to the embalmer", function () {

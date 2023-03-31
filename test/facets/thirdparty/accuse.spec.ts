@@ -336,11 +336,10 @@ describe("ThirdPartyFacet.accuse", () => {
           );
 
         // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
-        const accusedArchaeologistAccusalsCount =
-          await _viewStateFacet.getArchaeologistAccusalsCount(
-            accusedArchaeologist.archAddress
-          );
-        expect(accusedArchaeologistAccusalsCount.toString()).to.equal("1");
+        const archStats = await _viewStateFacet.getArchaeologistsStatistics([
+          accusedArchaeologist.archAddress,
+        ]);
+        expect(archStats[0].accusals.toString()).to.eq("1");
       });
 
       it("mark the archaeologist as accused", async function () {
@@ -545,11 +544,10 @@ describe("ThirdPartyFacet.accuse", () => {
       expect(accusedArchaeologistStorage.isAccused).to.be.true;
 
       // verify the sarcoId has only been added to the accused archaeologist's archaeologistAccusals once
-      const accusedArchaeologistAccusalsCount =
-        await viewStateFacet.getArchaeologistAccusalsCount(
-          accusedArchaeologist.archAddress
-        );
-      expect(accusedArchaeologistAccusalsCount.toString()).to.equal("1");
+      const archStats = await viewStateFacet.getArchaeologistsStatistics([
+        accusedArchaeologist.archAddress,
+      ]);
+      expect(archStats[0].accusals.toString()).to.eq("1");
     });
   });
 
@@ -710,22 +708,20 @@ describe("ThirdPartyFacet.accuse", () => {
       // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
       await Promise.all(
         accusedArchaeologists.map(async (accusedArchaeologist) => {
-          const accusedArchaeologistAccusalsCount =
-            await viewStateFacet.getArchaeologistAccusalsCount(
-              accusedArchaeologist.archAddress
-            );
-          expect(accusedArchaeologistAccusalsCount.toString()).to.equal("1");
+          const archStats = await viewStateFacet.getArchaeologistsStatistics([
+            accusedArchaeologist.archAddress,
+          ]);
+          expect(archStats[0].accusals.toString()).to.eq("1");
         })
       );
 
       // verify the sarcoId has not been added to the innocent archaeologist's archaeologistAccusals
       await Promise.all(
         innocentArchaeologists.map(async (innocentArchaeologist) => {
-          const innocentArchaeologistAccusalsCount =
-            await viewStateFacet.getArchaeologistAccusalsCount(
-              innocentArchaeologist.archAddress
-            );
-          expect(innocentArchaeologistAccusalsCount.toString()).to.equal("0");
+          const archStats = await viewStateFacet.getArchaeologistsStatistics([
+            innocentArchaeologist.archAddress,
+          ]);
+          expect(archStats[0].accusals.toString()).to.eq("0");
         })
       );
     });
@@ -964,22 +960,20 @@ describe("ThirdPartyFacet.accuse", () => {
       // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
       await Promise.all(
         accusedArchaeologists.map(async (accusedArchaeologist) => {
-          const accusedArchaeologistAccusalsCount =
-            await viewStateFacet.getArchaeologistAccusalsCount(
-              accusedArchaeologist.archAddress
-            );
-          expect(accusedArchaeologistAccusalsCount.toString()).to.equal("1");
+          const archStats = await viewStateFacet.getArchaeologistsStatistics([
+            accusedArchaeologist.archAddress,
+          ]);
+          expect(archStats[0].accusals.toString()).to.eq("1");
         })
       );
 
       // verify the sarcoId has not been added to the innocent archaeologist's archaeologistAccusals
       await Promise.all(
         innocentArchaeologists.map(async (innocentArchaeologist) => {
-          const innocentArchaeologistAccusalsCount =
-            await viewStateFacet.getArchaeologistAccusalsCount(
-              innocentArchaeologist.archAddress
-            );
-          expect(innocentArchaeologistAccusalsCount.toString()).to.equal("0");
+          const archStats = await viewStateFacet.getArchaeologistsStatistics([
+            innocentArchaeologist.archAddress,
+          ]);
+          expect(archStats[0].accusals.toString()).to.eq("0");
         })
       );
     });
