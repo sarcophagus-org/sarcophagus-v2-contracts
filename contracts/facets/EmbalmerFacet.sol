@@ -66,6 +66,7 @@ contract EmbalmerFacet {
         bytes publicKey;
         address archAddress;
         uint256 diggingFeePerSecond;
+        uint256 curseFee;
         uint8 v;
         bytes32 r;
         bytes32 s;
@@ -383,7 +384,8 @@ contract EmbalmerFacet {
                 // If the new digging fees are greater than the previous digging fees, we need to
                 // increase the archaeologist's locked bond
                 if (newDiggingFees > prevDiggingFees) {
-                    uint256 cursedBondIncrease = (newDiggingFees - prevDiggingFees) * cursedBondPercentage / 100;
+                    uint256 cursedBondIncrease = ((newDiggingFees - prevDiggingFees) *
+                        cursedBondPercentage) / 100;
 
                     // If the previous cycle's rewards can't cover the cursed bond increase, revert
                     if (cursedBondIncrease > prevDiggingFees) {
@@ -403,13 +405,18 @@ contract EmbalmerFacet {
                         prevDiggingFees -
                         cursedBondIncrease;
                 } else if (newDiggingFees < prevDiggingFees) {
-                    uint256 cursedBondDecrease = (prevDiggingFees - newDiggingFees) * cursedBondPercentage / 100;
+                    uint256 cursedBondDecrease = ((prevDiggingFees - newDiggingFees) *
+                        cursedBondPercentage) / 100;
 
                     // Decrease archaeologist's cursed bond by the difference
-                    s.archaeologistProfiles[archaeologistAddresses[i]].cursedBond -= cursedBondDecrease;
+                    s
+                        .archaeologistProfiles[archaeologistAddresses[i]]
+                        .cursedBond -= cursedBondDecrease;
 
                     // Increase archaeologist's free bond by the difference
-                    s.archaeologistProfiles[archaeologistAddresses[i]].freeBond += cursedBondDecrease;
+                    s
+                        .archaeologistProfiles[archaeologistAddresses[i]]
+                        .freeBond += cursedBondDecrease;
 
                     // Rewards are equal to the previous digging fees
                     s.archaeologistRewards[archaeologistAddresses[i]] += prevDiggingFees;
@@ -420,6 +427,24 @@ contract EmbalmerFacet {
 
                 // Add digging fees due for the new interval
                 totalDiggingFees += newDiggingFees;
+
+                // Check if isRewrapped is false, and if so, set it to true and increase rewards
+                if (!sarcophagus.isRewrapped) {
+                    // Pay archaeologists the curse fee to their rewards
+                    s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist
+                        .curseFee;
+
+                    // Decrease the arch's cursed bond by the curse fee
+                    LibBonds.decreaseCursedBond(
+                        archaeologistAddresses[i],
+                        cursedArchaeologist.curseFee
+                    );
+
+                    // Increase the arch's free bond by the curse fee
+                    s
+                        .archaeologistProfiles[archaeologistAddresses[i]]
+                        .freeBond += cursedArchaeologist.curseFee;
+                }
             }
         }
 
@@ -431,6 +456,8 @@ contract EmbalmerFacet {
         // Update the sarcophagus resurrectionTime and previousRewrapTime
         sarcophagus.resurrectionTime = resurrectionTime;
         sarcophagus.previousRewrapTime = block.timestamp;
+
+        sarcophagus.isRewrapped = true;
 
         // Transfer the new digging fees and protocol fees from embalmer to contract
         s.sarcoToken.transferFrom(msg.sender, address(this), totalDiggingFees + protocolFees);

@@ -14,6 +14,7 @@ import {
   getArchaeologistLockedBondSarquitos,
 } from "../helpers/bond";
 import { BigNumber } from "ethers";
+import { formatEther } from "ethers/lib/utils";
 
 const { deployments, ethers } = require("hardhat");
 
@@ -198,7 +199,9 @@ describe("EmbalmerFacet.burySarcophagus", () => {
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
-              startingArchaeologistBonds[index].lockedBond.sub(diggingFeesDue)
+              startingArchaeologistBonds[index].lockedBond
+                .sub(diggingFeesDue)
+                .sub(archaeologist.curseFee)
             );
           }
         )
@@ -378,9 +381,9 @@ describe("EmbalmerFacet.burySarcophagus", () => {
             );
 
             expect(archaeologistPostBuryLockedBond).to.equal(
-              startingInnocentArchaeologistBonds[index].lockedBond.sub(
-                diggingFeesDue
-              )
+              startingInnocentArchaeologistBonds[index].lockedBond
+                .sub(diggingFeesDue)
+                .sub(archaeologist.curseFee)
             );
           }
         )

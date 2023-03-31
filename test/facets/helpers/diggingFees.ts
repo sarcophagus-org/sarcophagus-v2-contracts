@@ -14,8 +14,24 @@ export const getArchaeologistLockedBondSarquitos = async (
 };
 
 /**
- * Calculates the total digging fees for a set of archaeologists
+ * Calculates the total digging fees for a set of archaeologists including the curse fee
  * */
+export const getTotalFeesSarquitos = (
+  archaeologists: ArchaeologistData[],
+  resurrectionInterval: number
+): BigNumber =>
+  archaeologists.reduce(
+    (sum: BigNumber, archaeologist: ArchaeologistData) =>
+      sum
+        .add(
+          BigNumber.from(archaeologist.diggingFeePerSecondSarquito).mul(
+            resurrectionInterval
+          )
+        )
+        .add(archaeologist.curseFee),
+    BigNumber.from(0)
+  );
+
 export const getTotalDiggingFeesSarquitos = (
   archaeologists: ArchaeologistData[],
   resurrectionInterval: number
@@ -30,15 +46,31 @@ export const getTotalDiggingFeesSarquitos = (
     BigNumber.from(0)
   );
 
-/**
- * Calculates the total digging fees for a set of archaeologists plus the protocol fees (incurred on rewrap and create)
- * */
 export const getDiggingFeesPlusProtocolFeesSarquitos = async (
   archaeologists: ArchaeologistData[],
   resurrectionInterval: number
 ): Promise<BigNumber> => {
   const { viewStateFacet } = await getContracts();
   const totalDiggingFees = getTotalDiggingFeesSarquitos(
+    archaeologists,
+    resurrectionInterval
+  );
+  return totalDiggingFees.add(
+    totalDiggingFees
+      .mul(await viewStateFacet.getProtocolFeeBasePercentage())
+      .div(100)
+  );
+};
+
+/**
+ * Calculates the total digging fees for a set of archaeologists plus the protocol fees (incurred on rewrap and create)
+ * */
+export const getAllFeesSarquitos = async (
+  archaeologists: ArchaeologistData[],
+  resurrectionInterval: number
+): Promise<BigNumber> => {
+  const { viewStateFacet } = await getContracts();
+  const totalDiggingFees = getTotalFeesSarquitos(
     archaeologists,
     resurrectionInterval
   );

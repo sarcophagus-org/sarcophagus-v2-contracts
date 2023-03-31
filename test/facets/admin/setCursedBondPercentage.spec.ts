@@ -80,7 +80,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
         // Cursed bond should be 1.5x the digging fee
         expect(archaeologist.cursedBond).to.eq(
-          diggingFeeAmount.mul(150).div(100)
+          diggingFeeAmount.mul(150).div(100).add(archaeologist.curseFee)
         );
       });
     });
@@ -130,7 +130,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
           .connect(archaeologists[0].archAddress)
           .getRewards(archaeologists[0].archAddress);
 
-        expect(rewards).to.eq(diggingFeeAmount);
+        expect(rewards).to.eq(diggingFeeAmount.add(archaeologist.curseFee));
       });
 
       it("reverts b/c new resurrection interval is more than 1.666x old interval", async () => {
@@ -223,7 +223,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
         const newRewards = diggingFeeAmount.sub(diggingFeesPaidToCursedBond);
 
         expect(updatedArch.cursedBond).to.eq(newCursedBond);
-        expect(rewards).to.eq(newRewards);
+        expect(rewards).to.eq(newRewards.add(archaeologist.curseFee));
       });
     });
   });
@@ -269,9 +269,11 @@ describe("AdminFacet.setCursedBondPercentage", () => {
             archaeologists[0].archAddress
           );
 
-        expect(rewards).to.eq(diggingFeeAmount);
+        expect(rewards).to.eq(diggingFeeAmount.add(archaeologist.curseFee));
         expect(updatedArchaeologist.freeBond).to.eq(
-          archaeologist.freeBond.add(archaeologist.cursedBond)
+          archaeologist.freeBond
+            .add(archaeologist.cursedBond)
+            .sub(archaeologist.curseFee)
         );
         expect(updatedArchaeologist.cursedBond).to.eq(BigNumber.from(0));
       });

@@ -1,6 +1,8 @@
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumberish } from "ethers";
+import { BytesLike } from "ethers/lib/utils";
 import time from "../../utils/time";
 import { accountGenerator } from "./accounts";
-import { fundAndApproveAccount } from "./sarcoToken";
 import {
   ArchaeologistParameters,
   registerArchaeologist,
@@ -11,14 +13,13 @@ import {
   SarcophagusNegotiationParams,
 } from "./archaeologistSignature";
 import { getContracts } from "./contracts";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumberish } from "ethers";
-import { BytesLike } from "ethers/lib/utils";
+import { fundAndApproveAccount } from "./sarcoToken";
 
 const { ethers } = require("hardhat");
 const crypto = require("crypto");
 
 export const diggingFeesPerSecond_10_000_SarcoMonthly = "4000000000000000";
+export const curseFee = "500000000000000000000";
 
 /**
  * Contains information on a test sarcophagus
@@ -73,7 +74,7 @@ export const createSarcophagusData = async (params: {
     params.embalmerAddress ?? (await accountGenerator.newAccount()).address;
   const embalmer = await ethers.getSigner(embalmerAddress);
 
-  await fundAndApproveAccount(embalmer, params.embalmerFunds || 100_000);
+  await fundAndApproveAccount(embalmer, params.embalmerFunds || 1_000_000);
 
   const recipientAddress =
     params.recipientAddress ?? (await accountGenerator.newAccount()).address;
@@ -145,6 +146,7 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
             sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
+          curseFee,
         },
         {
           profileMinDiggingFeePerSecondSarquito:
@@ -154,6 +156,7 @@ export const registerDefaultArchaeologistsAndCreateSignatures = async (
           sarcoBalance: 40_000,
           freeBondSarco: 40_000,
           maxResurrectionTime: 1739643155,
+          curseFee,
         }
       )
     )
@@ -237,6 +240,7 @@ export const buildCreateSarcophagusArgs = (
     archAddress: string;
     diggingFeePerSecond: BigNumberish;
     publicKey: BytesLike;
+    curseFee: BigNumberish;
     v: BigNumberish;
     r: BytesLike;
     s: BytesLike;
@@ -258,6 +262,7 @@ export const buildCreateSarcophagusArgs = (
       archAddress: archaeologist.archAddress,
       publicKey: archaeologist.publicKey,
       diggingFeePerSecond: archaeologist.diggingFeePerSecondSarquito,
+      curseFee: archaeologist.curseFee,
       v: archaeologist.v,
       r: archaeologist.r,
       s: archaeologist.s,

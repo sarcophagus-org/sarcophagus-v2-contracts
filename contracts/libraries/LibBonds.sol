@@ -69,23 +69,25 @@ library LibBonds {
             publicKey: archaeologist.publicKey,
             privateKey: 0,
             isAccused: false,
-            diggingFeePerSecond: archaeologist.diggingFeePerSecond
+            diggingFeePerSecond: archaeologist.diggingFeePerSecond,
+            curseFee: archaeologist.curseFee
         });
         sarcophagus.cursedArchaeologistAddresses[index] = archaeologist.archAddress;
 
         // Calculate digging fees due for this time period (creationTime/previousRewrapTime -> resurrectionTime)
-        uint256 diggingFeesDue = archaeologist.diggingFeePerSecond *
-            (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
+        uint256 diggingFeesDue = (archaeologist.diggingFeePerSecond *
+            (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime));
 
         // Use cursed bond percentage to determine how much bond to lock up
-        uint256 bondToCurse = (diggingFeesDue * s.cursedBondPercentage) / 100;
+        uint256 bondToCurse = (((diggingFeesDue) * s.cursedBondPercentage) / 100) +
+            archaeologist.curseFee;
 
         decreaseFreeBond(archaeologist.archAddress, bondToCurse);
         s.archaeologistProfiles[archaeologist.archAddress].cursedBond += bondToCurse;
 
         s.archaeologistSarcophagi[archaeologist.archAddress].push(sarcoId);
 
-        return diggingFeesDue;
+        return diggingFeesDue + archaeologist.curseFee;
     }
 
     /// @notice Calculates and unlocks an archaeologist's cursed bond. Pays due digging fees to the archaeologist.
@@ -102,10 +104,23 @@ library LibBonds {
         uint256 diggingFeeAmount = cursedArchaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-        uint256 cursedBondAmount = diggingFeeAmount * sarcophagus.cursedBondPercentage / 100;
+        uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 100;
 
-        decreaseCursedBond(archaeologistAddress, cursedBondAmount);
+        uint256 archaeologistRewards = diggingFeeAmount;
+
+        // Check if isRewrapped is false, and if so, set it to true and increase rewards
+        if (!sarcophagus.isRewrapped) {
+            // Pay archaeologists the curse fee to their rewards
+            archaeologistRewards += cursedArchaeologist.curseFee;
+
+            // Decrease the arch's cursed bond by the curse fee
+            LibBonds.decreaseCursedBond(archaeologistAddress, cursedArchaeologist.curseFee);
+
+            // Increase the arch's free bond by the curse fee
+            s.archaeologistProfiles[archaeologistAddress].freeBond += cursedArchaeologist.curseFee;
+        }
+
         s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
-        s.archaeologistRewards[archaeologistAddress] += diggingFeeAmount;
+        s.archaeologistRewards[archaeologistAddress] += archaeologistRewards;
     }
 }

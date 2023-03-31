@@ -1,27 +1,32 @@
 import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai";
+import { BigNumber } from "ethers";
+import { formatEther } from "ethers/lib/utils";
+import { ethers } from "hardhat";
 import time from "../../utils/time";
-import { getContracts } from "../helpers/contracts";
-import {
-  buildCreateSarcophagusArgs,
-  createSarcophagusData,
-  registerDefaultArchaeologistsAndCreateSignatures,
-  createSarcophagusWithRegisteredCursedArchaeologists,
-  diggingFeesPerSecond_10_000_SarcoMonthly,
-} from "../helpers/sarcophagus";
+import { accountGenerator } from "../helpers/accounts";
 import {
   ArchaeologistData,
   createArchSignature,
 } from "../helpers/archaeologistSignature";
-import { accountGenerator } from "../helpers/accounts";
 import {
   getArchaeologistFreeBondSarquitos,
   getArchaeologistLockedBondSarquitos,
 } from "../helpers/bond";
+import { getContracts } from "../helpers/contracts";
+import {
+  buildCreateSarcophagusArgs,
+  createSarcophagusData,
+  createSarcophagusWithRegisteredCursedArchaeologists,
+  curseFee,
+  diggingFeesPerSecond_10_000_SarcoMonthly,
+  registerDefaultArchaeologistsAndCreateSignatures,
+} from "../helpers/sarcophagus";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
-import { getDiggingFeesPlusProtocolFeesSarquitos } from "../helpers/diggingFees";
-import { ethers } from "hardhat";
-import { BigNumber } from "ethers";
+import {
+  getAllFeesSarquitos,
+  getDiggingFeesPlusProtocolFeesSarquitos,
+} from "../helpers/diggingFees";
 
 const crypto = require("crypto");
 const { deployments } = require("hardhat");
@@ -204,6 +209,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
             sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
+          curseFee: curseFee,
         }
       );
       archaeologists[0] = unregisteredArchaeologistData;
@@ -237,6 +243,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
             sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
+          curseFee: curseFee,
         }
       );
       archaeologists[1] = duplicateArchaeologist;
@@ -442,12 +449,20 @@ describe("EmbalmerFacet.createSarcophagus", () => {
                 sarcophagusData.creationTimeSeconds
             );
 
+            const freeBondDiff = startingArchaeologistBonds[index].freeBond.sub(
+              archaeologistPostCurseFreeBond
+            );
+
             expect(archaeologistPostCurseFreeBond).to.equal(
-              startingArchaeologistBonds[index].freeBond.sub(diggingFeesDue)
+              startingArchaeologistBonds[index].freeBond.sub(
+                diggingFeesDue.add(archaeologist.curseFee)
+              )
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
-              startingArchaeologistBonds[index].lockedBond.add(diggingFeesDue)
+              startingArchaeologistBonds[index].lockedBond.add(
+                diggingFeesDue.add(archaeologist.curseFee)
+              )
             );
           }
         )
@@ -476,7 +491,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         sarcophagusData.embalmer.address
       );
 
-      const totalCostToEmbalmer = await getDiggingFeesPlusProtocolFeesSarquitos(
+      const totalCostToEmbalmer = await getAllFeesSarquitos(
         archaeologists,
         sarcophagusData.resurrectionTimeSeconds -
           sarcophagusData.creationTimeSeconds

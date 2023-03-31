@@ -292,12 +292,14 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
           sarcophagusData.creationTimeSeconds
       );
 
+      const curseFeeBn = BigNumber.from(archaeologists[0].curseFee);
+
       expect(postPublishFreeBondSarquitos).to.equal(
         prePublishFreeBondSarquitos.add(diggingFeesDue)
       );
 
       expect(postPublishLockedBondSarquitos).to.equal(
-        prePublishLockedBondSarquitos.sub(diggingFeesDue)
+        prePublishLockedBondSarquitos.sub(diggingFeesDue.add(curseFeeBn))
       );
     });
 

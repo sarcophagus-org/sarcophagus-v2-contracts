@@ -78,12 +78,14 @@ contract ArchaeologistFacet {
     /// for a resurrection
     /// @param freeBond How much bond the archaeologist wants to deposit during the register call (if any)
     /// @param maximumResurrectionTime The time beyond which the archaeologist is not willing to accept new curses or rewraps
+    /// @param curseFee The fee the archaeologist sets to roughly cover the cost of an unwrap transaction
     function registerArchaeologist(
         string memory peerId,
         uint256 minimumDiggingFeePerSecond,
         uint256 maximumRewrapInterval,
         uint256 freeBond,
-        uint256 maximumResurrectionTime
+        uint256 maximumResurrectionTime,
+        uint256 curseFee
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
         // verify that the archaeologist does not already exist
@@ -100,7 +102,8 @@ contract ArchaeologistFacet {
             maximumResurrectionTime: maximumResurrectionTime,
             maximumRewrapInterval: maximumRewrapInterval,
             freeBond: freeBond,
-            cursedBond: 0
+            cursedBond: 0,
+            curseFee: curseFee
         });
 
         // transfer SARCO tokens from the archaeologist to this contract, to be

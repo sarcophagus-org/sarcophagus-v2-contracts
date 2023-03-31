@@ -18,6 +18,7 @@ export interface ArchaeologistParameters {
   sarcoBalance: number;
   freeBondSarco: number;
   maxResurrectionTime: number;
+  curseFee: BigNumberish;
 }
 
 /**
@@ -53,7 +54,8 @@ export const registerArchaeologist = async (
       archaeologistParams.profileMinDiggingFeePerSecondSarquito,
       archaeologistParams.profileMaxRewrapIntervalSeconds,
       archaeologistFreeBondSarquitos,
-      archaeologistParams.maxResurrectionTime
+      archaeologistParams.maxResurrectionTime,
+      archaeologistParams.curseFee
     );
 
   return archaeologistSigner;
