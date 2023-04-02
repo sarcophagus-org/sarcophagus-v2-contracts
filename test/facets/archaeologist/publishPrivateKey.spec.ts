@@ -23,8 +23,8 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
     accountGenerator.index = 0;
   });
 
-  describe("Validates parameters. Should revert if:", function () {
-    it("no sarcophagus with the supplied id exists", async function () {
+  describe("Validates parameters. Should revert if:", () => {
+    it("no sarcophagus with the supplied id exists", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -44,7 +44,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("the sarcophagus has been compromised", async function () {
+    it("the sarcophagus has been compromised", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -67,7 +67,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("the sarcophagus has been buried", async function () {
+    it("the sarcophagus has been buried", async () => {
       const { archaeologistFacet, embalmerFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -92,7 +92,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("the resurrection time has not passed", async function () {
+    it("the resurrection time has not passed", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -112,7 +112,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("the grace period has passed", async function () {
+    it("the grace period has passed", async () => {
       const { archaeologistFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -137,7 +137,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("the sender is not an archaeologist on the sarcophagus", async function () {
+    it("the sender is not an archaeologist on the sarcophagus", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -158,7 +158,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("the archaeologist has been accused", async function () {
+    it("the archaeologist has been accused", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -185,7 +185,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("the archaeologist has already published their key", async function () {
+    it("the archaeologist has already published their key", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -210,7 +210,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("the private key being published does not match the public key on the cursedArchaeologist", async function () {
+    it("the private key being published does not match the public key on the cursedArchaeologist", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -230,8 +230,8 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
     });
   });
 
-  describe("Successfully publishes a private key", function () {
-    it("updates the cursedArchaeologist on the sarcophagus with the privateKey that was published", async function () {
+  describe("Successfully publishes a private key", () => {
+    it("updates the cursedArchaeologist on the sarcophagus with the privateKey that was published", async () => {
       const { archaeologistFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -255,7 +255,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("returns the locked bond for the cursed archaeologist equal to their digging fees on the sarcophagus", async function () {
+    it("returns the locked bond for the cursed archaeologist equal to their digging fees plus curse fee on the sarcophagus", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -292,18 +292,18 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
           sarcophagusData.creationTimeSeconds
       );
 
-      const curseFeeBn = BigNumber.from(archaeologists[0].curseFee);
+      const curseFee = BigNumber.from(archaeologists[0].curseFee);
 
       expect(postPublishFreeBondSarquitos).to.equal(
-        prePublishFreeBondSarquitos.add(diggingFeesDue)
+        prePublishFreeBondSarquitos.add(diggingFeesDue).add(curseFee)
       );
 
       expect(postPublishLockedBondSarquitos).to.equal(
-        prePublishLockedBondSarquitos.sub(diggingFeesDue.add(curseFeeBn))
+        prePublishLockedBondSarquitos.sub(diggingFeesDue.add(curseFee))
       );
     });
 
-    it("pays the archaologist their digging fees", async function () {
+    it("pays the archaeologist their digging fees", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -319,7 +319,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       await expect(tx).to.emit(archaeologistFacet, `PublishPrivateKey`);
     });
 
-    it("stores the sarcoId in archaeologistSuccesses", async function () {
+    it("stores the sarcoId in archaeologistSuccesses", async () => {
       const { archaeologistFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -345,7 +345,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       await expect(archaeologistSuccessOnSarcophagus).to.equal(true);
     });
 
-    it("emits PublishPrivateKey", async function () {
+    it("emits PublishPrivateKey", async () => {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,

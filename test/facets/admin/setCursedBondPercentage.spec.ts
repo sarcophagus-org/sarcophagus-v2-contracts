@@ -5,7 +5,7 @@ import {
   buildCreateSarcophagusArgs,
   createSarcophagusData,
   createSarcophagusWithRegisteredCursedArchaeologists,
-  registerDefaultArchaeologistsAndCreateSignatures
+  registerDefaultArchaeologistsAndCreateSignatures,
 } from "../helpers/sarcophagus";
 import { BigNumber } from "ethers";
 import time from "../../utils/time";
@@ -76,8 +76,9 @@ describe("AdminFacet.setCursedBondPercentage", () => {
         // Digging fee total is duration of sarcophagus * diggingFeePerSecond + curseFee
         const diggingFeeAmount = BigNumber.from(
           sarcophagusData.resurrectionTimeSeconds -
-          sarcophagusData.creationTimeSeconds
-        ).mul(archaeologist.minimumDiggingFeePerSecond)
+            sarcophagusData.creationTimeSeconds
+        )
+          .mul(archaeologist.minimumDiggingFeePerSecond)
           .add(archaeologist.curseFee);
 
         // Cursed bond should be 1.5x the digging fees
@@ -151,10 +152,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
         await embalmerFacet
           .connect(sarcophagusData.embalmer)
-          .rewrapSarcophagus(
-            sarcophagusData.sarcoId,
-            newResurrectionTime
-          );
+          .rewrapSarcophagus(sarcophagusData.sarcoId, newResurrectionTime);
 
         const rewardsSecondRewrap = await viewStateFacet
           .connect(archaeologists[0].archAddress)
@@ -168,7 +166,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
       it("reverts b/c new resurrection interval is more than 1.666x old interval", async () => {
         const { embalmerFacet } = await getContracts();
         const sarcophagusData = await createSarcophagusData({
-          resurrectionTime: (await time.latest()) + 10000
+          resurrectionTime: (await time.latest()) + 10000,
         });
         const archaeologists =
           await registerDefaultArchaeologistsAndCreateSignatures(
@@ -195,7 +193,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
       it("locks up the correct amount of bond from the digging fees when new interval is longer than previous interval", async () => {
         const { embalmerFacet, viewStateFacet } = await getContracts();
         const sarcophagusData = await createSarcophagusData({
-          resurrectionTime: (await time.latest()) + 10000
+          resurrectionTime: (await time.latest()) + 10000,
         });
         const archaeologists =
           await registerDefaultArchaeologistsAndCreateSignatures(
@@ -263,7 +261,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
       it("locks up the correct amount of bond from the digging fees when new interval is shorter than previous interval", async () => {
         const { embalmerFacet, viewStateFacet } = await getContracts();
         const sarcophagusData = await createSarcophagusData({
-          resurrectionTime: (await time.latest()) + 10000
+          resurrectionTime: (await time.latest()) + 10000,
         });
         const archaeologists =
           await registerDefaultArchaeologistsAndCreateSignatures(
@@ -333,10 +331,11 @@ describe("AdminFacet.setCursedBondPercentage", () => {
       });
 
       it("pays the correct amount of rewards and releases the cursed bond when a sarcophagus has been rewrapped", async () => {
-        const { archaeologistFacet, viewStateFacet, embalmerFacet } = await getContracts();
+        const { archaeologistFacet, viewStateFacet, embalmerFacet } =
+          await getContracts();
         const {
           createdSarcophagusData: sarcophagusData,
-          cursedArchaeologists: archaeologists
+          cursedArchaeologists: archaeologists,
         } = await createSarcophagusWithRegisteredCursedArchaeologists();
 
         const archaeologist = await viewStateFacet.getArchaeologistProfile(
@@ -345,7 +344,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
         const diggingFeeAmountFirstInterval = BigNumber.from(
           sarcophagusData.resurrectionTimeSeconds -
-          sarcophagusData.creationTimeSeconds
+            sarcophagusData.creationTimeSeconds
         ).mul(archaeologist.minimumDiggingFeePerSecond);
 
         // rewrap sarcophagus to force payout of curse fee
@@ -361,9 +360,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
         );
 
         const diggingFeeAmountSecondInterval = BigNumber.from(
-          sarco.resurrectionTime.sub(
-            sarco.previousRewrapTime
-          )
+          sarco.resurrectionTime.sub(sarco.previousRewrapTime)
         ).mul(archaeologist.minimumDiggingFeePerSecond);
 
         await time.increaseTo(sarco.resurrectionTime.toNumber());
@@ -401,7 +398,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
         const { archaeologistFacet, viewStateFacet } = await getContracts();
         const {
           createdSarcophagusData: sarcophagusData,
-          cursedArchaeologists: archaeologists
+          cursedArchaeologists: archaeologists,
         } = await createSarcophagusWithRegisteredCursedArchaeologists();
 
         const archaeologist = await viewStateFacet.getArchaeologistProfile(
@@ -410,7 +407,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
         const diggingFeeAmount = BigNumber.from(
           sarcophagusData.resurrectionTimeSeconds -
-          sarcophagusData.creationTimeSeconds
+            sarcophagusData.creationTimeSeconds
         ).mul(archaeologist.minimumDiggingFeePerSecond);
 
         await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
