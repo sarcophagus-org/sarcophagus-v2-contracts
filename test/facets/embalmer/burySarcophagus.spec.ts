@@ -137,12 +137,12 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             const diggingFeesDue = BigNumber.from(
               archaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            ).add(
-              archaeologists[index].curseFee
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(archaeologists[index].curseFee);
 
             expect(archaeologistPostRewrapRewards).to.equal(
               startingArchaeologistRewards[index].add(diggingFeesDue)
@@ -195,22 +195,23 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             const diggingFeesDue = BigNumber.from(
               archaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            ).add(
-              archaeologists[index].curseFee
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(archaeologists[index].curseFee);
 
-            const lockedBondAmount = diggingFeesDue.mul(cursedBondPercentage).div(100);
+            const lockedBondAmount = diggingFeesDue
+              .mul(cursedBondPercentage)
+              .div(100);
 
             expect(archaeologistPostCurseFreeBond).to.equal(
               startingArchaeologistBonds[index].freeBond.add(lockedBondAmount)
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
-              startingArchaeologistBonds[index].lockedBond
-                .sub(lockedBondAmount)
+              startingArchaeologistBonds[index].lockedBond.sub(lockedBondAmount)
             );
           }
         )
@@ -284,7 +285,9 @@ describe("EmbalmerFacet.burySarcophagus", () => {
               );
 
               expect(archaeologistPostRewrapRewards).to.equal(
-                startingArchaeologistRewards[index].add(diggingFeesDue).add(archaeologists[index].curseFee)
+                startingArchaeologistRewards[index]
+                  .add(diggingFeesDue)
+                  .add(archaeologists[index].curseFee)
               );
             }
           }
@@ -382,14 +385,16 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             const diggingFeesDue = BigNumber.from(
               archaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            ).add(
-              archaeologists[index].curseFee
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(archaeologists[index].curseFee);
 
-            const lockedBondAmount = diggingFeesDue.mul(cursedBondPercentage).div(100);
+            const lockedBondAmount = diggingFeesDue
+              .mul(cursedBondPercentage)
+              .div(100);
 
             expect(archaeologistPostBuryFreeBond).to.equal(
               startingInnocentArchaeologistBonds[index].freeBond.add(
@@ -398,8 +403,9 @@ describe("EmbalmerFacet.burySarcophagus", () => {
             );
 
             expect(archaeologistPostBuryLockedBond).to.equal(
-              startingInnocentArchaeologistBonds[index].lockedBond
-                .sub(lockedBondAmount)
+              startingInnocentArchaeologistBonds[index].lockedBond.sub(
+                lockedBondAmount
+              )
             );
           }
         )
