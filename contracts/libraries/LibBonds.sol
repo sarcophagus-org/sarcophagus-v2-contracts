@@ -50,11 +50,11 @@ library LibBonds {
     /// @notice Bonds the archaeologist to a sarcophagus.
     /// This does the following:
     ///   - adds the archaeologist's curse params and address to the sarcophagus
-    ///   - calculates digging fees to be locked and later paid to archaeologist
+    ///   - calculates digging fees to be locked and later paid to archaeologist (includes curseFee)
     ///   - locks this amount from archaeologist's free bond; increases cursedBond by same
     ///   - Adds the sarcophagus' id to the archaeologist's record of bonded sarcophagi
     /// @param sarcoId Id of the sarcophagus with which to curse the archaeologist
-    /// @param archaeologist The archaologist to curse, with associated parameters of the curse
+    /// @param archaeologist The archaeologist to curse, with associated parameters of the curse
     ///
     /// @return the amount of digging fees due the embalmer for this curse
     function curseArchaeologist(
@@ -76,18 +76,19 @@ library LibBonds {
 
         // Calculate digging fees due for this time period (creationTime/previousRewrapTime -> resurrectionTime)
         uint256 diggingFeesDue = (archaeologist.diggingFeePerSecond *
-            (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime));
+            (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime))
+            + archaeologist.curseFee;
 
         // Use cursed bond percentage to determine how much bond to lock up
-        uint256 bondToCurse = (((diggingFeesDue) * s.cursedBondPercentage) / 100) +
-            archaeologist.curseFee;
+        uint256 bondToCurse = (((diggingFeesDue) * s.cursedBondPercentage) / 100);
 
+        // Transfer bond to curse from free bond to cursed bond
         decreaseFreeBond(archaeologist.archAddress, bondToCurse);
         s.archaeologistProfiles[archaeologist.archAddress].cursedBond += bondToCurse;
 
         s.archaeologistSarcophagi[archaeologist.archAddress].push(sarcoId);
 
-        return diggingFeesDue + archaeologist.curseFee;
+        return diggingFeesDue;
     }
 
     /// @notice Calculates and unlocks an archaeologist's cursed bond. Pays due digging fees to the archaeologist.
@@ -101,26 +102,20 @@ library LibBonds {
             .sarcophagi[sarcoId]
             .cursedArchaeologists[archaeologistAddress];
 
+        // Calculate the digging fees to be paid since the last rewrap (or creation)
         uint256 diggingFeeAmount = cursedArchaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-        uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 100;
-
-        uint256 archaeologistRewards = diggingFeeAmount;
-
-        // If sarcophagus has not been rewrapped, pay out the curse fee and unlock the cursed fee locked bond
+        // If sarcophagus has not be been rewrapped yet, pay out the curseFee
         if (!sarcophagus.isRewrapped) {
-            // Pay archaeologists the curse fee to their rewards
-            archaeologistRewards += cursedArchaeologist.curseFee;
-
-            // Decrease the arch's cursed bond by the curse fee
-            LibBonds.decreaseCursedBond(archaeologistAddress, cursedArchaeologist.curseFee);
-
-            // Increase the arch's free bond by the curse fee
-            s.archaeologistProfiles[archaeologistAddress].freeBond += cursedArchaeologist.curseFee;
+            diggingFeeAmount += cursedArchaeologist.curseFee;
         }
 
+        uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 100;
+
+        LibBonds.decreaseCursedBond(archaeologistAddress, cursedBondAmount);
         s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
-        s.archaeologistRewards[archaeologistAddress] += archaeologistRewards;
+
+        s.archaeologistRewards[archaeologistAddress] += diggingFeeAmount;
     }
 }
