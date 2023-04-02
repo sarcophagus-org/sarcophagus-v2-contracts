@@ -18,8 +18,8 @@ import { fundAndApproveAccount } from "./sarcoToken";
 const { ethers } = require("hardhat");
 const crypto = require("crypto");
 
-export const diggingFeesPerSecond_10_000_SarcoMonthly = "4000000000000000";
-export const curseFee = "500000000000000000000";
+export const diggingFeesPerSecond_10_000_SarcoMonthly = 4n * 10n ** 15n; // .004 SARCO/second
+export const curseFee = 500n * 10n ** 18n; // 500 SARCO
 
 /**
  * Contains information on a test sarcophagus

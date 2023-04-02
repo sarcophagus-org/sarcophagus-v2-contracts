@@ -8,6 +8,7 @@ import "../storage/LibAppStorage.sol";
 import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
+import "hardhat/console.sol";
 
 contract EmbalmerFacet {
     /// @notice Emitted when a sarcophagus is created
@@ -372,6 +373,9 @@ contract EmbalmerFacet {
         // pay digging fee to each cursed archaeologist on the sarcophagus that has not been accused
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         uint256 cursedBondPercentage = sarcophagus.cursedBondPercentage;
+
+        console.log("previous resurrection duration", sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
+        console.log("new resurrection duration", resurrectionTime - block.timestamp);
 
         for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
