@@ -150,7 +150,8 @@ contract EmbalmerFacet {
     ///    - `publicKey` that matches the private key the archaeologist is responsible for
     ///    - `maximumRewrapInterval` to be enforced for the lifetime of the sarcophagus. No new resurrection time for future rewraps may exceed this interval from time of rewrap.
     ///    - `creationTime` of sarcophagus
-    ///    - `diggingFeePerSecond` agreed to be paid to the archaeologist during the lifetime of the sarcophagus. Constant.
+    ///    - `diggingFeePerSecond` agreed to be paid to the archaeologist during the lifetime of the sarcophagus. Paid per rewrap and publishPrivateKey. Constant.
+    ///    - `curseFee` agreed to be paid to the archaeologist once during the lifetime of the sarcophagus to cover cost of publishPrivateKey tx. Paid either on first rewrap or publishPrivateKey if no rewrap has occurred Constant.
     ///
     /// @param sarcoId the identifier of the sarcophagus
     /// @param sarcophagusParams params to set on sarcophagus being created

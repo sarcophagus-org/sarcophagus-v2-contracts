@@ -108,7 +108,7 @@ library LibBonds {
 
         uint256 archaeologistRewards = diggingFeeAmount;
 
-        // Check if isRewrapped is false, and if so, set it to true and increase rewards
+        // If sarcophagus has not been rewrapped, pay out the curse fee and unlock the cursed fee locked bond
         if (!sarcophagus.isRewrapped) {
             // Pay archaeologists the curse fee to their rewards
             archaeologistRewards += cursedArchaeologist.curseFee;
