@@ -22,9 +22,7 @@ import {
   registerDefaultArchaeologistsAndCreateSignatures,
 } from "../helpers/sarcophagus";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
-import {
-  getAllFeesSarquitos,
-} from "../helpers/diggingFees";
+import { getAllFeesSarquitos } from "../helpers/diggingFees";
 
 const crypto = require("crypto");
 const { deployments } = require("hardhat");
@@ -446,25 +444,23 @@ describe("EmbalmerFacet.createSarcophagus", () => {
 
             const diggingFeesDue = BigNumber.from(
               archaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            ).add(
-              archaeologist.curseFee
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(archaeologist.curseFee);
 
-            const cursedBondAmount = diggingFeesDue.mul(cursedBondPercentage).div(100);
+            const cursedBondAmount = diggingFeesDue
+              .mul(cursedBondPercentage)
+              .div(100);
 
             expect(archaeologistPostCurseFreeBond).to.equal(
-              startingArchaeologistBonds[index].freeBond.sub(
-                cursedBondAmount
-              )
+              startingArchaeologistBonds[index].freeBond.sub(cursedBondAmount)
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
-              startingArchaeologistBonds[index].lockedBond.add(
-                cursedBondAmount
-              )
+              startingArchaeologistBonds[index].lockedBond.add(cursedBondAmount)
             );
           }
         )

@@ -10,10 +10,7 @@ import {
 } from "../helpers/accuse";
 import { ArchaeologistData } from "../helpers/archaeologistSignature";
 import { getContracts } from "../helpers/contracts";
-import {
-  getAllFeesSarquitos,
-  getDiggingFeesPlusProtocolFeesSarquitos,
-} from "../helpers/diggingFees";
+import { getDiggingFeesPlusProtocolFeesSarquitos } from "../helpers/diggingFees";
 import { createSarcophagusWithRegisteredCursedArchaeologists } from "../helpers/sarcophagus";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
 
@@ -329,6 +326,11 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         await createSarcophagusWithRegisteredCursedArchaeologists({
           resurrectionTime: resurrectionTimeOnCreate,
         });
+
+      const cursedBondPercentage = await viewStateFacet
+        .connect(sarcophagusData.embalmer)
+        .getCursedBondPercentage();
+
       const curseFee = cursedArchaeologists[0].curseFee;
 
       // Get an archaeologist address
@@ -342,6 +344,10 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         firstArchaeologistAddress
       );
 
+      const cursedBondBeforeMinusCurseFeeBond = cursedBondBefore.sub(
+        BigNumber.from(curseFee).mul(cursedBondPercentage).div(100)
+      );
+
       // Get the archaeologist's rewards before rewrap
       const rewardsBefore = await viewStateFacet.getRewards(
         firstArchaeologistAddress
@@ -352,6 +358,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         await viewStateFacet.getArchaeologistProfile(firstArchaeologistAddress)
       ).minimumDiggingFeePerSecond;
 
+      // Rewrap sarcophagus
       await embalmerFacet
         .connect(sarcophagusData.embalmer)
         .rewrapSarcophagus(sarcophagusData.sarcoId, resurrectionTimeOnRewrap);
@@ -377,9 +384,12 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
 
       const diggingFeesDiff = newDiggingFees.sub(prevDiggingFees);
+      const cursedBondDiff = diggingFeesDiff.mul(cursedBondPercentage).div(100);
 
       // Expect the cursed bond after - cursed bond before to be equal to the difference in digging fees
-      expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(diggingFeesDiff);
+      expect(cursedBondAfter.sub(cursedBondBeforeMinusCurseFeeBond)).to.equal(
+        cursedBondDiff
+      );
 
       // Expect the rewards after - rewards before to be equal to previous digging fee - the digging fee difference
       expect(rewardsAfter.sub(curseFee).sub(rewardsBefore)).to.equal(
@@ -402,6 +412,11 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         await createSarcophagusWithRegisteredCursedArchaeologists({
           resurrectionTime: resurrectionTimeOnCreate,
         });
+
+      const cursedBondPercentage = await viewStateFacet
+        .connect(sarcophagusData.embalmer)
+        .getCursedBondPercentage();
+
       const curseFee = cursedArchaeologists[0].curseFee;
 
       // Get an archaeologist address
@@ -415,9 +430,17 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         firstArchaeologistAddress
       );
 
+      const cursedBondBeforeMinusCurseFeeBond = cursedBondBefore.sub(
+        BigNumber.from(curseFee).mul(cursedBondPercentage).div(100)
+      );
+
       // Get the first archaeologist's free bond before rewrap
       const freeBondBefore = await viewStateFacet.getFreeBond(
         firstArchaeologistAddress
+      );
+
+      const freeBondBeforeBeforePlusCurseFeeBond = freeBondBefore.add(
+        BigNumber.from(curseFee).mul(cursedBondPercentage).div(100)
       );
 
       // Get the archaeologist's rewards before rewrap
@@ -462,10 +485,14 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       const diggingFeesDiff = prevDiggingFees.sub(newDiggingFees);
 
       // Expect the difference in cursed bond to be equal to the difference in diggingFees
-      expect(cursedBondBefore.sub(cursedBondAfter)).to.equal(diggingFeesDiff);
+      expect(cursedBondBeforeMinusCurseFeeBond.sub(cursedBondAfter)).to.equal(
+        diggingFeesDiff
+      );
 
       // Expect the difference in free bond to be equal to the difference in diggingFees
-      expect(freeBondAfter.sub(freeBondBefore)).to.equal(diggingFeesDiff);
+      expect(freeBondAfter.sub(freeBondBeforeBeforePlusCurseFeeBond)).to.equal(
+        diggingFeesDiff
+      );
 
       // Expect the difference in rewards to be equal to the previous digging fees
       expect(rewardsAfter.sub(curseFee).sub(rewardsBefore)).to.equal(
