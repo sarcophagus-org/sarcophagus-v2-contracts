@@ -18,16 +18,16 @@ contract EmbalmerFacet {
     // recipient Address of recipient
     /// @param cursedArchaeologists Array of addresses of cursed archaeologists
     /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus
-    /// @param createSarcophagusProtocolFees Total protocol fees charged to embalmer to create the sarcophagus
     /// @param arweaveTxId arweave tx id for the sarcophagus
     event CreateSarcophagus(
         bytes32 indexed sarcoId,
         string name,
-        uint256[2] resurrectionAndCreationTime,
-        address[2] embalmerAndRecipient,
+        uint256 resurrectionTime,
+        uint256 creationTime,
+        address embalmer,
+        address recipient,
         address[] cursedArchaeologists,
         uint256 totalDiggingFees,
-        uint256 createSarcophagusProtocolFees,
         string arweaveTxId
     );
 
@@ -293,11 +293,12 @@ contract EmbalmerFacet {
         emit CreateSarcophagus(
             sarcoId,
             sarcophagusParams.name,
-            [sarcophagusParams.resurrectionTime, sarcophagusParams.creationTime],
-            [msg.sender, sarcophagusParams.recipientAddress],
+            sarcophagusParams.resurrectionTime,
+            sarcophagusParams.creationTime,
+            msg.sender,
+            sarcophagusParams.recipientAddress,
             sarcophagus.cursedArchaeologistAddresses,
             totalDiggingFees,
-            protocolFees,
             arweaveTxId
         );
     }
