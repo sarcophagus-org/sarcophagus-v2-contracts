@@ -14,10 +14,9 @@ contract EmbalmerFacet {
     /// @param sarcoId Id of the new sarcophagus
     /// @param name Name of the new sarcophagus
     /// @param resurrectionTime Resurrection time of the new sarcophagus
-    /// @param CreationTime Creation time as set during negotiation, not the same as blocktime at which event is emitted
+    /// @param creationTime Creation time as set during negotiation, not the same as blocktime at which event is emitted
     /// @param embalmer Address of embalmer
     /// @param recipient Address of recipient
-    // recipient Address of recipient
     /// @param cursedArchaeologists Array of addresses of cursed archaeologists
     /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus
     /// @param arweaveTxId arweave tx id for the sarcophagus
