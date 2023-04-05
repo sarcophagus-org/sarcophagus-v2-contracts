@@ -14,6 +14,7 @@ contract EmbalmerFacet {
     /// @param sarcoId Id of the new sarcophagus
     /// @param name Name of the new sarcophagus
     /// @param resurrectionTime Resurrection time of the new sarcophagus
+    /// @param creationTime Creation time as set during negotiation. Not the same as blocktime at which event is emitted
     /// @param embalmer Address of embalmer
     /// @param recipient Address of recipient
     /// @param cursedArchaeologists Array of addresses of cursed archaeologists
@@ -24,6 +25,7 @@ contract EmbalmerFacet {
         bytes32 indexed sarcoId,
         string name,
         uint256 resurrectionTime,
+        uint256 creationTime,
         address embalmer,
         address recipient,
         address[] cursedArchaeologists,
@@ -295,6 +297,7 @@ contract EmbalmerFacet {
             sarcoId,
             sarcophagusParams.name,
             sarcophagusParams.resurrectionTime,
+            sarcophagusParams.creationTime,
             msg.sender,
             sarcophagusParams.recipientAddress,
             sarcophagus.cursedArchaeologistAddresses,
