@@ -318,30 +318,6 @@ describe("ThirdPartyFacet.accuse", () => {
         );
       });
 
-      it("add the sarcoId to the accused archaeologist's archaeologistAccusals", async function () {
-        // accuse the archaeologist of leaking a keyshare
-        await _thirdPartyFacet
-          .connect(accuser)
-          .accuse(
-            _sarcophagusData.sarcoId,
-            [accusedArchaeologist.publicKey],
-            [
-              await generateAccusalSignature(
-                _sarcophagusData.sarcoId,
-                accusedArchaeologist.privateKey,
-                accuser.address
-              ),
-            ],
-            accuser.address
-          );
-
-        // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
-        const archStats = await _viewStateFacet.getArchaeologistsStatistics([
-          accusedArchaeologist.archAddress,
-        ]);
-        expect(archStats[0].accusals.toString()).to.eq("1");
-      });
-
       it("mark the archaeologist as accused", async function () {
         // accuse the archaeologist of leaking a keyshare
         await _thirdPartyFacet
@@ -542,12 +518,6 @@ describe("ThirdPartyFacet.accuse", () => {
           accusedArchaeologist.archAddress
         );
       expect(accusedArchaeologistStorage.isAccused).to.be.true;
-
-      // verify the sarcoId has only been added to the accused archaeologist's archaeologistAccusals once
-      const archStats = await viewStateFacet.getArchaeologistsStatistics([
-        accusedArchaeologist.archAddress,
-      ]);
-      expect(archStats[0].accusals.toString()).to.eq("1");
     });
   });
 
@@ -703,26 +673,6 @@ describe("ThirdPartyFacet.accuse", () => {
         sarcophagusData.sarcoId,
         innocentArchaeologists,
         false
-      );
-
-      // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
-      await Promise.all(
-        accusedArchaeologists.map(async (accusedArchaeologist) => {
-          const archStats = await viewStateFacet.getArchaeologistsStatistics([
-            accusedArchaeologist.archAddress,
-          ]);
-          expect(archStats[0].accusals.toString()).to.eq("1");
-        })
-      );
-
-      // verify the sarcoId has not been added to the innocent archaeologist's archaeologistAccusals
-      await Promise.all(
-        innocentArchaeologists.map(async (innocentArchaeologist) => {
-          const archStats = await viewStateFacet.getArchaeologistsStatistics([
-            innocentArchaeologist.archAddress,
-          ]);
-          expect(archStats[0].accusals.toString()).to.eq("0");
-        })
       );
     });
 
@@ -955,26 +905,6 @@ describe("ThirdPartyFacet.accuse", () => {
         sarcophagusData.sarcoId,
         innocentArchaeologists,
         false
-      );
-
-      // verify the sarcoId has been added to the accused archaeologist's archaeologistAccusals
-      await Promise.all(
-        accusedArchaeologists.map(async (accusedArchaeologist) => {
-          const archStats = await viewStateFacet.getArchaeologistsStatistics([
-            accusedArchaeologist.archAddress,
-          ]);
-          expect(archStats[0].accusals.toString()).to.eq("1");
-        })
-      );
-
-      // verify the sarcoId has not been added to the innocent archaeologist's archaeologistAccusals
-      await Promise.all(
-        innocentArchaeologists.map(async (innocentArchaeologist) => {
-          const archStats = await viewStateFacet.getArchaeologistsStatistics([
-            innocentArchaeologist.archAddress,
-          ]);
-          expect(archStats[0].accusals.toString()).to.eq("0");
-        })
       );
     });
   });

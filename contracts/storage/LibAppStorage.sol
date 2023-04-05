@@ -45,12 +45,6 @@ struct AppStorage {
     mapping(address => LibTypes.ArchaeologistProfile) archaeologistProfiles;
     // current balance of rewards available for the archaeologist to withdraw
     mapping(address => uint256) archaeologistRewards;
-    /**
-     * Archaeologist reputation statistics: address => sarcoIds
-     * todo: could these be organized differently?
-     */
-    mapping(address => bytes32[]) archaeologistSuccesses;
-    mapping(address => bytes32[]) archaeologistAccusals;
 }
 
 library LibAppStorage {

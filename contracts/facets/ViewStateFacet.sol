@@ -135,48 +135,6 @@ contract ViewStateFacet {
         uint256 failures;
     }
 
-    /// @notice Gets all reputation statistics for each archaeologist
-    /// Contains a list of counts for each category.
-    /// @param addresses The list of archaeologist addresses
-    /// @return The list of archaeologist statistics
-    function getArchaeologistsStatistics(
-        address[] memory addresses
-    ) external view returns (ArchaeologistStatistics[] memory) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        ArchaeologistStatistics[] memory statsList = new ArchaeologistStatistics[](
-            addresses.length
-        );
-
-        for (uint256 i = 0; i < addresses.length; i++) {
-            // Count the failures for the arch
-            uint256 failures = 0;
-
-            // Get arch sarco ids
-            bytes32[] storage sarcoIds = s.archaeologistSarcophagi[addresses[i]];
-
-            // For each sarco id, if the sarco id is not included in successes and resurrection time
-            // has passed, it's a failure
-            for (uint j = 0; j < sarcoIds.length; j++) {
-                LibTypes.Sarcophagus storage sarco = s.sarcophagi[sarcoIds[j]];
-                if (
-                    sarco.cursedArchaeologists[addresses[i]].privateKey == 0 &&
-                    sarco.resurrectionTime != 2 ** 256 - 1 &&
-                    block.timestamp > sarco.resurrectionTime + s.gracePeriod
-                ) {
-                    failures += 1;
-                }
-            }
-
-            statsList[i] = ArchaeologistStatistics(
-                s.archaeologistSuccesses[addresses[i]].length,
-                s.archaeologistAccusals[addresses[i]].length,
-                failures
-            );
-        }
-
-        return statsList;
-    }
-
     struct SarcophagusResponse {
         uint256 resurrectionTime;
         uint256 previousRewrapTime;
