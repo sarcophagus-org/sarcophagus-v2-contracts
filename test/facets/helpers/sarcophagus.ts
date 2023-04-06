@@ -37,6 +37,7 @@ export interface SarcophagusData {
   threshold: number;
   privateKeys: string[];
   publicKeys: string[];
+  cursedBondPercentage: number;
 }
 
 /**
@@ -59,9 +60,11 @@ export const createSarcophagusData = async (params: {
   recipientAddress?: string;
   embalmerAddress?: string;
   embalmerFunds?: number;
+  cursedBondPercentage?: number;
 }): Promise<SarcophagusData> => {
   const threshold = params.threshold ?? 3;
   const totalShares = params.totalArchaeologists ?? 5;
+  const cursedBondPercentage = params.cursedBondPercentage ?? 100;
   const maximumRewrapIntervalSeconds =
     params.maximumRewrapIntervalSeconds ?? time.duration.weeks(4);
 
@@ -114,6 +117,7 @@ export const createSarcophagusData = async (params: {
     creationTimeSeconds,
     privateKeys,
     publicKeys,
+    cursedBondPercentage
   };
 };
 

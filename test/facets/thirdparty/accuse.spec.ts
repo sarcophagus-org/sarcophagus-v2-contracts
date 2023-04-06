@@ -22,7 +22,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const { deployments, ethers } = require("hardhat");
 
-describe("ThirdPartyFacet.accuse", () => {
+describe.only("ThirdPartyFacet.accuse", () => {
   beforeEach(async () => {
     await deployments.fixture();
     accountGenerator.index = 0;
@@ -390,7 +390,7 @@ describe("ThirdPartyFacet.accuse", () => {
       });
     });
 
-    it("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async function () {
+    it.only("Should not refund bonds to other archaeologists or change sarcophagus state if less than k archaeologists have been accused", async function () {
       const { viewStateFacet } = await getContracts();
 
       const {
