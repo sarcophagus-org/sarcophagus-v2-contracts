@@ -9,8 +9,10 @@ export async function increaseTo(
   hre: HardhatRuntimeEnvironment,
   to: number
 ): Promise<void> {
-  await hre.ethers.provider.send("evm_setNextBlockTimestamp", [to]);
-  await hre.ethers.provider.send("evm_mine", []);
+  // @ts-ignore
+  const { ethers } = hre;
+  await ethers.provider.send("evm_setNextBlockTimestamp", [to]);
+  await ethers.provider.send("evm_mine", []);
 }
 
 /**
@@ -43,12 +45,14 @@ export async function signHre(
   message: string | string[],
   type: string | string[]
 ): Promise<Signature> {
-  const dataHex = hre.ethers.utils.defaultAbiCoder.encode(
+  // @ts-ignore
+  const { ethers } = hre;
+  const dataHex = ethers.utils.defaultAbiCoder.encode(
     flat(type),
     flat(message)
   );
-  const dataHash = hre.ethers.utils.keccak256(dataHex);
-  const dataHashBytes = hre.ethers.utils.arrayify(dataHash);
+  const dataHash = ethers.utils.keccak256(dataHex);
+  const dataHashBytes = ethers.utils.arrayify(dataHash);
   const signature = await signer.signMessage(dataHashBytes);
-  return hre.ethers.utils.splitSignature(signature);
+  return ethers.utils.splitSignature(signature);
 }

@@ -11,6 +11,15 @@ export interface SarcophagusData {
   shards: { [key: string]: Uint8Array };
 }
 
+interface ArchaeologistData {
+  archAddress: string;
+  diggingFee: number;
+  unencryptedShardDoubleHash: string;
+  v: number;
+  r: string;
+  s: string;
+}
+
 /**
  * Creates some sarcohpagi provided some archaeologists.
  * @param hre The Hardhat Runtime Environment
@@ -30,6 +39,8 @@ export async function createSarcophagi(
   const fakeShardTxId = "fake-shard-payload-id";
   // Needs to be far enough in the future that the sarcophagus will be created
   // Get hre ethers tools
+
+  // @ts-ignore
   const { ethers } = hre;
   const { randomBytes, hexlify, keccak256 } = ethers.utils;
   const { getSigners } = ethers;
@@ -42,16 +53,15 @@ export async function createSarcophagi(
   const recipientAddress = (await getSigners())[0].address;
 
   // Get the contracts
-  const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const embalmerFacet = await hre.ethers.getContractAt(
+  const diamond = await ethers.getContract("SarcophagusGoerliV1_DiamondProxy");
+  const embalmerFacet = await ethers.getContractAt(
     "EmbalmerFacet",
     diamond.address
   );
-  const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
+  const sarcoToken = await ethers.getContract("SarcoTokenMock");
 
-  console.log();
-  console.log("Creating sarcophagi...");
-  const sarcophagiData = [];
+  console.log("\nCreating sarcophagi...");
+  const sarcophagiData: SarcophagusData[] = [];
   for (let i = 0; i < sarcophagusCount; i++) {
     // Define the sarcohpagus parameters
     const fakeSarcoId = hexlify(randomBytes(32));
@@ -90,7 +100,7 @@ export async function createSarcophagi(
     }
 
     // Create the archaeologist objects to be passed in to the createSarcophagus function
-    const archaeologists = [];
+    const archaeologists: ArchaeologistData[] = [];
     for (let i = 0; i < selectedArchaeologistCount; i++) {
       const archaeologistSigner = selectedArchaeologistSigners[i];
 
@@ -113,12 +123,6 @@ export async function createSarcophagi(
           ],
           ["string", "bytes32", "uint256", "uint256", "uint256"]
         );
-        // const signature = await signHre(
-        //   hre,
-        //   selectedArchaeologistSigners[i],
-        //   [doubleHashedShard, fakeShardTxId],
-        //   ["bytes32", "string"]
-        // );
 
         archaeologists.push({
           archAddress: selectedArchaeologistSigners[i].address,

@@ -7,20 +7,22 @@ export async function accuseSarcophagus(
   sarcophagiData: SarcophagusData[]
 ): Promise<string[]> {
   // Get hre ethers tools
-  const { getSigners } = hre.ethers;
-  const { keccak256 } = hre.ethers.utils;
+  // @ts-ignore
+  const { ethers } = hre;
+  const { getSigners } = ethers;
+  const { keccak256 } = ethers.utils;
   const sarcophagiToAccuse = generateHistoryConfig.accusedSarcophagusCount;
 
   // Anyone can be an accuser, even if the accuser is an archaeologist on the sarcophagus
   const accuser = (await getSigners())[0];
 
   // Get the contracts
-  const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const thirdPartyFacet = await hre.ethers.getContractAt(
+  const diamond = await ethers.getContract("SarcophagusGoerliV1_DiamondProxy");
+  const thirdPartyFacet = await ethers.getContractAt(
     "ThirdPartyFacet",
     diamond.address
   );
-  const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
+  const sarcoToken = await ethers.getContract("SarcoTokenMock");
 
   // Pick random sarcophagi to accuse
   // Shuffle and slice

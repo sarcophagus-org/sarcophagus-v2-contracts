@@ -108,7 +108,7 @@ extendEnvironment(async (hre) => {
   hre["loadContracts"] = async (suppliedDiamondAddress) => {
     const diamondAddress =
       suppliedDiamondAddress ||
-      require(`./deployments/${hre.network.name}/Diamond_DiamondProxy.json`)
+      require(`./deployments/${hre.network.name}/SarcophagusGoerliV1_DiamondProxy.json`)
         .address;
     console.log(
       `Initializing HRE on network ${hre.network.name} with diamond address ${diamondAddress}`

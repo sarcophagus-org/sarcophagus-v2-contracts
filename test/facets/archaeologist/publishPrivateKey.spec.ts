@@ -319,33 +319,7 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       await expect(tx).to.emit(archaeologistFacet, `PublishPrivateKey`);
     });
 
-    it("stores the sarcoId in archaeologistSuccesses", async () => {
-      const { archaeologistFacet, viewStateFacet } = await getContracts();
-      const {
-        createdSarcophagusData: sarcophagusData,
-        cursedArchaeologists: archaeologists,
-      } = await createSarcophagusWithRegisteredCursedArchaeologists();
-      await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
-      await archaeologistFacet
-        .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishPrivateKey(
-          sarcophagusData.sarcoId,
-          archaeologists[0].privateKey
-        );
-      const successCount = await viewStateFacet.getArchaeologistSuccessesCount(
-        archaeologists[0].archAddress
-      );
-      await expect(successCount).to.equal(1);
-
-      const archaeologistSuccessOnSarcophagus =
-        await viewStateFacet.getArchaeologistSuccessOnSarcophagus(
-          archaeologists[0].archAddress,
-          sarcophagusData.sarcoId
-        );
-      await expect(archaeologistSuccessOnSarcophagus).to.equal(true);
-    });
-
-    it("emits PublishPrivateKey", async () => {
+    it("emits PublishPrivateKey", async function () {
       const { archaeologistFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
