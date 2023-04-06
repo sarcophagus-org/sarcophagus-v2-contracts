@@ -12,7 +12,9 @@ import { range } from "./helpers";
 export async function registerArchaeologists(
   hre: HardhatRuntimeEnvironment
 ): Promise<SignerWithAddress[]> {
-  const accounts = await hre.ethers.getSigners();
+  // @ts-ignore
+  const { ethers } = hre;
+  const accounts = await ethers.getSigners();
   const count = generateHistoryConfig.archaeologistCount;
 
   if (count > accounts.length) {
@@ -22,14 +24,12 @@ export async function registerArchaeologists(
   }
 
   // Get the contract
-  const diamond = await hre.ethers.getContract(
-    "SarcophagusGoerliV1_DiamondProxy"
-  );
-  const archaeologistFacet = await hre.ethers.getContractAt(
+  const diamond = await ethers.getContract("SarcophagusGoerliV1_DiamondProxy");
+  const archaeologistFacet = await ethers.getContractAt(
     "ArchaeologistFacet",
     diamond.address
   );
-  const sarcoToken = await hre.ethers.getContract("SarcoTokenMock");
+  const sarcoToken = await ethers.getContract("SarcoTokenMock");
 
   console.log("Registering archaeologists...");
   const archaeologistSigners: SignerWithAddress[] = [];
@@ -48,7 +48,7 @@ export async function registerArchaeologists(
     try {
       await sarcoToken
         .connect(account)
-        .approve(diamond.address, hre.ethers.constants.MaxUint256);
+        .approve(diamond.address, ethers.constants.MaxUint256);
       await sarcoToken.transfer(account.address, freeBond * 10);
       await archaeologistFacet
         .connect(account)

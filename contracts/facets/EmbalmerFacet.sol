@@ -14,21 +14,21 @@ contract EmbalmerFacet {
     /// @param sarcoId Id of the new sarcophagus
     /// @param name Name of the new sarcophagus
     /// @param resurrectionTime Resurrection time of the new sarcophagus
+    /// @param creationTime Creation time as set during negotiation, not the same as blocktime at which event is emitted
     /// @param embalmer Address of embalmer
     /// @param recipient Address of recipient
     /// @param cursedArchaeologists Array of addresses of cursed archaeologists
     /// @param totalDiggingFees Total digging fees charged to embalmer to create the sarcophagus
-    /// @param createSarcophagusProtocolFees Total protocol fees charged to embalmer to create the sarcophagus
     /// @param arweaveTxId arweave tx id for the sarcophagus
     event CreateSarcophagus(
         bytes32 indexed sarcoId,
         string name,
         uint256 resurrectionTime,
+        uint256 creationTime,
         address embalmer,
         address recipient,
         address[] cursedArchaeologists,
         uint256 totalDiggingFees,
-        uint256 createSarcophagusProtocolFees,
         string arweaveTxId
     );
 
@@ -295,11 +295,11 @@ contract EmbalmerFacet {
             sarcoId,
             sarcophagusParams.name,
             sarcophagusParams.resurrectionTime,
+            sarcophagusParams.creationTime,
             msg.sender,
             sarcophagusParams.recipientAddress,
             sarcophagus.cursedArchaeologistAddresses,
             totalDiggingFees,
-            protocolFees,
             arweaveTxId
         );
     }
@@ -383,7 +383,8 @@ contract EmbalmerFacet {
                 // If the new digging fees are greater than the previous digging fees, we need to
                 // increase the archaeologist's locked bond
                 if (newDiggingFees > prevDiggingFees) {
-                    uint256 cursedBondIncrease = (newDiggingFees - prevDiggingFees) * cursedBondPercentage / 100;
+                    uint256 cursedBondIncrease = ((newDiggingFees - prevDiggingFees) *
+                        cursedBondPercentage) / 100;
 
                     // If the previous cycle's rewards can't cover the cursed bond increase, revert
                     if (cursedBondIncrease > prevDiggingFees) {
@@ -403,13 +404,18 @@ contract EmbalmerFacet {
                         prevDiggingFees -
                         cursedBondIncrease;
                 } else if (newDiggingFees < prevDiggingFees) {
-                    uint256 cursedBondDecrease = (prevDiggingFees - newDiggingFees) * cursedBondPercentage / 100;
+                    uint256 cursedBondDecrease = ((prevDiggingFees - newDiggingFees) *
+                        cursedBondPercentage) / 100;
 
                     // Decrease archaeologist's cursed bond by the difference
-                    s.archaeologistProfiles[archaeologistAddresses[i]].cursedBond -= cursedBondDecrease;
+                    s
+                        .archaeologistProfiles[archaeologistAddresses[i]]
+                        .cursedBond -= cursedBondDecrease;
 
                     // Increase archaeologist's free bond by the difference
-                    s.archaeologistProfiles[archaeologistAddresses[i]].freeBond += cursedBondDecrease;
+                    s
+                        .archaeologistProfiles[archaeologistAddresses[i]]
+                        .freeBond += cursedBondDecrease;
 
                     // Rewards are equal to the previous digging fees
                     s.archaeologistRewards[archaeologistAddresses[i]] += prevDiggingFees;

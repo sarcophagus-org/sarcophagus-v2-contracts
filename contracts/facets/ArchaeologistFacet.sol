@@ -282,9 +282,6 @@ contract ArchaeologistFacet {
         // Free archaeologist locked bond and transfer digging fees
         LibBonds.freeArchaeologist(sarcoId, msg.sender);
 
-        // Save the successful sarcophagus against the archaeologist
-        s.archaeologistSuccesses[msg.sender].push(sarcoId);
-
         emit PublishPrivateKey(sarcoId, privateKey, msg.sender);
     }
 }

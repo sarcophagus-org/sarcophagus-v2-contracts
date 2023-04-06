@@ -148,9 +148,6 @@ contract ThirdPartyFacet {
                     sarcophagus.cursedArchaeologistAddresses[i],
                     cursedBondDue
                 );
-
-                // track that the archaeologist has had a clean on this sarcophagus
-                s.archaeologistCleanups[sarcophagus.cursedArchaeologistAddresses[i]].push(sarcoId);
             }
         }
 
@@ -263,9 +260,6 @@ contract ThirdPartyFacet {
 
             // Slash the offending archaeologists bond
             LibBonds.decreaseCursedBond(accusedArchaeologistAddress, cursedBondDue);
-
-            // Save this accusal against the archaeologist
-            s.archaeologistAccusals[accusedArchaeologistAddress].push(sarcoId);
         }
 
         // if none of the accusals were valid because the archaeologists have all already been accused, return without taking action
