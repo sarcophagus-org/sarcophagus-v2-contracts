@@ -117,7 +117,7 @@ export const createSarcophagusData = async (params: {
     creationTimeSeconds,
     privateKeys,
     publicKeys,
-    cursedBondPercentage
+    cursedBondPercentage,
   };
 };
 
