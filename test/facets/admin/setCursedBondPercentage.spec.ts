@@ -40,11 +40,20 @@ describe("AdminFacet.setCursedBondPercentage", () => {
     expect(cursedBondPercentage).to.eq(200);
   });
 
+  it("emits SetCursedBondPercentage", async () => {
+    const { adminFacet } = await getContracts();
+    const deployer = await ethers.getNamedSigner("deployer");
+    const tx = adminFacet.connect(deployer).setCursedBondPercentage(200);
+    // @ts-ignore
+    await expect(tx).to.emit(adminFacet, `SetCursedBondPercentage`);
+  });
+
   it("reverts when a non-owner is the caller", async () => {
-    const { adminFacet, viewStateFacet } = await getContracts();
+    const { adminFacet } = await getContracts();
     const signers = await ethers.getSigners();
     const tx = adminFacet.connect(signers[1]).setCursedBondPercentage(200);
 
+    // @ts-ignore
     await expect(tx).to.be.reverted;
   });
 
@@ -157,6 +166,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
             (await time.latest()) + 17000
           );
 
+        // @ts-ignore
         await expect(tx).to.be.reverted;
       });
 
