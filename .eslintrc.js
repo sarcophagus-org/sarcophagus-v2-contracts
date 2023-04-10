@@ -24,6 +24,7 @@ module.exports = {
     "node/no-unpublished-import": 0,
     "comma-dangle": "off",
     "@typescript-eslint/indent": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
     // var rules
     "no-use-before-define": "off",
     "@typescript-eslint/comma-dangle": "off",

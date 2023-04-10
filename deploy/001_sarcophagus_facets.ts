@@ -47,7 +47,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const expirationThreshold =
     process.env.EXPIRATION_THRESHOLD_SECONDS || "3600";
 
-  await diamond.deploy("Diamond", {
+  await diamond.deploy("SarcophagusGoerliV1", {
     from: deployer,
     owner: deployer,
     facets: [

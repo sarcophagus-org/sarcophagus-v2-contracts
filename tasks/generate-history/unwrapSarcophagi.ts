@@ -16,14 +16,17 @@ export async function unwrapSarcophagi(
   archaeologistSigners: SignerWithAddress[],
   sarcophagiData: SarcophagusData[]
 ): Promise<void> {
+  // @ts-ignore
+  const { ethers } = hre;
+
   const archaeologistUnwrapChance =
     generateHistoryConfig.archaeologistUnwrapChance;
-  const diamond = await hre.ethers.getContract("Diamond_DiamondProxy");
-  const archaeologistFacet = await hre.ethers.getContractAt(
+  const diamond = await ethers.getContract("SarcophagusGoerliV1_DiamondProxy");
+  const archaeologistFacet = await ethers.getContractAt(
     "ArchaeologistFacet",
     diamond.address
   );
-  const viewStateFacet = await hre.ethers.getContractAt(
+  const viewStateFacet = await ethers.getContractAt(
     "ViewStateFacet",
     diamond.address
   );

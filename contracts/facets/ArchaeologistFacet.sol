@@ -13,7 +13,11 @@ contract ArchaeologistFacet {
     /// @notice Emitted when an archaeologist successfully publishes their private key for a sarcophagus
     /// @param sarcoId ID of sarcophagus archaeologist has published the private key on
     /// @param privateKey private key that has been published
-    event PublishPrivateKey(bytes32 indexed sarcoId, bytes32 privateKey);
+    event PublishPrivateKey(
+        bytes32 indexed sarcoId,
+        bytes32 privateKey,
+        address indexed archaeologist
+    );
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
@@ -289,9 +293,6 @@ contract ArchaeologistFacet {
         // Free archaeologist locked bond and transfer digging fees
         LibBonds.freeArchaeologist(sarcoId, msg.sender);
 
-        // Save the successful sarcophagus against the archaeologist
-        s.archaeologistSuccesses[msg.sender].push(sarcoId);
-
-        emit PublishPrivateKey(sarcoId, privateKey);
+        emit PublishPrivateKey(sarcoId, privateKey, msg.sender);
     }
 }
