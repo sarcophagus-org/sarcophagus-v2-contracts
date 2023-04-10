@@ -262,10 +262,12 @@ describe("ThirdPartyFacet.accuse", () => {
         // verify that the accuser receives half of archaeologist cursed bond (equal to digging fee)
         const diggingFeesDue = BigNumber.from(
           accusedArchaeologist.diggingFeePerSecondSarquito
-        ).mul(
-          _sarcophagusData.resurrectionTimeSeconds -
+        )
+          .mul(
+            _sarcophagusData.resurrectionTimeSeconds -
               _sarcophagusData.creationTimeSeconds
-        ).add(accusedArchaeologist.curseFee);
+          )
+          .add(accusedArchaeologist.curseFee);
 
         expect(await getSarquitoBalance(accuser.address)).to.equal(
           diggingFeesDue.div(2).toString()
@@ -401,10 +403,12 @@ describe("ThirdPartyFacet.accuse", () => {
 
           const diggingFeesDue = BigNumber.from(
             innocentArchaeologist.diggingFeePerSecondSarquito
-          ).mul(
+          )
+            .mul(
               sarcophagusData.resurrectionTimeSeconds -
                 sarcophagusData.creationTimeSeconds
-          ).add(innocentArchaeologistProfile.curseFee);
+            )
+            .add(innocentArchaeologistProfile.curseFee);
 
           const lockedBondAmount = diggingFeesDue
             .mul(cursedBondPercentage)
@@ -459,10 +463,12 @@ describe("ThirdPartyFacet.accuse", () => {
 
       const diggingFeesDue = BigNumber.from(
         accusedArchaeologist.diggingFeePerSecondSarquito
-      ).mul(
-        sarcophagusData.resurrectionTimeSeconds -
-          sarcophagusData.creationTimeSeconds
-      ).add(accusedArchaeologist.curseFee);
+      )
+        .mul(
+          sarcophagusData.resurrectionTimeSeconds -
+            sarcophagusData.creationTimeSeconds
+        )
+        .add(accusedArchaeologist.curseFee);
 
       const lockedBondAmount = diggingFeesDue
         .mul(cursedBondPercentage)
@@ -672,10 +678,12 @@ describe("ThirdPartyFacet.accuse", () => {
             );
           const diggingFeesDue = BigNumber.from(
             innocentArchaeologists[index].diggingFeePerSecondSarquito
-          ).mul(
-            sarcophagusData.resurrectionTimeSeconds -
-              sarcophagusData.creationTimeSeconds
-          ).add(innocentArchaeologists[index].curseFee);
+          )
+            .mul(
+              sarcophagusData.resurrectionTimeSeconds -
+                sarcophagusData.creationTimeSeconds
+            )
+            .add(innocentArchaeologists[index].curseFee);
 
           const lockedBondAmount = diggingFeesDue
             .mul(cursedBondPercentage)
@@ -748,10 +756,12 @@ describe("ThirdPartyFacet.accuse", () => {
 
           const diggingFeesDue = BigNumber.from(
             innocentArchaeologist.diggingFeePerSecondSarquito
-          ).mul(
-            sarcophagusData.resurrectionTimeSeconds -
-              sarcophagusData.creationTimeSeconds
-          ).add(innocentArchaeologist.curseFee);
+          )
+            .mul(
+              sarcophagusData.resurrectionTimeSeconds -
+                sarcophagusData.creationTimeSeconds
+            )
+            .add(innocentArchaeologist.curseFee);
 
           const lockedBondAmount = diggingFeesDue
             .mul(cursedBondPercentage)
@@ -920,10 +930,12 @@ describe("ThirdPartyFacet.accuse", () => {
             );
           const diggingFeesDue = BigNumber.from(
             innocentArchaeologists[index].diggingFeePerSecondSarquito
-          ).mul(
-            sarcophagusData.resurrectionTimeSeconds -
-              sarcophagusData.creationTimeSeconds
-          ).add(innocentArchaeologists[index].curseFee);
+          )
+            .mul(
+              sarcophagusData.resurrectionTimeSeconds -
+                sarcophagusData.creationTimeSeconds
+            )
+            .add(innocentArchaeologists[index].curseFee);
 
           const lockedBondAmount = diggingFeesDue
             .mul(cursedBondPercentage)

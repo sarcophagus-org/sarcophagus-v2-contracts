@@ -40,9 +40,13 @@ export const getTotalDiggingFeesSarquitos = (
   archaeologists.reduce(
     (sum: BigNumber, archaeologist: ArchaeologistData) =>
       sum.add(
-        BigNumber.from(archaeologist.diggingFeePerSecondSarquito).mul(
-          resurrectionInterval
-        ).add(includeCurseFee ? BigNumber.from(archaeologist.curseFee) : BigNumber.from(0))
+        BigNumber.from(archaeologist.diggingFeePerSecondSarquito)
+          .mul(resurrectionInterval)
+          .add(
+            includeCurseFee
+              ? BigNumber.from(archaeologist.curseFee)
+              : BigNumber.from(0)
+          )
       ),
     BigNumber.from(0)
   );
