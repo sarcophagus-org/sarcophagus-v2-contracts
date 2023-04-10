@@ -140,6 +140,10 @@ contract ThirdPartyFacet {
                 uint256 diggingFeesDue = cursedArchaeologist.diggingFeePerSecond *
                     (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
+                if (!sarcophagus.isRewrapped) {
+                    diggingFeesDue += cursedArchaeologist.curseFee;
+                }
+
                 uint256 cursedBondDue = (diggingFeesDue * sarcophagus.cursedBondPercentage) / 100;
                 totalDiggingFeesAndLockedBonds += diggingFeesDue + cursedBondDue;
 

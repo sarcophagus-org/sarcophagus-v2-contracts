@@ -355,7 +355,7 @@ describe("ThirdPartyFacet.clean", () => {
 
   describe("Handles payout to the embalmer", function () {
     it("transfers all locked bonds and digging fees for archaeologists that have failed to supply keyshares to the embalmer", async function () {
-      const { thirdPartyFacet } = await getContracts();
+      const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
         cursedArchaeologists: archaeologists,
@@ -364,6 +364,9 @@ describe("ThirdPartyFacet.clean", () => {
         threshold: 4,
       });
       const nonPublishingArchaeologists = archaeologists.slice(0, 3);
+      const cursedBondPercentage = await viewStateFacet
+        .connect(sarcophagusData.embalmer)
+        .getCursedBondPercentage();
 
       // have publishing archaeologists publish their key shares
       const publishingArchaeologists = archaeologists.slice(3, 7);
@@ -397,17 +400,24 @@ describe("ThirdPartyFacet.clean", () => {
             const balanceAfterClean = await getArchaeologistLockedBondSarquitos(
               nonPublishingArchaeologist.archAddress
             );
+
             const diggingFeesDue = BigNumber.from(
               nonPublishingArchaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(nonPublishingArchaeologist.curseFee);
+
+            const lockedBondAmount = diggingFeesDue
+              .mul(cursedBondPercentage)
+              .div(100);
 
             expect(balanceAfterClean).to.equal(
               nonPublishingArchaeologistAddressesToInitialLockedBondsSarquitos
                 .get(nonPublishingArchaeologist.archAddress)
-                ?.sub(diggingFeesDue)
+                ?.sub(lockedBondAmount)
             );
           }
         )
@@ -463,8 +473,7 @@ describe("ThirdPartyFacet.clean", () => {
 
   describe("Handles payout to the admin", function () {
     it("transfers all locked bonds and digging fees for archaeologists that have failed to supply keyshares to the protocol fees", async function () {
-      const { thirdPartyFacet, viewStateFacet, archaeologistFacet } =
-        await getContracts();
+      const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
         cursedArchaeologists: archaeologists,
@@ -473,6 +482,10 @@ describe("ThirdPartyFacet.clean", () => {
         threshold: 4,
       });
       const nonPublishingArchaeologists = archaeologists.slice(0, 3);
+
+      const cursedBondPercentage = await viewStateFacet
+        .connect(sarcophagusData.embalmer)
+        .getCursedBondPercentage();
 
       // have publishing archaeologists publish their key shares
       const publishingArchaeologists = archaeologists.slice(3, 7);
@@ -507,15 +520,21 @@ describe("ThirdPartyFacet.clean", () => {
 
             const diggingFeesDue = BigNumber.from(
               nonPublishingArchaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(nonPublishingArchaeologist.curseFee);
+
+            const lockedBondAmount = diggingFeesDue
+              .mul(cursedBondPercentage)
+              .div(100);
 
             expect(balanceAfterClean).to.equal(
               nonPublishingArchaeologistAddressesToInitialLockedBondsSarquitos
                 .get(nonPublishingArchaeologist.archAddress)
-                ?.sub(diggingFeesDue)
+                ?.sub(lockedBondAmount)
             );
           }
         )

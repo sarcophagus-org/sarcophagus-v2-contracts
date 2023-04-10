@@ -23,8 +23,8 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
     accountGenerator.index = 0;
   });
 
-  describe("Validates parameters. Should revert if:", function () {
-    it("no sarcophagus with the supplied id exists", async function () {
+  describe("Validates parameters. Should revert if:", () => {
+    it("no sarcophagus with the supplied id exists", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -41,7 +41,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `SarcophagusDoesNotExist`
       );
     });
-    it("the sarcophagus has been compromised", async function () {
+    it("the sarcophagus has been compromised", async () => {
       const { embalmerFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -62,7 +62,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `SarcophagusCompromised`
       );
     });
-    it("the sarcophagus has been buried", async function () {
+    it("the sarcophagus has been buried", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -83,7 +83,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `SarcophagusInactive`
       );
     });
-    it("the sender is not the embalmer", async function () {
+    it("the sender is not the embalmer", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -100,7 +100,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `SenderNotEmbalmer`
       );
     });
-    it("the resurrection time has passed", async function () {
+    it("the resurrection time has passed", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -118,7 +118,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `ResurrectionTimeInPast`
       );
     });
-    it("the new resurrection time is not in the future", async function () {
+    it("the new resurrection time is not in the future", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -132,7 +132,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         `NewResurrectionTimeInPast`
       );
     });
-    it("the new resurrection time exceeds sarcophagus maximumRewrapInterval", async function () {
+    it("the new resurrection time exceeds sarcophagus maximumRewrapInterval", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -152,7 +152,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
     });
 
-    it("the new resurrection time exceeds sarcophagus maximumResurrectionTime", async function () {
+    it("the new resurrection time exceeds sarcophagus maximumResurrectionTime", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -172,7 +172,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
     });
 
-    it("there is not enough digging fees to cover the new locked bond amount", async function () {
+    it("there is not enough digging fees to cover the new locked bond amount", async () => {
       const { embalmerFacet } = await getContracts();
 
       // Set resurrection time to 1 week from now
@@ -198,8 +198,8 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
     });
   });
 
-  describe("Successfully rewraps a sarcophagus with no accusals", function () {
-    it("Should pay digging fees to each of the cursed archaeologists", async function () {
+  describe("Successfully rewraps a sarcophagus with no accusals", () => {
+    it("Should pay digging fees to each of the cursed archaeologists", async () => {
       const { embalmerFacet, viewStateFacet, sarcoToken } =
         await getContracts();
       const {
@@ -247,7 +247,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
     });
 
-    it("Should charge the embalmer the total digging fees for all archaeologists plus the protocol fees", async function () {
+    it("Should charge the embalmer the total digging fees for all archaeologists plus the protocol fees", async () => {
       const { embalmerFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -273,23 +273,16 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
 
       const totalCostToEmbalmer = await getDiggingFeesPlusProtocolFeesSarquitos(
         archaeologists,
-        resurrectionTimeInterval
+        resurrectionTimeInterval,
+        false
       );
-
-      const actualBalance = await getSarquitoBalance(
-        sarcophagusData.embalmer.address
-      );
-      const expectedBalance =
-        startingEmbalmerBalanceSarquitos.sub(totalCostToEmbalmer);
-
-      console.log(formatEther(actualBalance.sub(expectedBalance)));
 
       expect(
         await getSarquitoBalance(sarcophagusData.embalmer.address)
       ).to.equal(startingEmbalmerBalanceSarquitos.sub(totalCostToEmbalmer));
     });
 
-    it("Should update the resurrectionTime and emit RewrapSarcophagus", async function () {
+    it("Should update the resurrectionTime and emit RewrapSarcophagus", async () => {
       const { embalmerFacet, viewStateFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -311,7 +304,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       await expect(tx).to.emit(embalmerFacet, "RewrapSarcophagus");
     });
 
-    it("Should increase the cursed bond and decrease the rewards if new digging fee > previous digging fee", async function () {
+    it("Should increase the cursed bond and decrease the rewards if new digging fee > previous digging fee", async () => {
       const { embalmerFacet, viewStateFacet } = await getContracts();
 
       // Set resurrection time for creation to 1 week from now
@@ -397,7 +390,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
     });
 
-    it("Should decrease cursed bond and increase free bond if new digging fee < previous digging fee ", async function () {
+    it("Should decrease cursed bond and increase free bond if new digging fee < previous digging fee ", async () => {
       const { embalmerFacet, viewStateFacet } = await getContracts();
 
       // Set resurrection time for creation to 1 week from now
@@ -500,8 +493,8 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
     });
   });
-  describe("Successfully rewraps a sarcophagus with fewer than k accusals", function () {
-    it("Should not pay digging fees to accused archaeologists", async function () {
+  describe("Successfully rewraps a sarcophagus with fewer than k accusals", () => {
+    it("Should not pay digging fees to accused archaeologists", async () => {
       const { embalmerFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -567,7 +560,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
     });
 
-    it("Should exclude accused archaeologist digging fees from embalmer costs", async function () {
+    it("Should exclude accused archaeologist digging fees from embalmer costs", async () => {
       const { embalmerFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -603,7 +596,8 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
 
       const totalCostToEmbalmer = await getDiggingFeesPlusProtocolFeesSarquitos(
         innocentArchaeologists,
-        resurrectionTimeInterval
+        resurrectionTimeInterval,
+        false
       );
 
       expect(
