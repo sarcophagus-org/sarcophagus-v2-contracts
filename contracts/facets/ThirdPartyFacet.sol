@@ -256,7 +256,7 @@ contract ThirdPartyFacet {
                 (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime)) *
                 sarcophagus.cursedBondPercentage) / 100;
 
-            // If the sarcophagus has not been rewrapped, also slash the curse fee locked halfTotalCursedBond
+            // If the sarcophagus has not been rewrapped, also slash the curse fee
             if (!sarcophagus.isRewrapped) {
                 cursedBondDue += accusedArchaeologist.curseFee * sarcophagus.cursedBondPercentage / 100;
             }

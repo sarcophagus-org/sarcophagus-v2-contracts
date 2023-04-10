@@ -34,26 +34,29 @@ export const getTotalFeesSarquitos = (
 
 export const getTotalDiggingFeesSarquitos = (
   archaeologists: ArchaeologistData[],
-  resurrectionInterval: number
+  resurrectionInterval: number,
+  includeCurseFee = true
 ): BigNumber =>
   archaeologists.reduce(
     (sum: BigNumber, archaeologist: ArchaeologistData) =>
       sum.add(
         BigNumber.from(archaeologist.diggingFeePerSecondSarquito).mul(
           resurrectionInterval
-        )
+        ).add(includeCurseFee ? BigNumber.from(archaeologist.curseFee) : BigNumber.from(0))
       ),
     BigNumber.from(0)
   );
 
 export const getDiggingFeesPlusProtocolFeesSarquitos = async (
   archaeologists: ArchaeologistData[],
-  resurrectionInterval: number
+  resurrectionInterval: number,
+  includeCurseFee = true
 ): Promise<BigNumber> => {
   const { viewStateFacet } = await getContracts();
   const totalDiggingFees = getTotalDiggingFeesSarquitos(
     archaeologists,
-    resurrectionInterval
+    resurrectionInterval,
+    includeCurseFee
   );
   return totalDiggingFees.add(
     totalDiggingFees
