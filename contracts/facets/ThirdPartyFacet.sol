@@ -134,7 +134,7 @@ contract ThirdPartyFacet {
         uint256 totalDiggingFeesAndLockedBonds;
         uint256 nCursedArchs = sarcophagus.cursedArchaeologistAddresses.length;
 
-        for (uint256 i; i < nCursedArchs; i++) {
+        for (uint256 i; i < nCursedArchs; ) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]];
 
@@ -151,6 +151,9 @@ contract ThirdPartyFacet {
                     sarcophagus.cursedArchaeologistAddresses[i],
                     cursedBondDue
                 );
+            }
+            unchecked {
+                ++i;
             }
         }
 
@@ -221,7 +224,7 @@ contract ThirdPartyFacet {
         // track the combined locked bond across all archaeologists being accused in this call
         uint256 totalCursedBond;
         uint256 accusalCount;
-        for (uint256 i; i < nSigs; i++) {
+        for (uint256 i; i < nSigs; ) {
             if (
                 !LibUtils.verifyAccusalSignature(
                     sarcoId,
@@ -248,7 +251,7 @@ contract ThirdPartyFacet {
                 revert LibErrors.ArchaeologistNotOnSarcophagus(msg.sender);
             }
 
-            // if the archaeologist has already been accused on this sarcophagus break without taking action
+            // if the archaeologist has already been accused on this sarcophagus skip them without taking action
             if (accusedArchaeologist.isAccused) {
                 continue;
             }
@@ -265,6 +268,9 @@ contract ThirdPartyFacet {
 
             // Slash the offending archaeologists bond
             LibBonds.decreaseCursedBond(accusedArchaeologistAddress, cursedBondDue);
+            unchecked {
+                ++i;
+            }
         }
 
         // if none of the accusals were valid because the archaeologists have all already been accused, return without taking action
@@ -283,13 +289,16 @@ contract ThirdPartyFacet {
                 // check if total number of historical accusals on sarcophagus is greater than threshold
                 uint256 totalAccusals;
 
-                for (uint256 i; i < nCursedArchs; i++) {
+                for (uint256 i; i < nCursedArchs; ) {
                     if (
                         sarcophagus
                             .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
                             .isAccused
                     ) {
-                        totalAccusals++;
+                        ++totalAccusals;
+                    }
+                    unchecked {
+                        ++i;
                     }
                 }
                 // the sarcophagus is compromised if k or more archaeologists have been accused over the lifetime of the sarcophagus
@@ -302,7 +311,7 @@ contract ThirdPartyFacet {
             // be returned to the remaining well behaved archaeologists
             if (sarcophagus.isCompromised) {
                 // iterate through all archaeologist addresses on the sarcophagus
-                for (uint256 i; i < nCursedArchs; i++) {
+                for (uint256 i; i < nCursedArchs; ) {
                     // if the archaeologist has never been accused, release their locked bond back to them
                     if (
                         !sarcophagus
@@ -313,6 +322,9 @@ contract ThirdPartyFacet {
                             sarcoId,
                             sarcophagus.cursedArchaeologistAddresses[i]
                         );
+                    }
+                    unchecked {
+                        ++i;
                     }
                 }
             }

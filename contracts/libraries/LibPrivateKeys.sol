@@ -24,8 +24,11 @@ library LibPrivateKeys {
         // removes the 0x04 prefix from an uncompressed public key
         uint256 pubKeyLength = pubKey.length;
         bytes memory truncatedPublicKey = new bytes(pubKeyLength - 1);
-        for (uint256 i = 1; i < pubKeyLength; i++) {
+        for (uint256 i = 1; i < pubKeyLength; ) {
             truncatedPublicKey[i - 1] = pubKey[i];
+            unchecked {
+                ++i;
+            }
         }
 
         // generator point coordinates and order of secp256k1

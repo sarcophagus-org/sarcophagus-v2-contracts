@@ -74,8 +74,11 @@ library LibUtils {
         // removes the 0x04 prefix from an uncompressed public key
         uint256 pubKeyLength = publicKey.length;
         bytes memory truncatedPublicKey = new bytes(pubKeyLength - 1);
-        for (uint256 i = 1; i < pubKeyLength; i++) {
+        for (uint256 i = 1; i < pubKeyLength; ) {
             truncatedPublicKey[i - 1] = publicKey[i];
+            unchecked {
+                ++i;
+            }
         }
         bytes32 messageHash = keccak256(
             abi.encodePacked(

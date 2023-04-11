@@ -40,12 +40,15 @@ contract ViewStateFacet {
             nAddresses
         );
 
-        for (uint256 i; i < nAddresses; i++) {
+        for (uint256 i; i < nAddresses; ) {
             // Skip unregistered archaeologists
             if (s.archaeologistProfiles[addresses[i]].maximumRewrapInterval == 0) {
                 continue;
             }
             profiles[i] = s.archaeologistProfiles[addresses[i]];
+            unchecked {
+                ++i;
+            }
         }
 
         return profiles;
@@ -171,14 +174,14 @@ contract ViewStateFacet {
         uint8 publishedPrivateKeyCount;
         bool hasLockedBond;
         uint256 archsLength = sarcophagus.cursedArchaeologistAddresses.length;
-        for (uint256 i; i < archsLength; i++) {
+        for (uint256 i; i < archsLength; ) {
             // archaeologist has published a private key
             if (
                 sarcophagus
                     .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
                     .privateKey != 0
             ) {
-                publishedPrivateKeyCount++;
+                ++publishedPrivateKeyCount;
             } else if (
                 !sarcophagus
                     .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
@@ -190,6 +193,9 @@ contract ViewStateFacet {
                 // if the sarcophagus is not compromised, buried, or cleaned and
                 // one or more unaccused archaeologists hasn't published a private key there is locked bond on the sarcophagus
                 hasLockedBond = true;
+            }
+            unchecked {
+                ++i;
             }
         }
 
