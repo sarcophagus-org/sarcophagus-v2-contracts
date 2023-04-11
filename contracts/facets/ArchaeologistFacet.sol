@@ -111,7 +111,7 @@ contract ArchaeologistFacet {
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
-        if (freeBond > 0) {
+        if (freeBond != 0) {
             s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
         }
 
@@ -158,7 +158,7 @@ contract ArchaeologistFacet {
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
-        if (freeBond > 0) {
+        if (freeBond != 0) {
             s.archaeologistProfiles[msg.sender].freeBond += freeBond;
             s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
         }
@@ -236,7 +236,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
+        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 

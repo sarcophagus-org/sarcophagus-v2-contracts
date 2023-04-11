@@ -22,8 +22,9 @@ library LibPrivateKeys {
         bytes storage pubKey
     ) internal view returns (bool) {
         // removes the 0x04 prefix from an uncompressed public key
-        bytes memory truncatedPublicKey = new bytes(pubKey.length - 1);
-        for (uint256 i = 1; i < pubKey.length; i++) {
+        uint256 pubKeyLength = pubKey.length;
+        bytes memory truncatedPublicKey = new bytes(pubKeyLength - 1);
+        for (uint256 i = 1; i < pubKeyLength; i++) {
             truncatedPublicKey[i - 1] = pubKey[i];
         }
 

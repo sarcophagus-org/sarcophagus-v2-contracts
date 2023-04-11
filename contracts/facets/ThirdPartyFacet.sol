@@ -94,7 +94,7 @@ contract ThirdPartyFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
+        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -131,9 +131,10 @@ contract ThirdPartyFacet {
         }
 
         // sum of locked bonds and digging fees for all archaeologists that have failed to publish private keys before publish deadline and have not been accused
-        uint256 totalDiggingFeesAndLockedBonds = 0;
+        uint256 totalDiggingFeesAndLockedBonds;
+        uint256 nCursedArchs = sarcophagus.cursedArchaeologistAddresses.length;
 
-        for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
+        for (uint256 i; i < nCursedArchs; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]];
 
@@ -205,20 +206,23 @@ contract ThirdPartyFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
+        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
-        if (signatures.length != publicKeys.length) {
-            revert DifferentNumberOfSignaturesAndPublicKeys(signatures.length, publicKeys.length);
+        uint256 nSigs = signatures.length;
+        uint256 nPublicKeys = publicKeys.length;
+
+        if (nSigs != nPublicKeys) {
+            revert DifferentNumberOfSignaturesAndPublicKeys(nSigs, nPublicKeys);
         }
 
-        address[] memory accusedArchAddresses = new address[](signatures.length);
+        address[] memory accusedArchAddresses = new address[](nSigs);
 
         // track the combined locked bond across all archaeologists being accused in this call
-        uint256 totalCursedBond = 0;
-        uint256 accusalCount = 0;
-        for (uint256 i = 0; i < signatures.length; i++) {
+        uint256 totalCursedBond;
+        uint256 accusalCount;
+        for (uint256 i; i < nSigs; i++) {
             if (
                 !LibUtils.verifyAccusalSignature(
                     sarcoId,
@@ -269,14 +273,17 @@ contract ThirdPartyFacet {
             return;
         }
 
+        uint256 nCursedArchs = sarcophagus.cursedArchaeologistAddresses.length;
+
         // the sarcophagus is compromised if the current call has successfully accused the sss threshold of archaeologists
         if (accusalCount >= sarcophagus.threshold) {
             sarcophagus.isCompromised = true;
         } else {
             // if the current call hasn't resulted in at least sss threshold archaeologists being accused
             // check if total number of historical accusals on sarcophagus is greater than threshold
-            uint256 totalAccusals = 0;
-            for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
+            uint256 totalAccusals;
+
+            for (uint256 i; i < nCursedArchs; i++) {
                 if (
                     sarcophagus
                         .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
@@ -295,7 +302,7 @@ contract ThirdPartyFacet {
         // be returned to the remaining well behaved archaeologists
         if (sarcophagus.isCompromised) {
             // iterate through all archaeologist addresses on the sarcophagus
-            for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
+            for (uint256 i; i < nCursedArchs; i++) {
                 // if the archaeologist has never been accused, release their locked bond back to them
                 if (
                     !sarcophagus
@@ -310,10 +317,13 @@ contract ThirdPartyFacet {
             }
         }
 
-        uint256 halfTotalCursedBond = totalCursedBond / 2;
+        uint256 halfTotalCursedBond = totalCursedBond >> 1;
         uint256 totalDiggingFees = totalCursedBond / (sarcophagus.cursedBondPercentage / 100);
         // transfer the cursed half, plus the current digging fees, to the embalmer
-        s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress, totalDiggingFees + halfTotalCursedBond);
+        s.sarcoToken.safeTransfer(
+            sarcophagus.embalmerAddress,
+            totalDiggingFees + halfTotalCursedBond
+        );
 
         // transfer the other half of the cursed bond to the transaction caller
         s.sarcoToken.safeTransfer(paymentAddress, halfTotalCursedBond);

@@ -166,7 +166,7 @@ contract EmbalmerFacet {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         // Confirm that sarcophagus with supplied id doesn't already exist
-        if (s.sarcophagi[sarcoId].resurrectionTime > 0) {
+        if (s.sarcophagi[sarcoId].resurrectionTime != 0) {
             revert SarcophagusAlreadyExists(sarcoId);
         }
 
@@ -205,8 +205,9 @@ contract EmbalmerFacet {
             );
         }
 
+        uint256 nSelectedArchs = selectedArchaeologists.length;
         // Validate archaeologist and threshold lengths
-        if (selectedArchaeologists.length == 0) {
+        if (nSelectedArchs == 0) {
             revert NoArchaeologistsProvided();
         }
 
@@ -216,10 +217,10 @@ contract EmbalmerFacet {
 
         // Ensure that k <= n in the effective k-of-n shamir secret sharing scheme
         // used to distribute keyshares among archaeologists
-        if (sarcophagusParams.threshold > selectedArchaeologists.length) {
+        if (sarcophagusParams.threshold > nSelectedArchs) {
             revert ThresholdGreaterThanTotalNumberOfArchaeologists(
                 sarcophagusParams.threshold,
-                selectedArchaeologists.length
+                nSelectedArchs
             );
         }
 
@@ -234,13 +235,13 @@ contract EmbalmerFacet {
         sarcophagus.arweaveTxId = arweaveTxId;
         sarcophagus.embalmerAddress = msg.sender;
         sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
-        sarcophagus.cursedArchaeologistAddresses = new address[](selectedArchaeologists.length);
+        sarcophagus.cursedArchaeologistAddresses = new address[](nSelectedArchs);
         sarcophagus.cursedBondPercentage = s.cursedBondPercentage;
 
         // track total digging fees due upon creation of sarcophagus
-        uint256 totalDiggingFees = 0;
+        uint256 totalDiggingFees;
 
-        for (uint256 i = 0; i < selectedArchaeologists.length; i++) {
+        for (uint256 i; i < nSelectedArchs; i++) {
             LibUtils.revertIfArchProfileDoesNotExist(selectedArchaeologists[i].archAddress);
 
             // Confirm archaeologist isn't already cursed on this sarcophagus (no duplicates)
@@ -329,7 +330,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
+        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -366,13 +367,14 @@ contract EmbalmerFacet {
         }
 
         // track total digging fees to be paid by embalmer across all archaeologists on the sarcophagus
-        uint256 totalDiggingFees = 0;
+        uint256 totalDiggingFees;
 
         // pay digging fee to each cursed archaeologist on the sarcophagus that has not been accused
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
         uint256 cursedBondPercentage = sarcophagus.cursedBondPercentage;
 
-        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
+        uint256 nArchAddresses = archaeologistAddresses.length;
+        for (uint256 i; i < nArchAddresses; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[archaeologistAddresses[i]];
 
@@ -465,7 +467,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
+        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -480,7 +482,8 @@ contract EmbalmerFacet {
 
         // for each archaeologist on the sarcophagus, unlock bond and pay digging fees
         address[] storage archaeologistAddresses = sarcophagus.cursedArchaeologistAddresses;
-        for (uint256 i = 0; i < archaeologistAddresses.length; i++) {
+        uint256 nArchAddresses = archaeologistAddresses.length;
+        for (uint256 i; i < nArchAddresses; i++) {
             LibTypes.CursedArchaeologist storage cursedArchaeologist = sarcophagus
                 .cursedArchaeologists[archaeologistAddresses[i]];
 
@@ -491,7 +494,7 @@ contract EmbalmerFacet {
         }
 
         // Set resurrection time to infinity
-        sarcophagus.resurrectionTime = 2 ** 256 - 1;
+        sarcophagus.resurrectionTime = (1 << 256) - 1;
 
         emit BurySarcophagus(sarcoId);
     }
