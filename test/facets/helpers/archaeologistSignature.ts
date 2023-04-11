@@ -13,6 +13,7 @@ export interface ArchaeologistData {
   publicKey: string;
   privateKey: string;
   diggingFeePerSecondSarquito: BigNumberish;
+  curseFee: BigNumberish;
   v: number;
   r: string;
   s: string;
@@ -28,6 +29,7 @@ export interface SarcophagusNegotiationParams {
   maximumResurrectionTimeSeconds: number;
   creationTime: number;
   diggingFeePerSecondSarquito: BigNumberish;
+  curseFee: BigNumberish;
 }
 
 /**
@@ -50,8 +52,9 @@ export const createArchSignature = async (
       sarcophagusParams.maximumResurrectionTimeSeconds.toString(),
       sarcophagusParams.diggingFeePerSecondSarquito.toString(),
       sarcophagusParams.creationTime.toString(),
+      sarcophagusParams.curseFee.toString(),
     ],
-    ["bytes", "uint256", "uint256", "uint256", "uint256"]
+    ["bytes", "uint256", "uint256", "uint256", "uint256", "uint256"]
   );
 
   return {
@@ -59,6 +62,7 @@ export const createArchSignature = async (
     diggingFeePerSecondSarquito: sarcophagusParams.diggingFeePerSecondSarquito,
     publicKey: sarcophagusParams.publicKey,
     privateKey: sarcophagusParams.privateKey,
+    curseFee: sarcophagusParams.curseFee,
     v,
     r,
     s,

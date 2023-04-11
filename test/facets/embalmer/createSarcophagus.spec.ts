@@ -1,27 +1,28 @@
 import "@nomicfoundation/hardhat-chai-matchers";
 import { expect } from "chai";
+import { BigNumber } from "ethers";
+import { ethers } from "hardhat";
 import time from "../../utils/time";
-import { getContracts } from "../helpers/contracts";
-import {
-  buildCreateSarcophagusArgs,
-  createSarcophagusData,
-  registerDefaultArchaeologistsAndCreateSignatures,
-  createSarcophagusWithRegisteredCursedArchaeologists,
-  diggingFeesPerSecond_10_000_SarcoMonthly,
-} from "../helpers/sarcophagus";
+import { accountGenerator } from "../helpers/accounts";
 import {
   ArchaeologistData,
   createArchSignature,
 } from "../helpers/archaeologistSignature";
-import { accountGenerator } from "../helpers/accounts";
 import {
   getArchaeologistFreeBondSarquitos,
   getArchaeologistLockedBondSarquitos,
 } from "../helpers/bond";
+import { getContracts } from "../helpers/contracts";
+import {
+  buildCreateSarcophagusArgs,
+  createSarcophagusData,
+  createSarcophagusWithRegisteredCursedArchaeologists,
+  curseFee,
+  diggingFeesPerSecond_10_000_SarcoMonthly,
+  registerDefaultArchaeologistsAndCreateSignatures,
+} from "../helpers/sarcophagus";
 import { getSarquitoBalance } from "../helpers/sarcoToken";
-import { getDiggingFeesPlusProtocolFeesSarquitos } from "../helpers/diggingFees";
-import { ethers } from "hardhat";
-import { BigNumber } from "ethers";
+import { getAllFeesSarquitos } from "../helpers/diggingFees";
 
 const crypto = require("crypto");
 const { deployments } = require("hardhat");
@@ -204,6 +205,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
             sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
+          curseFee: curseFee,
         }
       );
       archaeologists[0] = unregisteredArchaeologistData;
@@ -237,6 +239,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
             sarcophagusData.maximumResurrectionTimeSeconds,
           creationTime: sarcophagusData.creationTimeSeconds,
           diggingFeePerSecondSarquito: diggingFeesPerSecond_10_000_SarcoMonthly,
+          curseFee: curseFee,
         }
       );
       archaeologists[1] = duplicateArchaeologist;
@@ -398,7 +401,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
 
   describe("Successfully creates a sarcophagus", function () {
     it("Should lock bond equal to the digging fee that will be paid to the archaeologist", async function () {
-      const { embalmerFacet } = await getContracts();
+      const { embalmerFacet, viewStateFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
 
       const archaeologists =
@@ -422,6 +425,10 @@ describe("EmbalmerFacet.createSarcophagus", () => {
           ...buildCreateSarcophagusArgs(sarcophagusData, archaeologists)
         );
 
+      const cursedBondPercentage = await viewStateFacet
+        .connect(sarcophagusData.embalmer)
+        .getCursedBondPercentage();
+
       // check post curse bond on all archaeologists
       await Promise.all(
         archaeologists.map(
@@ -437,25 +444,31 @@ describe("EmbalmerFacet.createSarcophagus", () => {
 
             const diggingFeesDue = BigNumber.from(
               archaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(archaeologist.curseFee);
+
+            const cursedBondAmount = diggingFeesDue
+              .mul(cursedBondPercentage)
+              .div(100);
 
             expect(archaeologistPostCurseFreeBond).to.equal(
-              startingArchaeologistBonds[index].freeBond.sub(diggingFeesDue)
+              startingArchaeologistBonds[index].freeBond.sub(cursedBondAmount)
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
-              startingArchaeologistBonds[index].lockedBond.add(diggingFeesDue)
+              startingArchaeologistBonds[index].lockedBond.add(cursedBondAmount)
             );
           }
         )
       );
     });
 
-    it("Should charge the embalmer the total of all locked bonds plus the protocol fees", async function () {
-      const { embalmerFacet, viewStateFacet } = await getContracts();
+    it("Should charge the embalmer the total of all digging fees plus the protocol fees", async function () {
+      const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});
 
       const archaeologists =
@@ -476,7 +489,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
         sarcophagusData.embalmer.address
       );
 
-      const totalCostToEmbalmer = await getDiggingFeesPlusProtocolFeesSarquitos(
+      const totalCostToEmbalmer = await getAllFeesSarquitos(
         archaeologists,
         sarcophagusData.resurrectionTimeSeconds -
           sarcophagusData.creationTimeSeconds

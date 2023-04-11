@@ -12,6 +12,7 @@ library LibTypes {
         // todo: run gas cost evaluation on storing isCompromised vs looping through stored archaeologists and checking isAccused
         bool isCompromised;
         bool isCleaned;
+        bool isRewrapped;
         uint8 threshold;
         string name;
         uint256 maximumRewrapInterval;
@@ -31,6 +32,7 @@ library LibTypes {
         // Also used for curse checks -- is not bonded if length is 0
         bytes publicKey;
         bool isAccused;
+        uint256 curseFee;
     }
 
     struct Signature {
@@ -47,5 +49,6 @@ library LibTypes {
         uint256 minimumDiggingFeePerSecond;
         uint256 freeBond;
         uint256 cursedBond;
+        uint256 curseFee;
     }
 }

@@ -39,7 +39,8 @@ library LibUtils {
                         agreedMaximumRewrapInterval,
                         maximumResurrectionTime,
                         curseParams.diggingFeePerSecond,
-                        timestamp
+                        timestamp,
+                        curseParams.curseFee
                     )
                 )
             )

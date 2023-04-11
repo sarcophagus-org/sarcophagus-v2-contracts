@@ -10,7 +10,7 @@
     "compile": "npx hardhat compile",
     "node": "npx hardhat node",
     "clean": "npx hardhat clean",
-    "test": "npx hardhat test --grep bread",
+    "test": "npx hardhat test",
     "transfer": "npx hardhat run scripts/transfer.js --network localhost",
     "prepublish": "npm run clean && npx rimraf dist && npm run compile && npx tsc",
     "history": "npx hardhat generate-history --network localhost",
