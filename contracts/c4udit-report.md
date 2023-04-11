@@ -26,22 +26,23 @@ Issue Information: [G002](https://github.com/byterocket/c4-common-issues/blob/ma
 
 #### Findings:
 ```
-facets/ArchaeologistFacet.sol::257 => if (cursedArchaeologist.publicKey.length == 0) {
-facets/EmbalmerFacet.sol::208 => uint256 nSelectedArchs = selectedArchaeologists.length;
-facets/EmbalmerFacet.sol::209 => // Validate archaeologist and threshold lengths
-facets/EmbalmerFacet.sol::252 => .length != 0
-facets/EmbalmerFacet.sol::376 => uint256 nArchAddresses = archaeologistAddresses.length;
-facets/EmbalmerFacet.sol::485 => uint256 nArchAddresses = archaeologistAddresses.length;
+facets/ArchaeologistFacet.sol::268 => if (cursedArchaeologist.publicKey.length == 0) {
+facets/EmbalmerFacet.sol::217 => uint256 nSelectedArchs = selectedArchaeologists.length;
+facets/EmbalmerFacet.sol::218 => // Validate archaeologist and threshold lengths
+facets/EmbalmerFacet.sol::257 => .length != 0
+facets/EmbalmerFacet.sol::391 => uint256 nArchAddresses = archaeologistAddresses.length;
+facets/EmbalmerFacet.sol::523 => uint256 nArchAddresses = archaeologistAddresses.length;
 facets/ThirdPartyFacet.sol::135 => uint256 nCursedArchs = sarcophagus.cursedArchaeologistAddresses.length;
-facets/ThirdPartyFacet.sol::213 => uint256 nSigs = signatures.length;
-facets/ThirdPartyFacet.sol::214 => uint256 nPublicKeys = publicKeys.length;
-facets/ThirdPartyFacet.sol::248 => if (accusedArchaeologist.publicKey.length == 0) {
-facets/ThirdPartyFacet.sol::276 => uint256 nCursedArchs = sarcophagus.cursedArchaeologistAddresses.length;
+facets/ThirdPartyFacet.sol::220 => uint256 nSigs = signatures.length;
+facets/ThirdPartyFacet.sol::222 => if (nSigs != publicKeys.length) {
+facets/ThirdPartyFacet.sol::223 => revert DifferentNumberOfSignaturesAndPublicKeys(nSigs, publicKeys.length);
+facets/ThirdPartyFacet.sol::254 => if (accusedArchaeologist.publicKey.length == 0) {
+facets/ThirdPartyFacet.sol::291 => uint256 nCursedArchs = sarcophagus.cursedArchaeologistAddresses.length;
 facets/ViewStateFacet.sol::38 => uint256 nAddresses = addresses.length;
-facets/ViewStateFacet.sol::173 => uint256 archsLength = sarcophagus.cursedArchaeologistAddresses.length;
+facets/ViewStateFacet.sol::176 => uint256 archsLength = sarcophagus.cursedArchaeologistAddresses.length;
 libraries/LibPrivateKeys.sol::25 => uint256 pubKeyLength = pubKey.length;
-libraries/LibTypes.sol::31 => // Also used for curse checks -- is not bonded if length is 0
-libraries/LibUtils.sol::75 => uint256 pubKeyLength = publicKey.length;
+libraries/LibTypes.sol::32 => // Also used for curse checks -- is not bonded if length is 0
+libraries/LibUtils.sol::76 => uint256 pubKeyLength = publicKey.length;
 ```
 #### Tools used
 [c4udit](https://github.com/byterocket/c4udit)
@@ -53,12 +54,12 @@ Issue Information: [G006](https://github.com/byterocket/c4-common-issues/blob/ma
 
 #### Findings:
 ```
-libraries/LibPrivateKeys.sol::45 => uint256(keccak256(truncatedPublicKey)) &
+libraries/LibPrivateKeys.sol::48 => uint256(keccak256(truncatedPublicKey)) &
 libraries/LibUtils.sol::33 => bytes32 messageHash = keccak256(
 libraries/LibUtils.sol::36 => keccak256(
-libraries/LibUtils.sol::80 => bytes32 messageHash = keccak256(
-libraries/LibUtils.sol::83 => keccak256(abi.encode(sarcoId, paymentAddress))
-libraries/LibUtils.sol::91 => uint256(keccak256(truncatedPublicKey)) &
+libraries/LibUtils.sol::84 => bytes32 messageHash = keccak256(
+libraries/LibUtils.sol::87 => keccak256(abi.encode(sarcoId, paymentAddress))
+libraries/LibUtils.sol::95 => uint256(keccak256(truncatedPublicKey)) &
 storage/LibAppStorage.sol::52 => bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("sarcophagus.storage.dev2");
 ```
 #### Tools used

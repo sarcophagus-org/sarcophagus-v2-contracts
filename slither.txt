@@ -1,84 +1,100 @@
-Reentrancy in ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address) (contracts/facets/ThirdPartyFacet.sol#183-328):
+ThirdPartyFacet.clean(bytes32).i (contracts/facets/ThirdPartyFacet.sol#137) is a local variable never initialized
+EmbalmerFacet.createSarcophagus(bytes32,EmbalmerFacet.SarcophagusParams,EmbalmerFacet.CurseParams[],string).i (contracts/facets/EmbalmerFacet.sol#249) is a local variable never initialized
+ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address).i_scope_0 (contracts/facets/ThirdPartyFacet.sol#301) is a local variable never initialized
+ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address).totalAccusals (contracts/facets/ThirdPartyFacet.sol#299) is a local variable never initialized
+ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address).i_scope_1 (contracts/facets/ThirdPartyFacet.sol#323) is a local variable never initialized
+ViewStateFacet.getSarcophagus(bytes32).i (contracts/facets/ViewStateFacet.sol#177) is a local variable never initialized
+ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address).i (contracts/facets/ThirdPartyFacet.sol#231) is a local variable never initialized
+EmbalmerFacet.burySarcophagus(bytes32).i (contracts/facets/EmbalmerFacet.sol#524) is a local variable never initialized
+EmbalmerFacet.rewrapSarcophagus(bytes32,uint256).i (contracts/facets/EmbalmerFacet.sol#392) is a local variable never initialized
+ViewStateFacet.getSarcophagus(bytes32).publishedPrivateKeyCount (contracts/facets/ViewStateFacet.sol#174) is a local variable never initialized
+ViewStateFacet.getArchaeologistProfiles(address[]).i (contracts/facets/ViewStateFacet.sol#43) is a local variable never initialized
+EmbalmerFacet.rewrapSarcophagus(bytes32,uint256).totalDiggingFees (contracts/facets/EmbalmerFacet.sol#385) is a local variable never initialized
+ViewStateFacet.getSarcophagus(bytes32).hasLockedBond (contracts/facets/ViewStateFacet.sol#175) is a local variable never initialized
+ThirdPartyFacet.clean(bytes32).totalDiggingFeesAndLockedBonds (contracts/facets/ThirdPartyFacet.sol#134) is a local variable never initialized
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables
+INFO:Detectors:
+Reentrancy in ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address) (contracts/facets/ThirdPartyFacet.sol#191-360):
         External calls:
-        - s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress,totalDiggingFees + halfTotalCursedBond) (contracts/facets/ThirdPartyFacet.sol#316)
-        - s.sarcoToken.safeTransfer(paymentAddress,halfTotalCursedBond) (contracts/facets/ThirdPartyFacet.sol#319)
+        - s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress,totalDiggingFees + halfTotalCursedBond) (contracts/facets/ThirdPartyFacet.sol#345-348)
+        - s.sarcoToken.safeTransfer(paymentAddress,halfTotalCursedBond) (contracts/facets/ThirdPartyFacet.sol#351)
         Event emitted after the call(s):
-        - AccuseArchaeologist(sarcoId,msg.sender,totalCursedBond,totalDiggingFees,accusedArchAddresses) (contracts/facets/ThirdPartyFacet.sol#321-327)
-Reentrancy in ThirdPartyFacet.clean(bytes32) (contracts/facets/ThirdPartyFacet.sol#77-166):
+        - AccuseArchaeologist(sarcoId,msg.sender,totalCursedBond,totalDiggingFees,accusedArchAddresses) (contracts/facets/ThirdPartyFacet.sol#353-359)
+Reentrancy in ThirdPartyFacet.clean(bytes32) (contracts/facets/ThirdPartyFacet.sol#77-174):
         External calls:
-        - s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress,totalDiggingFeesAndLockedBonds) (contracts/facets/ThirdPartyFacet.sol#159)
+        - s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress,totalDiggingFeesAndLockedBonds) (contracts/facets/ThirdPartyFacet.sol#167)
         Event emitted after the call(s):
-        - Clean(sarcoId,msg.sender) (contracts/facets/ThirdPartyFacet.sol#165)
-Reentrancy in EmbalmerFacet.createSarcophagus(bytes32,EmbalmerFacet.SarcophagusParams,EmbalmerFacet.CurseParams[],string) (contracts/facets/EmbalmerFacet.sol#160-307):
+        - Clean(sarcoId,msg.sender) (contracts/facets/ThirdPartyFacet.sol#173)
+Reentrancy in EmbalmerFacet.createSarcophagus(bytes32,EmbalmerFacet.SarcophagusParams,EmbalmerFacet.CurseParams[],string) (contracts/facets/EmbalmerFacet.sol#163-323):
         External calls:
-        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),totalDiggingFees + protocolFees) (contracts/facets/EmbalmerFacet.sol#294)
+        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),totalDiggingFees + protocolFees) (contracts/facets/EmbalmerFacet.sol#306-310)
         Event emitted after the call(s):
-        - CreateSarcophagus(sarcoId,sarcophagusParams.name,sarcophagusParams.resurrectionTime,sarcophagusParams.creationTime,msg.sender,sarcophagusParams.recipientAddress,sarcophagus.cursedArchaeologistAddresses,totalDiggingFees,arweaveTxId) (contracts/facets/EmbalmerFacet.sol#296-306)
-Reentrancy in ArchaeologistFacet.depositFreeBond(uint256) (contracts/facets/ArchaeologistFacet.sol#178-188):
+        - CreateSarcophagus(sarcoId,sarcophagusParams.name,sarcophagusParams.resurrectionTime,sarcophagusParams.creationTime,msg.sender,sarcophagusParams.recipientAddress,sarcophagus.cursedArchaeologistAddresses,totalDiggingFees,arweaveTxId) (contracts/facets/EmbalmerFacet.sol#312-322)
+Reentrancy in ArchaeologistFacet.depositFreeBond(uint256) (contracts/facets/ArchaeologistFacet.sol#189-200):
         External calls:
-        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),amount) (contracts/facets/ArchaeologistFacet.sol#185)
+        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),amount) (contracts/facets/ArchaeologistFacet.sol#197)
         Event emitted after the call(s):
-        - DepositFreeBond(msg.sender,amount) (contracts/facets/ArchaeologistFacet.sol#187)
-Reentrancy in ArchaeologistFacet.registerArchaeologist(string,uint256,uint256,uint256,uint256) (contracts/facets/ArchaeologistFacet.sol#87-130):
+        - DepositFreeBond(msg.sender,amount) (contracts/facets/ArchaeologistFacet.sol#199)
+Reentrancy in ArchaeologistFacet.registerArchaeologist(string,uint256,uint256,uint256,uint256,uint256) (contracts/facets/ArchaeologistFacet.sol#90-136):
         External calls:
-        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),freeBond) (contracts/facets/ArchaeologistFacet.sol#115)
+        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),freeBond) (contracts/facets/ArchaeologistFacet.sol#120)
         Event emitted after the call(s):
-        - RegisterArchaeologist(msg.sender,newArch.peerId,newArch.minimumDiggingFeePerSecond,newArch.maximumRewrapInterval,newArch.freeBond,newArch.maximumResurrectionTime) (contracts/facets/ArchaeologistFacet.sol#122-129)
-Reentrancy in EmbalmerFacet.rewrapSarcophagus(bytes32,uint256) (contracts/facets/EmbalmerFacet.sol#313-447):
+        - RegisterArchaeologist(msg.sender,newArch.peerId,newArch.minimumDiggingFeePerSecond,newArch.maximumRewrapInterval,newArch.freeBond,newArch.maximumResurrectionTime,newArch.curseFee) (contracts/facets/ArchaeologistFacet.sol#127-135)
+Reentrancy in EmbalmerFacet.rewrapSarcophagus(bytes32,uint256) (contracts/facets/EmbalmerFacet.sol#329-487):
         External calls:
-        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),totalDiggingFees + protocolFees) (contracts/facets/EmbalmerFacet.sol#444)
+        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),totalDiggingFees + protocolFees) (contracts/facets/EmbalmerFacet.sol#484)
         Event emitted after the call(s):
-        - RewrapSarcophagus(sarcoId,resurrectionTime,totalDiggingFees,protocolFees) (contracts/facets/EmbalmerFacet.sol#446)
-Reentrancy in ArchaeologistFacet.updateArchaeologist(string,uint256,uint256,uint256,uint256) (contracts/facets/ArchaeologistFacet.sol#138-174):
+        - RewrapSarcophagus(sarcoId,resurrectionTime,totalDiggingFees,protocolFees) (contracts/facets/EmbalmerFacet.sol#486)
+Reentrancy in ArchaeologistFacet.updateArchaeologist(string,uint256,uint256,uint256,uint256,uint256) (contracts/facets/ArchaeologistFacet.sol#145-185):
         External calls:
-        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),freeBond) (contracts/facets/ArchaeologistFacet.sol#163)
+        - s.sarcoToken.safeTransferFrom(msg.sender,address(this),freeBond) (contracts/facets/ArchaeologistFacet.sol#173)
         Event emitted after the call(s):
-        - UpdateArchaeologist(msg.sender,existingArch.peerId,existingArch.minimumDiggingFeePerSecond,existingArch.maximumRewrapInterval,existingArch.freeBond,existingArch.maximumResurrectionTime) (contracts/facets/ArchaeologistFacet.sol#166-173)
-Reentrancy in ArchaeologistFacet.withdrawFreeBond(uint256) (contracts/facets/ArchaeologistFacet.sol#192-204):
+        - UpdateArchaeologist(msg.sender,existingArch.peerId,existingArch.minimumDiggingFeePerSecond,existingArch.maximumRewrapInterval,existingArch.freeBond,existingArch.maximumResurrectionTime,existingArch.curseFee) (contracts/facets/ArchaeologistFacet.sol#176-184)
+Reentrancy in ArchaeologistFacet.withdrawFreeBond(uint256) (contracts/facets/ArchaeologistFacet.sol#204-215):
         External calls:
-        - s.sarcoToken.safeTransfer(msg.sender,amount) (contracts/facets/ArchaeologistFacet.sol#200)
+        - s.sarcoToken.safeTransfer(msg.sender,amount) (contracts/facets/ArchaeologistFacet.sol#212)
         Event emitted after the call(s):
-        - WithdrawFreeBond(msg.sender,amount) (contracts/facets/ArchaeologistFacet.sol#203)
+        - WithdrawFreeBond(msg.sender,amount) (contracts/facets/ArchaeologistFacet.sol#214)
 Reentrancy in AdminFacet.withdrawProtocolFees() (contracts/facets/AdminFacet.sol#23-37):
         External calls:
         - s.sarcoToken.safeTransfer(msg.sender,totalProtocolFees) (contracts/facets/AdminFacet.sol#34)
         Event emitted after the call(s):
         - WithdrawProtocolFees() (contracts/facets/AdminFacet.sol#36)
-Reentrancy in ArchaeologistFacet.withdrawReward() (contracts/facets/ArchaeologistFacet.sol#207-216):
+Reentrancy in ArchaeologistFacet.withdrawReward() (contracts/facets/ArchaeologistFacet.sol#218-227):
         External calls:
-        - s.sarcoToken.safeTransfer(msg.sender,amountToWithdraw) (contracts/facets/ArchaeologistFacet.sol#213)
+        - s.sarcoToken.safeTransfer(msg.sender,amountToWithdraw) (contracts/facets/ArchaeologistFacet.sol#224)
         Event emitted after the call(s):
-        - WithdrawReward(msg.sender,amountToWithdraw) (contracts/facets/ArchaeologistFacet.sol#215)
+        - WithdrawReward(msg.sender,amountToWithdraw) (contracts/facets/ArchaeologistFacet.sol#226)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
 INFO:Detectors:
-ArchaeologistFacet.publishPrivateKey(bytes32,bytes32) (contracts/facets/ArchaeologistFacet.sol#224-288) uses timestamp for comparisons
+ArchaeologistFacet.publishPrivateKey(bytes32,bytes32) (contracts/facets/ArchaeologistFacet.sol#235-299) uses timestamp for comparisons
         Dangerous comparisons:
-        - block.timestamp < sarcophagus.resurrectionTime (contracts/facets/ArchaeologistFacet.sol#244)
-        - block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod (contracts/facets/ArchaeologistFacet.sol#249)
-EmbalmerFacet.createSarcophagus(bytes32,EmbalmerFacet.SarcophagusParams,EmbalmerFacet.CurseParams[],string) (contracts/facets/EmbalmerFacet.sol#160-307) uses timestamp for comparisons
+        - block.timestamp < sarcophagus.resurrectionTime (contracts/facets/ArchaeologistFacet.sol#255)
+        - block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod (contracts/facets/ArchaeologistFacet.sol#260)
+EmbalmerFacet.createSarcophagus(bytes32,EmbalmerFacet.SarcophagusParams,EmbalmerFacet.CurseParams[],string) (contracts/facets/EmbalmerFacet.sol#163-323) uses timestamp for comparisons
         Dangerous comparisons:
-        - block.timestamp > sarcophagusParams.creationTime + s.expirationThreshold (contracts/facets/EmbalmerFacet.sol#175)
-        - block.timestamp >= sarcophagusParams.resurrectionTime (contracts/facets/EmbalmerFacet.sol#184)
-        - block.timestamp + sarcophagusParams.maximumRewrapInterval < sarcophagusParams.resurrectionTime (contracts/facets/EmbalmerFacet.sol#190-191)
-EmbalmerFacet.rewrapSarcophagus(bytes32,uint256) (contracts/facets/EmbalmerFacet.sol#313-447) uses timestamp for comparisons
+        - block.timestamp > sarcophagusParams.creationTime + s.expirationThreshold (contracts/facets/EmbalmerFacet.sol#178)
+        - block.timestamp >= sarcophagusParams.resurrectionTime (contracts/facets/EmbalmerFacet.sol#187)
+        - block.timestamp + sarcophagusParams.maximumRewrapInterval < sarcophagusParams.resurrectionTime (contracts/facets/EmbalmerFacet.sol#193-194)
+EmbalmerFacet.rewrapSarcophagus(bytes32,uint256) (contracts/facets/EmbalmerFacet.sol#329-487) uses timestamp for comparisons
         Dangerous comparisons:
-        - block.timestamp >= sarcophagus.resurrectionTime (contracts/facets/EmbalmerFacet.sol#342)
-        - block.timestamp >= resurrectionTime (contracts/facets/EmbalmerFacet.sol#347)
-        - block.timestamp + sarcophagus.maximumRewrapInterval < resurrectionTime (contracts/facets/EmbalmerFacet.sol#352)
-        - newDiggingFees > prevDiggingFees (contracts/facets/EmbalmerFacet.sol#387)
-        - cursedBondIncrease > prevDiggingFees (contracts/facets/EmbalmerFacet.sol#392)
-        - newDiggingFees < prevDiggingFees (contracts/facets/EmbalmerFacet.sol#408)
-EmbalmerFacet.burySarcophagus(bytes32) (contracts/facets/EmbalmerFacet.sol#453-497) uses timestamp for comparisons
+        - block.timestamp >= sarcophagus.resurrectionTime (contracts/facets/EmbalmerFacet.sol#358)
+        - block.timestamp >= resurrectionTime (contracts/facets/EmbalmerFacet.sol#363)
+        - block.timestamp + sarcophagus.maximumRewrapInterval < resurrectionTime (contracts/facets/EmbalmerFacet.sol#368)
+        - newDiggingFees > prevDiggingFees (contracts/facets/EmbalmerFacet.sol#407)
+        - cursedBondIncrease > prevDiggingFees (contracts/facets/EmbalmerFacet.sol#412)
+        - newDiggingFees < prevDiggingFees (contracts/facets/EmbalmerFacet.sol#425)
+EmbalmerFacet.burySarcophagus(bytes32) (contracts/facets/EmbalmerFacet.sol#493-541) uses timestamp for comparisons
         Dangerous comparisons:
-        - block.timestamp >= sarcophagus.resurrectionTime (contracts/facets/EmbalmerFacet.sol#477)
-ThirdPartyFacet.clean(bytes32) (contracts/facets/ThirdPartyFacet.sol#77-166) uses timestamp for comparisons
+        - block.timestamp >= sarcophagus.resurrectionTime (contracts/facets/EmbalmerFacet.sol#517)
+ThirdPartyFacet.clean(bytes32) (contracts/facets/ThirdPartyFacet.sol#77-174) uses timestamp for comparisons
         Dangerous comparisons:
         - block.timestamp <= sarcophagus.resurrectionTime + s.gracePeriod (contracts/facets/ThirdPartyFacet.sol#107)
         - msg.sender == sarcophagus.embalmerAddress && block.timestamp > sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow (contracts/facets/ThirdPartyFacet.sol#113-114)
         - msg.sender == LibDiamond.contractOwner() && block.timestamp <= sarcophagus.resurrectionTime + s.gracePeriod + s.embalmerClaimWindow (contracts/facets/ThirdPartyFacet.sol#124-125)
-ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address) (contracts/facets/ThirdPartyFacet.sol#183-328) uses timestamp for comparisons
+ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address) (contracts/facets/ThirdPartyFacet.sol#191-360) uses timestamp for comparisons
         Dangerous comparisons:
-        - block.timestamp > sarcophagus.resurrectionTime (contracts/facets/ThirdPartyFacet.sol#198)
+        - block.timestamp > sarcophagus.resurrectionTime (contracts/facets/ThirdPartyFacet.sol#206)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
 INFO:Detectors:
 LibAppStorage.getAppStorage() (contracts/storage/LibAppStorage.sol#54-59) uses assembly
@@ -115,8 +131,8 @@ Different versions of Solidity are used:
         - ^0.8.1 (node_modules/@openzeppelin/contracts/utils/Address.sol#4)
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used
 INFO:Detectors:
-EmbalmerFacet.createSarcophagus(bytes32,EmbalmerFacet.SarcophagusParams,EmbalmerFacet.CurseParams[],string) (contracts/facets/EmbalmerFacet.sol#160-307) has a high cyclomatic complexity (12).
-EmbalmerFacet.rewrapSarcophagus(bytes32,uint256) (contracts/facets/EmbalmerFacet.sol#313-447) has a high cyclomatic complexity (15).
-ThirdPartyFacet.clean(bytes32) (contracts/facets/ThirdPartyFacet.sol#77-166) has a high cyclomatic complexity (12).
-ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address) (contracts/facets/ThirdPartyFacet.sol#183-328) has a high cyclomatic complexity (17).
+EmbalmerFacet.createSarcophagus(bytes32,EmbalmerFacet.SarcophagusParams,EmbalmerFacet.CurseParams[],string) (contracts/facets/EmbalmerFacet.sol#163-323) has a high cyclomatic complexity (12).
+EmbalmerFacet.rewrapSarcophagus(bytes32,uint256) (contracts/facets/EmbalmerFacet.sol#329-487) has a high cyclomatic complexity (17).
+ThirdPartyFacet.clean(bytes32) (contracts/facets/ThirdPartyFacet.sol#77-174) has a high cyclomatic complexity (13).
+ThirdPartyFacet.accuse(bytes32,bytes[],LibTypes.Signature[],address) (contracts/facets/ThirdPartyFacet.sol#191-360) has a high cyclomatic complexity (18).
 Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#cyclomatic-complexity
