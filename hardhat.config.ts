@@ -62,7 +62,7 @@ task("generate-history", "Generates fake historical data for testing")
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.13",
+  solidity: "0.8.18",
   namedAccounts: {
     deployer: {
       default: 0,

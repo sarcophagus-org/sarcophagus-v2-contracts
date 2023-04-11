@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity 0.8.18;
 
 import {LibDiamond} from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol";
 
@@ -12,6 +12,8 @@ import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 
 contract ThirdPartyFacet {
+    using SafeERC20 for IERC20;
+
     event AccuseArchaeologist(
         bytes32 indexed sarcoId,
         address indexed accuser,
@@ -154,7 +156,7 @@ contract ThirdPartyFacet {
         // Transfer total slashed locked bonds plus digging fees to the embalmer if they are the caller, otherwise add
         // this to the contract's protocol fees
         if (msg.sender == sarcophagus.embalmerAddress) {
-            s.sarcoToken.transfer(sarcophagus.embalmerAddress, totalDiggingFeesAndLockedBonds);
+            s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress, totalDiggingFeesAndLockedBonds);
         } else {
             s.totalProtocolFees += totalDiggingFeesAndLockedBonds;
         }
@@ -245,7 +247,7 @@ contract ThirdPartyFacet {
 
             // if the archaeologist has already been accused on this sarcophagus break without taking action
             if (accusedArchaeologist.isAccused) {
-                break;
+                continue;
             }
 
             // mark the archaeologist on the sarcophagus as having been accused
@@ -311,10 +313,10 @@ contract ThirdPartyFacet {
         uint256 halfTotalCursedBond = totalCursedBond / 2;
         uint256 totalDiggingFees = totalCursedBond / (sarcophagus.cursedBondPercentage / 100);
         // transfer the cursed half, plus the current digging fees, to the embalmer
-        s.sarcoToken.transfer(sarcophagus.embalmerAddress, totalDiggingFees + halfTotalCursedBond);
+        s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress, totalDiggingFees + halfTotalCursedBond);
 
         // transfer the other half of the cursed bond to the transaction caller
-        s.sarcoToken.transfer(paymentAddress, halfTotalCursedBond);
+        s.sarcoToken.safeTransfer(paymentAddress, halfTotalCursedBond);
 
         emit AccuseArchaeologist(
             sarcoId,

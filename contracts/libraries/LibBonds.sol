@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity 0.8.18;
 
 import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
@@ -102,7 +102,7 @@ library LibBonds {
         uint256 diggingFeeAmount = cursedArchaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-        uint256 cursedBondAmount = diggingFeeAmount * sarcophagus.cursedBondPercentage / 100;
+        uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 100;
 
         decreaseCursedBond(archaeologistAddress, cursedBondAmount);
         s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
