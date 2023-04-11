@@ -205,95 +205,104 @@ contract EmbalmerFacet {
             );
         }
 
-        uint256 nSelectedArchs = selectedArchaeologists.length;
-        // Validate archaeologist and threshold lengths
-        if (nSelectedArchs == 0) {
-            revert NoArchaeologistsProvided();
-        }
-
-        if (sarcophagusParams.threshold == 0) {
-            revert ThresholdCannotBeZero();
-        }
-
-        // Ensure that k <= n in the effective k-of-n shamir secret sharing scheme
-        // used to distribute keyshares among archaeologists
-        if (sarcophagusParams.threshold > nSelectedArchs) {
-            revert ThresholdGreaterThanTotalNumberOfArchaeologists(
-                sarcophagusParams.threshold,
-                nSelectedArchs
-            );
-        }
-
-        // create the sarcophagus
         LibTypes.Sarcophagus storage sarcophagus = s.sarcophagi[sarcoId];
-        sarcophagus.name = sarcophagusParams.name;
-        sarcophagus.threshold = sarcophagusParams.threshold;
-        sarcophagus.resurrectionTime = sarcophagusParams.resurrectionTime;
-        sarcophagus.previousRewrapTime = sarcophagusParams.creationTime;
-        sarcophagus.maximumRewrapInterval = sarcophagusParams.maximumRewrapInterval;
-        sarcophagus.maximumResurrectionTime = sarcophagusParams.maximumResurrectionTime;
-        sarcophagus.arweaveTxId = arweaveTxId;
-        sarcophagus.embalmerAddress = msg.sender;
-        sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
-        sarcophagus.cursedArchaeologistAddresses = new address[](nSelectedArchs);
-        sarcophagus.cursedBondPercentage = s.cursedBondPercentage;
 
         // track total digging fees due upon creation of sarcophagus
         uint256 totalDiggingFees;
 
-        for (uint256 i; i < nSelectedArchs; i++) {
-            LibUtils.revertIfArchProfileDoesNotExist(selectedArchaeologists[i].archAddress);
-
-            // Confirm archaeologist isn't already cursed on this sarcophagus (no duplicates)
-            if (
-                sarcophagus
-                    .cursedArchaeologists[selectedArchaeologists[i].archAddress]
-                    .publicKey
-                    .length != 0
-            ) {
-                revert ArchaeologistListContainsDuplicate(selectedArchaeologists[i].archAddress);
+        {
+            uint256 nSelectedArchs = selectedArchaeologists.length;
+            // Validate archaeologist and threshold lengths
+            if (nSelectedArchs == 0) {
+                revert NoArchaeologistsProvided();
             }
 
-            // Confirm archaeologist is not re-using a key pair
-            if (
-                s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] != address(0)
-            ) {
-                revert DuplicatePublicKey(selectedArchaeologists[i].publicKey);
+            if (sarcophagusParams.threshold == 0) {
+                revert ThresholdCannotBeZero();
             }
 
-            LibUtils.verifyArchaeologistSignature(
-                sarcophagusParams.maximumRewrapInterval,
-                sarcophagusParams.maximumResurrectionTime,
-                sarcophagusParams.creationTime,
-                selectedArchaeologists[i]
+            // Ensure that k <= n in the effective k-of-n shamir secret sharing scheme
+            // used to distribute keyshares among archaeologists
+            if (sarcophagusParams.threshold > nSelectedArchs) {
+                revert ThresholdGreaterThanTotalNumberOfArchaeologists(
+                    sarcophagusParams.threshold,
+                    nSelectedArchs
+                );
+            }
+
+            // create the sarcophagus
+            sarcophagus.name = sarcophagusParams.name;
+            sarcophagus.threshold = sarcophagusParams.threshold;
+            sarcophagus.resurrectionTime = sarcophagusParams.resurrectionTime;
+            sarcophagus.previousRewrapTime = sarcophagusParams.creationTime;
+            sarcophagus.maximumRewrapInterval = sarcophagusParams.maximumRewrapInterval;
+            sarcophagus.maximumResurrectionTime = sarcophagusParams.maximumResurrectionTime;
+            sarcophagus.arweaveTxId = arweaveTxId;
+            sarcophagus.embalmerAddress = msg.sender;
+            sarcophagus.recipientAddress = sarcophagusParams.recipientAddress;
+            sarcophagus.cursedArchaeologistAddresses = new address[](nSelectedArchs);
+            sarcophagus.cursedBondPercentage = s.cursedBondPercentage;
+
+            for (uint256 i; i < nSelectedArchs; i++) {
+                LibUtils.revertIfArchProfileDoesNotExist(selectedArchaeologists[i].archAddress);
+
+                // Confirm archaeologist isn't already cursed on this sarcophagus (no duplicates)
+                if (
+                    sarcophagus
+                        .cursedArchaeologists[selectedArchaeologists[i].archAddress]
+                        .publicKey
+                        .length != 0
+                ) {
+                    revert ArchaeologistListContainsDuplicate(
+                        selectedArchaeologists[i].archAddress
+                    );
+                }
+
+                // Confirm archaeologist is not re-using a key pair
+                if (
+                    s.publicKeyToArchaeologistAddress[selectedArchaeologists[i].publicKey] !=
+                    address(0)
+                ) {
+                    revert DuplicatePublicKey(selectedArchaeologists[i].publicKey);
+                }
+
+                LibUtils.verifyArchaeologistSignature(
+                    sarcophagusParams.maximumRewrapInterval,
+                    sarcophagusParams.maximumResurrectionTime,
+                    sarcophagusParams.creationTime,
+                    selectedArchaeologists[i]
+                );
+
+                // Curse the archaeologist on this sarcophagus
+                uint256 diggingFeesDue = LibBonds.curseArchaeologist(
+                    sarcoId,
+                    selectedArchaeologists[i],
+                    i
+                );
+
+                totalDiggingFees += diggingFeesDue;
+
+                // "Consume" this public key so it cannot be reused in the future
+                s.publicKeyToArchaeologistAddress[
+                    selectedArchaeologists[i].publicKey
+                ] = selectedArchaeologists[i].archAddress;
+            }
+
+            // Add this sarcophagus id to the embalmer's record
+            s.embalmerSarcophagi[msg.sender].push(sarcoId);
+
+            // Add this sarcophagus id to the recipient's record
+            s.recipientSarcophagi[sarcophagusParams.recipientAddress].push(sarcoId);
+
+            // Transfer totalDiggingFees and the protocolFees in SARCO from embalmer to this contract
+            uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
+            s.totalProtocolFees += protocolFees;
+            s.sarcoToken.safeTransferFrom(
+                msg.sender,
+                address(this),
+                totalDiggingFees + protocolFees
             );
-
-            // Curse the archaeologist on this sarcophagus
-            uint256 diggingFeesDue = LibBonds.curseArchaeologist(
-                sarcoId,
-                selectedArchaeologists[i],
-                i
-            );
-
-            totalDiggingFees += diggingFeesDue;
-
-            // "Consume" this public key so it cannot be reused in the future
-            s.publicKeyToArchaeologistAddress[
-                selectedArchaeologists[i].publicKey
-            ] = selectedArchaeologists[i].archAddress;
         }
-
-        // Add this sarcophagus id to the embalmer's record
-        s.embalmerSarcophagi[msg.sender].push(sarcoId);
-
-        // Add this sarcophagus id to the recipient's record
-        s.recipientSarcophagi[sarcophagusParams.recipientAddress].push(sarcoId);
-
-        // Transfer totalDiggingFees and the protocolFees in SARCO from embalmer to this contract
-        uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
-        s.totalProtocolFees += protocolFees;
-        s.sarcoToken.safeTransferFrom(msg.sender, address(this), totalDiggingFees + protocolFees);
-
         emit CreateSarcophagus(
             sarcoId,
             sarcophagusParams.name,

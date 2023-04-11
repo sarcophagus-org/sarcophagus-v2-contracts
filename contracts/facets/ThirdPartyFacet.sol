@@ -211,10 +211,9 @@ contract ThirdPartyFacet {
         }
 
         uint256 nSigs = signatures.length;
-        uint256 nPublicKeys = publicKeys.length;
 
-        if (nSigs != nPublicKeys) {
-            revert DifferentNumberOfSignaturesAndPublicKeys(nSigs, nPublicKeys);
+        if (nSigs != publicKeys.length) {
+            revert DifferentNumberOfSignaturesAndPublicKeys(nSigs, publicKeys.length);
         }
 
         address[] memory accusedArchAddresses = new address[](nSigs);
@@ -273,46 +272,48 @@ contract ThirdPartyFacet {
             return;
         }
 
-        uint256 nCursedArchs = sarcophagus.cursedArchaeologistAddresses.length;
+        {
+            uint256 nCursedArchs = sarcophagus.cursedArchaeologistAddresses.length;
 
-        // the sarcophagus is compromised if the current call has successfully accused the sss threshold of archaeologists
-        if (accusalCount >= sarcophagus.threshold) {
-            sarcophagus.isCompromised = true;
-        } else {
-            // if the current call hasn't resulted in at least sss threshold archaeologists being accused
-            // check if total number of historical accusals on sarcophagus is greater than threshold
-            uint256 totalAccusals;
+            // the sarcophagus is compromised if the current call has successfully accused the sss threshold of archaeologists
+            if (accusalCount >= sarcophagus.threshold) {
+                sarcophagus.isCompromised = true;
+            } else {
+                // if the current call hasn't resulted in at least sss threshold archaeologists being accused
+                // check if total number of historical accusals on sarcophagus is greater than threshold
+                uint256 totalAccusals;
 
-            for (uint256 i; i < nCursedArchs; i++) {
-                if (
-                    sarcophagus
-                        .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
-                        .isAccused
-                ) {
-                    totalAccusals++;
+                for (uint256 i; i < nCursedArchs; i++) {
+                    if (
+                        sarcophagus
+                            .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
+                            .isAccused
+                    ) {
+                        totalAccusals++;
+                    }
+                }
+                // the sarcophagus is compromised if k or more archaeologists have been accused over the lifetime of the sarcophagus
+                if (totalAccusals >= sarcophagus.threshold) {
+                    sarcophagus.isCompromised = true;
                 }
             }
-            // the sarcophagus is compromised if k or more archaeologists have been accused over the lifetime of the sarcophagus
-            if (totalAccusals >= sarcophagus.threshold) {
-                sarcophagus.isCompromised = true;
-            }
-        }
 
-        // if k or more archaeologists have been accused over the lifetime of the sarcophagus, funds should
-        // be returned to the remaining well behaved archaeologists
-        if (sarcophagus.isCompromised) {
-            // iterate through all archaeologist addresses on the sarcophagus
-            for (uint256 i; i < nCursedArchs; i++) {
-                // if the archaeologist has never been accused, release their locked bond back to them
-                if (
-                    !sarcophagus
-                        .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
-                        .isAccused
-                ) {
-                    LibBonds.freeArchaeologist(
-                        sarcoId,
-                        sarcophagus.cursedArchaeologistAddresses[i]
-                    );
+            // if k or more archaeologists have been accused over the lifetime of the sarcophagus, funds should
+            // be returned to the remaining well behaved archaeologists
+            if (sarcophagus.isCompromised) {
+                // iterate through all archaeologist addresses on the sarcophagus
+                for (uint256 i; i < nCursedArchs; i++) {
+                    // if the archaeologist has never been accused, release their locked bond back to them
+                    if (
+                        !sarcophagus
+                            .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
+                            .isAccused
+                    ) {
+                        LibBonds.freeArchaeologist(
+                            sarcoId,
+                            sarcophagus.cursedArchaeologistAddresses[i]
+                        );
+                    }
                 }
             }
         }
