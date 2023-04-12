@@ -94,7 +94,7 @@ contract ThirdPartyFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
+        if (sarcophagus.resurrectionTime == type(uint256).max) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -213,7 +213,7 @@ contract ThirdPartyFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
+        if (sarcophagus.resurrectionTime == type(uint256).max) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -257,6 +257,9 @@ contract ThirdPartyFacet {
 
             // if the archaeologist has already been accused on this sarcophagus skip them without taking action
             if (accusedArchaeologist.isAccused) {
+                unchecked {
+                    ++i;
+                }
                 continue;
             }
 

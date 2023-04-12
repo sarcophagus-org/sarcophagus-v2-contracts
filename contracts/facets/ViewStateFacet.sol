@@ -188,7 +188,7 @@ contract ViewStateFacet {
                     .isAccused &&
                 !sarcophagus.isCompromised &&
                 !sarcophagus.isCleaned &&
-                sarcophagus.resurrectionTime != (1 << 256) - 1
+                sarcophagus.resurrectionTime != type(uint256).max
             ) {
                 // if the sarcophagus is not compromised, buried, or cleaned and
                 // one or more unaccused archaeologists hasn't published a private key there is locked bond on the sarcophagus

@@ -345,7 +345,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
+        if (sarcophagus.resurrectionTime == type(uint256).max) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -505,7 +505,7 @@ contract EmbalmerFacet {
         }
 
         // Confirm the sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
+        if (sarcophagus.resurrectionTime == type(uint256).max) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 
@@ -535,7 +535,7 @@ contract EmbalmerFacet {
         }
 
         // Set resurrection time to infinity
-        sarcophagus.resurrectionTime = (1 << 256) - 1;
+        sarcophagus.resurrectionTime = type(uint256).max;
 
         emit BurySarcophagus(sarcoId);
     }
