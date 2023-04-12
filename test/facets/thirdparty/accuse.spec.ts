@@ -421,7 +421,7 @@ describe("ThirdPartyFacet.accuse", () => {
       );
     });
 
-    it.only("Should not pay out digging fees or cursed bond or emit an event on accusal of an archaeologist that has already been accused once", async () => {
+    it("Should not pay out digging fees or cursed bond or emit an event on accusal of an archaeologist that has already been accused once", async () => {
       const { thirdPartyFacet, viewStateFacet } = await getContracts();
       const accuser = await accountGenerator.newAccount();
       const {
