@@ -10,7 +10,7 @@ import { fundAndApproveAccount } from "../helpers/sarcoToken";
 
 const { deployments, ethers } = require("hardhat");
 
-describe.only("ArchaeologistFacet.withdrawReward", () => {
+describe("ArchaeologistFacet.withdrawReward", () => {
   // reset to directly after the diamond deployment before each test
   beforeEach(async () => {
     await deployments.fixture();
