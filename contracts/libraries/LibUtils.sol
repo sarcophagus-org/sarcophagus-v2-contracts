@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity 0.8.18;
 
 import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
@@ -73,9 +73,13 @@ library LibUtils {
         LibTypes.Signature calldata signature
     ) internal pure returns (bool) {
         // removes the 0x04 prefix from an uncompressed public key
-        bytes memory truncatedPublicKey = new bytes(publicKey.length - 1);
-        for (uint256 i = 1; i < publicKey.length; i++) {
+        uint256 pubKeyLength = publicKey.length;
+        bytes memory truncatedPublicKey = new bytes(pubKeyLength - 1);
+        for (uint256 i = 1; i < pubKeyLength; ) {
             truncatedPublicKey[i - 1] = publicKey[i];
+            unchecked {
+                ++i;
+            }
         }
         bytes32 messageHash = keccak256(
             abi.encodePacked(

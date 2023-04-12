@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
@@ -10,6 +10,8 @@ import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 
 contract ArchaeologistFacet {
+    using SafeERC20 for IERC20;
+
     /// @notice Emitted when an archaeologist successfully publishes their private key for a sarcophagus
     /// @param sarcoId ID of sarcophagus archaeologist has published the private key on
     /// @param privateKey private key that has been published
@@ -114,8 +116,8 @@ contract ArchaeologistFacet {
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
-        if (freeBond > 0) {
-            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+        if (freeBond != 0) {
+            s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
         }
 
         // save the new archaeologist into relevant data structures
@@ -166,9 +168,9 @@ contract ArchaeologistFacet {
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
-        if (freeBond > 0) {
+        if (freeBond != 0) {
             s.archaeologistProfiles[msg.sender].freeBond += freeBond;
-            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+            s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
         }
 
         emit UpdateArchaeologist(
@@ -192,8 +194,8 @@ contract ArchaeologistFacet {
         s.archaeologistProfiles[msg.sender].freeBond += amount;
 
         // Transfer the amount of sarcoToken from the archaeologist to the contract
-        s.sarcoToken.transferFrom(msg.sender, address(this), amount);
-
+        s.sarcoToken.safeTransferFrom(msg.sender, address(this), amount);
+        // Emit an event
         emit DepositFreeBond(msg.sender, amount);
     }
 
@@ -207,7 +209,7 @@ contract ArchaeologistFacet {
         LibBonds.decreaseFreeBond(msg.sender, amount);
 
         // Transfer the amount of sarcoToken to the archaeologist
-        s.sarcoToken.transfer(msg.sender, amount);
+        s.sarcoToken.safeTransfer(msg.sender, amount);
 
         emit WithdrawFreeBond(msg.sender, amount);
     }
@@ -219,7 +221,7 @@ contract ArchaeologistFacet {
         s.archaeologistRewards[msg.sender] = 0;
 
         // Transfer the amount of sarcoToken to the archaeologist
-        s.sarcoToken.transfer(msg.sender, amountToWithdraw);
+        s.sarcoToken.safeTransfer(msg.sender, amountToWithdraw);
 
         emit WithdrawReward(msg.sender, amountToWithdraw);
     }
@@ -245,7 +247,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
+        if (sarcophagus.resurrectionTime == (1 << 256) - 1) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 

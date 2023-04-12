@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity 0.8.18;
 
 import "../storage/LibAppStorage.sol";
 
 import {LibDiamond} from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.sol";
 
 contract AdminFacet {
+    using SafeERC20 for IERC20;
+
     event SetProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage);
     event SetCursedBondPercentage(uint256 cursedBondPercentage);
     event WithdrawProtocolFees();
@@ -29,7 +31,7 @@ contract AdminFacet {
         s.totalProtocolFees = 0;
 
         // Transfer the protocol fee amount to the sender after setting state
-        s.sarcoToken.transfer(msg.sender, totalProtocolFees);
+        s.sarcoToken.safeTransfer(msg.sender, totalProtocolFees);
 
         emit WithdrawProtocolFees();
     }

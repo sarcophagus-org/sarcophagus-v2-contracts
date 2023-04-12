@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity 0.8.18;
 
 import "../libraries/LibTypes.sol";
 import "../libraries/LibUtils.sol";
@@ -35,16 +35,20 @@ contract ViewStateFacet {
         address[] memory addresses
     ) external view returns (LibTypes.ArchaeologistProfile[] memory) {
         AppStorage storage s = LibAppStorage.getAppStorage();
+        uint256 nAddresses = addresses.length;
         LibTypes.ArchaeologistProfile[] memory profiles = new LibTypes.ArchaeologistProfile[](
-            addresses.length
+            nAddresses
         );
 
-        for (uint256 i = 0; i < addresses.length; i++) {
+        for (uint256 i; i < nAddresses; ) {
             // Skip unregistered archaeologists
             if (s.archaeologistProfiles[addresses[i]].maximumRewrapInterval == 0) {
                 continue;
             }
             profiles[i] = s.archaeologistProfiles[addresses[i]];
+            unchecked {
+                ++i;
+            }
         }
 
         return profiles;
@@ -167,27 +171,31 @@ contract ViewStateFacet {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
-        uint8 publishedPrivateKeyCount = 0;
-        bool hasLockedBond = false;
-        for (uint256 i = 0; i < sarcophagus.cursedArchaeologistAddresses.length; i++) {
+        uint8 publishedPrivateKeyCount;
+        bool hasLockedBond;
+        uint256 archsLength = sarcophagus.cursedArchaeologistAddresses.length;
+        for (uint256 i; i < archsLength; ) {
             // archaeologist has published a private key
             if (
                 sarcophagus
                     .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
                     .privateKey != 0
             ) {
-                publishedPrivateKeyCount++;
+                ++publishedPrivateKeyCount;
             } else if (
                 !sarcophagus
                     .cursedArchaeologists[sarcophagus.cursedArchaeologistAddresses[i]]
                     .isAccused &&
                 !sarcophagus.isCompromised &&
                 !sarcophagus.isCleaned &&
-                sarcophagus.resurrectionTime != 2 ** 256 - 1
+                sarcophagus.resurrectionTime != (1 << 256) - 1
             ) {
                 // if the sarcophagus is not compromised, buried, or cleaned and
                 // one or more unaccused archaeologists hasn't published a private key there is locked bond on the sarcophagus
                 hasLockedBond = true;
+            }
+            unchecked {
+                ++i;
             }
         }
 
