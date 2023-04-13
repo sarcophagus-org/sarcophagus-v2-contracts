@@ -196,6 +196,7 @@ export const createSarcophagusWithRegisteredCursedArchaeologists =
   async (params?: {
     totalArchaeologists?: number;
     threshold?: number;
+    creationTimeSeconds?: number;
     maximumRewrapIntervalSeconds?: number;
     resurrectionTime?: number;
   }): Promise<{
