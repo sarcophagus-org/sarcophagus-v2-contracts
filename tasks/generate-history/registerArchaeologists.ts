@@ -24,7 +24,7 @@ export async function registerArchaeologists(
   }
 
   // Get the contract
-  const diamond = await ethers.getContract("SarcophagusGoerliV1_DiamondProxy");
+  const diamond = await ethers.getContract("SarcophagusGoerliV2_DiamondProxy");
   const archaeologistFacet = await ethers.getContractAt(
     "ArchaeologistFacet",
     diamond.address
