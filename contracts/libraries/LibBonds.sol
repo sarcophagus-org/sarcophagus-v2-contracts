@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity 0.8.18;
 
 import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
@@ -50,11 +50,11 @@ library LibBonds {
     /// @notice Bonds the archaeologist to a sarcophagus.
     /// This does the following:
     ///   - adds the archaeologist's curse params and address to the sarcophagus
-    ///   - calculates digging fees to be locked and later paid to archaeologist
+    ///   - calculates digging fees to be locked and later paid to archaeologist (includes curseFee)
     ///   - locks this amount from archaeologist's free bond; increases cursedBond by same
     ///   - Adds the sarcophagus' id to the archaeologist's record of bonded sarcophagi
     /// @param sarcoId Id of the sarcophagus with which to curse the archaeologist
-    /// @param archaeologist The archaologist to curse, with associated parameters of the curse
+    /// @param archaeologist The archaeologist to curse, with associated parameters of the curse
     ///
     /// @return the amount of digging fees due the embalmer for this curse
     function curseArchaeologist(
@@ -69,17 +69,20 @@ library LibBonds {
             publicKey: archaeologist.publicKey,
             privateKey: 0,
             isAccused: false,
-            diggingFeePerSecond: archaeologist.diggingFeePerSecond
+            diggingFeePerSecond: archaeologist.diggingFeePerSecond,
+            curseFee: archaeologist.curseFee
         });
         sarcophagus.cursedArchaeologistAddresses[index] = archaeologist.archAddress;
 
         // Calculate digging fees due for this time period (creationTime/previousRewrapTime -> resurrectionTime)
-        uint256 diggingFeesDue = archaeologist.diggingFeePerSecond *
-            (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
+        uint256 diggingFeesDue = (archaeologist.diggingFeePerSecond *
+            (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime))
+            + archaeologist.curseFee;
 
         // Use cursed bond percentage to determine how much bond to lock up
-        uint256 bondToCurse = (diggingFeesDue * s.cursedBondPercentage) / 100;
+        uint256 bondToCurse = (((diggingFeesDue) * s.cursedBondPercentage) / 100);
 
+        // Transfer bond to curse from free bond to cursed bond
         decreaseFreeBond(archaeologist.archAddress, bondToCurse);
         s.archaeologistProfiles[archaeologist.archAddress].cursedBond += bondToCurse;
 
@@ -99,13 +102,20 @@ library LibBonds {
             .sarcophagi[sarcoId]
             .cursedArchaeologists[archaeologistAddress];
 
+        // Calculate the digging fees to be paid since the last rewrap (or creation)
         uint256 diggingFeeAmount = cursedArchaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
-        uint256 cursedBondAmount = diggingFeeAmount * sarcophagus.cursedBondPercentage / 100;
+        // If sarcophagus has not be been rewrapped yet, pay out the curseFee
+        if (!sarcophagus.isRewrapped) {
+            diggingFeeAmount += cursedArchaeologist.curseFee;
+        }
 
-        decreaseCursedBond(archaeologistAddress, cursedBondAmount);
+        uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 100;
+
+        LibBonds.decreaseCursedBond(archaeologistAddress, cursedBondAmount);
         s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
+
         s.archaeologistRewards[archaeologistAddress] += diggingFeeAmount;
     }
 }

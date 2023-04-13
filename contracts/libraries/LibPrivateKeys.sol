@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
-
+pragma solidity 0.8.18;
 
 /**
  * @title Private key verification
@@ -18,11 +17,18 @@ library LibPrivateKeys {
      * @return bool indicating whether the public key is derived from the
      * private key
      */
-    function isPublicKeyOfPrivateKey(bytes32 privKey, bytes storage pubKey) internal view returns (bool) {
+    function isPublicKeyOfPrivateKey(
+        bytes32 privKey,
+        bytes storage pubKey
+    ) internal view returns (bool) {
         // removes the 0x04 prefix from an uncompressed public key
-        bytes memory truncatedPublicKey = new bytes(pubKey.length-1);
-        for (uint256 i = 1; i < pubKey.length; i++) {
-            truncatedPublicKey[i-1] = pubKey[i];
+        uint256 pubKeyLength = pubKey.length;
+        bytes memory truncatedPublicKey = new bytes(pubKeyLength - 1);
+        for (uint256 i = 1; i < pubKeyLength; ) {
+            truncatedPublicKey[i - 1] = pubKey[i];
+            unchecked {
+                ++i;
+            }
         }
 
         // generator point coordinates and order of secp256k1
@@ -38,7 +44,10 @@ library LibPrivateKeys {
         );
 
         address xyAddress = address(
-            uint160(uint256(keccak256(truncatedPublicKey)) & 0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+            uint160(
+                uint256(keccak256(truncatedPublicKey)) &
+                    0x00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            )
         );
         return xyAddress == signer;
     }

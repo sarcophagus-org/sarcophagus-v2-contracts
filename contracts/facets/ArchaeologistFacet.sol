@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../libraries/LibTypes.sol";
@@ -10,6 +10,8 @@ import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 
 contract ArchaeologistFacet {
+    using SafeERC20 for IERC20;
+
     /// @notice Emitted when an archaeologist successfully publishes their private key for a sarcophagus
     /// @param sarcoId ID of sarcophagus archaeologist has published the private key on
     /// @param privateKey private key that has been published
@@ -27,7 +29,8 @@ contract ArchaeologistFacet {
         uint256 minimumDiggingFee,
         uint256 maximumRewrapInterval,
         uint256 freeBond,
-        uint256 maximumResurrectionTime
+        uint256 maximumResurrectionTime,
+        uint256 curseFee
     );
 
     event UpdateArchaeologist(
@@ -36,7 +39,8 @@ contract ArchaeologistFacet {
         uint256 minimumDiggingFee,
         uint256 maximumRewrapInterval,
         uint256 freeBond,
-        uint256 maximumResurrectionTime
+        uint256 maximumResurrectionTime,
+        uint256 curseFee
     );
 
     event WithdrawFreeBond(address indexed archaeologist, uint256 withdrawnBond);
@@ -82,12 +86,14 @@ contract ArchaeologistFacet {
     /// for a resurrection
     /// @param freeBond How much bond the archaeologist wants to deposit during the register call (if any)
     /// @param maximumResurrectionTime The time beyond which the archaeologist is not willing to accept new curses or rewraps
+    /// @param curseFee The fee the archaeologist sets to roughly cover the cost of a publishPrivateKey transaction
     function registerArchaeologist(
         string memory peerId,
         uint256 minimumDiggingFeePerSecond,
         uint256 maximumRewrapInterval,
         uint256 freeBond,
-        uint256 maximumResurrectionTime
+        uint256 maximumResurrectionTime,
+        uint256 curseFee
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
         // verify that the archaeologist does not already exist
@@ -104,13 +110,14 @@ contract ArchaeologistFacet {
             maximumResurrectionTime: maximumResurrectionTime,
             maximumRewrapInterval: maximumRewrapInterval,
             freeBond: freeBond,
-            cursedBond: 0
+            cursedBond: 0,
+            curseFee: curseFee
         });
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
-        if (freeBond > 0) {
-            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+        if (freeBond != 0) {
+            s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
         }
 
         // save the new archaeologist into relevant data structures
@@ -123,24 +130,28 @@ contract ArchaeologistFacet {
             newArch.minimumDiggingFeePerSecond,
             newArch.maximumRewrapInterval,
             newArch.freeBond,
-            newArch.maximumResurrectionTime
+            newArch.maximumResurrectionTime,
+            newArch.curseFee
         );
     }
 
     /// @notice Updates the archaeologist profile
     /// @param peerId The libp2p identifier for the archaeologist
     /// @param minimumDiggingFeePerSecond The archaeologist's minimum amount to earn per second for being cursed
+    /// @param freeBond How much bond the archaeologist wants to deposit during the update call (if any)
     /// @param maximumRewrapInterval The longest interval of time from a rewrap time the arch will accept
     /// for a resurrection
-    /// freeBond How much bond the archaeologist wants to deposit during the update call (if any)
+    /// @param curseFee The fee the archaeologist sets to roughly cover the cost of a publishPrivateKey transaction
     function updateArchaeologist(
         string memory peerId,
         uint256 minimumDiggingFeePerSecond,
         uint256 maximumRewrapInterval,
         uint256 freeBond,
-        uint256 maximumResurrectionTime
+        uint256 maximumResurrectionTime,
+        uint256 curseFee
     ) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
+
         // verify that the archaeologist exists
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
 
@@ -153,12 +164,13 @@ contract ArchaeologistFacet {
         existingArch.minimumDiggingFeePerSecond = minimumDiggingFeePerSecond;
         existingArch.maximumRewrapInterval = maximumRewrapInterval;
         existingArch.maximumResurrectionTime = maximumResurrectionTime;
+        existingArch.curseFee = curseFee;
 
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
-        if (freeBond > 0) {
+        if (freeBond != 0) {
             s.archaeologistProfiles[msg.sender].freeBond += freeBond;
-            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
+            s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
         }
 
         emit UpdateArchaeologist(
@@ -167,7 +179,8 @@ contract ArchaeologistFacet {
             existingArch.minimumDiggingFeePerSecond,
             existingArch.maximumRewrapInterval,
             existingArch.freeBond,
-            existingArch.maximumResurrectionTime
+            existingArch.maximumResurrectionTime,
+            existingArch.curseFee
         );
     }
 
@@ -176,11 +189,12 @@ contract ArchaeologistFacet {
     function depositFreeBond(uint256 amount) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
+
         // Increase the archaeologist's free bond in app storage
         s.archaeologistProfiles[msg.sender].freeBond += amount;
 
         // Transfer the amount of sarcoToken from the archaeologist to the contract
-        s.sarcoToken.transferFrom(msg.sender, address(this), amount);
+        s.sarcoToken.safeTransferFrom(msg.sender, address(this), amount);
         // Emit an event
         emit DepositFreeBond(msg.sender, amount);
     }
@@ -195,9 +209,8 @@ contract ArchaeologistFacet {
         LibBonds.decreaseFreeBond(msg.sender, amount);
 
         // Transfer the amount of sarcoToken to the archaeologist
-        s.sarcoToken.transfer(msg.sender, amount);
+        s.sarcoToken.safeTransfer(msg.sender, amount);
 
-        // Emit an event
         emit WithdrawFreeBond(msg.sender, amount);
     }
 
@@ -208,7 +221,7 @@ contract ArchaeologistFacet {
         s.archaeologistRewards[msg.sender] = 0;
 
         // Transfer the amount of sarcoToken to the archaeologist
-        s.sarcoToken.transfer(msg.sender, amountToWithdraw);
+        s.sarcoToken.safeTransfer(msg.sender, amountToWithdraw);
 
         emit WithdrawReward(msg.sender, amountToWithdraw);
     }
@@ -234,7 +247,7 @@ contract ArchaeologistFacet {
         }
 
         // Confirm sarcophagus is not buried
-        if (sarcophagus.resurrectionTime == 2 ** 256 - 1) {
+        if (sarcophagus.resurrectionTime == type(uint256).max) {
             revert LibErrors.SarcophagusInactive(sarcoId);
         }
 

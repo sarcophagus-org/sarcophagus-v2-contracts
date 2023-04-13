@@ -24,8 +24,8 @@ describe("EmbalmerFacet.burySarcophagus", () => {
     accountGenerator.index = 0;
   });
 
-  describe("Validates parameters. Should revert if:", function () {
-    it("no sarcophagus with the supplied id exists", async function () {
+  describe("Validates parameters. Should revert if:", () => {
+    it("no sarcophagus with the supplied id exists", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -41,7 +41,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
         `SarcophagusDoesNotExist`
       );
     });
-    it("the sarcophagus has been compromised", async function () {
+    it("the sarcophagus has been compromised", async () => {
       const { embalmerFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -59,7 +59,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
         `SarcophagusCompromised`
       );
     });
-    it("the sarcophagus has been buried", async function () {
+    it("the sarcophagus has been buried", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -77,7 +77,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
         `SarcophagusInactive`
       );
     });
-    it("the sender is not the embalmer", async function () {
+    it("the sender is not the embalmer", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -91,7 +91,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
         `SenderNotEmbalmer`
       );
     });
-    it("the resurrection time has passed", async function () {
+    it("the resurrection time has passed", async () => {
       const { embalmerFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -108,8 +108,8 @@ describe("EmbalmerFacet.burySarcophagus", () => {
     });
   });
 
-  describe("Successfully buries a sarcophagus with no accusals", function () {
-    it("Should pay digging fees to each of the cursed archaeologists", async function () {
+  describe("Successfully buries a sarcophagus with no accusals", () => {
+    it("Should pay digging fees to each of the cursed archaeologists", async () => {
       const { embalmerFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -128,7 +128,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
         .connect(sarcophagusData.embalmer)
         .burySarcophagus(sarcophagusData.sarcoId);
 
-      // check post rewrap rewards on all archaeologists
+      // check post bury rewards on all archaeologists
       await Promise.all(
         archaeologists.map(
           async (archaeologist: ArchaeologistData, index: number) => {
@@ -137,10 +137,12 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             const diggingFeesDue = BigNumber.from(
               archaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(archaeologists[index].curseFee);
 
             expect(archaeologistPostRewrapRewards).to.equal(
               startingArchaeologistRewards[index].add(diggingFeesDue)
@@ -150,8 +152,9 @@ describe("EmbalmerFacet.burySarcophagus", () => {
       );
     });
 
-    it("Should unlock the bonds of each of the cursed archaeologists", async function () {
-      const { embalmerFacet } = await getContracts();
+    it("Should unlock the bonds of each of the cursed archaeologists", async () => {
+      const { embalmerFacet, viewStateFacet } = await getContracts();
+
       const {
         createdSarcophagusData: sarcophagusData,
         cursedArchaeologists: archaeologists,
@@ -168,6 +171,10 @@ describe("EmbalmerFacet.burySarcophagus", () => {
           ),
         }))
       );
+
+      const cursedBondPercentage = await viewStateFacet
+        .connect(sarcophagusData.embalmer)
+        .getCursedBondPercentage();
 
       await embalmerFacet
         .connect(sarcophagusData.embalmer)
@@ -188,24 +195,30 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             const diggingFeesDue = BigNumber.from(
               archaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(archaeologists[index].curseFee);
+
+            const lockedBondAmount = diggingFeesDue
+              .mul(cursedBondPercentage)
+              .div(100);
 
             expect(archaeologistPostCurseFreeBond).to.equal(
-              startingArchaeologistBonds[index].freeBond.add(diggingFeesDue)
+              startingArchaeologistBonds[index].freeBond.add(lockedBondAmount)
             );
 
             expect(archaeologistPostCurseLockedBond).to.equal(
-              startingArchaeologistBonds[index].lockedBond.sub(diggingFeesDue)
+              startingArchaeologistBonds[index].lockedBond.sub(lockedBondAmount)
             );
           }
         )
       );
     });
 
-    it("Should update the resurrectionTime and emit BurySarcophagus", async function () {
+    it("Should update the resurrectionTime and emit BurySarcophagus", async () => {
       const { embalmerFacet, viewStateFacet } = await getContracts();
       const { createdSarcophagusData: sarcophagusData } =
         await createSarcophagusWithRegisteredCursedArchaeologists();
@@ -222,8 +235,8 @@ describe("EmbalmerFacet.burySarcophagus", () => {
     });
   });
 
-  describe("Successfully buries a sarcophagus with fewer than k accusals", function () {
-    it("Should not pay digging fees to the accused cursed archaeologists", async function () {
+  describe("Successfully buries a sarcophagus with fewer than k accusals", () => {
+    it("Should not pay digging fees to the accused cursed archaeologists", async () => {
       const { embalmerFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
@@ -272,7 +285,9 @@ describe("EmbalmerFacet.burySarcophagus", () => {
               );
 
               expect(archaeologistPostRewrapRewards).to.equal(
-                startingArchaeologistRewards[index].add(diggingFeesDue)
+                startingArchaeologistRewards[index]
+                  .add(diggingFeesDue)
+                  .add(archaeologists[index].curseFee)
               );
             }
           }
@@ -280,8 +295,8 @@ describe("EmbalmerFacet.burySarcophagus", () => {
       );
     });
 
-    it("Should not increase the free bonds of the accused archaeologists", async function () {
-      const { embalmerFacet } = await getContracts();
+    it("Should not increase the free bonds of the accused archaeologists", async () => {
+      const { embalmerFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
         cursedArchaeologists: archaeologists,
@@ -296,6 +311,10 @@ describe("EmbalmerFacet.burySarcophagus", () => {
         sarcophagusData.threshold - 1,
         archaeologists.length
       );
+
+      const cursedBondPercentage = await viewStateFacet
+        .connect(sarcophagusData.embalmer)
+        .getCursedBondPercentage();
 
       // save starting free and locked bonds for all accused archaeologists
       const startingAccusedArchaeologistBonds = await Promise.all(
@@ -366,20 +385,26 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             const diggingFeesDue = BigNumber.from(
               archaeologist.diggingFeePerSecondSarquito
-            ).mul(
-              sarcophagusData.resurrectionTimeSeconds -
-                sarcophagusData.creationTimeSeconds
-            );
+            )
+              .mul(
+                sarcophagusData.resurrectionTimeSeconds -
+                  sarcophagusData.creationTimeSeconds
+              )
+              .add(archaeologists[index].curseFee);
+
+            const lockedBondAmount = diggingFeesDue
+              .mul(cursedBondPercentage)
+              .div(100);
 
             expect(archaeologistPostBuryFreeBond).to.equal(
               startingInnocentArchaeologistBonds[index].freeBond.add(
-                diggingFeesDue
+                lockedBondAmount
               )
             );
 
             expect(archaeologistPostBuryLockedBond).to.equal(
               startingInnocentArchaeologistBonds[index].lockedBond.sub(
-                diggingFeesDue
+                lockedBondAmount
               )
             );
           }
