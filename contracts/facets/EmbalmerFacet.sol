@@ -17,6 +17,7 @@ contract EmbalmerFacet {
     /// @param name Name of the new sarcophagus
     /// @param resurrectionTime Resurrection time of the new sarcophagus
     /// @param creationTime Creation time as set during negotiation, not the same as blocktime at which event is emitted
+    /// @param threshold min number of archaeologists that should publish private keys in order to fully unwrap
     /// @param embalmer Address of embalmer
     /// @param recipient Address of recipient
     /// @param cursedArchaeologists Array of addresses of cursed archaeologists
@@ -27,6 +28,7 @@ contract EmbalmerFacet {
         string name,
         uint256 resurrectionTime,
         uint256 creationTime,
+        uint256 threshold,
         address embalmer,
         address recipient,
         address[] cursedArchaeologists,
@@ -314,6 +316,7 @@ contract EmbalmerFacet {
             sarcophagusParams.name,
             sarcophagusParams.resurrectionTime,
             sarcophagusParams.creationTime,
+            sarcophagusParams.threshold,
             msg.sender,
             sarcophagusParams.recipientAddress,
             sarcophagus.cursedArchaeologistAddresses,
