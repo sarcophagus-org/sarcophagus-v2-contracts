@@ -23,6 +23,16 @@ contract ArchaeologistFacet {
 
     event DepositFreeBond(address indexed archaeologist, uint256 depositedBond);
 
+    event StateAfterDepositFreeBond(
+        address indexed archaeologist,
+        string peerId,
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond,
+        uint256 maximumResurrectionTime,
+        uint256 curseFee
+    );
+
     event RegisterArchaeologist(
         address indexed archaeologist,
         string peerId,
@@ -43,7 +53,27 @@ contract ArchaeologistFacet {
         uint256 curseFee
     );
 
+    event StateAfterUpdateArchaeologist(
+        address indexed archaeologist,
+        string peerId,
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond,
+        uint256 maximumResurrectionTime,
+        uint256 curseFee
+    );
+
     event WithdrawFreeBond(address indexed archaeologist, uint256 withdrawnBond);
+
+    event StateAfterWithdrawFreeBond(
+        address indexed archaeologist,
+        string peerId,
+        uint256 minimumDiggingFee,
+        uint256 maximumRewrapInterval,
+        uint256 freeBond,
+        uint256 maximumResurrectionTime,
+        uint256 curseFee
+    );
 
     event WithdrawReward(address indexed archaeologist, uint256 withdrawnReward);
 
@@ -173,7 +203,17 @@ contract ArchaeologistFacet {
             s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
         }
 
-        emit UpdateArchaeologist(
+        emit updateArchaeologist(
+            msg.sender,
+            peerId,
+            minimumDiggingFeePerSecond,
+            maximumRewrapInterval,
+            freeBond,
+            maximumResurrectionTime,
+            curseFee
+        );
+
+        emit StateAfterUpdateArchaeologist(
             msg.sender,
             existingArch.peerId,
             existingArch.minimumDiggingFeePerSecond,
@@ -197,6 +237,16 @@ contract ArchaeologistFacet {
         s.sarcoToken.safeTransferFrom(msg.sender, address(this), amount);
         // Emit an event
         emit DepositFreeBond(msg.sender, amount);
+
+        emit StateAfterDepositFreeBond(
+            msg.sender,
+            existingArch.peerId,
+            existingArch.minimumDiggingFeePerSecond,
+            existingArch.maximumRewrapInterval,
+            existingArch.freeBond,
+            existingArch.maximumResurrectionTime,
+            existingArch.curseFee
+        );
     }
 
     /// @notice Withdraws an archaeologist's free bond from the contract.
@@ -212,6 +262,16 @@ contract ArchaeologistFacet {
         s.sarcoToken.safeTransfer(msg.sender, amount);
 
         emit WithdrawFreeBond(msg.sender, amount);
+
+        emit StateAfterWithdrawFreeBond(
+            msg.sender,
+            existingArch.peerId,
+            existingArch.minimumDiggingFeePerSecond,
+            existingArch.maximumRewrapInterval,
+            existingArch.freeBond,
+            existingArch.maximumResurrectionTime,
+            existingArch.curseFee
+        );
     }
 
     /// @notice Withdraws all rewards from an archaeologist's reward pool
