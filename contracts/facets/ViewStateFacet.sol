@@ -130,15 +130,6 @@ contract ViewStateFacet {
         return s.archaeologistProfiles[archaeologist].cursedBond;
     }
 
-    // Only used in the ViewStateFacet to return statistics data.
-    // Contains a list of sarcoIds for each category. We could simply return the counts of the
-    // arrays but we are already storing the lists of sarcoIds so we may as well use them.
-    struct ArchaeologistStatistics {
-        uint256 successes;
-        uint256 accusals;
-        uint256 failures;
-    }
-
     struct SarcophagusResponse {
         uint256 resurrectionTime;
         uint256 previousRewrapTime;
