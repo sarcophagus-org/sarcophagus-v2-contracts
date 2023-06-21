@@ -33,6 +33,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
   }
 
+  // TODO: set actual defaults prior to mainnet deployment
   // Deploy the facets. Note that running diamond.deploy again will not redeploy
   // the diamond. It will reuse the diamond contracts that have already been
   // deployed.
@@ -41,11 +42,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Protocol fee defaults to 1% (100bps)
   const protocolFeeBasePercentage =
     process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "1";
+  const cursedBondPercentage = process.env.CURSED_BOND_PERCENTAGE || "100";
   const gracePeriod = process.env.GRACE_PERIOD_SECONDS || "3600";
   const embalmerClaimWindow =
     process.env.EMBALMER_CLAIM_WINDOW_SECONDS || time.duration.weeks(1);
   const expirationThreshold =
     process.env.EXPIRATION_THRESHOLD_SECONDS || "3600";
+  const admin = deployer || process.env.ADMIN_ADDRESS;
 
   await diamond.deploy("SarcophagusGoerliV2", {
     from: deployer,
@@ -62,7 +65,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       methodName: "init",
       args: [
         sarcoTokenAddress,
+        admin,
         protocolFeeBasePercentage,
+        cursedBondPercentage,
         gracePeriod,
         embalmerClaimWindow,
         expirationThreshold,

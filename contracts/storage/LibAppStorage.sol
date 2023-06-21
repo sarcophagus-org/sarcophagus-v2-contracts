@@ -12,6 +12,8 @@ import "../libraries/LibTypes.sol";
 struct AppStorage {
     // SARCO token contract
     IERC20 sarcoToken;
+    // The Admin address allowed to call Admin Facet functions
+    address admin;
     // total protocol fees available to be withdrawn by the admin
     uint256 totalProtocolFees;
     /**
