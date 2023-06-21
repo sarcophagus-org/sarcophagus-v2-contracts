@@ -9,7 +9,9 @@ contract AppStorageInit {
     /// @dev Add any AppStorage struct properties here to initialize values
     function init(
         IERC20 sarcoToken,
+        address admin,
         uint256 protocolFeeBasePercentage,
+        uint256 cursedBondPercentage,
         uint256 gracePeriod,
         uint256 embalmerClaimWindow,
         uint256 expirationThreshold
@@ -17,9 +19,9 @@ contract AppStorageInit {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
         s.sarcoToken = sarcoToken;
+        s.admin = admin;
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
-        // Init digging fees / cursed bond ratio to 1
-        s.cursedBondPercentage = 100;
+        s.cursedBondPercentage = cursedBondPercentage;
         s.gracePeriod = gracePeriod;
         s.embalmerClaimWindow = embalmerClaimWindow;
         s.expirationThreshold = expirationThreshold;
