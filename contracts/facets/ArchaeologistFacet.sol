@@ -178,7 +178,7 @@ contract ArchaeologistFacet {
             existingArch.peerId,
             existingArch.minimumDiggingFeePerSecond,
             existingArch.maximumRewrapInterval,
-            existingArch.freeBond,
+            freeBond,
             existingArch.maximumResurrectionTime,
             existingArch.curseFee
         );
