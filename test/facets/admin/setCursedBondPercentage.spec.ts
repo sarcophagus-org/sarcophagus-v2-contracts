@@ -9,37 +9,42 @@ import {
 } from "../helpers/sarcophagus";
 import { BigNumber } from "ethers";
 import time from "../../utils/time";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const { deployments, ethers } = require("hardhat");
 
 describe("AdminFacet.setCursedBondPercentage", () => {
+  let deployer: SignerWithAddress;
+
   context("when caller is not the admin", async () => {
     beforeEach(async () => {
-      process.env.ADMIN_ADDRESS = "0x1ABC7154748D1CE5144478CDEB574AE244B939B5";
       await deployments.fixture();
-      accountGenerator.index = 0;
-      delete process.env.ADMIN_ADDRESS;
+      const { adminFacet } = await getContracts();
+      deployer = await ethers.getNamedSigner("deployer");
+      const signers = await ethers.getSigners();
+      await adminFacet.connect(deployer).transferAdmin(signers[1].address);
     });
 
     it("reverts with the correct error message", async () => {
       const { adminFacet } = await getContracts();
-      const deployer = await ethers.getNamedSigner("deployer");
-      expect(
-        await adminFacet.connect(deployer).setCursedBondPercentage(200)
-      ).to.be.revertedWithCustomError(adminFacet, "CallerIsNotAdmin");
+      const setTx = adminFacet.connect(deployer).setCursedBondPercentage(200);
+      await expect(setTx).to.be.revertedWithCustomError(
+        adminFacet,
+        "CallerIsNotAdmin"
+      );
     });
   });
 
   context("when caller is the admin", async () => {
     // reset to directly after the diamond deployment before each test
     beforeEach(async () => {
+      deployer = await ethers.getNamedSigner("deployer");
       await deployments.fixture();
       accountGenerator.index = 0;
     });
 
     it("sets the cursed bond percentage if caller is owner", async () => {
       const { adminFacet, viewStateFacet } = await getContracts();
-      const deployer = await ethers.getNamedSigner("deployer");
       await adminFacet.connect(deployer).setCursedBondPercentage(200);
 
       const cursedBondPercentage = await viewStateFacet
@@ -50,26 +55,15 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
     it("emits SetCursedBondPercentage", async () => {
       const { adminFacet } = await getContracts();
-      const deployer = await ethers.getNamedSigner("deployer");
       const tx = adminFacet.connect(deployer).setCursedBondPercentage(200);
       // @ts-ignore
       await expect(tx).to.emit(adminFacet, `SetCursedBondPercentage`);
-    });
-
-    it("reverts when a non-owner is the caller", async () => {
-      const { adminFacet } = await getContracts();
-      const signers = await ethers.getSigners();
-      const tx = adminFacet.connect(signers[1]).setCursedBondPercentage(200);
-
-      // @ts-ignore
-      await expect(tx).to.be.reverted;
     });
 
     describe("createSarcophagus", () => {
       context("with cursedBondPercentage set to 150", () => {
         beforeEach(async () => {
           const { adminFacet } = await getContracts();
-          const deployer = await ethers.getNamedSigner("deployer");
           await adminFacet.connect(deployer).setCursedBondPercentage(150);
         });
 
@@ -110,7 +104,6 @@ describe("AdminFacet.setCursedBondPercentage", () => {
       context("with cursedBondPercentage set to 150", () => {
         beforeEach(async () => {
           const { adminFacet } = await getContracts();
-          const deployer = await ethers.getNamedSigner("deployer");
           await adminFacet.connect(deployer).setCursedBondPercentage(150);
         });
 
@@ -346,7 +339,6 @@ describe("AdminFacet.setCursedBondPercentage", () => {
       context("with cursedBondPercentage set to 150", () => {
         beforeEach(async () => {
           const { adminFacet } = await getContracts();
-          const deployer = await ethers.getNamedSigner("deployer");
           await adminFacet.connect(deployer).setCursedBondPercentage(150);
         });
 

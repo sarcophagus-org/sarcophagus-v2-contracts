@@ -6,21 +6,28 @@ import "../libraries/LibUtils.sol";
 import "../storage/LibAppStorage.sol";
 
 contract ViewStateFacet {
-    /// @notice Gets the total protocol fees from the contract.
+    /// @notice Get the admin address from diamond storage
+    /// @return The admin address
+    function getAdmin() external view returns (address) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+        return s.admin;
+    }
+
+    /// @notice Gets the total protocol fees from diamond storage
     /// @return The total protocol fees
     function getTotalProtocolFees() external view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
         return s.totalProtocolFees;
     }
 
-    /// @notice Get the protocol fee base percentage from the contract.
+    /// @notice Get the protocol fee base percentage from diamond storage
     /// @return The protocol fee base percentage - protocolFeeBasePercentage
     function getProtocolFeeBasePercentage() external view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
         return s.protocolFeeBasePercentage;
     }
 
-    /// @notice Get the cursed bond percentage from the contract.
+    /// @notice Get the cursed bond percentage from diamond storage
     /// @return The cursed bond percentage - cursedBondPercentage
     function getCursedBondPercentage() external view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();

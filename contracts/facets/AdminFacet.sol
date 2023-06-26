@@ -12,10 +12,11 @@ contract AdminFacet {
 
     event SetProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage);
     event SetCursedBondPercentage(uint256 cursedBondPercentage);
-    event WithdrawProtocolFees(uint256 totalProtocolFees);
+    event WithdrawProtocolFees(uint256 totalProtocolFees, address withdrawalAddress);
     event SetGracePeriod(uint256 gracePeriod);
     event SetEmbalmerClaimWindow(uint256 embalmerClaimWindow);
     event SetExpirationThreshold(uint256 expirationThreshold);
+    event AdminTransferred(address indexed previousAdmin, address indexed newAdmin);
 
     /// @notice Admin has attempted to set a zero value
     error CannotSetZeroValue();
@@ -23,24 +24,23 @@ contract AdminFacet {
     /// @notice Caller must be the admin address
     error CallerIsNotAdmin();
 
-    /// @notice Withdraws the total protocol fee amount from the contract.
-    function withdrawProtocolFees() external {
-        AppStorage storage s = LibAppStorage.getAppStorage();
+    /// @notice Provided address cannot be zero address
+    error ZeroAddress();
 
+    /// @notice Withdraws the total protocol fee amount from the contract to the specified address
+    /// @param withdrawalAddress - the address to withdraw funds to
+    function withdrawProtocolFees(address withdrawalAddress) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         if (msg.sender != s.admin) {
             revert CallerIsNotAdmin();
         }
-
         // Get the total protocol fees from storage
         uint256 totalProtocolFees = s.totalProtocolFees;
-
         // Set the total protocol fees to 0 before the transfer to avoid reentrancy
         s.totalProtocolFees = 0;
-
         // Transfer the protocol fee amount to the sender after setting state
-        s.sarcoToken.safeTransfer(msg.sender, totalProtocolFees);
-
-        emit WithdrawProtocolFees(totalProtocolFees);
+        s.sarcoToken.safeTransfer(withdrawalAddress, totalProtocolFees);
+        emit WithdrawProtocolFees(totalProtocolFees, withdrawalAddress);
     }
 
     /// @notice Sets the protocol fee base percentage, used to calculate protocol fees
@@ -102,5 +102,19 @@ contract AdminFacet {
         }
         s.expirationThreshold = expirationThreshold;
         emit SetExpirationThreshold(expirationThreshold);
+    }
+
+    /// @notice Transfers admin address to newAdmin. Can only be called by current admin.
+    /// @param newAdmin to set
+    function transferAdmin(address newAdmin) external {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+        if (msg.sender != s.admin) {
+            revert CallerIsNotAdmin();
+        }
+        if (newAdmin == address(0)) {
+            revert ZeroAddress();
+        }
+        s.admin = newAdmin;
+        emit AdminTransferred(msg.sender, newAdmin);
     }
 }
