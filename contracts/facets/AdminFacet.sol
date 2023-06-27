@@ -8,8 +8,6 @@ import {LibDiamond} from "hardhat-deploy/solc_0.8/diamond/libraries/LibDiamond.s
 
 /// @notice Caller of any function in this facet must be the admin address
 contract AdminFacet {
-    using SafeERC20 for IERC20;
-
     event SetProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage);
     event SetCursedBondPercentage(uint256 cursedBondPercentage);
     event WithdrawProtocolFees(uint256 totalProtocolFees, address withdrawalAddress);
@@ -39,7 +37,7 @@ contract AdminFacet {
         // Set the total protocol fees to 0 before the transfer to avoid reentrancy
         s.totalProtocolFees = 0;
         // Transfer the protocol fee amount to the sender after setting state
-        s.sarcoToken.safeTransfer(withdrawalAddress, totalProtocolFees);
+        s.sarcoToken.transfer(withdrawalAddress, totalProtocolFees);
         emit WithdrawProtocolFees(totalProtocolFees, withdrawalAddress);
     }
 

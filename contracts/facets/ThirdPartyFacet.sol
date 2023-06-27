@@ -12,8 +12,6 @@ import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 
 contract ThirdPartyFacet {
-    using SafeERC20 for IERC20;
-
     event AccuseArchaeologist(
         bytes32 indexed sarcoId,
         address indexed accuser,
@@ -164,7 +162,7 @@ contract ThirdPartyFacet {
         // Transfer total slashed locked bonds plus digging fees to the embalmer if they are the caller, otherwise add
         // this to the contract's protocol fees
         if (msg.sender == sarcophagus.embalmerAddress) {
-            s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress, totalDiggingFeesAndLockedBonds);
+            s.sarcoToken.transfer(sarcophagus.embalmerAddress, totalDiggingFeesAndLockedBonds);
         } else {
             s.totalProtocolFees += totalDiggingFeesAndLockedBonds;
         }
@@ -345,13 +343,13 @@ contract ThirdPartyFacet {
         uint256 halfTotalCursedBond = totalCursedBond >> 1;
         uint256 totalDiggingFees = totalCursedBond / (sarcophagus.cursedBondPercentage / 10000);
         // transfer the cursed half, plus the current digging fees, to the embalmer
-        s.sarcoToken.safeTransfer(
+        s.sarcoToken.transfer(
             sarcophagus.embalmerAddress,
             totalDiggingFees + halfTotalCursedBond
         );
 
         // transfer the other half of the cursed bond to the transaction caller
-        s.sarcoToken.safeTransfer(paymentAddress, halfTotalCursedBond);
+        s.sarcoToken.transfer(paymentAddress, halfTotalCursedBond);
 
         emit AccuseArchaeologist(
             sarcoId,

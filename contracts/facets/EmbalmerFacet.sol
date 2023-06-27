@@ -10,8 +10,6 @@ import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 
 contract EmbalmerFacet {
-    using SafeERC20 for IERC20;
-
     /// @notice Emitted when a sarcophagus is created
     /// @param sarcoId Id of the new sarcophagus
     /// @param name Name of the new sarcophagus
@@ -303,7 +301,7 @@ contract EmbalmerFacet {
             // Transfer totalDiggingFees and the protocolFees in SARCO from embalmer to this contract
             uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
             s.totalProtocolFees += protocolFees;
-            s.sarcoToken.safeTransferFrom(
+            s.sarcoToken.transferFrom(
                 msg.sender,
                 address(this),
                 totalDiggingFees + protocolFees
@@ -481,7 +479,7 @@ contract EmbalmerFacet {
         }
 
         // Transfer the new digging fees and protocol fees from embalmer to contract
-        s.sarcoToken.safeTransferFrom(msg.sender, address(this), totalDiggingFees + protocolFees);
+        s.sarcoToken.transferFrom(msg.sender, address(this), totalDiggingFees + protocolFees);
 
         emit RewrapSarcophagus(sarcoId, resurrectionTime, totalDiggingFees, protocolFees);
     }
