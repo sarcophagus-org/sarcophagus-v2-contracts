@@ -53,7 +53,7 @@ export async function createSarcophagi(
   const recipientAddress = (await getSigners())[0].address;
 
   // Get the contracts
-  const diamond = await ethers.getContract("SarcophagusGoerliV2_DiamondProxy");
+  const diamond = await ethers.getContract("Sarcophagus_V2_DiamondProxy");
   const embalmerFacet = await ethers.getContractAt(
     "EmbalmerFacet",
     diamond.address

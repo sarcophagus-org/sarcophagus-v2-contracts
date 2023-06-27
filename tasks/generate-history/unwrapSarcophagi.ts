@@ -21,7 +21,7 @@ export async function unwrapSarcophagi(
 
   const archaeologistUnwrapChance =
     generateHistoryConfig.archaeologistUnwrapChance;
-  const diamond = await ethers.getContract("SarcophagusGoerliV2_DiamondProxy");
+  const diamond = await ethers.getContract("Sarcophagus_V2_DiamondProxy");
   const archaeologistFacet = await ethers.getContractAt(
     "ArchaeologistFacet",
     diamond.address

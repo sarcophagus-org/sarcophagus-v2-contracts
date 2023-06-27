@@ -22,7 +22,7 @@ export const getContracts = async (): Promise<{
   viewStateFacet: ViewStateFacet;
   adminFacet: AdminFacet;
 }> => {
-  const diamond = await ethers.getContract("SarcophagusGoerliV2_DiamondProxy");
+  const diamond = await ethers.getContract("Sarcophagus_V2_DiamondProxy");
 
   return {
     diamond,
