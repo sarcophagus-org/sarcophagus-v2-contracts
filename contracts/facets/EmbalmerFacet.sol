@@ -406,7 +406,7 @@ contract EmbalmerFacet {
                 // increase the archaeologist's cursed bond to cover the necessary cursed bond amount
                 if (newDiggingFees > prevDiggingFees) {
                     uint256 cursedBondIncrease = ((newDiggingFees - prevDiggingFees) *
-                        cursedBondPercentage) / 100;
+                        cursedBondPercentage) / 10000;
 
                     // If the previous cycle's rewards can't cover the cursed bond increase, revert
                     if (cursedBondIncrease > prevDiggingFees) {
@@ -425,7 +425,7 @@ contract EmbalmerFacet {
                 } else if (newDiggingFees < prevDiggingFees) {
                     // New digging fees are less than the previous digging fees, so some of the cursed bond can be unlocked
                     uint256 cursedBondDecrease = ((prevDiggingFees - newDiggingFees) *
-                        cursedBondPercentage) / 100;
+                        cursedBondPercentage) / 10000;
 
                     // Decrease archaeologist's cursed bond by the difference
                     s
@@ -455,11 +455,11 @@ contract EmbalmerFacet {
                     // Unlock the curseFee cursed bond by debiting the cursed bond and crediting free bond
                     LibBonds.decreaseCursedBond(
                         archaeologistAddresses[i],
-                        ((cursedArchaeologist.curseFee * cursedBondPercentage) / 100)
+                        ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000)
                     );
 
                     s.archaeologistProfiles[archaeologistAddresses[i]]
-                        .freeBond += ((cursedArchaeologist.curseFee * cursedBondPercentage) / 100);
+                        .freeBond += ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000);
                 }
             }
             unchecked {

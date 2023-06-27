@@ -65,7 +65,7 @@ export const getDiggingFeesPlusProtocolFeesSarquitos = async (
   return totalDiggingFees.add(
     totalDiggingFees
       .mul(await viewStateFacet.getProtocolFeeBasePercentage())
-      .div(100)
+      .div(10000)
   );
 };
 
@@ -84,6 +84,6 @@ export const getAllFeesSarquitos = async (
   return totalDiggingFees.add(
     totalDiggingFees
       .mul(await viewStateFacet.getProtocolFeeBasePercentage())
-      .div(100)
+      .div(10000)
   );
 };

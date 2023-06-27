@@ -44,6 +44,7 @@ contract AdminFacet {
     }
 
     /// @notice Sets the protocol fee base percentage, used to calculate protocol fees
+    /// @notice The denominator is 10000
     /// @param protocolFeeBasePercentage percentage to set
     function setProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
@@ -55,9 +56,9 @@ contract AdminFacet {
     }
 
     /// @notice Sets the digging fee / cursed bond ratio
+    /// @notice The denominator is 10000
     /// used to calculate how much bond archaeologists must lock per curse.
     /// @param cursedBondPercentage ratio to set.
-    /// @dev Can only be called by the owner.
     function setCursedBondPercentage(uint256 cursedBondPercentage) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
         if (msg.sender != s.admin) {
@@ -71,8 +72,8 @@ contract AdminFacet {
     }
 
     /// @notice Updates the resurrection grace period
+    /// @notice Denominated in seconds
     /// @param gracePeriod to set
-    /// @dev Can only be called by the diamond owner.
     function setGracePeriod(uint256 gracePeriod) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
         if (msg.sender != s.admin) {
@@ -83,6 +84,7 @@ contract AdminFacet {
     }
 
     /// @notice Updates the embalmerClaimWindow
+    /// @notice Denominated in seconds
     /// @param embalmerClaimWindow to set
     function setEmbalmerClaimWindow(uint256 embalmerClaimWindow) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
@@ -94,6 +96,7 @@ contract AdminFacet {
     }
 
     /// @notice Updates the expirationThreshold used during sarcophagus creation
+    /// @notice Denominated in seconds
     /// @param expirationThreshold to set
     function setExpirationThreshold(uint256 expirationThreshold) external {
         AppStorage storage s = LibAppStorage.getAppStorage();
@@ -104,7 +107,7 @@ contract AdminFacet {
         emit SetExpirationThreshold(expirationThreshold);
     }
 
-    /// @notice Transfers admin address to newAdmin. Can only be called by current admin.
+    /// @notice Transfers admin address to newAdmin.
     /// @param newAdmin to set
     function transferAdmin(address newAdmin) external {
         AppStorage storage s = LibAppStorage.getAppStorage();

@@ -61,10 +61,10 @@ describe("AdminFacet.setCursedBondPercentage", () => {
     });
 
     describe("createSarcophagus", () => {
-      context("with cursedBondPercentage set to 150", () => {
+      context("with cursedBondPercentage set to 15000", () => {
         beforeEach(async () => {
           const { adminFacet } = await getContracts();
-          await adminFacet.connect(deployer).setCursedBondPercentage(150);
+          await adminFacet.connect(deployer).setCursedBondPercentage(15000);
         });
 
         it("locks the correct amount of bond", async () => {
@@ -94,7 +94,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
           // Cursed bond should be 1.5x the digging fees
           expect(archaeologist.cursedBond).to.eq(
-            diggingFeeAmount.mul(150).div(100)
+            diggingFeeAmount.mul(15000).div(10000)
           );
         });
       });
@@ -104,7 +104,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
       context("with cursedBondPercentage set to 150", () => {
         beforeEach(async () => {
           const { adminFacet } = await getContracts();
-          await adminFacet.connect(deployer).setCursedBondPercentage(150);
+          await adminFacet.connect(deployer).setCursedBondPercentage(15000);
         });
 
         it("pays the correct amount of rewards on the first and second rewraps", async () => {
@@ -231,7 +231,7 @@ describe("AdminFacet.setCursedBondPercentage", () => {
             initialResurrectionInterval
           ).mul(minDiggingFeePerSecond);
 
-          const originalCursedBond = diggingFeeAmount.mul(150).div(100);
+          const originalCursedBond = diggingFeeAmount.mul(15000).div(10000);
 
           // Use longer interval than interval used during create (15000 vs. 10000)
           await embalmerFacet
@@ -255,8 +255,8 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
           const newCursedBond = newResurrectionInterval
             .mul(minDiggingFeePerSecond)
-            .mul(150)
-            .div(100);
+            .mul(15000)
+            .div(10000);
 
           const rewards = await viewStateFacet
             .connect(archaeologists[0].archAddress)
@@ -322,8 +322,8 @@ describe("AdminFacet.setCursedBondPercentage", () => {
 
           const newCursedBond = newResurrectionInterval
             .mul(minDiggingFeePerSecond)
-            .mul(150)
-            .div(100);
+            .mul(15000)
+            .div(10000);
 
           const rewards = await viewStateFacet
             .connect(archaeologists[0].archAddress)

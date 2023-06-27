@@ -36,14 +36,14 @@ describe("AdminFacet.setProtocolFeeBasePercentage", () => {
     accountGenerator.index = 0;
   });
 
-  it("defaults protocolFeeBasePercentage to 1", async () => {
+  it("defaults protocolFeeBasePercentage to 100 (1%)", async () => {
     const { viewStateFacet } = await getContracts();
     const signers = await ethers.getSigners();
 
     const protocolFeeBasePercentage = await viewStateFacet
       .connect(signers[0])
       .getProtocolFeeBasePercentage();
-    expect(protocolFeeBasePercentage).to.eq(1);
+    expect(protocolFeeBasePercentage).to.eq(100);
   });
 
   it("sets the protocol fees base percentage", async () => {

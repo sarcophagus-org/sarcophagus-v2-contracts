@@ -19,15 +19,15 @@ struct AppStorage {
     /**
      * Protocol level admin configurations
      */
-    // % of total digging fees for sarcophagus to charge embalmer on create and rewrap
+    // % of total digging fees for sarcophagus to charge embalmer on create and rewrap. Denominator is 10000
     uint256 protocolFeeBasePercentage;
-    // % of digging fees archaeologists must have locked up per curse in cursed bond
+    // % of digging fees archaeologists must have locked up per curse in cursed bond. Denominator is 10000
     uint256 cursedBondPercentage;
-    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time
+    // grace period an archaeologist is given to resurrect a sarcophagus after the resurrection time. Specified in seconds
     uint256 gracePeriod;
-    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated
+    // threshold after which archaeologist signatures on sarcophagus params expire and the sarcophagus must be renegotiated. Specified in seconds
     uint256 expirationThreshold;
-    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys
+    // window after end of gracePeriod + resurrectionTime where embalmer can claim remaining bonds from archaeologists that have failed to publish private keys. Specified in seconds
     uint256 embalmerClaimWindow;
     // registered archaeologist addresses
     address[] archaeologistProfileAddresses;

@@ -412,7 +412,7 @@ describe("ThirdPartyFacet.accuse", () => {
 
           const lockedBondAmount = diggingFeesDue
             .mul(cursedBondPercentage)
-            .div(100);
+            .div(10000);
 
           expect(innocentArchaeologistProfile.cursedBond.toString()).to.equal(
             lockedBondAmount
@@ -472,7 +472,7 @@ describe("ThirdPartyFacet.accuse", () => {
 
       const lockedBondAmount = diggingFeesDue
         .mul(cursedBondPercentage)
-        .div(100);
+        .div(10000);
 
       // verify accuser and embalmer have received the expected funds
       expect(await getSarquitoBalance(accuser.address)).to.equal(
@@ -687,7 +687,7 @@ describe("ThirdPartyFacet.accuse", () => {
 
           const lockedBondAmount = diggingFeesDue
             .mul(cursedBondPercentage)
-            .div(100);
+            .div(10000);
 
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
             initialFreeBond?.add(lockedBondAmount)
@@ -765,7 +765,7 @@ describe("ThirdPartyFacet.accuse", () => {
 
           const lockedBondAmount = diggingFeesDue
             .mul(cursedBondPercentage)
-            .div(100);
+            .div(10000);
 
           expect(innocentArchaeologistProfile.cursedBond.toString()).to.equal(
             lockedBondAmount
@@ -939,7 +939,7 @@ describe("ThirdPartyFacet.accuse", () => {
 
           const lockedBondAmount = diggingFeesDue
             .mul(cursedBondPercentage)
-            .div(100);
+            .div(10000);
 
           expect(innocentArchaeologistProfile.freeBond.toString()).to.equal(
             initialFreeBond?.add(lockedBondAmount)

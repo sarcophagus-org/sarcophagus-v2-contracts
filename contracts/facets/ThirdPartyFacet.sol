@@ -147,7 +147,7 @@ contract ThirdPartyFacet {
                     diggingFeesDue += cursedArchaeologist.curseFee;
                 }
 
-                uint256 cursedBondDue = (diggingFeesDue * sarcophagus.cursedBondPercentage) / 100;
+                uint256 cursedBondDue = (diggingFeesDue * sarcophagus.cursedBondPercentage) / 10000;
                 totalDiggingFeesAndLockedBonds += diggingFeesDue + cursedBondDue;
 
                 // slash the archaeologist's locked bond for the sarcophagus
@@ -269,11 +269,11 @@ contract ThirdPartyFacet {
 
             uint256 cursedBondDue = ((accusedArchaeologist.diggingFeePerSecond *
                 (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime)) *
-                sarcophagus.cursedBondPercentage) / 100;
+                sarcophagus.cursedBondPercentage) / 10000;
 
             // If the sarcophagus has not been rewrapped, also slash the curse fee
             if (!sarcophagus.isRewrapped) {
-                cursedBondDue += accusedArchaeologist.curseFee * sarcophagus.cursedBondPercentage / 100;
+                cursedBondDue += accusedArchaeologist.curseFee * sarcophagus.cursedBondPercentage / 10000;
             }
 
             totalCursedBond += cursedBondDue;
@@ -343,7 +343,7 @@ contract ThirdPartyFacet {
         }
 
         uint256 halfTotalCursedBond = totalCursedBond >> 1;
-        uint256 totalDiggingFees = totalCursedBond / (sarcophagus.cursedBondPercentage / 100);
+        uint256 totalDiggingFees = totalCursedBond / (sarcophagus.cursedBondPercentage / 10000);
         // transfer the cursed half, plus the current digging fees, to the embalmer
         s.sarcoToken.safeTransfer(
             sarcophagus.embalmerAddress,

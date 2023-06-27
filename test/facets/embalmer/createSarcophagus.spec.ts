@@ -453,7 +453,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
 
             const cursedBondAmount = diggingFeesDue
               .mul(cursedBondPercentage)
-              .div(100);
+              .div(10000);
 
             expect(archaeologistPostCurseFreeBond).to.equal(
               startingArchaeologistBonds[index].freeBond.sub(cursedBondAmount)

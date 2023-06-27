@@ -34,14 +34,14 @@ describe("AdminFacet.setGracePeriod", () => {
     accountGenerator.index = 0;
   });
 
-  it("defaults gracePeriod to 3600", async () => {
+  it("defaults gracePeriod to 1 day (86400 seconds)", async () => {
     const { viewStateFacet } = await getContracts();
     const signers = await ethers.getSigners();
 
     const gracePeriod = await viewStateFacet
       .connect(signers[0])
       .getGracePeriod();
-    expect(gracePeriod).to.eq(3600);
+    expect(gracePeriod).to.eq(86400);
   });
 
   it("sets the grace period", async () => {

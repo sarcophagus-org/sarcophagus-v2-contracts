@@ -80,7 +80,7 @@ library LibBonds {
             + archaeologist.curseFee;
 
         // Use cursed bond percentage to determine how much bond to lock up
-        uint256 bondToCurse = (((diggingFeesDue) * s.cursedBondPercentage) / 100);
+        uint256 bondToCurse = (((diggingFeesDue) * s.cursedBondPercentage) / 10000);
 
         // Transfer bond to curse from free bond to cursed bond
         decreaseFreeBond(archaeologist.archAddress, bondToCurse);
@@ -111,7 +111,7 @@ library LibBonds {
             diggingFeeAmount += cursedArchaeologist.curseFee;
         }
 
-        uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 100;
+        uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 10000;
 
         LibBonds.decreaseCursedBond(archaeologistAddress, cursedBondAmount);
         s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;

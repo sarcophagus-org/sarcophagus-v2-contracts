@@ -33,15 +33,23 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
   }
 
-  // TODO: set actual defaults prior to mainnet deployment
+  // Default: 1% (100 / 10000)
   const protocolFeeBasePercentage =
-    process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "1";
-  const cursedBondPercentage = process.env.CURSED_BOND_PERCENTAGE || "100";
-  const gracePeriod = process.env.GRACE_PERIOD_SECONDS || "3600";
+    process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "100";
+
+  // Default: 100% (10000 / 10000)
+  const cursedBondPercentage = process.env.CURSED_BOND_PERCENTAGE || "10000";
+
+  // Default: 1 Day
+  const gracePeriod = process.env.GRACE_PERIOD_SECONDS || time.duration.days(1);
+
+  // Default 1 week
   const embalmerClaimWindow =
     process.env.EMBALMER_CLAIM_WINDOW_SECONDS || time.duration.weeks(1);
+
+  // Default 1 hour
   const expirationThreshold =
-    process.env.EXPIRATION_THRESHOLD_SECONDS || "3600";
+    process.env.EXPIRATION_THRESHOLD_SECONDS || time.duration.hours(1);
 
   // TODO: This will most likely be the aragon agent, but verify
   const admin = process.env.ADMIN_ADDRESS || deployer;
