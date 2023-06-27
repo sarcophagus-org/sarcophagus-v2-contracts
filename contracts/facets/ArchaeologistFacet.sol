@@ -204,7 +204,7 @@ contract ArchaeologistFacet {
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
         // Decrease the archaeologist's free bond amount.
         // Reverts if there is not enough free bond on the contract.
-        LibBonds.decreaseFreeBond(msg.sender, amount);
+        s.archaeologistProfiles[msg.sender].freeBond -= amount;
 
         // Transfer the amount of sarcoToken to the archaeologist
         s.sarcoToken.transfer(msg.sender, amount);

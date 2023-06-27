@@ -441,13 +441,8 @@ contract EmbalmerFacet {
                     s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.curseFee;
 
                     // Unlock the curseFee cursed bond by debiting the cursed bond and crediting free bond
-                    LibBonds.decreaseCursedBond(
-                        archaeologistAddresses[i],
-                        ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000)
-                    );
-
-                    s.archaeologistProfiles[archaeologistAddresses[i]]
-                        .freeBond += ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000);
+                    s.archaeologistProfiles[archaeologistAddresses[i]].cursedBond -= ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000);
+                    s.archaeologistProfiles[archaeologistAddresses[i]].freeBond += ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000);
                 }
             }
             unchecked {

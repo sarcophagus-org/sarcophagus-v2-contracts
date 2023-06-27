@@ -8,45 +8,6 @@ import {LibErrors} from "./LibErrors.sol";
 import "../facets/EmbalmerFacet.sol";
 
 library LibBonds {
-    /// @notice Decreases the amount stored in the freeBond mapping for an
-    /// archaeologist. Reverts if the archaeologist's free bond is lower than
-    /// the amount.
-    /// @param archaeologist The address of the archaeologist whose
-    /// free bond is being decreased
-    /// @param amount The amount to decrease the free bond by
-    function decreaseFreeBond(address archaeologist, uint256 amount) internal {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        // Revert if the amount is greater than the current free bond
-        if (amount > s.archaeologistProfiles[archaeologist].freeBond) {
-            revert LibErrors.NotEnoughFreeBond(
-                s.archaeologistProfiles[archaeologist].freeBond,
-                amount
-            );
-        }
-
-        // Decrease the free bond amount
-        s.archaeologistProfiles[archaeologist].freeBond -= amount;
-    }
-
-    /// @notice Decreases the amount stored in the cursedBond mapping for an
-    /// archaeologist, without respectively increasing their free bond.
-    /// @param archaeologist The address of the archaeologist
-    /// @param amount The amount to slash
-    function decreaseCursedBond(address archaeologist, uint256 amount) internal {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-
-        // Revert if the amount is greater than the current cursed bond
-        if (amount > s.archaeologistProfiles[archaeologist].cursedBond) {
-            revert LibErrors.NotEnoughCursedBond(
-                s.archaeologistProfiles[archaeologist].cursedBond,
-                amount
-            );
-        }
-
-        s.archaeologistProfiles[archaeologist].cursedBond -= amount;
-    }
-
     /// @notice Bonds the archaeologist to a sarcophagus.
     /// This does the following:
     ///   - adds the archaeologist's curse params and address to the sarcophagus
@@ -83,7 +44,7 @@ library LibBonds {
         uint256 bondToCurse = (((diggingFeesDue) * s.cursedBondPercentage) / 10000);
 
         // Transfer bond to curse from free bond to cursed bond
-        decreaseFreeBond(archaeologist.archAddress, bondToCurse);
+        s.archaeologistProfiles[archaeologist.archAddress].freeBond -= bondToCurse;
         s.archaeologistProfiles[archaeologist.archAddress].cursedBond += bondToCurse;
 
         return diggingFeesDue;
@@ -111,7 +72,7 @@ library LibBonds {
 
         uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 10000;
 
-        LibBonds.decreaseCursedBond(archaeologistAddress, cursedBondAmount);
+        s.archaeologistProfiles[archaeologistAddress].cursedBond -= cursedBondAmount;
         s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
 
         s.archaeologistRewards[archaeologistAddress] += diggingFeeAmount;
