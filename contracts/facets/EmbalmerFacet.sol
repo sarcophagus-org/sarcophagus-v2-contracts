@@ -333,10 +333,6 @@ contract EmbalmerFacet {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
         }
 
-        if (resurrectionTime == 0) {
-            revert NewResurrectionTimeIsZero();
-        }
-
         // Confirm the sarcophagus has not been compromised
         if (sarcophagus.isCompromised) {
             revert LibErrors.SarcophagusCompromised(sarcoId);
