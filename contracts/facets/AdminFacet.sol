@@ -25,13 +25,18 @@ contract AdminFacet {
     /// @notice Provided address cannot be zero address
     error ZeroAddress();
 
-    /// @notice Withdraws the total protocol fee amount from the contract to the specified address
-    /// @param withdrawalAddress - the address to withdraw funds to
-    function withdrawProtocolFees(address withdrawalAddress) external {
+    modifier onlyAdmin {
         AppStorage storage s = LibAppStorage.getAppStorage();
         if (msg.sender != s.admin) {
             revert CallerIsNotAdmin();
         }
+        _;
+    }
+
+    /// @notice Withdraws the total protocol fee amount from the contract to the specified address
+    /// @param withdrawalAddress - the address to withdraw funds to
+    function withdrawProtocolFees(address withdrawalAddress) external onlyAdmin {
+        AppStorage storage s = LibAppStorage.getAppStorage();
         // Get the total protocol fees from storage
         uint256 totalProtocolFees = s.totalProtocolFees;
         // Set the total protocol fees to 0 before the transfer to avoid reentrancy
@@ -44,11 +49,8 @@ contract AdminFacet {
     /// @notice Sets the protocol fee base percentage, used to calculate protocol fees
     /// @notice The denominator is 10000
     /// @param protocolFeeBasePercentage percentage to set
-    function setProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage) external {
+    function setProtocolFeeBasePercentage(uint256 protocolFeeBasePercentage) external onlyAdmin {
         AppStorage storage s = LibAppStorage.getAppStorage();
-        if (msg.sender != s.admin) {
-            revert CallerIsNotAdmin();
-        }
         s.protocolFeeBasePercentage = protocolFeeBasePercentage;
         emit SetProtocolFeeBasePercentage(protocolFeeBasePercentage);
     }
@@ -57,11 +59,8 @@ contract AdminFacet {
     /// @notice The denominator is 10000
     /// used to calculate how much bond archaeologists must lock per curse.
     /// @param cursedBondPercentage ratio to set.
-    function setCursedBondPercentage(uint256 cursedBondPercentage) external {
+    function setCursedBondPercentage(uint256 cursedBondPercentage) external onlyAdmin {
         AppStorage storage s = LibAppStorage.getAppStorage();
-        if (msg.sender != s.admin) {
-            revert CallerIsNotAdmin();
-        }
         if (cursedBondPercentage == 0) {
             revert CannotSetZeroValue();
         }
@@ -72,11 +71,8 @@ contract AdminFacet {
     /// @notice Updates the resurrection grace period
     /// @notice Denominated in seconds
     /// @param gracePeriod to set
-    function setGracePeriod(uint256 gracePeriod) external {
+    function setGracePeriod(uint256 gracePeriod) external onlyAdmin {
         AppStorage storage s = LibAppStorage.getAppStorage();
-        if (msg.sender != s.admin) {
-            revert CallerIsNotAdmin();
-        }
         s.gracePeriod = gracePeriod;
         emit SetGracePeriod(gracePeriod);
     }
@@ -84,11 +80,8 @@ contract AdminFacet {
     /// @notice Updates the embalmerClaimWindow
     /// @notice Denominated in seconds
     /// @param embalmerClaimWindow to set
-    function setEmbalmerClaimWindow(uint256 embalmerClaimWindow) external {
+    function setEmbalmerClaimWindow(uint256 embalmerClaimWindow) external onlyAdmin {
         AppStorage storage s = LibAppStorage.getAppStorage();
-        if (msg.sender != s.admin) {
-            revert CallerIsNotAdmin();
-        }
         s.embalmerClaimWindow = embalmerClaimWindow;
         emit SetEmbalmerClaimWindow(embalmerClaimWindow);
     }
@@ -96,22 +89,16 @@ contract AdminFacet {
     /// @notice Updates the expirationThreshold used during sarcophagus creation
     /// @notice Denominated in seconds
     /// @param expirationThreshold to set
-    function setExpirationThreshold(uint256 expirationThreshold) external {
+    function setExpirationThreshold(uint256 expirationThreshold) external onlyAdmin {
         AppStorage storage s = LibAppStorage.getAppStorage();
-        if (msg.sender != s.admin) {
-            revert CallerIsNotAdmin();
-        }
         s.expirationThreshold = expirationThreshold;
         emit SetExpirationThreshold(expirationThreshold);
     }
 
     /// @notice Transfers admin address to newAdmin.
     /// @param newAdmin to set
-    function transferAdmin(address newAdmin) external {
+    function transferAdmin(address newAdmin) external onlyAdmin {
         AppStorage storage s = LibAppStorage.getAppStorage();
-        if (msg.sender != s.admin) {
-            revert CallerIsNotAdmin();
-        }
         if (newAdmin == address(0)) {
             revert ZeroAddress();
         }
