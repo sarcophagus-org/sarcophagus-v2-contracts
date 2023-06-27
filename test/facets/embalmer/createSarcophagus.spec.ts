@@ -542,30 +542,6 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       expect(sarcophagusResult.hasLockedBond).to.equal(true);
     });
 
-    it("Should update convenience lookup data structures with the new sarcophagus", async function () {
-      const { viewStateFacet } = await getContracts();
-      const {
-        cursedArchaeologists: archaeologists,
-        createdSarcophagusData: sarcophagusData,
-      } = await createSarcophagusWithRegisteredCursedArchaeologists();
-
-      const archaeologistSarcophagi =
-        await viewStateFacet.getArchaeologistSarcophagi(
-          archaeologists[0].archAddress
-        );
-      expect(archaeologistSarcophagi).contains(sarcophagusData.sarcoId);
-
-      const embalmerSarcophagi = await viewStateFacet.getEmbalmerSarcophagi(
-        sarcophagusData.embalmer.address
-      );
-      expect(embalmerSarcophagi).contains(sarcophagusData.sarcoId);
-
-      const recipientSarcophagi = await viewStateFacet.getRecipientSarcophagi(
-        sarcophagusData.recipientAddress
-      );
-      expect(recipientSarcophagi).contains(sarcophagusData.sarcoId);
-    });
-
     it("Should emit CreateSarcophagus", async function () {
       const { embalmerFacet } = await getContracts();
       const sarcophagusData = await createSarcophagusData({});

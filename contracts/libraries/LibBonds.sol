@@ -86,8 +86,6 @@ library LibBonds {
         decreaseFreeBond(archaeologist.archAddress, bondToCurse);
         s.archaeologistProfiles[archaeologist.archAddress].cursedBond += bondToCurse;
 
-        s.archaeologistSarcophagi[archaeologist.archAddress].push(sarcoId);
-
         return diggingFeesDue;
     }
 

@@ -31,15 +31,6 @@ struct AppStorage {
     uint256 embalmerClaimWindow;
     // registered archaeologist addresses
     address[] archaeologistProfileAddresses;
-    /**
-     * Ownership mappings
-     */
-    // embalmer address => ids of sarcophagi they've created
-    mapping(address => bytes32[]) embalmerSarcophagi;
-    // archaeologist address =>  ids of sarcophagi they're protecting
-    mapping(address => bytes32[]) archaeologistSarcophagi;
-    // recipient address =>  ids of sarcophagi they're recipient on
-    mapping(address => bytes32[]) recipientSarcophagi;
     // public key => archaeologist address
     mapping(bytes => address) publicKeyToArchaeologistAddress;
     // sarcophagus id => sarcophagus object

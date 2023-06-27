@@ -292,12 +292,6 @@ contract EmbalmerFacet {
                 }
             }
 
-            // Add this sarcophagus id to the embalmer's record
-            s.embalmerSarcophagi[msg.sender].push(sarcoId);
-
-            // Add this sarcophagus id to the recipient's record
-            s.recipientSarcophagi[sarcophagusParams.recipientAddress].push(sarcoId);
-
             // Transfer totalDiggingFees and the protocolFees in SARCO from embalmer to this contract
             uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
             s.totalProtocolFees += protocolFees;
