@@ -42,7 +42,7 @@ struct AppStorage {
 }
 
 library LibAppStorage {
-    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("sarcophagus.storage.dev2");
+    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("sarcophagus.storage.1");
 
     function getAppStorage() internal pure returns (AppStorage storage s) {
         bytes32 position = DIAMOND_STORAGE_POSITION;
