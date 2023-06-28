@@ -25,8 +25,8 @@ contract EmbalmerFacet {
         string name,
         uint256 resurrectionTime,
         uint256 creationTime,
-        address embalmer,
-        address recipient,
+        address indexed embalmer,
+        address indexed recipient,
         address[] cursedArchaeologists,
         uint256 totalDiggingFees,
         string arweaveTxId
