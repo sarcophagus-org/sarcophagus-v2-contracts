@@ -129,6 +129,6 @@ library LibUtils {
     function calculateProtocolFees(uint256 totalDiggingFees) internal view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
 
-        return (totalDiggingFees * s.protocolFeeBasePercentage) / 100;
+        return (totalDiggingFees * s.protocolFeeBasePercentage) / 10000;
     }
 }

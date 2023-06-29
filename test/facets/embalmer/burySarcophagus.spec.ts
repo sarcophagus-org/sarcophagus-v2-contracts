@@ -204,7 +204,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             const lockedBondAmount = diggingFeesDue
               .mul(cursedBondPercentage)
-              .div(100);
+              .div(10000);
 
             expect(archaeologistPostCurseFreeBond).to.equal(
               startingArchaeologistBonds[index].freeBond.add(lockedBondAmount)
@@ -394,7 +394,7 @@ describe("EmbalmerFacet.burySarcophagus", () => {
 
             const lockedBondAmount = diggingFeesDue
               .mul(cursedBondPercentage)
-              .div(100);
+              .div(10000);
 
             expect(archaeologistPostBuryFreeBond).to.equal(
               startingInnocentArchaeologistBonds[index].freeBond.add(

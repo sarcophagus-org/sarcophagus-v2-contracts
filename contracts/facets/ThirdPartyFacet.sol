@@ -12,14 +12,12 @@ import "../storage/LibAppStorage.sol";
 import "../libraries/LibTypes.sol";
 
 contract ThirdPartyFacet {
-    using SafeERC20 for IERC20;
-
     event AccuseArchaeologist(
         bytes32 indexed sarcoId,
         address indexed accuser,
         uint256 totalSlashedBondDistributed,
         uint256 totalDiggingFeesDistributed,
-        address[] indexed accusedArchAddresses
+        address[] accusedArchAddresses
     );
 
     event Clean(bytes32 indexed sarcoId, address indexed cleaner);
@@ -147,14 +145,11 @@ contract ThirdPartyFacet {
                     diggingFeesDue += cursedArchaeologist.curseFee;
                 }
 
-                uint256 cursedBondDue = (diggingFeesDue * sarcophagus.cursedBondPercentage) / 100;
+                uint256 cursedBondDue = (diggingFeesDue * sarcophagus.cursedBondPercentage) / 10000;
                 totalDiggingFeesAndLockedBonds += diggingFeesDue + cursedBondDue;
 
                 // slash the archaeologist's locked bond for the sarcophagus
-                LibBonds.decreaseCursedBond(
-                    sarcophagus.cursedArchaeologistAddresses[i],
-                    cursedBondDue
-                );
+                s.archaeologistProfiles[sarcophagus.cursedArchaeologistAddresses[i]].cursedBond -= cursedBondDue;
             }
             unchecked {
                 ++i;
@@ -164,7 +159,7 @@ contract ThirdPartyFacet {
         // Transfer total slashed locked bonds plus digging fees to the embalmer if they are the caller, otherwise add
         // this to the contract's protocol fees
         if (msg.sender == sarcophagus.embalmerAddress) {
-            s.sarcoToken.safeTransfer(sarcophagus.embalmerAddress, totalDiggingFeesAndLockedBonds);
+            s.sarcoToken.transfer(sarcophagus.embalmerAddress, totalDiggingFeesAndLockedBonds);
         } else {
             s.totalProtocolFees += totalDiggingFeesAndLockedBonds;
         }
@@ -269,17 +264,17 @@ contract ThirdPartyFacet {
 
             uint256 cursedBondDue = ((accusedArchaeologist.diggingFeePerSecond *
                 (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime)) *
-                sarcophagus.cursedBondPercentage) / 100;
+                sarcophagus.cursedBondPercentage) / 10000;
 
             // If the sarcophagus has not been rewrapped, also slash the curse fee
             if (!sarcophagus.isRewrapped) {
-                cursedBondDue += accusedArchaeologist.curseFee * sarcophagus.cursedBondPercentage / 100;
+                cursedBondDue += accusedArchaeologist.curseFee * sarcophagus.cursedBondPercentage / 10000;
             }
 
             totalCursedBond += cursedBondDue;
 
             // Slash the offending archaeologists bond
-            LibBonds.decreaseCursedBond(accusedArchaeologistAddress, cursedBondDue);
+            s.archaeologistProfiles[accusedArchaeologistAddress].cursedBond -= cursedBondDue;
             unchecked {
                 ++i;
             }
@@ -343,15 +338,15 @@ contract ThirdPartyFacet {
         }
 
         uint256 halfTotalCursedBond = totalCursedBond >> 1;
-        uint256 totalDiggingFees = totalCursedBond / (sarcophagus.cursedBondPercentage / 100);
+        uint256 totalDiggingFees = totalCursedBond / (sarcophagus.cursedBondPercentage / 10000);
         // transfer the cursed half, plus the current digging fees, to the embalmer
-        s.sarcoToken.safeTransfer(
+        s.sarcoToken.transfer(
             sarcophagus.embalmerAddress,
             totalDiggingFees + halfTotalCursedBond
         );
 
         // transfer the other half of the cursed bond to the transaction caller
-        s.sarcoToken.safeTransfer(paymentAddress, halfTotalCursedBond);
+        s.sarcoToken.transfer(paymentAddress, halfTotalCursedBond);
 
         emit AccuseArchaeologist(
             sarcoId,

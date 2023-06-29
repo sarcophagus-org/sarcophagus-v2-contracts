@@ -17,7 +17,7 @@ export async function accuseSarcophagus(
   const accuser = (await getSigners())[0];
 
   // Get the contracts
-  const diamond = await ethers.getContract("SarcophagusGoerliV2_DiamondProxy");
+  const diamond = await ethers.getContract("Sarcophagus_V2_DiamondProxy");
   const thirdPartyFacet = await ethers.getContractAt(
     "ThirdPartyFacet",
     diamond.address

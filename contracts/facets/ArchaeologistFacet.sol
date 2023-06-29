@@ -10,8 +10,6 @@ import {LibErrors} from "../libraries/LibErrors.sol";
 import {LibBonds} from "../libraries/LibBonds.sol";
 
 contract ArchaeologistFacet {
-    using SafeERC20 for IERC20;
-
     /// @notice Emitted when an archaeologist successfully publishes their private key for a sarcophagus
     /// @param sarcoId ID of sarcophagus archaeologist has published the private key on
     /// @param privateKey private key that has been published
@@ -117,7 +115,7 @@ contract ArchaeologistFacet {
         // transfer SARCO tokens from the archaeologist to this contract, to be
         // used as their free bond. can be 0.
         if (freeBond != 0) {
-            s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
+            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
         }
 
         // save the new archaeologist into relevant data structures
@@ -170,7 +168,7 @@ contract ArchaeologistFacet {
         // used as their free bond. can be 0.
         if (freeBond != 0) {
             s.archaeologistProfiles[msg.sender].freeBond += freeBond;
-            s.sarcoToken.safeTransferFrom(msg.sender, address(this), freeBond);
+            s.sarcoToken.transferFrom(msg.sender, address(this), freeBond);
         }
 
         emit UpdateArchaeologist(
@@ -194,7 +192,7 @@ contract ArchaeologistFacet {
         s.archaeologistProfiles[msg.sender].freeBond += amount;
 
         // Transfer the amount of sarcoToken from the archaeologist to the contract
-        s.sarcoToken.safeTransferFrom(msg.sender, address(this), amount);
+        s.sarcoToken.transferFrom(msg.sender, address(this), amount);
         // Emit an event
         emit DepositFreeBond(msg.sender, amount);
     }
@@ -206,10 +204,10 @@ contract ArchaeologistFacet {
         LibUtils.revertIfArchProfileDoesNotExist(msg.sender);
         // Decrease the archaeologist's free bond amount.
         // Reverts if there is not enough free bond on the contract.
-        LibBonds.decreaseFreeBond(msg.sender, amount);
+        s.archaeologistProfiles[msg.sender].freeBond -= amount;
 
         // Transfer the amount of sarcoToken to the archaeologist
-        s.sarcoToken.safeTransfer(msg.sender, amount);
+        s.sarcoToken.transfer(msg.sender, amount);
 
         emit WithdrawFreeBond(msg.sender, amount);
     }
@@ -221,7 +219,7 @@ contract ArchaeologistFacet {
         s.archaeologistRewards[msg.sender] = 0;
 
         // Transfer the amount of sarcoToken to the archaeologist
-        s.sarcoToken.safeTransfer(msg.sender, amountToWithdraw);
+        s.sarcoToken.transfer(msg.sender, amountToWithdraw);
 
         emit WithdrawReward(msg.sender, amountToWithdraw);
     }

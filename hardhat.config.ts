@@ -97,7 +97,7 @@ const config: HardhatUserConfig = {
     coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY,
 
     // Uncomment to override gas price
-    gasPrice: 20,
+    // gasPrice: 20,
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
@@ -108,7 +108,7 @@ extendEnvironment(async (hre) => {
   hre["loadContracts"] = async (suppliedDiamondAddress) => {
     const diamondAddress =
       suppliedDiamondAddress ||
-      require(`./deployments/${hre.network.name}/SarcophagusGoerliV2_DiamondProxy.json`)
+      require(`./deployments/${hre.network.name}/Sarcophagus_V2_DiamondProxy.json`)
         .address;
     console.log(
       `Initializing HRE on network ${hre.network.name} with diamond address ${diamondAddress}`

@@ -412,7 +412,7 @@ describe("ThirdPartyFacet.clean", () => {
 
             const lockedBondAmount = diggingFeesDue
               .mul(cursedBondPercentage)
-              .div(100);
+              .div(10000);
 
             expect(balanceAfterClean).to.equal(
               nonPublishingArchaeologistAddressesToInitialLockedBondsSarquitos
@@ -529,7 +529,7 @@ describe("ThirdPartyFacet.clean", () => {
 
             const lockedBondAmount = diggingFeesDue
               .mul(cursedBondPercentage)
-              .div(100);
+              .div(10000);
 
             expect(balanceAfterClean).to.equal(
               nonPublishingArchaeologistAddressesToInitialLockedBondsSarquitos

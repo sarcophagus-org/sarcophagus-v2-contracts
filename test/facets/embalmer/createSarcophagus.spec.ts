@@ -453,7 +453,7 @@ describe("EmbalmerFacet.createSarcophagus", () => {
 
             const cursedBondAmount = diggingFeesDue
               .mul(cursedBondPercentage)
-              .div(100);
+              .div(10000);
 
             expect(archaeologistPostCurseFreeBond).to.equal(
               startingArchaeologistBonds[index].freeBond.sub(cursedBondAmount)
@@ -540,30 +540,6 @@ describe("EmbalmerFacet.createSarcophagus", () => {
       expect(sarcophagusResult.isCompromised).to.equal(false);
       expect(sarcophagusResult.publishedPrivateKeyCount).to.equal(0);
       expect(sarcophagusResult.hasLockedBond).to.equal(true);
-    });
-
-    it("Should update convenience lookup data structures with the new sarcophagus", async function () {
-      const { viewStateFacet } = await getContracts();
-      const {
-        cursedArchaeologists: archaeologists,
-        createdSarcophagusData: sarcophagusData,
-      } = await createSarcophagusWithRegisteredCursedArchaeologists();
-
-      const archaeologistSarcophagi =
-        await viewStateFacet.getArchaeologistSarcophagi(
-          archaeologists[0].archAddress
-        );
-      expect(archaeologistSarcophagi).contains(sarcophagusData.sarcoId);
-
-      const embalmerSarcophagi = await viewStateFacet.getEmbalmerSarcophagi(
-        sarcophagusData.embalmer.address
-      );
-      expect(embalmerSarcophagi).contains(sarcophagusData.sarcoId);
-
-      const recipientSarcophagi = await viewStateFacet.getRecipientSarcophagi(
-        sarcophagusData.recipientAddress
-      );
-      expect(recipientSarcophagi).contains(sarcophagusData.sarcoId);
     });
 
     it("Should emit CreateSarcophagus", async function () {

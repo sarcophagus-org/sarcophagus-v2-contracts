@@ -10,8 +10,6 @@ import {LibBonds} from "../libraries/LibBonds.sol";
 import {LibUtils} from "../libraries/LibUtils.sol";
 
 contract EmbalmerFacet {
-    using SafeERC20 for IERC20;
-
     /// @notice Emitted when a sarcophagus is created
     /// @param sarcoId Id of the new sarcophagus
     /// @param name Name of the new sarcophagus
@@ -27,8 +25,8 @@ contract EmbalmerFacet {
         string name,
         uint256 resurrectionTime,
         uint256 creationTime,
-        address embalmer,
-        address recipient,
+        address indexed embalmer,
+        address indexed recipient,
         address[] cursedArchaeologists,
         uint256 totalDiggingFees,
         string arweaveTxId
@@ -294,16 +292,10 @@ contract EmbalmerFacet {
                 }
             }
 
-            // Add this sarcophagus id to the embalmer's record
-            s.embalmerSarcophagi[msg.sender].push(sarcoId);
-
-            // Add this sarcophagus id to the recipient's record
-            s.recipientSarcophagi[sarcophagusParams.recipientAddress].push(sarcoId);
-
             // Transfer totalDiggingFees and the protocolFees in SARCO from embalmer to this contract
             uint256 protocolFees = LibUtils.calculateProtocolFees(totalDiggingFees);
             s.totalProtocolFees += protocolFees;
-            s.sarcoToken.safeTransferFrom(
+            s.sarcoToken.transferFrom(
                 msg.sender,
                 address(this),
                 totalDiggingFees + protocolFees
@@ -333,10 +325,6 @@ contract EmbalmerFacet {
         // Confirm the sarcophagus exists
         if (sarcophagus.resurrectionTime == 0) {
             revert LibErrors.SarcophagusDoesNotExist(sarcoId);
-        }
-
-        if (resurrectionTime == 0) {
-            revert NewResurrectionTimeIsZero();
         }
 
         // Confirm the sarcophagus has not been compromised
@@ -406,7 +394,7 @@ contract EmbalmerFacet {
                 // increase the archaeologist's cursed bond to cover the necessary cursed bond amount
                 if (newDiggingFees > prevDiggingFees) {
                     uint256 cursedBondIncrease = ((newDiggingFees - prevDiggingFees) *
-                        cursedBondPercentage) / 100;
+                        cursedBondPercentage) / 10000;
 
                     // If the previous cycle's rewards can't cover the cursed bond increase, revert
                     if (cursedBondIncrease > prevDiggingFees) {
@@ -425,7 +413,7 @@ contract EmbalmerFacet {
                 } else if (newDiggingFees < prevDiggingFees) {
                     // New digging fees are less than the previous digging fees, so some of the cursed bond can be unlocked
                     uint256 cursedBondDecrease = ((prevDiggingFees - newDiggingFees) *
-                        cursedBondPercentage) / 100;
+                        cursedBondPercentage) / 10000;
 
                     // Decrease archaeologist's cursed bond by the difference
                     s
@@ -453,13 +441,8 @@ contract EmbalmerFacet {
                     s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.curseFee;
 
                     // Unlock the curseFee cursed bond by debiting the cursed bond and crediting free bond
-                    LibBonds.decreaseCursedBond(
-                        archaeologistAddresses[i],
-                        ((cursedArchaeologist.curseFee * cursedBondPercentage) / 100)
-                    );
-
-                    s.archaeologistProfiles[archaeologistAddresses[i]]
-                        .freeBond += ((cursedArchaeologist.curseFee * cursedBondPercentage) / 100);
+                    s.archaeologistProfiles[archaeologistAddresses[i]].cursedBond -= ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000);
+                    s.archaeologistProfiles[archaeologistAddresses[i]].freeBond += ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000);
                 }
             }
             unchecked {
@@ -481,7 +464,7 @@ contract EmbalmerFacet {
         }
 
         // Transfer the new digging fees and protocol fees from embalmer to contract
-        s.sarcoToken.safeTransferFrom(msg.sender, address(this), totalDiggingFees + protocolFees);
+        s.sarcoToken.transferFrom(msg.sender, address(this), totalDiggingFees + protocolFees);
 
         emit RewrapSarcophagus(sarcoId, resurrectionTime, totalDiggingFees, protocolFees);
     }

@@ -5,7 +5,7 @@ import { expect } from "chai";
 const { deployments, ethers } = require("hardhat");
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-describe("AdminFacet.setGracePeriod", () => {
+describe("AdminFacet.transferAdmin", () => {
   let deployer: SignerWithAddress;
 
   context("when caller is not the admin", async () => {
@@ -20,7 +20,9 @@ describe("AdminFacet.setGracePeriod", () => {
     it("reverts with the correct error message", async () => {
       const { adminFacet } = await getContracts();
       const deployer = await ethers.getNamedSigner("deployer");
-      const setTx = adminFacet.connect(deployer).setGracePeriod(200);
+      const setTx = adminFacet
+        .connect(deployer)
+        .transferAdmin(deployer.address);
       await expect(setTx).to.be.revertedWithCustomError(
         adminFacet,
         "CallerIsNotAdmin"
@@ -34,28 +36,34 @@ describe("AdminFacet.setGracePeriod", () => {
     accountGenerator.index = 0;
   });
 
-  it("defaults gracePeriod to 1 day (86400 seconds)", async () => {
-    const { viewStateFacet } = await getContracts();
+  it("transfers the admin successfully", async () => {
+    const { viewStateFacet, adminFacet } = await getContracts();
     const signers = await ethers.getSigners();
+    await adminFacet.connect(deployer).transferAdmin(signers[1].address);
 
-    const gracePeriod = await viewStateFacet
-      .connect(signers[0])
-      .getGracePeriod();
-    expect(gracePeriod).to.eq(86400);
+    const adminAddress = await viewStateFacet.connect(deployer).getAdmin();
+    expect(adminAddress).to.eq(signers[1].address);
   });
 
-  it("sets the grace period", async () => {
-    const { adminFacet, viewStateFacet } = await getContracts();
-    await adminFacet.connect(deployer).setGracePeriod(200);
+  it("emits transferAdmin event", async () => {
+    const { viewStateFacet, adminFacet } = await getContracts();
+    const signers = await ethers.getSigners();
+    const transferTx = adminFacet
+      .connect(deployer)
+      .transferAdmin(signers[1].address);
 
-    const gracePeriod = await viewStateFacet.connect(deployer).getGracePeriod();
-    expect(gracePeriod).to.eq(200);
+    await expect(transferTx).to.emit(adminFacet, `AdminTransferred`);
   });
 
-  it("emits SetGracePeriod", async () => {
+  it("does not allow admin address to be the zero address", async () => {
     const { adminFacet } = await getContracts();
-    const tx = adminFacet.connect(deployer).setGracePeriod(200);
-    // @ts-ignore
-    await expect(tx).to.emit(adminFacet, `SetGracePeriod`);
+    const deployer = await ethers.getNamedSigner("deployer");
+    const setTx = adminFacet
+      .connect(deployer)
+      .transferAdmin(ethers.constants.AddressZero);
+    await expect(setTx).to.be.revertedWithCustomError(
+      adminFacet,
+      "ZeroAddress"
+    );
   });
 });

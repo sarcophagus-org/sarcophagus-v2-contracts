@@ -3,9 +3,33 @@ import { getContracts } from "../helpers/contracts";
 import { expect } from "chai";
 
 const { deployments, ethers } = require("hardhat");
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("AdminFacet.setExpirationThreshold", () => {
+  let deployer: SignerWithAddress;
+
+  context("when caller is not the admin", async () => {
+    beforeEach(async () => {
+      await deployments.fixture();
+      const { adminFacet } = await getContracts();
+      deployer = await ethers.getNamedSigner("deployer");
+      const signers = await ethers.getSigners();
+      await adminFacet.connect(deployer).transferAdmin(signers[1].address);
+    });
+
+    it("reverts with the correct error message", async () => {
+      const { adminFacet } = await getContracts();
+      const deployer = await ethers.getNamedSigner("deployer");
+      const setTx = adminFacet.connect(deployer).setExpirationThreshold(200);
+      await expect(setTx).to.be.revertedWithCustomError(
+        adminFacet,
+        "CallerIsNotAdmin"
+      );
+    });
+  });
+
   beforeEach(async () => {
+    deployer = await ethers.getNamedSigner("deployer");
     await deployments.fixture();
     accountGenerator.index = 0;
   });
@@ -22,7 +46,6 @@ describe("AdminFacet.setExpirationThreshold", () => {
 
   it("sets the expiration threshold if caller is owner", async () => {
     const { adminFacet, viewStateFacet } = await getContracts();
-    const deployer = await ethers.getNamedSigner("deployer");
     await adminFacet.connect(deployer).setExpirationThreshold(200);
 
     const expirationThreshold = await viewStateFacet
@@ -33,7 +56,6 @@ describe("AdminFacet.setExpirationThreshold", () => {
 
   it("emits setExpirationThreshold", async () => {
     const { adminFacet } = await getContracts();
-    const deployer = await ethers.getNamedSigner("deployer");
     const tx = adminFacet.connect(deployer).setExpirationThreshold(200);
     // @ts-ignore
     await expect(tx).to.emit(adminFacet, `SetExpirationThreshold`);

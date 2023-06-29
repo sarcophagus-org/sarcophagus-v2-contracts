@@ -6,21 +6,28 @@ import "../libraries/LibUtils.sol";
 import "../storage/LibAppStorage.sol";
 
 contract ViewStateFacet {
-    /// @notice Gets the total protocol fees from the contract.
+    /// @notice Get the admin address from diamond storage
+    /// @return The admin address
+    function getAdmin() external view returns (address) {
+        AppStorage storage s = LibAppStorage.getAppStorage();
+        return s.admin;
+    }
+
+    /// @notice Gets the total protocol fees from diamond storage
     /// @return The total protocol fees
     function getTotalProtocolFees() external view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
         return s.totalProtocolFees;
     }
 
-    /// @notice Get the protocol fee base percentage from the contract.
+    /// @notice Get the protocol fee base percentage from diamond storage
     /// @return The protocol fee base percentage - protocolFeeBasePercentage
     function getProtocolFeeBasePercentage() external view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
         return s.protocolFeeBasePercentage;
     }
 
-    /// @notice Get the cursed bond percentage from the contract.
+    /// @notice Get the cursed bond percentage from diamond storage
     /// @return The cursed bond percentage - cursedBondPercentage
     function getCursedBondPercentage() external view returns (uint256) {
         AppStorage storage s = LibAppStorage.getAppStorage();
@@ -208,35 +215,6 @@ contract ViewStateFacet {
                 publishedPrivateKeyCount: publishedPrivateKeyCount,
                 hasLockedBond: hasLockedBond
             });
-    }
-
-    /// @notice Given an embalmer's address, returns the identifiers of all
-    /// sarcophagi that the embalmer has created.
-    /// @param embalmer The address of the embalmer whose sarcophagi are being
-    /// returned
-    function getEmbalmerSarcophagi(address embalmer) external view returns (bytes32[] memory) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.embalmerSarcophagi[embalmer];
-    }
-
-    /// @notice Given an archaeologist's address, returns the identifiers of all
-    /// sarcophagi that the archaeologist has participated in.
-    /// @param archaeologist The address of the archaeologist whose sarcophagi
-    /// are being returned
-    function getArchaeologistSarcophagi(
-        address archaeologist
-    ) external view returns (bytes32[] memory) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.archaeologistSarcophagi[archaeologist];
-    }
-
-    /// @notice Given a recipient's address, returns the identifiers of all
-    /// sarcophagi that the recipient has participated in.
-    /// @param recipient The address of the recipient whose sarcophagi are being
-    /// returned
-    function getRecipientSarcophagi(address recipient) external view returns (bytes32[] memory) {
-        AppStorage storage s = LibAppStorage.getAppStorage();
-        return s.recipientSarcophagi[recipient];
     }
 
     /// @notice Returns the data stored on a sarcophagus for an archaeologist.

@@ -344,7 +344,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
 
       const cursedBondBeforeMinusCurseFeeBond = cursedBondBefore.sub(
-        BigNumber.from(curseFee).mul(cursedBondPercentage).div(100)
+        BigNumber.from(curseFee).mul(cursedBondPercentage).div(10000)
       );
 
       // Get the archaeologist's rewards before rewrap
@@ -383,7 +383,9 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
 
       const diggingFeesDiff = newDiggingFees.sub(prevDiggingFees);
-      const cursedBondDiff = diggingFeesDiff.mul(cursedBondPercentage).div(100);
+      const cursedBondDiff = diggingFeesDiff
+        .mul(cursedBondPercentage)
+        .div(10000);
 
       // Expect the cursed bond after - cursed bond before to be equal to the difference in digging fees
       expect(cursedBondAfter.sub(cursedBondBeforeMinusCurseFeeBond)).to.equal(
@@ -430,7 +432,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
 
       const cursedBondBeforeMinusCurseFeeBond = cursedBondBefore.sub(
-        BigNumber.from(curseFee).mul(cursedBondPercentage).div(100)
+        BigNumber.from(curseFee).mul(cursedBondPercentage).div(10000)
       );
 
       // Get the first archaeologist's free bond before rewrap
@@ -439,7 +441,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
 
       const freeBondBeforeBeforePlusCurseFeeBond = freeBondBefore.add(
-        BigNumber.from(curseFee).mul(cursedBondPercentage).div(100)
+        BigNumber.from(curseFee).mul(cursedBondPercentage).div(10000)
       );
 
       // Get the archaeologist's rewards before rewrap
@@ -535,7 +537,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
 
       const cursedBondBeforeMinusCurseFeeBond = cursedBondBefore.sub(
-        BigNumber.from(curseFee).mul(cursedBondPercentage).div(100)
+        BigNumber.from(curseFee).mul(cursedBondPercentage).div(10000)
       );
 
       // Get the first archaeologist's free bond before rewrap
@@ -544,7 +546,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
       );
 
       const freeBondBeforeBeforePlusCurseFeeBond = freeBondBefore.add(
-        BigNumber.from(curseFee).mul(cursedBondPercentage).div(100)
+        BigNumber.from(curseFee).mul(cursedBondPercentage).div(10000)
       );
 
       // Get the archaeologist's rewards before rewrap
