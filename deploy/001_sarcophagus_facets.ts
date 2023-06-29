@@ -51,7 +51,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const expirationThreshold =
     process.env.EXPIRATION_THRESHOLD_SECONDS || time.duration.hours(1);
 
-  // TODO: This will most likely be the aragon agent, but verify
   const admin = process.env.ADMIN_ADDRESS || deployer;
 
   await diamond.deploy("Sarcophagus_V2", {
