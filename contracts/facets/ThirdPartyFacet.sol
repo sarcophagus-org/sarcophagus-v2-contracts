@@ -17,7 +17,7 @@ contract ThirdPartyFacet {
         address indexed accuser,
         uint256 totalSlashedBondDistributed,
         uint256 totalDiggingFeesDistributed,
-        address[] indexed accusedArchAddresses
+        address[] accusedArchAddresses
     );
 
     event Clean(bytes32 indexed sarcoId, address indexed cleaner);
