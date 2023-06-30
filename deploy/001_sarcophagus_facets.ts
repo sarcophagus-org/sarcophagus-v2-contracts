@@ -34,28 +34,26 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Default: 1% (100 / 10000)
-  const protocolFeeBasePercentage =
-    process.env.PROTOCOL_FEE_BASE_PERCENTAGE || "100";
+  const protocolFeeBasePercentage = "100";
 
   // Default: 100% (10000 / 10000)
-  const cursedBondPercentage = process.env.CURSED_BOND_PERCENTAGE || "10000";
+  const cursedBondPercentage = "10000";
 
   // Default: 1 Day
-  const gracePeriod = process.env.GRACE_PERIOD_SECONDS || time.duration.days(1);
+  const gracePeriod = time.duration.days(1);
 
   // Default 1 week
-  const embalmerClaimWindow =
-    process.env.EMBALMER_CLAIM_WINDOW_SECONDS || time.duration.weeks(1);
+  const embalmerClaimWindow = time.duration.weeks(1);
 
   // Default 1 hour
-  const expirationThreshold =
-    process.env.EXPIRATION_THRESHOLD_SECONDS || time.duration.hours(1);
+  const expirationThreshold = time.duration.hours(1);
 
-  const admin = process.env.ADMIN_ADDRESS || deployer;
+  // DAO Agent Address
+  const daoAgentAddress = "0x2627e4c6beecbcb7ba0a5bb9861ec870dc86eb59";
 
   await diamond.deploy("Sarcophagus_V2", {
     from: deployer,
-    owner: deployer,
+    owner: daoAgentAddress,
     facets: [
       "EmbalmerFacet",
       "ArchaeologistFacet",
@@ -68,7 +66,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       methodName: "init",
       args: [
         sarcoTokenAddress,
-        admin,
+        daoAgentAddress,
         protocolFeeBasePercentage,
         cursedBondPercentage,
         gracePeriod,
