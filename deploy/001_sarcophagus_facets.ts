@@ -8,6 +8,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, diamond } = hre.deployments;
   const { deployer } = await hre.getNamedAccounts();
 
+  // DAO agent address is the deployer for all networks except mainnet
+  // In which case it is the Sarcophagus Aragon Agent
+  let daoAgentAddress = deployer;
+
   // Get the address of the SarcoToken contract
   if (
     hre.hardhatArguments.network === "develop" ||
@@ -27,6 +31,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ["mainnet", "mainnet-fork"].includes(hre.hardhatArguments.network)
   ) {
     sarcoTokenAddress = "0x7697b462a7c4ff5f8b55bdbc2f4076c2af9cf51a";
+
+    // Mainnet DAO Agent Address
+    daoAgentAddress = "0x2627e4c6beecbcb7ba0a5bb9861ec870dc86eb59";
   } else {
     throw Error(
       `Sarcophagus is not set up for this network: ${hre.hardhatArguments.network}`
@@ -47,9 +54,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Default 1 hour
   const expirationThreshold = time.duration.hours(1);
-
-  // DAO Agent Address
-  const daoAgentAddress = "0x2627e4c6beecbcb7ba0a5bb9861ec870dc86eb59";
 
   await diamond.deploy("Sarcophagus_V2", {
     from: deployer,
