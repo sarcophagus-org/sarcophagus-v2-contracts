@@ -78,9 +78,8 @@ Commit updated version to git
 *If the upgrade is run by a signer that is not the original diamond deployer, a new set of facets will be deployed*
 
 - Update the package.json file’s version number with the abi version that will be published for the deployment
-- In your .env file, set
+- In your .env file, set the appropriate values below:
   - `GOERLI_PROVIDER` to a valid goerli rpc node url
-  - `SARCO_TOKEN_ADDRESS_GOERLI` to the address of the SarcoToken contract on Goerli:  `0x4633b43990b41B57b3678c6F3Ac35bA75C3D8436`
   - `GOERLI_DEPLOYER_PRIVATE_KEY` to the address of the original deployer. If this is a new deployment:
     - Update the "name" of the diamond proxy in the deploy file (`await diamond.deploy("Diamond"`).
     - note that on a new deployment, the json deployment files under deployments/goerli/ will be updated with new contract addresses
