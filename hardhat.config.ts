@@ -78,6 +78,34 @@ const config: HardhatUserConfig = {
         ? [process.env.MAINNET_DEPLOYER_PRIVATE_KEY]
         : [],
     },
+    polygon: {
+      chainId: 137,
+      url: process.env.POLYGON_PROVIDER || "",
+      accounts: process.env.POLYGON_DEPLOYER_PRIVATE_KEY
+        ? [process.env.POLYGON_DEPLOYER_PRIVATE_KEY]
+        : [],
+    },
+    base: {
+      chainId: 8453,
+      url: process.env.BASE_PROVIDER || "",
+      accounts: process.env.BASE_DEPLOYER_PRIVATE_KEY
+        ? [process.env.BASE_DEPLOYER_PRIVATE_KEY]
+        : [],
+    },
+    baseGoerli: {
+      chainId: 84531,
+      url: process.env.BASE_GOERLI_PROVIDER || "",
+      accounts: process.env.BASE_GOERLI_DEPLOYER_PRIVATE_KEY
+        ? [process.env.BASE_GOERLI_DEPLOYER_PRIVATE_KEY]
+        : [],
+    },
+    mumbai: {
+      chainId: 80001,
+      url: process.env.MUMBAI_PROVIDER || "",
+      accounts: process.env.MUMBAI_DEPLOYER_PRIVATE_KEY
+        ? [process.env.MUMBAI_DEPLOYER_PRIVATE_KEY]
+        : [],
+    },
     goerli: {
       chainId: 5,
       url: process.env.GOERLI_PROVIDER || "",
@@ -107,7 +135,33 @@ const config: HardhatUserConfig = {
     // gasPrice: 20,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY || "",
+      polygon: process.env.POLYGONSCAN_API_KEY || "",
+      base: process.env.BASESCAN_API_KEY || "",
+      baseGoerli: process.env.BASESCAN_API_KEY || "",
+      mumbai: process.env.POLYGONSCAN_API_KEY || "",
+      goerli: process.env.ETHERSCAN_API_KEY || "",
+      sepolia: process.env.ETHERSCAN_API_KEY || "",
+    },
+    customChains: [
+      {
+        network: "base",
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.basescan.org/",
+          browserURL: "https://basescan.org/",
+        },
+      },
+      {
+        network: "baseGoerli",
+        chainId: 84531,
+        urls: {
+          apiURL: "https://api-goerli.basescan.org/",
+          browserURL: "https://goerli.basescan.org/",
+        },
+      },
+    ],
   },
 };
 
