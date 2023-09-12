@@ -67,7 +67,12 @@ const config: HardhatUserConfig = {
     deployer: {
       default: 0,
       mainnet: `privatekey://${process.env.MAINNET_DEPLOYER_PRIVATE_KEY}`,
+      polygon: `privatekey://${process.env.POLYGON_DEPLOYER_PRIVATE_KEY}`,
+      base: `privatekey://${process.env.BASE_DEPLOYER_PRIVATE_KEY}`,
+      baseGoerli: `privatekey://${process.env.BASE_GOERLI_DEPLOYER_PRIVATE_KEY}`,
+      polygonMumbai: `privatekey://${process.env.POLYGON_MUMBAI_DEPLOYER_PRIVATE_KEY}`,
       goerli: `privatekey://${process.env.GOERLI_DEPLOYER_PRIVATE_KEY}`,
+      sepolia: `privatekey://${process.env.SEPOLIA_DEPLOYER_PRIVATE_KEY}`,
     },
   },
   networks: {
@@ -99,11 +104,11 @@ const config: HardhatUserConfig = {
         ? [process.env.BASE_GOERLI_DEPLOYER_PRIVATE_KEY]
         : [],
     },
-    mumbai: {
+    polygonMumbai: {
       chainId: 80001,
-      url: process.env.MUMBAI_PROVIDER || "",
-      accounts: process.env.MUMBAI_DEPLOYER_PRIVATE_KEY
-        ? [process.env.MUMBAI_DEPLOYER_PRIVATE_KEY]
+      url: process.env.POLYGON_MUMBAI_PROVIDER || "",
+      accounts: process.env.POLYGON_MUMBAI_DEPLOYER_PRIVATE_KEY
+        ? [process.env.POLYGON_MUMBAI_DEPLOYER_PRIVATE_KEY]
         : [],
     },
     goerli: {
@@ -140,7 +145,7 @@ const config: HardhatUserConfig = {
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       base: process.env.BASESCAN_API_KEY || "",
       baseGoerli: process.env.BASESCAN_API_KEY || "",
-      mumbai: process.env.POLYGONSCAN_API_KEY || "",
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
       goerli: process.env.ETHERSCAN_API_KEY || "",
       sepolia: process.env.ETHERSCAN_API_KEY || "",
     },

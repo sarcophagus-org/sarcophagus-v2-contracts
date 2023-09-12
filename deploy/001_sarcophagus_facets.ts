@@ -34,6 +34,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     // Mainnet DAO Agent Address
     daoAgentAddress = "0x2627e4c6beecbcb7ba0a5bb9861ec870dc86eb59";
+  } else if (["polygonMumbai"].includes(hre.hardhatArguments.network)) {
+    sarcoTokenAddress = "0x2BC9019e6d9e6a26D7D8d8CDDa4e5dE9B787D7bb";
+  } else if (["baseGoerli"].includes(hre.hardhatArguments.network)) {
+    sarcoTokenAddress = "0xfa1FA4d51FB2babf59e402c83327Ab5087441289";
   } else {
     throw Error(
       `Sarcophagus is not set up for this network: ${hre.hardhatArguments.network}`
