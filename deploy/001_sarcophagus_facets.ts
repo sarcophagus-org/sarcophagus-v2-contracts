@@ -37,7 +37,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   } else if (["polygonMumbai"].includes(hre.hardhatArguments.network)) {
     sarcoTokenAddress = "0x2BC9019e6d9e6a26D7D8d8CDDa4e5dE9B787D7bb";
   } else if (["baseGoerli"].includes(hre.hardhatArguments.network)) {
-    sarcoTokenAddress = "0xfa1FA4d51FB2babf59e402c83327Ab5087441289";
+    sarcoTokenAddress = "0x2BC9019e6d9e6a26D7D8d8CDDa4e5dE9B787D7bb";
   } else {
     throw Error(
       `Sarcophagus is not set up for this network: ${hre.hardhatArguments.network}`
