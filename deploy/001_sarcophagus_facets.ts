@@ -36,6 +36,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     daoAgentAddress = "0x2627e4c6beecbcb7ba0a5bb9861ec870dc86eb59";
   } else if (["polygonMumbai"].includes(hre.hardhatArguments.network)) {
     sarcoTokenAddress = "0x2BC9019e6d9e6a26D7D8d8CDDa4e5dE9B787D7bb";
+  } else if (["polygon"].includes(hre.hardhatArguments.network)) {
+    sarcoTokenAddress = "0x80Ae3B3847E4e8Bd27A389f7686486CAC9C3f3e8";
   } else if (["baseGoerli"].includes(hre.hardhatArguments.network)) {
     sarcoTokenAddress = "0x2BC9019e6d9e6a26D7D8d8CDDa4e5dE9B787D7bb";
   } else {
