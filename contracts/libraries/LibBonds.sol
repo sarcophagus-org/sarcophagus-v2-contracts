@@ -65,15 +65,16 @@ library LibBonds {
         uint256 diggingFeeAmount = cursedArchaeologist.diggingFeePerSecond *
             (sarcophagus.resurrectionTime - sarcophagus.previousRewrapTime);
 
+        // Include curse fee in bond amount being released
+        uint256 cursedBondAmount = ((diggingFeeAmount + cursedArchaeologist.curseFee) * sarcophagus.cursedBondPercentage) / 10000;
+
+        s.archaeologistProfiles[archaeologistAddress].cursedBond -= cursedBondAmount;
+        s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
+
         // If sarcophagus has not be been rewrapped yet, pay out the curseFee
         if (!sarcophagus.isRewrapped) {
             diggingFeeAmount += cursedArchaeologist.curseFee;
         }
-
-        uint256 cursedBondAmount = (diggingFeeAmount * sarcophagus.cursedBondPercentage) / 10000;
-
-        s.archaeologistProfiles[archaeologistAddress].cursedBond -= cursedBondAmount;
-        s.archaeologistProfiles[archaeologistAddress].freeBond += cursedBondAmount;
 
         s.archaeologistRewards[archaeologistAddress] += diggingFeeAmount;
     }

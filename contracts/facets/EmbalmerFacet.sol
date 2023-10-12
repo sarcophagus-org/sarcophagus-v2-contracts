@@ -439,10 +439,6 @@ contract EmbalmerFacet {
                 if (!sarcophagus.isRewrapped) {
                     // Pay archaeologists the curse fee to their rewards
                     s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.curseFee;
-
-                    // Unlock the curseFee cursed bond by debiting the cursed bond and crediting free bond
-                    s.archaeologistProfiles[archaeologistAddresses[i]].cursedBond -= ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000);
-                    s.archaeologistProfiles[archaeologistAddresses[i]].freeBond += ((cursedArchaeologist.curseFee * cursedBondPercentage) / 10000);
                 }
             }
             unchecked {
