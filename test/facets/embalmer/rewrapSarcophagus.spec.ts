@@ -384,9 +384,7 @@ describe("EmbalmerFacet.rewrapSarcophagus", () => {
         .div(10000);
 
       // Expect the cursed bond after - cursed bond before to be equal to the difference in digging fees
-      expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(
-        cursedBondDiff
-      );
+      expect(cursedBondAfter.sub(cursedBondBefore)).to.equal(cursedBondDiff);
 
       // Expect the rewards after - rewards before to be equal to previous digging fee - the digging fee difference
       expect(rewardsAfter.sub(curseFee).sub(rewardsBefore)).to.equal(
