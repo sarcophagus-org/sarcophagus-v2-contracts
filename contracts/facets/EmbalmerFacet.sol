@@ -435,7 +435,7 @@ contract EmbalmerFacet {
                 // Add digging fees due for the new interval
                 totalDiggingFees += newDiggingFees;
 
-                // If sarcophagus has not been rewrapped yet, pay out the curseFee and unlock the curseFee bond
+                // If sarcophagus has not been rewrapped yet, pay out the curseFee
                 if (!sarcophagus.isRewrapped) {
                     // Pay archaeologists the curse fee to their rewards
                     s.archaeologistRewards[archaeologistAddresses[i]] += cursedArchaeologist.curseFee;
