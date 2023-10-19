@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // DAO agent address is the deployer for all networks except mainnet
   // In which case it is the Sarcophagus Aragon Agent
-  let daoAgentAddress = deployer;
+  const daoAgentAddress = deployer;
 
   // Get the address of the SarcoToken contract
   if (
