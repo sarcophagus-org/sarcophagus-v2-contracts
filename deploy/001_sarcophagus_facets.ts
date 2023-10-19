@@ -31,9 +31,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ["mainnet", "mainnet-fork"].includes(hre.hardhatArguments.network)
   ) {
     sarcoTokenAddress = "0x7697b462a7c4ff5f8b55bdbc2f4076c2af9cf51a";
-
-    // Mainnet DAO Agent Address
-    daoAgentAddress = "0x2627e4c6beecbcb7ba0a5bb9861ec870dc86eb59";
   } else if (["polygonMumbai"].includes(hre.hardhatArguments.network)) {
     sarcoTokenAddress = "0x2BC9019e6d9e6a26D7D8d8CDDa4e5dE9B787D7bb";
   } else if (["polygon"].includes(hre.hardhatArguments.network)) {
