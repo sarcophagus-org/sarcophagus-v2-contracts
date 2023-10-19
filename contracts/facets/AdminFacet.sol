@@ -20,15 +20,16 @@ contract AdminFacet {
     error CannotSetZeroValue();
 
     /// @notice Caller must be the admin address
-    error CallerIsNotAdmin();
+    error CallerIsNotAdminOrOwner();
 
     /// @notice Provided address cannot be zero address
     error ZeroAddress();
 
+    /// @notice Modifier to enforce caller is admin or contract owner
     modifier onlyAdmin {
         AppStorage storage s = LibAppStorage.getAppStorage();
-        if (msg.sender != s.admin) {
-            revert CallerIsNotAdmin();
+        if (msg.sender != s.admin && msg.sender != LibDiamond.contractOwner()) {
+            revert CallerIsNotAdminOrOwner();
         }
         _;
     }
@@ -104,5 +105,17 @@ contract AdminFacet {
         }
         s.admin = newAdmin;
         emit AdminTransferred(msg.sender, newAdmin);
+    }
+
+    /// @notice Transfers diamond owner to new owner.
+    /// @param newOwner to set
+    function transferDiamondOwner(address newOwner) external {
+        LibDiamond.enforceIsContractOwner();
+        LibDiamond.setContractOwner(newOwner);
+    }
+
+    /// @notice Returns current owner of Diamond contract.
+    function getDiamondOwner() external view returns (address) {
+        return LibDiamond.contractOwner();
     }
 }

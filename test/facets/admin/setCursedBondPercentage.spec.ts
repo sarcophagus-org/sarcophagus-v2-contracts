@@ -10,28 +10,41 @@ import {
 import { BigNumber } from "ethers";
 import time from "../../utils/time";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { getArchaeologistFreeBondSarquitos } from "../helpers/bond";
 
 const { deployments, ethers } = require("hardhat");
 
 describe("AdminFacet.setCursedBondPercentage", () => {
   let deployer: SignerWithAddress;
 
+  context("after deployment", async () => {
+    beforeEach(async () => {
+      await deployments.fixture();
+    });
+
+    it("defaults the admin and owner to the deployer", async () => {
+      const { adminFacet, viewStateFacet } = await getContracts();
+      deployer = await ethers.getNamedSigner("deployer");
+      const adminAddress = await viewStateFacet.connect(deployer).getAdmin();
+      const diamondOwnerAddress = await adminFacet
+        .connect(deployer)
+        .getDiamondOwner();
+      expect(deployer.address).to.eq(adminAddress);
+      expect(deployer.address).to.eq(diamondOwnerAddress);
+    });
+  });
+
   context("when caller is not the admin", async () => {
     beforeEach(async () => {
       await deployments.fixture();
-      const { adminFacet } = await getContracts();
-      deployer = await ethers.getNamedSigner("deployer");
-      const signers = await ethers.getSigners();
-      await adminFacet.connect(deployer).transferAdmin(signers[1].address);
     });
 
     it("reverts with the correct error message", async () => {
       const { adminFacet } = await getContracts();
-      const setTx = adminFacet.connect(deployer).setCursedBondPercentage(200);
+      const signers = await ethers.getSigners();
+      const setTx = adminFacet.connect(signers[1]).setCursedBondPercentage(200);
       await expect(setTx).to.be.revertedWithCustomError(
         adminFacet,
-        "CallerIsNotAdmin"
+        "CallerIsNotAdminOrOwner"
       );
     });
   });

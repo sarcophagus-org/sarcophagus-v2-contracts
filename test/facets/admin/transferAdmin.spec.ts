@@ -8,13 +8,16 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 describe("AdminFacet.transferAdmin", () => {
   let deployer: SignerWithAddress;
 
-  context("when caller is not the admin", async () => {
+  context("when caller is not the admin or owner", async () => {
     beforeEach(async () => {
       await deployments.fixture();
       const { adminFacet } = await getContracts();
       deployer = await ethers.getNamedSigner("deployer");
       const signers = await ethers.getSigners();
       await adminFacet.connect(deployer).transferAdmin(signers[1].address);
+      await adminFacet
+        .connect(deployer)
+        .transferDiamondOwner(signers[1].address);
     });
 
     it("reverts with the correct error message", async () => {
@@ -25,7 +28,7 @@ describe("AdminFacet.transferAdmin", () => {
         .transferAdmin(deployer.address);
       await expect(setTx).to.be.revertedWithCustomError(
         adminFacet,
-        "CallerIsNotAdmin"
+        "CallerIsNotAdminOrOwner"
       );
     });
   });
@@ -43,6 +46,18 @@ describe("AdminFacet.transferAdmin", () => {
 
     const adminAddress = await viewStateFacet.connect(deployer).getAdmin();
     expect(adminAddress).to.eq(signers[1].address);
+  });
+
+  it("transfers the admin successfully when caller is owner but not admin", async () => {
+    const { viewStateFacet, adminFacet } = await getContracts();
+    const signers = await ethers.getSigners();
+    await adminFacet.connect(deployer).transferAdmin(signers[1].address);
+
+    // Caller is now not the admin, but the owner
+    await adminFacet.connect(deployer).transferAdmin(signers[2].address);
+
+    const adminAddress = await viewStateFacet.connect(deployer).getAdmin();
+    expect(adminAddress).to.eq(signers[2].address);
   });
 
   it("emits transferAdmin event", async () => {
