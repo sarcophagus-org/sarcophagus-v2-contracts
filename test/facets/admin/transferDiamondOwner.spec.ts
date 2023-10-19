@@ -14,7 +14,9 @@ describe("AdminFacet.transferDiamondOwner", () => {
       const { adminFacet } = await getContracts();
       deployer = await ethers.getNamedSigner("deployer");
       const signers = await ethers.getSigners();
-      await adminFacet.connect(deployer).transferDiamondOwner(signers[1].address);
+      await adminFacet
+        .connect(deployer)
+        .transferDiamondOwner(signers[1].address);
     });
 
     it("reverts", async () => {
