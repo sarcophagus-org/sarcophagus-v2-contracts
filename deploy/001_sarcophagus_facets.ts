@@ -60,7 +60,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await diamond.deploy("Sarcophagus_V2", {
     from: deployer,
-    owner: daoAgentAddress,
+    owner: deployer,
     facets: [
       "EmbalmerFacet",
       "ArchaeologistFacet",
@@ -68,19 +68,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "ViewStateFacet",
       "AdminFacet",
     ],
-    execute: {
-      contract: "AppStorageInit",
-      methodName: "init",
-      args: [
-        sarcoTokenAddress,
-        daoAgentAddress,
-        protocolFeeBasePercentage,
-        cursedBondPercentage,
-        gracePeriod,
-        embalmerClaimWindow,
-        expirationThreshold,
-      ],
-    },
+    // execute: {
+    //   contract: "AppStorageInit",
+    //   methodName: "init",
+    //   args: [
+    //     sarcoTokenAddress,
+    //     daoAgentAddress,
+    //     protocolFeeBasePercentage,
+    //     cursedBondPercentage,
+    //     gracePeriod,
+    //     embalmerClaimWindow,
+    //     expirationThreshold,
+    //   ],
+    // },
     log: true,
   });
 };
