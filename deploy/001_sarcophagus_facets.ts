@@ -68,6 +68,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "ViewStateFacet",
       "AdminFacet",
     ],
+    // Uncomment if fresh deploy and not upgrading
     // execute: {
     //   contract: "AppStorageInit",
     //   methodName: "init",
