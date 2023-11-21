@@ -23,8 +23,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       log: true,
     });
     sarcoTokenAddress = sarcoTokenMock.address;
-  } else if (["goerli", "goerli-fork"].includes(hre.hardhatArguments.network)) {
-    sarcoTokenAddress = "0x4633b43990b41B57b3678c6F3Ac35bA75C3D8436";
   } else if (["sepolia"].includes(hre.hardhatArguments.network)) {
     sarcoTokenAddress = "0xfa1FA4d51FB2babf59e402c83327Ab5087441289";
   } else if (
@@ -35,8 +33,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     sarcoTokenAddress = "0x2BC9019e6d9e6a26D7D8d8CDDa4e5dE9B787D7bb";
   } else if (["polygon"].includes(hre.hardhatArguments.network)) {
     sarcoTokenAddress = "0x80Ae3B3847E4e8Bd27A389f7686486CAC9C3f3e8";
-  } else if (["baseGoerli"].includes(hre.hardhatArguments.network)) {
-    sarcoTokenAddress = "0x2BC9019e6d9e6a26D7D8d8CDDa4e5dE9B787D7bb";
+  } else if (["arbitrum"].includes(hre.hardhatArguments.network)) {
+    sarcoTokenAddress = "0x82155Ab6b6c1113CFb352c7573B010a88f5974bD";
   } else {
     throw Error(
       `Sarcophagus is not set up for this network: ${hre.hardhatArguments.network}`
@@ -68,20 +66,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "ViewStateFacet",
       "AdminFacet",
     ],
-    // Uncomment if fresh deploy and not upgrading
-    // execute: {
-    //   contract: "AppStorageInit",
-    //   methodName: "init",
-    //   args: [
-    //     sarcoTokenAddress,
-    //     daoAgentAddress,
-    //     protocolFeeBasePercentage,
-    //     cursedBondPercentage,
-    //     gracePeriod,
-    //     embalmerClaimWindow,
-    //     expirationThreshold,
-    //   ],
-    // },
+    // Comment out if upgrading
+    execute: {
+      contract: "AppStorageInit",
+      methodName: "init",
+      args: [
+        sarcoTokenAddress,
+        daoAgentAddress,
+        protocolFeeBasePercentage,
+        cursedBondPercentage,
+        gracePeriod,
+        embalmerClaimWindow,
+        expirationThreshold,
+      ],
+    },
     log: true,
   });
 };

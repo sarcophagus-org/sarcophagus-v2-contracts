@@ -7,7 +7,6 @@ import "../libraries/LibTypes.sol";
 
 /**
  * Global diamond storage struct to be shared across facets
- * TODO: Implement diamond storage pattern and consider splitting storage into facet specific structs
  */
 struct AppStorage {
     // SARCO token contract
