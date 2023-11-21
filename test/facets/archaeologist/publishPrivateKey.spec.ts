@@ -255,8 +255,9 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       );
     });
 
-    it("returns the locked bond for the cursed archaeologist equal to their digging fees plus curse fee on the sarcophagus", async () => {
-      const { archaeologistFacet } = await getContracts();
+    // Note: see setCursedBondPercentage.spec.ts for further coverage of publishPrivateKey
+    it("frees the correct amount of bond when there are no rewraps on the sarcophagus", async () => {
+      const { archaeologistFacet, viewStateFacet } = await getContracts();
       const {
         createdSarcophagusData: sarcophagusData,
         cursedArchaeologists: archaeologists,
@@ -301,22 +302,12 @@ describe("ArchaeologistFacet.publishPrivateKey", () => {
       expect(postPublishLockedBondSarquitos).to.equal(
         prePublishLockedBondSarquitos.sub(diggingFeesDue.add(curseFee))
       );
-    });
 
-    it("pays the archaeologist their digging fees", async () => {
-      const { archaeologistFacet } = await getContracts();
-      const {
-        createdSarcophagusData: sarcophagusData,
-        cursedArchaeologists: archaeologists,
-      } = await createSarcophagusWithRegisteredCursedArchaeologists();
-      await time.increaseTo(sarcophagusData.resurrectionTimeSeconds);
-      const tx = archaeologistFacet
-        .connect(await ethers.getSigner(archaeologists[0].archAddress))
-        .publishPrivateKey(
-          sarcophagusData.sarcoId,
-          archaeologists[0].privateKey
-        );
-      await expect(tx).to.emit(archaeologistFacet, `PublishPrivateKey`);
+      const rewards = await viewStateFacet
+        .connect(archaeologists[0].archAddress)
+        .getRewards(archaeologists[0].archAddress);
+
+      expect(rewards).to.eq(diggingFeesDue.add(curseFee));
     });
 
     it("emits PublishPrivateKey", async function () {

@@ -83,6 +83,13 @@ const config: HardhatUserConfig = {
         ? [process.env.MAINNET_DEPLOYER_PRIVATE_KEY]
         : [],
     },
+    arbitrum: {
+      chainId: 42161,
+      url: process.env.ARBITRUM_PROVIDER || "",
+      accounts: process.env.ARBITRUM_DEPLOYER_PRIVATE_KEY
+        ? [process.env.ARBITRUM_DEPLOYER_PRIVATE_KEY]
+        : [],
+    },
     polygon: {
       chainId: 137,
       url: process.env.POLYGON_PROVIDER || "",
@@ -90,32 +97,11 @@ const config: HardhatUserConfig = {
         ? [process.env.POLYGON_DEPLOYER_PRIVATE_KEY]
         : [],
     },
-    base: {
-      chainId: 8453,
-      url: process.env.BASE_PROVIDER || "",
-      accounts: process.env.BASE_DEPLOYER_PRIVATE_KEY
-        ? [process.env.BASE_DEPLOYER_PRIVATE_KEY]
-        : [],
-    },
-    baseGoerli: {
-      chainId: 84531,
-      url: process.env.BASE_GOERLI_PROVIDER || "",
-      accounts: process.env.BASE_GOERLI_DEPLOYER_PRIVATE_KEY
-        ? [process.env.BASE_GOERLI_DEPLOYER_PRIVATE_KEY]
-        : [],
-    },
     polygonMumbai: {
       chainId: 80001,
       url: process.env.POLYGON_MUMBAI_PROVIDER || "",
       accounts: process.env.POLYGON_MUMBAI_DEPLOYER_PRIVATE_KEY
         ? [process.env.POLYGON_MUMBAI_DEPLOYER_PRIVATE_KEY]
-        : [],
-    },
-    goerli: {
-      chainId: 5,
-      url: process.env.GOERLI_PROVIDER || "",
-      accounts: process.env.GOERLI_DEPLOYER_PRIVATE_KEY
-        ? [process.env.GOERLI_DEPLOYER_PRIVATE_KEY]
         : [],
     },
     sepolia: {
@@ -143,13 +129,19 @@ const config: HardhatUserConfig = {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
-      base: process.env.BASESCAN_API_KEY || "",
-      baseGoerli: process.env.BASESCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
-      goerli: process.env.ETHERSCAN_API_KEY || "",
       sepolia: process.env.ETHERSCAN_API_KEY || "",
+      arbitrumOne: process.env.ARBISCAN_API_KEY || "",
     },
     customChains: [
+      {
+        network: "arbitrum",
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.arbiscan.io/",
+          browserURL: "https://arbiscan.io/",
+        },
+      },
       {
         network: "base",
         chainId: 8453,

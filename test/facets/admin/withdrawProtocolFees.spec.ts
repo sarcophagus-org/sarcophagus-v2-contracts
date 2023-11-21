@@ -12,21 +12,17 @@ describe("AdminFacet.withdrawProtocolFees", () => {
   context("when caller is not the admin", async () => {
     beforeEach(async () => {
       await deployments.fixture();
-      const { adminFacet } = await getContracts();
-      deployer = await ethers.getNamedSigner("deployer");
-      const signers = await ethers.getSigners();
-      await adminFacet.connect(deployer).transferAdmin(signers[1].address);
     });
 
     it("reverts with the correct error message", async () => {
       const { adminFacet } = await getContracts();
-      const deployer = await ethers.getNamedSigner("deployer");
+      const signers = await ethers.getSigners();
       const setTx = adminFacet
-        .connect(deployer)
+        .connect(signers[1])
         .withdrawProtocolFees(deployer.address);
       await expect(setTx).to.be.revertedWithCustomError(
         adminFacet,
-        "CallerIsNotAdmin"
+        "CallerIsNotAdminOrOwner"
       );
     });
   });
